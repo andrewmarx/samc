@@ -1,0 +1,7 @@
+^\.git$
+^corridor example$
+^.*\.Rproj$
+^\.Rproj\.user$
+^README\.md$
+^\.gitignore$
+^codebits\.R$

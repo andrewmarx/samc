@@ -1,0 +1,17 @@
+Package: samc
+Type: Package
+Title: Spatial Absorbing Markov Chain
+Version: 0.1.0
+Author: Andrew Marx
+Maintainer: Andrew Marx <andrewjmarx@ufl.edu>
+Description: Functions for spatial absorbing Markov chain analyses.
+Depends: R (>= 3.3.0)
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports:
+    gdistance,
+    Matrix,
+    raster,
+    expm
+RoxygenNote: 6.1.1
