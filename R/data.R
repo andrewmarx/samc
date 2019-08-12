@@ -1,16 +1,19 @@
+# Copyright (c) 2019 Andrew Marx. All rights reserved.
+# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+
 #' Example resistance data
 #'
 #' A matrix containing movement resistance values
 "ex_res_data"
 
 
-#' Example mortality data
+#' Example absorption data
 #'
-#' A matrix containing mortality probability values
-"ex_mort_data"
+#' A matrix containing absorption probability values
+"ex_abs_data"
 
 
-#' Example patch data
+#' Example occupancy data
 #'
-#' A matrix containing starting location information
-"ex_patch_data"
+#' A matrix containing occupancy information
+"ex_occ_data"

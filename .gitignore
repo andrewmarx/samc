@@ -2,3 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+inst/doc
+doc
+Meta
+**/performance_cache
+*.pdf
+other
+benchmark

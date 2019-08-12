@@ -1,17 +1,57 @@
 Package: samc
 Type: Package
 Title: Spatial Absorbing Markov Chain
-Version: 0.1.0
-Author: Andrew Marx
-Maintainer: Andrew Marx <andrewjmarx@ufl.edu>
-Description: Functions for spatial absorbing Markov chain analyses.
-Depends: R (>= 3.3.0)
-License: MIT
+Version: 1.0.0
+Date: 2019-08-12
+Authors@R: c(
+    person("Andrew", "Marx", , "andrewjmarx@ufl.edu", role = c("aut", "cre", "cph"), 
+      comment = c(ORCID = "0000-0002-7456-1631")
+    ),
+    person("Robert", "Fletcher", , , role = c("ctb"),
+      comment = c(ORCID = "0000-0003-1717-5707")
+    ),
+    person("Miguel", "Acevedo", , , role = c("ctb"),
+      comment = c(ORCID = "0000-0002-8289-1497")
+    ),
+    person("Jorge", "Sefair", , , role = c("ctb"),
+      comment = c()
+    ),
+    person("Chao", "Wang", , , role = c("ctb"),
+      comment = c()
+    )
+    )
+Description: Spatial absorbing Markov chain analyses.
+License: GPL (>=3) + file LICENSE
+URL: https://github.com/andrewmarx/samc
+BugReports: https://github.com/andrewmarx/samc/issues
 Encoding: UTF-8
 LazyData: true
+Depends: R (>= 3.3.0)
 Imports:
+    methods,
     gdistance,
     Matrix,
-    raster,
-    expm
+    raster
 RoxygenNote: 6.1.1
+Suggests: knitr,
+    rmarkdown,
+    testthat,
+    ggplot2,
+    png,
+    viridis,
+    gifski,
+    gganimate
+VignetteBuilder: knitr
+Collate:
+    'RcppExports.R'
+    'samc-class.R'
+    'check.R'
+    'data.R'
+    'visitation.R'
+    'dispersal.R'
+    'distribution.R'
+    'map.R'
+    'mortality.R'
+    'samc.R'
+    'survival.R'
+LinkingTo: Rcpp (>= 1.0.1), RcppEigen (>= 0.3.3.5.0)

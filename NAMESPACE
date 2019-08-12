@@ -1,2 +1,4 @@
+useDynLib(samc)
+importClassesFrom("Matrix", "dgCMatrix")
+importClassesFrom("raster", "RasterLayer")
 exportPattern("^[[:alpha:]]+")
-importFrom(expm, "%^%")

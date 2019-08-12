@@ -1,0 +1,12 @@
+pandoc: '2.5'
+pkgdown: 1.3.0
+pkgdown_sha: ~
+articles:
+  overview: overview.html
+  performance: performance.html
+  troubleshooting: troubleshooting.html
+  tutorial-animations: tutorial-animations.html
+  tutorial-basic: tutorial-basic.html
+  tutorial-ggplot: tutorial-ggplot.html
+  tutorial-temporal: tutorial-temporal.html
+

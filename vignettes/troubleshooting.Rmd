@@ -1,0 +1,84 @@
+---
+title: "Troubleshooting"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Troubleshooting}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library("samc")
+library("raster")
+
+res_data <- samc::ex_res_data
+abs_data <- samc::ex_abs_data
+occ_data <- samc::ex_occ_data
+```
+
+## Introduction
+
+This document lists common errors users might encounter and how to address them.
+
+
+## Error in raster::compareRaster
+
+This will occur if the `check()` function detects that different sources of landscape data have mismatched properties. This could be for a variety of reasons, including differing CRS's (if using RasterLayers), differing dimensions, and differing locations of NA data. An important thing to be aware of is that the package does not support mixing landscape data in different types of objects; all landscape data used in an analysis must either be in matrices or RasterLayers. This includes occupancy data that is not part of the creation of the `samc-class` object.
+
+```{r, error = TRUE}
+# Working example
+r1 <- ex_res_data
+r2 <- ex_res_data
+check(r1, r2)
+
+
+# Remove the NA's in r2 by overwriting all the elements with the number 1.
+# check() doesn't check the actual values of the data, but it does check the
+# location of NA's
+r1 <- ex_res_data
+r2 <- ex_res_data
+r2[1] <- 1
+check(r1, r2)
+
+
+# Change the dimensions of r2 by subsetting it. check() ensures that the data
+# inputs have the same number of rows and columns
+r1 <- ex_res_data
+r2 <- ex_res_data
+r2 <- r2[1:5, 1:5]
+check(r1, r2)
+```
+
+
+## Unable to find an inherited method
+
+The SAMC package makes use of R's S4 method dispatch system to enforce how the different versions of each function can be used. Hopefully, this will ensure that users are not unintentionally misusing functions by producing an error rather than letting the code run and returning a result that may not be obviously incorrect. If this error appears, it means that the combination of arguments provided to the function are not valid. This could be for a couple different reasons. The first is that an optional parameter is skipped without specifying argument names for the subsequent arguments. The second is that a user is passing the wrong type of data to an argument (e.g., passing a `numeric` when the function expects a `RasterLayer` or a `matrix`).
+
+```{r, error = TRUE}
+# Example: Skipping optional arguments. In this case, the `fidelity` argument is
+# optional and the `latlon` argument doesn't apply because our input data are
+# matrices, so we skip them. The tr_fun argument, however, is always required, 
+# so we pass `function(x) 1/mean(x)` to it. But because we don't specify which
+# argument it is, R is trying to find a version of the function that expects it
+# as the third argument, but this version does not exist.
+samc_obj <- samc(res_data, abs_data, function(x) 1/mean(x))
+
+# Solution
+samc_obj <- samc(res_data, abs_data, tr_fun = function(x) 1/mean(x))
+
+
+# Example: Incorrect input types. In this case, we are attempting to pass a
+# single numeric value as absorption data. However, the absorption data must 
+# always be in a matrix or RasterLayer object
+samc_obj <- samc(res_data, 0.01, tr_fun = function(x) 1/mean(x))
+
+# Solution
+samc_obj <- samc(res_data, abs_data, tr_fun = function(x) 1/mean(x))
+```

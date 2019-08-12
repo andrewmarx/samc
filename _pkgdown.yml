@@ -1,0 +1,51 @@
+navbar:
+  title: "samc"
+  type: inverse
+  left:
+    - text: "Articles"
+      menu:
+      - text: "Overview"
+        href: articles/overview.html
+      - text: "Performance"
+        href: articles/performance.html
+      - text: "Troubleshooting"
+        href: articles/troubleshooting.html
+    - text: "Tutorials"
+      menu:
+      - text: "Basic Tutorial"
+        href: articles/tutorial-basic.html
+      - text: "ggplot Visualization"
+        href: articles/tutorial-ggplot.html
+      - text: "Temporal Analysis"
+        href: articles/tutorial-temporal.html
+      - text: "Animations"
+        href: articles/tutorial-animations.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: News
+      href: news/index.html
+  right:
+    - icon: fa-github
+      href: https://github.com/andrewmarx/samc
+
+reference:
+  - title: "Classes"
+    contents:
+      - samc-class
+  - title: "Utility Functions"
+    contents:
+      - check
+      - map
+      - samc
+  - title: "Analytical Functions"
+    contents:
+      - dispersal
+      - distribution
+      - mortality
+      - survival
+      - visitation
+  - title: "Built-in Data"
+    contents:
+      - ex_abs_data
+      - ex_occ_data
+      - ex_res_data

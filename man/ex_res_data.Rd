@@ -4,7 +4,7 @@
 \name{ex_res_data}
 \alias{ex_res_data}
 \title{Example resistance data}
-\format{An object of class \code{matrix} with 120 rows and 240 columns.}
+\format{An object of class \code{matrix} with 34 rows and 202 columns.}
 \usage{
 ex_res_data
 }
