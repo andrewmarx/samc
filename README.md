@@ -18,13 +18,13 @@ install.packages("samc")
 
 ### Manual Install
 
-A Windows-only build of the package is currently available on the [Release Page](https://github.com/andrewmarx/samc/releases). The zip file can be downloaded and manually installed using:
+A Windows-only build of the package is currently available on the [Release Page](https://github.com/andrewmarx/samc/releases). It can be manually installed using:
 
 ```R
-install.packages("path_to_package/samc-1.0.0-windows-amd64.zip", repos = NULL, type = "win.binary")
+install.packages("https://github.com/andrewmarx/samc/releases/download/1.0.0/samc_1.0.0.zip", repos = NULL, type = "win.binary")
 ```
 
-Note that you must replace the path in the command. Additionally, the package was built using the most recent version of R and significantly older versions of R may not be able to install it.
+Note that the package was built using the most recent version of R and significantly older versions of R may not be able to install it.
 
 ### Installing From Github
 
