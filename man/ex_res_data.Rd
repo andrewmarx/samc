@@ -4,11 +4,14 @@
 \name{ex_res_data}
 \alias{ex_res_data}
 \title{Example resistance data}
-\format{An object of class \code{matrix} with 34 rows and 202 columns.}
+\format{A matrix with 34 rows and 202 columns.}
+\source{
+Fletcher et al (2019) <doi:10.1111/ele.13333>
+}
 \usage{
 ex_res_data
 }
 \description{
-A matrix containing movement resistance values
+A fabricated dataset containing landscape resistance values.
 }
 \keyword{datasets}

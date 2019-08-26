@@ -1,8 +1,8 @@
 Package: samc
 Type: Package
-Title: Spatial Absorbing Markov Chain
-Version: 1.0.0
-Date: 2019-08-12
+Title: Spatial Absorbing Markov Chains
+Version: 1.0.3
+Date: 2019-08-20
 Authors@R: c(
     person("Andrew", "Marx", , "andrewjmarx@ufl.edu", role = c("aut", "cre", "cph"), 
       comment = c(ORCID = "0000-0002-7456-1631")
@@ -20,9 +20,14 @@ Authors@R: c(
       comment = c()
     )
     )
-Description: Spatial absorbing Markov chain analyses.
-License: GPL (>=3) + file LICENSE
-URL: https://github.com/andrewmarx/samc
+Description: An implementation of the framework described in "Toward a unified
+    framework for connectivity that disentangles movement and mortality in space
+    and time" by Fletcher et al. (2019) <doi:10.1111/ele.13333>. 
+    Incorporates both resistance and absorption with spatial absorbing Markov 
+    chains (SAMC) to provide several short-term and long-term predictions for 
+    metrics related to connectivity in landscapes.
+License: GPL (>=3)
+URL: https://andrewmarx.github.io/samc
 BugReports: https://github.com/andrewmarx/samc/issues
 Encoding: UTF-8
 LazyData: true

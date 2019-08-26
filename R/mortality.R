@@ -66,7 +66,7 @@ NULL
 #' The result is a vector where each element corresponds to a cell in the
 #' landscape, and can be mapped back to the landscape using the
 #' \code{\link{map}} function. Element j is the probability of experiencing
-#' mortality at location j if starting at a givin origin.
+#' mortality at location j if starting at a given origin.
 #'
 #'   \item \strong{mortality(samc, dest)}
 #'
@@ -100,6 +100,8 @@ NULL
 #' @template param-time
 #'
 #' @return A matrix, vector, or numeric
+#'
+#' @example inst/examples/example.R
 #'
 #' @export
 

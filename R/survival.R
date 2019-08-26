@@ -35,6 +35,8 @@ NULL
 #'
 #' @return A \code{vector} or a \code{numeric}
 #'
+#' @example inst/examples/example.R
+#'
 #' @export
 
 setGeneric(

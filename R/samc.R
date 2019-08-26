@@ -46,11 +46,13 @@ NULL
 #' @param absorption A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param fidelity A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param latlon Logical (\code{TRUE} or \code{FALSE}) indicating whether the rasters use latitude/longitude
-#' @param tr_fun A function to calculate the transtition values in the \code{\link[gdistance]{transition}} function
+#' @param tr_fun A function to calculate the transition values in the \code{\link[gdistance]{transition}} function
 #' @param override Optional flag to prevent accidentally running memory intensive functions. Defaults to \code{FALSE}
 #' @param ... Placeholder
 #'
 #' @return A spatial absorbing Markov chain object
+#'
+#' @example inst/examples/example.R
 #'
 #' @export
 

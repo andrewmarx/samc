@@ -64,7 +64,7 @@ plot(raster(occ_data, xmn = 1, xmx = ncol(occ_data), ymn = 1, ymx = nrow(occ_dat
 ## Create the `samc` Object
 
 ```{r}
-# Create a samc object using the resistance and absorption data. We use the 
+# Create a `samc-class` object using the resistance and absorption data. We use the
 # recipricol of the arithmetic mean for calculating the transition matrix. Note,
 # the input data here are matrices, not RasterLayers. If using RasterLayers, the
 # `latlon` parameter must be set.

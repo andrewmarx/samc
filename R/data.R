@@ -3,17 +3,29 @@
 
 #' Example resistance data
 #'
-#' A matrix containing movement resistance values
+#' A fabricated dataset containing landscape resistance values.
+#'
+#' @format A matrix with 34 rows and 202 columns.
+#'
+#' @source Fletcher et al (2019) <doi:10.1111/ele.13333>
 "ex_res_data"
 
 
 #' Example absorption data
 #'
-#' A matrix containing absorption probability values
+#' A fabricated dataset containing landscape absorption probability values.
+#'
+#' @format A matrix with 34 rows and 202 columns.
+#'
+#' @source Fletcher et al (2019) <doi:10.1111/ele.13333>
 "ex_abs_data"
 
 
 #' Example occupancy data
 #'
-#' A matrix containing occupancy information
+#' A fabricated dataset containing landscape occupancy values.
+#'
+#' @format A matrix with 34 rows and 202 columns.
+#'
+#' @source Fletcher et al (2019) <doi:10.1111/ele.13333>
 "ex_occ_data"

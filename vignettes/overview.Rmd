@@ -33,7 +33,7 @@ In order to use this package, two different sets of landscape data are required:
 If using `RasterLayer` objects, then additional conditions must be met:
 
 * Both sets of data must have the same coordinate extents.
-* Both sets of data must use the same coordinate reference system (crs). 
+* Both sets of data must use the same coordinate reference system (CRS).
 
 
 ### Optional Data

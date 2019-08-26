@@ -30,7 +30,7 @@ This document lists common errors users might encounter and how to address them.
 
 ## Error in raster::compareRaster
 
-This will occur if the `check()` function detects that different sources of landscape data have mismatched properties. This could be for a variety of reasons, including differing CRS's (if using RasterLayers), differing dimensions, and differing locations of NA data. An important thing to be aware of is that the package does not support mixing landscape data in different types of objects; all landscape data used in an analysis must either be in matrices or RasterLayers. This includes occupancy data that is not part of the creation of the `samc-class` object.
+This will occur if the `check()` function detects that different sources of landscape data have mismatched properties. This could be for a variety of reasons, including differing coordinate reference systems (CRS) if using RasterLayers, differing dimensions, and differing locations of NA data. An important thing to be aware of is that the package does not support mixing landscape data in different types of objects; all landscape data used in an analysis must either be in matrices or RasterLayers. This includes occupancy data that is not part of the creation of the `samc-class` object.
 
 ```{r, error = TRUE}
 # Working example

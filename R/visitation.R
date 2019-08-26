@@ -51,6 +51,8 @@ NULL
 #'
 #' @return A matrix, a vector, or a numeric
 #'
+#' @example inst/examples/example.R
+#'
 #' @export
 
 setGeneric(

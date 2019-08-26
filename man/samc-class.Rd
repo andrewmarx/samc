@@ -8,7 +8,7 @@
 S4 class to manage SAMC data.
 }
 \details{
-The samc class is used to help ensure that the package is used correcly and
+The samc class is used to help ensure that the package is used correctly and
 to minimize the possibility for users to accidentally produce nonsensical
 results that may not be obviously incorrect. This class contains the p matrix
 necessary for all the calculations in the package, and enforces its type so

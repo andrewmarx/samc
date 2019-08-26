@@ -57,6 +57,8 @@ NULL
 #'
 #' @return A \code{vector}
 #'
+#' @example inst/examples/example.R
+#'
 #' @export
 
 setGeneric(

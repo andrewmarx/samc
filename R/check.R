@@ -30,6 +30,8 @@ NULL
 #
 #' @return See \emph{Details} section.
 #'
+#' @example inst/examples/example.R
+#'
 #' @export
 
 setGeneric(

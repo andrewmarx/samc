@@ -23,9 +23,11 @@ NULL
 #' in it matches the number of non-NA cells in the landscape data that was used
 #' to create the samc object.
 #'
-#' @param samc Spatial absorbing markov chain object. This should be output from the samc() function.
+#' @param samc Spatial absorbing Markov chain object. This should be output from the samc() function.
 #' @param vec Vector data to fill into the map.
 #' @return A RasterLayer object
+#'
+#' @example inst/examples/example.R
 #'
 #' @export
 

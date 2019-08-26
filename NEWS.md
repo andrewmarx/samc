@@ -1,3 +1,8 @@
+# samc 1.0.3
+
+- First CRAN submission
+
+
 # samc 1.0.0
 
 - Complete package rewrite (code dependent on v0.1.0 will not work)

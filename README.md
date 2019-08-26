@@ -10,21 +10,11 @@ This is an R package that implements functions for working with spatial absorbin
 
 ### Installing From CRAN
 
-It is recommended that users install the samc package via CRAN, where it will be regularly kept up to date (Note: CRAN is not accepting package submissions currently. Version 1.0.0 of the package will submitted as soon as the submission process is reopened on August 18th).
+It is recommended that users install the samc package via CRAN, where it will be regularly kept up to date.
 
 ```R
 install.packages("samc")
 ```
-
-### Manual Install
-
-A Windows-only build of the package is currently available on the [Release Page](https://github.com/andrewmarx/samc/releases). It can be manually installed using:
-
-```R
-install.packages("https://github.com/andrewmarx/samc/releases/download/1.0.0/samc_1.0.0.zip", repos = NULL, type = "win.binary")
-```
-
-Note that the package was built using the most recent version of R and significantly older versions of R may not be able to install it.
 
 ### Installing From Github
 
@@ -44,14 +34,6 @@ If the devtools are installed and setup correctly, then the latest version of th
 
 ```R
 devtools::install_github("andrewmarx/samc")
-```
-
-#### Vignettes
-
-To build and install the vignettes with the package, the `build_vignettes` parameter can be set to `TRUE`. Without the vignettes, attempts to open the vignettes using the `vignette()` function will fail.
-
-```R
-devtools::install_github("andrewmarx/samc", build_vignettes = TRUE)
 ```
 
 

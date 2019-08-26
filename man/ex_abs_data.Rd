@@ -4,11 +4,14 @@
 \name{ex_abs_data}
 \alias{ex_abs_data}
 \title{Example absorption data}
-\format{An object of class \code{matrix} with 34 rows and 202 columns.}
+\format{A matrix with 34 rows and 202 columns.}
+\source{
+Fletcher et al (2019) <doi:10.1111/ele.13333>
+}
 \usage{
 ex_abs_data
 }
 \description{
-A matrix containing absorption probability values
+A fabricated dataset containing landscape absorption probability values.
 }
 \keyword{datasets}

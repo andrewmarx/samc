@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
       </span>
     </div>
 
@@ -104,9 +104,9 @@
       <h1>Troubleshooting</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2019-08-12</h4>
+            <h4 class="date">2019-08-21</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/troubleshooting.Rmd"><code>vignettes/troubleshooting.Rmd</code></a></small>
+      
       <div class="hidden name"><code>troubleshooting.Rmd</code></div>
 
     </div>
@@ -121,7 +121,7 @@
 <div id="error-in-rastercompareraster" class="section level2">
 <h2 class="hasAnchor">
 <a href="#error-in-rastercompareraster" class="anchor"></a>Error in raster::compareRaster</h2>
-<p>This will occur if the <code><a href="../reference/check.html">check()</a></code> function detects that different sources of landscape data have mismatched properties. This could be for a variety of reasons, including differing CRS’s (if using RasterLayers), differing dimensions, and differing locations of NA data. An important thing to be aware of is that the package does not support mixing landscape data in different types of objects; all landscape data used in an analysis must either be in matrices or RasterLayers. This includes occupancy data that is not part of the creation of the <code>samc-class</code> object.</p>
+<p>This will occur if the <code><a href="../reference/check.html">check()</a></code> function detects that different sources of landscape data have mismatched properties. This could be for a variety of reasons, including differing coordinate reference systems (CRS) if using RasterLayers, differing dimensions, and differing locations of NA data. An important thing to be aware of is that the package does not support mixing landscape data in different types of objects; all landscape data used in an analysis must either be in matrices or RasterLayers. This includes occupancy data that is not part of the creation of the <code>samc-class</code> object.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># Working example</span></a>
 <a class="sourceLine" id="cb1-2" title="2">r1 &lt;-<span class="st"> </span>ex_res_data</a>
 <a class="sourceLine" id="cb1-3" title="3">r2 &lt;-<span class="st"> </span>ex_res_data</a>
