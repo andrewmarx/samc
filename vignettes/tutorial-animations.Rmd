@@ -14,6 +14,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+required <- c("ggplot2", "gifski", "png", "viridis", "gganimate")
+if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
 ```
 
 ## Introduction

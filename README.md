@@ -39,7 +39,7 @@ devtools::install_github("andrewmarx/samc")
 
 ## Citation
 
-A paper specific to this package is in the process of being submitted and reviewed. Once it is published, citation information for the package will be updated.
+A paper specific to this package is currently in press at Ecography. Citation info will be added here once available.
 
 
 ## Support

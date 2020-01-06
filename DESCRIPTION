@@ -1,8 +1,8 @@
 Package: samc
 Type: Package
 Title: Spatial Absorbing Markov Chains
-Version: 1.0.3
-Date: 2019-08-20
+Version: 1.0.4
+Date: 2020-01-06
 Authors@R: c(
     person("Andrew", "Marx", , "andrewjmarx@ufl.edu", role = c("aut", "cre", "cph"), 
       comment = c(ORCID = "0000-0002-7456-1631")
@@ -14,10 +14,10 @@ Authors@R: c(
       comment = c(ORCID = "0000-0002-8289-1497")
     ),
     person("Jorge", "Sefair", , , role = c("ctb"),
-      comment = c()
+      comment = c(ORCID = "0000-0002-5887-8938")
     ),
     person("Chao", "Wang", , , role = c("ctb"),
-      comment = c()
+      comment = c(ORCID = "0000-0003-2706-5122")
     )
     )
 Description: An implementation of the framework described in "Toward a unified

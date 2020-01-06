@@ -1,3 +1,9 @@
+# samc 1.0.4
+
+- Add conditional usage of suggested packages in vignettes
+- Minor updates for package info
+
+
 # samc 1.0.3
 
 - First CRAN submission
