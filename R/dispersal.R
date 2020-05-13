@@ -25,7 +25,8 @@ NULL
 #' \itemize{
 #'   \item \strong{dispersal(samc, occ, dest, time)}
 #'
-#' The result is a numeric that is the unconditional probability of visiting a
+#' The result is a numeric (single time step) or a list of numerics (multiple
+#' time steps) that is the unconditional probability of visiting a
 #' given destination within \emph{t} or fewer time steps.
 #' }
 #'
@@ -137,7 +138,11 @@ setMethod(
     pv <- pv[is.finite(pv)]
     pv <- pv[-dest]
 
-    return(as.numeric(pv %*% d))
+    if (is.list(d)) {
+      return(lapply(d, FUN = function(x){as.numeric(pv %*% x)}))
+    } else {
+      return(as.numeric(pv %*% d))
+    }
   })
 
 #' @rdname dispersal

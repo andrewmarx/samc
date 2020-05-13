@@ -91,6 +91,30 @@ test_that("Testing dispersal(samc, occ, dest, time)", {
   expect_equal(r1, as.numeric(r2))
 })
 
+test_that("Testing dispersal(samc, occ, dest, time_vec)", {
+
+  r1 <- dispersal(samc_obj, occ = occ, dest = col, time = time_vec)
+
+  qj <- Q[-col, col]
+
+  for (i in 1:length(time_vec)) {
+    Qj <- Q[-col,-col]
+
+    Qji <- diag(nrow(Qj))
+    r2 <- Qji
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qji <- Qji %*% Qj
+      r2 <- r2 + Qji
+    }
+
+    r2 <- pv[-col] %*% (r2 %*% qj)
+
+    # Verify
+    expect_equal(r1[[i]], as.numeric(r2))
+  }
+})
+
 test_that("Testing dispersal(samc)", {
 
   r1 <- dispersal(samc_obj)
