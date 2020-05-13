@@ -7,7 +7,7 @@
 using namespace Rcpp;
 
 // sum_qn_q
-Rcpp::NumericVector sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::SparseMatrix<double> >& M2, const Eigen::VectorXd& q, const int t);
+Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::SparseMatrix<double> >& M2, const Eigen::VectorXd& q, Rcpp::NumericVector t);
 RcppExport SEXP _samc_sum_qn_q(SEXP MSEXP, SEXP M2SEXP, SEXP qSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -15,7 +15,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M2(M2SEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type q(qSEXP);
-    Rcpp::traits::input_parameter< const int >::type t(tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type t(tSEXP);
     rcpp_result_gen = Rcpp::wrap(sum_qn_q(M, M2, q, t));
     return rcpp_result_gen;
 END_RCPP

@@ -46,6 +46,29 @@ test_that("Testing dispersal(samc, dest, time)", {
   expect_equal(as.vector(r1), as.vector(r2))
 })
 
+test_that("Testing dispersal(samc, dest, time_vec)", {
+
+  r1 <- dispersal(samc_obj, dest = col, time = time_vec)
+
+  qj <- Q[-col, col]
+
+  Qj <- Q[-col,-col]
+  for (i in 1:length(time_vec)) {
+    Qji <- diag(nrow(Qj))
+    r2 <- Qji
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qji <- Qji %*% Qj
+      r2 <- r2 + Qji
+    }
+
+    r2 <- r2 %*% qj
+
+    # Verify
+    expect_equal((r1[[i]]), as.vector(r2))
+  }
+})
+
 test_that("Testing dispersal(samc, occ, dest, time)", {
 
   r1 <- dispersal(samc_obj, occ = occ, dest = col, time = time)
