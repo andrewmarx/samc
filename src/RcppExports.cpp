@@ -46,14 +46,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // qpow_col
-Rcpp::NumericVector qpow_col(Eigen::Map<Eigen::SparseMatrix< double> >& M, const int col, const int steps);
+Rcpp::List qpow_col(Eigen::Map<Eigen::SparseMatrix< double> >& M, const int col, Rcpp::NumericVector steps);
 RcppExport SEXP _samc_qpow_col(SEXP MSEXP, SEXP colSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix< double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const int >::type col(colSEXP);
-    Rcpp::traits::input_parameter< const int >::type steps(stepsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
     rcpp_result_gen = Rcpp::wrap(qpow_col(M, col, steps));
     return rcpp_result_gen;
 END_RCPP

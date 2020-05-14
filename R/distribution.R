@@ -123,14 +123,21 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 
-    mov <- .qpow_col(q, dest, time)
+    time <- c(1, time)
 
-    return(as.vector(mov))
+    mov <- .qpow_col(q, dest, time)
+    mov <- lapply(mov, as.vector)
+
+    if (length(mov) == 1) {
+      return((mov[[1]]))
+    } else {
+      return(mov)
+    }
   })
 
 #' @rdname distribution
