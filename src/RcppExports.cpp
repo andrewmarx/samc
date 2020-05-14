@@ -59,14 +59,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // psiq
-Rcpp::NumericVector psiq(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& psi, const int steps);
+Rcpp::List psiq(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& psi, Rcpp::NumericVector steps);
 RcppExport SEXP _samc_psiq(SEXP MSEXP, SEXP psiSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type psi(psiSEXP);
-    Rcpp::traits::input_parameter< const int >::type steps(stepsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
     rcpp_result_gen = Rcpp::wrap(psiq(M, psi, steps));
     return rcpp_result_gen;
 END_RCPP

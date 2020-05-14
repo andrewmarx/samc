@@ -48,14 +48,22 @@ Rcpp::List qpow_col(Eigen::Map<Eigen::SparseMatrix< double> > &M, const int col,
 }
 
 // [[Rcpp::export(".psiq")]]
-Rcpp::NumericVector psiq(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &psi, const int steps)
+Rcpp::List psiq(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &psi, Rcpp::NumericVector steps)
 {
-  Eigen::RowVectorXd res = psi;
+  int n = steps.size();
 
-  for(int i = 0; i < steps; i++) {
-    if(i % 1000 == 0) Rcpp::checkUserInterrupt();
-    res = res * M;
+  Rcpp::List res = Rcpp::List::create();
+
+  Eigen::RowVectorXd time_res = psi;
+
+  for(int i = 1; i < n; i++) {
+    for (int j = steps[i - 1]; j < steps[i]; j++) {
+      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+      time_res = time_res * M;
+    }
+
+    res.push_back(time_res, std::to_string((int)steps[i]));
   }
 
-  return Rcpp::wrap(res);
+  return res;
 }

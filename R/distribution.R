@@ -42,7 +42,8 @@ NULL
 #' \itemize{
 #'   \item \strong{distribution(samc, occ, time)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
+#' The result is a vector (single time step) or a list of vectors (multiple
+#' time steps) where each element corresponds to a cell in the
 #' landscape, and can be mapped back to the landscape using the
 #' \code{\link{map}} function. Element \emph{i} is the unconditional
 #' probability of finding an individual (or expected number of individuals) in
@@ -171,17 +172,25 @@ setMethod(
 
     check(samc, occ)
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 
     pv <- as.vector(occ)
     pv <- pv[is.finite(pv)]
 
+    time <- c(0, time)
+
     res <- .psiq(q, pv, time)
 
-    return(as.vector(res))
+    res <- lapply(res, as.vector)
+
+    if (length(res) == 1) {
+      return(res[[1]])
+    } else {
+      return(res)
+    }
   })
 
 #' @rdname distribution
