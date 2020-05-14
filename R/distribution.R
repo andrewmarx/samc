@@ -33,7 +33,8 @@ NULL
 #'
 #'   \item \strong{distribution(samc, origin, dest, time)}
 #'
-#' The result is a numeric value that is the probability of being at a given
+#' The result is a numeric value (single time step) or a list of numeric values
+#' (multiple time steps) that is the probability of being at a given
 #' destination after t time steps when beginning at a given origin.
 #' }
 #'
@@ -148,7 +149,13 @@ setMethod(
 
     mov <- distribution(samc, origin = origin, time = time)
 
-    return(mov[dest])
+    if (is.list(mov)){
+      return(lapply(mov, "[", dest))
+    } else if (is.vector(mov)) {
+      return(mov[dest])
+    } else {
+      stop("Fatal error: This should not have been possible. Please submit a report with a fully reproducible and simplified example.")
+    }
   })
 
 
