@@ -5,16 +5,25 @@
 #include <RcppEigen.h>
 
 // [[Rcpp::export(".qpow_row")]]
-Rcpp::NumericVector qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int row, const int steps)
+Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int row, Rcpp::NumericVector steps)
 {
-  Eigen::RowVectorXd res = M.row(row-1);
+  int n = steps.size();
 
-  for(int i = 1; i < steps; i++) {
-    if(i % 1000 == 0) Rcpp::checkUserInterrupt();
-    res = res * M;
+  Rcpp::List res = Rcpp::List::create();
+
+  Eigen::RowVectorXd time_res = M.row(row-1);
+
+  for(int i = 1; i < n; i++) {
+
+    for (int j = steps[i - 1]; j < steps[i]; j++) {
+      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+      time_res = time_res * M;
+    }
+
+    res.push_back(time_res, std::to_string((int)steps[i]));
   }
 
-  return Rcpp::wrap(res);
+  return res;
 }
 
 // [[Rcpp::export(".qpow_col")]]

@@ -22,8 +22,9 @@ NULL
 #'
 #'   \item \strong{distribution(samc, origin, time)}
 #'
-#' The result is a vector where element j is the probability of being
-#' at location j after t time steps if starting at a given origin.
+#' The result is a vector (single time step) or a list of vectors (multiple time steps)
+#' where element j is the probability of being at location j after t time steps if
+#' starting at a given origin.
 #'
 #'   \item \strong{distribution(samc, dest, time)}
 #'
@@ -100,14 +101,20 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 
-    mov <- .qpow_row(q, origin, time)
+    time <- c(1, time)
 
-    return(as.vector(mov))
+    mov <- .qpow_row(q, origin, time)
+    mov <- lapply(mov, as.vector)
+    if (length(mov) == 1) {
+      return((mov[[1]]))
+    } else {
+      return(mov)
+    }
   })
 
 #' @rdname distribution

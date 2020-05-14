@@ -33,14 +33,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // qpow_row
-Rcpp::NumericVector qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, const int steps);
+Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, Rcpp::NumericVector steps);
 RcppExport SEXP _samc_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const int >::type row(rowSEXP);
-    Rcpp::traits::input_parameter< const int >::type steps(stepsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
     rcpp_result_gen = Rcpp::wrap(qpow_row(M, row, steps));
     return rcpp_result_gen;
 END_RCPP
