@@ -38,7 +38,8 @@ NULL
 #'
 #'   \item \strong{mortality(samc, origin, dest, time)}
 #'
-#' The result is a numeric value that is the probability of experiencing
+#' The result is a numeric value (single time step) or a list of numeric
+#' values (multiple time steps) that is the probability of experiencing
 #' mortality at a given destination within t or fewer steps if starting at a
 #' given origin.
 #' }
@@ -208,7 +209,13 @@ setMethod(
 
     mort <- mortality(samc, origin = origin, time = time)
 
-    return(mort[dest])
+    if (is.list(mort)){
+      return(lapply(mort, "[", dest))
+    } else if (is.vector(mort)) {
+      return(mort[dest])
+    } else {
+      stop("Fatal error: This should not have been possible. Please submit a report with a fully reproducible and simplified example.")
+    }
   })
 
 #' @rdname mortality
