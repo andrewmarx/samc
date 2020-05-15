@@ -124,8 +124,8 @@ setMethod(
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (time %% 1 != 0 || time < 1 || length(time) > 1)
+      stop("The time argument must be a single positive integer")
 
     # TODO: remove as.matrix call, which is needed to convert from a sparse to
     # dense matrix for the %^% operator, which means removing expm as a dependency
@@ -154,8 +154,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
 
-    if (any(time %% 1 != 0) || any(time < 1))
-      stop("The time argument must be a positive integer or a vector of positive integers")
+    validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
 
@@ -180,8 +179,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
 
-    if (any(time %% 1 != 0) || any(time < 1))
-      stop("The time argument must be a positive integer or a vector of positive integers")
+    validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
 
@@ -225,8 +223,7 @@ setMethod(
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
 
-    if (any(time %% 1 != 0) || any(time < 1))
-      stop("The time argument must be a positive integer or a vector of positive integers")
+    validate_time_steps(time)
 
     check(samc, occ)
 
