@@ -183,6 +183,27 @@ test_that("Testing mortality(samc, occ, time)", {
   expect_equal(as.vector(r1), as.vector(r2))
 })
 
+test_that("Testing mortality(samc, occ, time_vec)", {
+
+  r1 <- mortality(samc_obj, occ = occ, time = time_vec)
+
+  for (i in 1:length(time_vec)) {
+    r2 <- I
+
+    Qt <- diag(nrow(Q))
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qt <- Qt %*% Q
+      r2 <- r2 + Qt
+    }
+
+    r2 <- pv %*% r2 %*% R
+
+    # Verify
+    expect_equal(r1[[i]], as.vector(r2))
+  }
+})
+
 test_that("Testing mortality(samc)", {
 
   r1 <- mortality(samc_obj)

@@ -48,7 +48,8 @@ NULL
 #' \itemize{
 #'   \item \strong{mortality(samc, occ, time)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
+#' The result is a vector (single time step) or a list of vectors (multiple
+#' time steps) where each element corresponds to a cell in the
 #' landscape, and can be mapped back to the landscape using the
 #' \code{\link{map}} function. Element j is the unconditional probability of
 #' experiencing mortality at location j within t or fewer time steps.
@@ -224,8 +225,8 @@ setMethod(
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     check(samc, occ)
 
@@ -235,12 +236,16 @@ setMethod(
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     Rdiag <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
 
+    time <- c(1, time)
     mort <- .sum_psiqpow(q, pv, time)
 
-    mort <- mort * Rdiag
+    mort <- lapply(mort, function(x){as.vector(x * Rdiag)})
 
-    return(as.vector(mort))
-
+    if (length(mort) == 1) {
+      return(mort[[1]])
+    } else {
+      return(mort)
+    }
   })
 
 #' @rdname mortality

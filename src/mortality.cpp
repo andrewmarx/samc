@@ -54,19 +54,26 @@ Rcpp::List sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::
 }
 
 // [[Rcpp::export(".sum_psiqpow")]]
-Rcpp::NumericVector sum_psiqpow(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &psi, const int steps)
+Rcpp::List sum_psiqpow(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &psi, Rcpp::NumericVector steps)
 {
+  int n = steps.size();
+
+  Rcpp::List res = Rcpp::List::create();
+
   Eigen::RowVectorXd psiq = psi;
-  Eigen::RowVectorXd res = psi;
+  Eigen::RowVectorXd time_res = psi;
 
-  for(int i = 1; i < steps; i++) {
-    if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+  for(int i = 1; i < n; i++) {
+    for (int j = steps[i - 1]; j < steps[i]; j++) {
+      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+      psiq = psiq * M;
+      time_res = time_res + psiq;
+    }
 
-    psiq = psiq * M;
-    res = res + psiq;
+    res.push_back(time_res, std::to_string((int)steps[i]));
   }
 
-  return Rcpp::wrap(res);
+  return res;
 }
 
 // [[Rcpp::export(".psif")]]
