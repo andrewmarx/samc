@@ -63,6 +63,27 @@ test_that("Testing mortality(samc, origin, time)", {
   expect_equal(as.vector(r1), as.vector(r2[row, ]))
 })
 
+test_that("Testing mortality(samc, origin, time_vec)", {
+
+  r1 <- mortality(samc_obj, origin = row, time = time_vec)
+
+  for (i in 1:length(time_vec)) {
+    r2 <- diag(nrow(Q))
+
+    Qt <- diag(nrow(Q))
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qt <- Qt %*% Q
+      r2 <- r2 + Qt
+    }
+
+    r2 <- r2 %*% R
+
+    # Verify
+    expect_equal(r1[[i]], as.vector(r2[row, ]))
+  }
+})
+
 test_that("Testing mortality(samc, dest, time)", {
 
   r1 <- mortality(samc_obj, dest = col, time = time)
@@ -80,6 +101,27 @@ test_that("Testing mortality(samc, dest, time)", {
 
   # Verify
   expect_equal(as.vector(r1), as.vector(r2[, col]))
+})
+
+test_that("Testing mortality(samc, dest, time_vec)", {
+
+  r1 <- mortality(samc_obj, dest = col, time = time_vec)
+
+  for (i in 1:length(time_vec)) {
+    r2 <- diag(nrow(Q))
+
+    Qt <- diag(nrow(Q))
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qt <- Qt %*% Q
+      r2 <- r2 + Qt
+    }
+
+    r2 <- r2 %*% R
+
+    # Verify
+    expect_equal(r1[[i]], as.vector(r2[, col]))
+  }
 })
 
 test_that("Testing mortality(samc, dest, time)", {
@@ -101,6 +143,27 @@ test_that("Testing mortality(samc, dest, time)", {
   expect_equal(as.vector(r1), as.vector(r2[row, col]))
 })
 
+test_that("Testing mortality(samc, origin, dest, time_vec)", {
+
+  r1 <- mortality(samc_obj, origin = row, dest = col, time = time_vec)
+
+  for (i in 1:length(time_vec)) {
+    r2 <- diag(nrow(Q))
+
+    Qt <- diag(nrow(Q))
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qt <- Qt %*% Q
+      r2 <- r2 + Qt
+    }
+
+    r2 <- r2 %*% R
+
+    # Verify
+    expect_equal(r1[[i]], as.vector(r2[row, col]))
+  }
+})
+
 test_that("Testing mortality(samc, occ, time)", {
 
   r1 <- mortality(samc_obj, occ = occ, time = time)
@@ -118,6 +181,27 @@ test_that("Testing mortality(samc, occ, time)", {
 
   # Verify
   expect_equal(as.vector(r1), as.vector(r2))
+})
+
+test_that("Testing mortality(samc, occ, time_vec)", {
+
+  r1 <- mortality(samc_obj, occ = occ, time = time_vec)
+
+  for (i in 1:length(time_vec)) {
+    r2 <- I
+
+    Qt <- diag(nrow(Q))
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qt <- Qt %*% Q
+      r2 <- r2 + Qt
+    }
+
+    r2 <- pv %*% r2 %*% R
+
+    # Verify
+    expect_equal(r1[[i]], as.vector(r2))
+  }
 })
 
 test_that("Testing mortality(samc)", {

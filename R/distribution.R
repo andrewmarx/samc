@@ -22,8 +22,9 @@ NULL
 #'
 #'   \item \strong{distribution(samc, origin, time)}
 #'
-#' The result is a vector where element j is the probability of being
-#' at location j after t time steps if starting at a given origin.
+#' The result is a vector (single time step) or a list of vectors (multiple time steps)
+#' where element j is the probability of being at location j after t time steps if
+#' starting at a given origin.
 #'
 #'   \item \strong{distribution(samc, dest, time)}
 #'
@@ -32,7 +33,8 @@ NULL
 #'
 #'   \item \strong{distribution(samc, origin, dest, time)}
 #'
-#' The result is a numeric value that is the probability of being at a given
+#' The result is a numeric value (single time step) or a list of numeric values
+#' (multiple time steps) that is the probability of being at a given
 #' destination after t time steps when beginning at a given origin.
 #' }
 #'
@@ -40,7 +42,8 @@ NULL
 #' \itemize{
 #'   \item \strong{distribution(samc, occ, time)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
+#' The result is a vector (single time step) or a list of vectors (multiple
+#' time steps) where each element corresponds to a cell in the
 #' landscape, and can be mapped back to the landscape using the
 #' \code{\link{map}} function. Element \emph{i} is the unconditional
 #' probability of finding an individual (or expected number of individuals) in
@@ -100,14 +103,20 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 
-    mov <- .qpow_row(q, origin, time)
+    time <- c(1, time)
 
-    return(as.vector(mov))
+    mov <- .qpow_row(q, origin, time)
+    mov <- lapply(mov, as.vector)
+    if (length(mov) == 1) {
+      return((mov[[1]]))
+    } else {
+      return(mov)
+    }
   })
 
 #' @rdname distribution
@@ -116,14 +125,21 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 
-    mov <- .qpow_col(q, dest, time)
+    time <- c(1, time)
 
-    return(as.vector(mov))
+    mov <- .qpow_col(q, dest, time)
+    mov <- lapply(mov, as.vector)
+
+    if (length(mov) == 1) {
+      return((mov[[1]]))
+    } else {
+      return(mov)
+    }
   })
 
 #' @rdname distribution
@@ -134,7 +150,13 @@ setMethod(
 
     mov <- distribution(samc, origin = origin, time = time)
 
-    return(mov[dest])
+    if (is.list(mov)){
+      return(lapply(mov, "[", dest))
+    } else if (is.vector(mov)) {
+      return(mov[dest])
+    } else {
+      stop("Fatal error: This should not have been possible. Please submit a report with a fully reproducible and simplified example.")
+    }
   })
 
 
@@ -150,17 +172,25 @@ setMethod(
 
     check(samc, occ)
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 
     pv <- as.vector(occ)
     pv <- pv[is.finite(pv)]
 
+    time <- c(0, time)
+
     res <- .psiq(q, pv, time)
 
-    return(as.vector(res))
+    res <- lapply(res, as.vector)
+
+    if (length(res) == 1) {
+      return(res[[1]])
+    } else {
+      return(res)
+    }
   })
 
 #' @rdname distribution
