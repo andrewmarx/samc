@@ -117,8 +117,10 @@ setMethod(
     time <- c(0, time)
     res <- .sum_qn_q(q, q2, qv, time)
 
+    res <- lapply(res, as.vector)
+
     if (length(res) == 1) {
-      return(as.vector(res[[1]]))
+      return(res[[1]])
     } else {
       return(res)
     }
