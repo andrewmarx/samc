@@ -21,14 +21,16 @@ NULL
 #'
 #'   \item \strong{mortality(samc, origin, time)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
+#' The result is a vector (single time step) or a list of vectors (multiple
+#' time steps) where each element corresponds to a cell in the
 #' landscape, and can be mapped back to the landscape using the
 #' \code{\link{map}} function. Element j is the probability of experiencing
 #' mortality at location j within t or fewer steps if starting at a given origin.
 #'
 #'   \item \strong{mortality(samc, dest, time)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
+#' The result is a vector (single time step) or a list of vectors (multiple
+#' time steps) where each element corresponds to a cell in the
 #' landscape, and can be mapped back to the landscape using the
 #' \code{\link{map}} function. Element i is the probability of experiencing
 #' mortality at a given destination within t or fewer steps if starting at
@@ -150,18 +152,24 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
 
     rdg <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
 
+    time <- c(1, time)
+
     mort <- .sum_qpow_row(q, origin, time)
 
-    mort <- mort * rdg
+    mort <- lapply(mort, function(x){as.vector(x * rdg)})
 
-    return(as.vector(mort))
+    if (length(mort) == 1) {
+      return(mort[[1]])
+    } else {
+      return(mort)
+    }
   })
 
 #' @rdname mortality
@@ -170,8 +178,8 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
 
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+    if (any(time %% 1 != 0) || any(time < 1))
+      stop("The time argument must be a positive integer or a vector of positive integers")
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
 
@@ -179,9 +187,17 @@ setMethod(
 
     rdg[-dest] <- 0
 
+    time <- c(1, time)
+
     mort <- .sum_qpowrv(q, rdg, time)
 
-    return(as.vector(mort))
+    mort <- lapply(mort, as.vector)
+
+    if (length(mort) == 1) {
+      return(mort[[1]])
+    } else {
+      return(mort)
+    }
   })
 
 #' @rdname mortality

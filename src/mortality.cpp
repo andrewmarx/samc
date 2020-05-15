@@ -6,37 +6,51 @@
 
 
 // [[Rcpp::export(".sum_qpow_row")]]
-Rcpp::NumericVector sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int row, const int steps)
+Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int row, Rcpp::NumericVector steps)
 {
+  int n = steps.size();
+
+  Rcpp::List res = Rcpp::List::create();
+
   Eigen::RowVectorXd vq = Eigen::RowVectorXd::Zero(M.rows());
   vq(row - 1) = 1;
 
-  Eigen::RowVectorXd res = vq;
+  Eigen::RowVectorXd time_res = vq;
 
-  for(int i = 1; i < steps; i++) {
-    if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+  for(int i = 1; i < n; i++) {
+    for (int j = steps[i - 1]; j < steps[i]; j++) {
+      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+      vq = vq * M;
+      time_res = time_res + vq;
+    }
 
-    vq = vq * M;
-    res = res + vq;
+    res.push_back(time_res, std::to_string((int)steps[i]));
   }
 
-  return Rcpp::wrap(res);
+  return res;
 }
 
 // [[Rcpp::export(".sum_qpowrv")]]
-Rcpp::NumericVector sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &rv, const int steps)
+Rcpp::List sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &rv, Rcpp::NumericVector steps)
 {
+  int n = steps.size();
+
+  Rcpp::List res = Rcpp::List::create();
+
   Eigen::VectorXd qrv = rv;
-  Eigen::VectorXd res = qrv;
+  Eigen::VectorXd time_res = qrv;
 
-  for(int i = 1; i < steps; i++) {
-    if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+  for(int i = 1; i < n; i++) {
+    for (int j = steps[i - 1]; j < steps[i]; j++) {
+      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+      qrv = M * qrv;
+      time_res = time_res + qrv;
+    }
 
-    qrv = M * qrv;
-    res = res + qrv;
+    res.push_back(time_res, std::to_string((int)steps[i]));
   }
 
-  return Rcpp::wrap(res);
+  return res;
 }
 
 // [[Rcpp::export(".sum_psiqpow")]]

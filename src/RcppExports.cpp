@@ -72,27 +72,27 @@ BEGIN_RCPP
 END_RCPP
 }
 // sum_qpow_row
-Rcpp::NumericVector sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, const int steps);
+Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, Rcpp::NumericVector steps);
 RcppExport SEXP _samc_sum_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const int >::type row(rowSEXP);
-    Rcpp::traits::input_parameter< const int >::type steps(stepsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
     rcpp_result_gen = Rcpp::wrap(sum_qpow_row(M, row, steps));
     return rcpp_result_gen;
 END_RCPP
 }
 // sum_qpowrv
-Rcpp::NumericVector sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& rv, const int steps);
+Rcpp::List sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& rv, Rcpp::NumericVector steps);
 RcppExport SEXP _samc_sum_qpowrv(SEXP MSEXP, SEXP rvSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type rv(rvSEXP);
-    Rcpp::traits::input_parameter< const int >::type steps(stepsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
     rcpp_result_gen = Rcpp::wrap(sum_qpowrv(M, rv, steps));
     return rcpp_result_gen;
 END_RCPP
