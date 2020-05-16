@@ -50,6 +50,7 @@ VignetteBuilder: knitr
 Collate:
     'RcppExports.R'
     'samc-class.R'
+    'internal-functions.R'
     'check.R'
     'data.R'
     'visitation.R'
