@@ -2,6 +2,7 @@
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/samc)](https://cran.r-project.org/package=samc)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/samc)](https://cran.r-project.org/package=samc)
+[![Gitter](https://badges.gitter.im/samc-package/community.svg)](https://gitter.im/samc-package/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## Introduction
 
@@ -28,7 +29,7 @@ Please note that this section is for package specific queries. If you have quest
 
 #### Not sure how to do something? Have an error and can't fix it?
 
-If you have an error, make sure you are using the newest version of the package. Then, check the site's [Troubleshooting](articles/troubleshooting.html) page, which is periodically updated with common errors that users encounter. If you still cannot solve your issue, or have another programming related question, then [Stack Overflow](https://stackoverflow.com/) is the place to go. Please respect the rules and etiquette expected there. This includes first checking to see if anyone else has asked similar questions about the samc package. If you can't find an answer, then ask a question. Be sure to include the following information: operating system, R version, samc package version. Also make sure you post relevant code, ideally a self-contained reproducible example that others can run.
+If you have an error, make sure you are using the newest version of the package. Then, check the site's [Troubleshooting](articles/troubleshooting.html) page, which is periodically updated with common errors that users encounter. If you still cannot solve your issue, or just have a question about the package, then check out our [Gitter community](https://gitter.im/samc-package/community) (also accessible via the Gitter badges in the README and home pages).
 
 #### Found a bug? Have a feature request?
 
