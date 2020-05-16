@@ -2,6 +2,7 @@
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/samc)](https://cran.r-project.org/package=samc)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/samc)](https://cran.r-project.org/package=samc)
+[![Gitter](https://badges.gitter.im/samc-package/community.svg)](https://gitter.im/samc-package/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## Introduction
 
