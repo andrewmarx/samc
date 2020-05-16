@@ -195,7 +195,7 @@ test_that("Testing dispersal(samc, occ)", {
 })
 
 
-test_that("Testing dispersal(samc, occ)", {
+test_that("Testing dispersal(samc, occ, dest)", {
 
   r1 <- dispersal(samc_obj, occ = occ, dest = col)
 

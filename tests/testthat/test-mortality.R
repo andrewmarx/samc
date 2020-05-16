@@ -124,7 +124,7 @@ test_that("Testing mortality(samc, dest, time_vec)", {
   }
 })
 
-test_that("Testing mortality(samc, dest, time)", {
+test_that("Testing mortality(samc, origin, dest, time)", {
 
   r1 <- mortality(samc_obj, origin = row, dest = col, time = time)
 
