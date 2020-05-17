@@ -10,9 +10,8 @@
 #' Performs several checks to make sure a vector of time steps is valid
 #'
 #' @param x A vector object to be validated as time steps
-#'
 #' @noRd
-validate_time_steps <- function(x) {
+.validate_time_steps <- function(x) {
   if (!is.numeric(x))
     stop("The time argument must be a positive integer or a vector of positive integers")
 

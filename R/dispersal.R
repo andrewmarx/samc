@@ -100,7 +100,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
 
-    validate_time_steps(time)
+    .validate_time_steps(time)
 
     if (dest %% 1 != 0 || dest < 1 || dest > sum(samc@map[], na.rm = TRUE))
       stop("dest must be an integer that refers to a cell in the landscape")

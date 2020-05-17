@@ -103,7 +103,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
 
-    validate_time_steps(time)
+    .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 
@@ -124,7 +124,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
 
-    validate_time_steps(time)
+    .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 
@@ -170,7 +170,7 @@ setMethod(
 
     check(samc, occ)
 
-    validate_time_steps(time)
+    .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
 

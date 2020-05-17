@@ -154,7 +154,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
 
-    validate_time_steps(time)
+    .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
 
@@ -179,7 +179,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
 
-    validate_time_steps(time)
+    .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
 
@@ -223,7 +223,7 @@ setMethod(
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
 
-    validate_time_steps(time)
+    .validate_time_steps(time)
 
     check(samc, occ)
 
