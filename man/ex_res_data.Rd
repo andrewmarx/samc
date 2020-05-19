@@ -4,7 +4,9 @@
 \name{ex_res_data}
 \alias{ex_res_data}
 \title{Example resistance data}
-\format{A matrix with 34 rows and 202 columns.}
+\format{
+A matrix with 34 rows and 202 columns.
+}
 \source{
 Fletcher et al (2019) <doi:10.1111/ele.13333>
 }

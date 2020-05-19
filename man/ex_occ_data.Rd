@@ -4,7 +4,9 @@
 \name{ex_occ_data}
 \alias{ex_occ_data}
 \title{Example occupancy data}
-\format{A matrix with 34 rows and 202 columns.}
+\format{
+A matrix with 34 rows and 202 columns.
+}
 \source{
 Fletcher et al (2019) <doi:10.1111/ele.13333>
 }

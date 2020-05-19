@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>samc class — samc-class • samc</title>
+<title>Page not found (404) • samc</title>
 
 
 <!-- jquery -->
@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
 <!-- bootstrap-toc -->
-<link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script>
+<link rel="stylesheet" href="bootstrap-toc.css">
+<script src="bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
@@ -33,14 +33,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script>
+<link href="pkgdown.css" rel="stylesheet">
+<script src="pkgdown.js"></script>
 
 
 
 
-<meta property="og:title" content="samc class — samc-class" />
-<meta property="og:description" content="S4 class to manage SAMC data." />
+<meta property="og:title" content="Page not found (404)" />
 
 
 
@@ -59,7 +58,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-topic">
+    <div class="container template-title-body">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -71,7 +70,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">samc</a>
+        <a class="navbar-link" href="index.html">samc</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
@@ -86,13 +85,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/overview.html">Overview</a>
+      <a href="articles/overview.html">Overview</a>
     </li>
     <li>
-      <a href="../articles/performance.html">Performance</a>
+      <a href="articles/performance.html">Performance</a>
     </li>
     <li>
-      <a href="../articles/troubleshooting.html">Troubleshooting</a>
+      <a href="articles/troubleshooting.html">Troubleshooting</a>
     </li>
   </ul>
 </li>
@@ -104,24 +103,24 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/tutorial-basic.html">Basic Tutorial</a>
+      <a href="articles/tutorial-basic.html">Basic Tutorial</a>
     </li>
     <li>
-      <a href="../articles/tutorial-ggplot.html">ggplot Visualization</a>
+      <a href="articles/tutorial-ggplot.html">ggplot Visualization</a>
     </li>
     <li>
-      <a href="../articles/tutorial-temporal.html">Temporal Analysis</a>
+      <a href="articles/tutorial-temporal.html">Temporal Analysis</a>
     </li>
     <li>
-      <a href="../articles/tutorial-animations.html">Animations</a>
+      <a href="articles/tutorial-animations.html">Animations</a>
     </li>
   </ul>
 </li>
 <li>
-  <a href="../reference/index.html">Reference</a>
+  <a href="reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="news/index.html">News</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -142,55 +141,23 @@
       </header>
 
 <div class="row">
-  <div class="col-md-9 contents">
+  <div class="contents col-md-9">
     <div class="page-header">
-    <h1>samc class</h1>
-    <small class="dont-index">Source: <a href='https://github.com/andrewmarx/samc/blob/master/R/samc-class.R'><code>R/samc-class.R</code></a></small>
-    <div class="hidden name"><code>samc-class.Rd</code></div>
+      <h1>Page not found (404)</h1>
     </div>
 
-    <div class="ref-description">
-    <p>S4 class to manage SAMC data.</p>
-    </div>
-
-
-
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>The samc class is used to help ensure that the package is used correctly and
-to minimize the possibility for users to accidentally produce nonsensical
-results that may not be obviously incorrect. This class contains the p matrix
-necessary for all the calculations in the package, and enforces its type so
-that users are less likely to inadvertently alter it in a way that will cause
-issues in calculations.</p>
-<p>The class also contains a RasterLayer object derived from the input data.
-This object is used for checking inputs and mapping vector data in other
-functions.</p>
-<p>Finally, an override flag is used to help ensure that users do not
-accidentally run memory intensive versions of functions that can cause their
-systems to become non-responsive or for software to crash.</p>
-<p>The <code><a href='samc.html'>samc</a></code> function is used to create <code>samc-class</code>
-objects.</p>
-    <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
-
-    
-
-<dl'>
-<dt><code>p</code></dt><dd><p>The transition probability matrix <em>P</em>.</p></dd>
-
-<dt><code>map</code></dt><dd><p>Used to verify landscape inputs and mapping of vector data.</p></dd>
-
-<dt><code>override</code></dt><dd><p>Used to prevent accidental use of memory intensive functions.</p></dd>
-
-</dl>
+Content not found. Please use links in the navbar.
 
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
+
 </div>
+
 
 
       <footer>
