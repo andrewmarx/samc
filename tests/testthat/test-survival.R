@@ -1,7 +1,5 @@
 context("Survival")
 
-library(raster)
-
 
 # Create the samc object
 samc_obj <- samc(res, abs, fid, tr_fun = function(x) 1/mean(x), override = TRUE)
@@ -14,7 +12,7 @@ Q <- as.matrix(Q)
 I <- diag(nrow(Q))
 
 # Prepare the occupancy data
-occ_ras <- raster(occ)
+occ_ras <- raster::raster(occ)
 pv <- as.vector(occ_ras)
 pv <- pv[is.finite(pv)]
 
