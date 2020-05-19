@@ -93,7 +93,7 @@ knitr::include_graphics("img/gifski.gif")
 
 ## Using gganimate
 
-```{r fig2, fig.width = 6.5, out.width = '100%', dpi = 300, fig.align = "center"}
+```{r fig2, fig.width = 6.5, out.width = '100%', fig.align = "center"}
 # Create an empty dataframe to hold all the data from all the plots
 dist_df <- data.frame(x = numeric(0), y = numeric(0), layer = numeric(0), steps = numeric(0))
 

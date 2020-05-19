@@ -65,7 +65,7 @@ time_steps <- c(10, 100, 1000, 10000)
 ```
 
 The easiest, most efficient, and safest approach to doing this is using the time step vector inputs added in version 1.1.0.
-```{r, fig.width = 6.5, out.width = '100%', dpi = 300, fig.align = "center"}
+```{r, fig.width = 6.5, out.width = '100%', fig.align = "center"}
 # First, calculate the metric for the entire vector of time steps
 results <- distribution(samc_obj, origin = 1, time = time_steps)
 
