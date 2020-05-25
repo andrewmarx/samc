@@ -7,24 +7,33 @@
 
 
 // [[Rcpp::export(".sum_qn_q")]]
-Rcpp::NumericVector sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::SparseMatrix<double> > &M2, const Eigen::VectorXd &q, const int t)
+Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
+                    const Eigen::Map<Eigen::SparseMatrix<double> > &M2,
+                    const Eigen::VectorXd &q,
+                    Rcpp::NumericVector t)
 {
+  int n = t.size();
+
   Eigen::VectorXd q2 = q;
 
   Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
   solver.compute(M2);
 
-  for (int i=0; i < t; i++) {
-    if(i % 1000 == 0) Rcpp::checkUserInterrupt();
-    q2 = M * q2;
+  Rcpp::List res = Rcpp::List::create();
+
+  for(int i = 1; i < n; i++) {
+    for (int j = t[i - 1]; j < t[i]; j++) {
+      if(j % 1000 == 0) Rcpp::checkUserInterrupt();
+        q2 = M * q2;
+      }
+
+    Eigen::VectorXd time_res = solver.solve(q - q2);
+
+    res.push_back(time_res, std::to_string((int)t[i]));
   }
 
-  q2 = q - q2;
-
-  Eigen::VectorXd res = solver.solve(q2);
-
-  return Rcpp::wrap(res);
+  return res;
 }
 
 

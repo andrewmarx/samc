@@ -1,7 +1,5 @@
 context("Dispersal")
 
-library(raster)
-
 # Create the samc object
 samc_obj <- samc(res, abs, fid, tr_fun = function(x) 1/mean(x), override = TRUE)
 
@@ -17,7 +15,7 @@ diag(R) <- samc_obj@p[-nrow(samc_obj@p), ncol(samc_obj@p)]
 I <- diag(nrow(Q))
 
 # Prepare the occupancy data
-occ_ras <- raster(occ)
+occ_ras <- raster::raster(occ)
 pv <- as.vector(occ_ras)
 pv <- pv[is.finite(pv)]
 
@@ -46,6 +44,29 @@ test_that("Testing dispersal(samc, dest, time)", {
   expect_equal(as.vector(r1), as.vector(r2))
 })
 
+test_that("Testing dispersal(samc, dest, time_vec)", {
+
+  r1 <- dispersal(samc_obj, dest = col, time = time_vec)
+
+  qj <- Q[-col, col]
+
+  Qj <- Q[-col,-col]
+  for (i in 1:length(time_vec)) {
+    Qji <- diag(nrow(Qj))
+    r2 <- Qji
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qji <- Qji %*% Qj
+      r2 <- r2 + Qji
+    }
+
+    r2 <- r2 %*% qj
+
+    # Verify
+    expect_equal((r1[[i]]), as.vector(r2))
+  }
+})
+
 test_that("Testing dispersal(samc, occ, dest, time)", {
 
   r1 <- dispersal(samc_obj, occ = occ, dest = col, time = time)
@@ -66,6 +87,30 @@ test_that("Testing dispersal(samc, occ, dest, time)", {
 
   # Verify
   expect_equal(r1, as.numeric(r2))
+})
+
+test_that("Testing dispersal(samc, occ, dest, time_vec)", {
+
+  r1 <- dispersal(samc_obj, occ = occ, dest = col, time = time_vec)
+
+  qj <- Q[-col, col]
+
+  for (i in 1:length(time_vec)) {
+    Qj <- Q[-col,-col]
+
+    Qji <- diag(nrow(Qj))
+    r2 <- Qji
+
+    for (j in 1:(time_vec[i] - 1)) {
+      Qji <- Qji %*% Qj
+      r2 <- r2 + Qji
+    }
+
+    r2 <- pv[-col] %*% (r2 %*% qj)
+
+    # Verify
+    expect_equal(r1[[i]], as.numeric(r2))
+  }
 })
 
 test_that("Testing dispersal(samc)", {
@@ -148,7 +193,7 @@ test_that("Testing dispersal(samc, occ)", {
 })
 
 
-test_that("Testing dispersal(samc, occ)", {
+test_that("Testing dispersal(samc, occ, dest)", {
 
   r1 <- dispersal(samc_obj, occ = occ, dest = col)
 

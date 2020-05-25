@@ -14,18 +14,19 @@ NULL
 #' \itemize{
 #'   \item \strong{dispersal(samc, dest, time)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{k} is the probability of ever
-#' visiting a given destination, if starting at any other location, within
-#' \emph{t} or fewer time steps.
+#' The result is a vector (single time step) or a list of vectors (multiple
+#' time steps) where each element corresponds to a cell in the landscape,
+#' and can be mapped back to the landscape using the \code{\link{map}} function.
+#' Element \emph{k} is the probability of ever visiting a given destination,
+#' if starting at any other location, within \emph{t} or fewer time steps.
 #' }
 #'
 #' \eqn{\psi^T\tilde{D}_{jt}}
 #' \itemize{
 #'   \item \strong{dispersal(samc, occ, dest, time)}
 #'
-#' The result is a numeric that is the unconditional probability of visiting a
+#' The result is a numeric (single time step) or a list of numerics (multiple
+#' time steps) that is the unconditional probability of visiting a
 #' given destination within \emph{t} or fewer time steps.
 #' }
 #'
@@ -81,7 +82,7 @@ NULL
 #' @template param-dest
 #' @template param-time
 #'
-#' @return A matrix, a vector, or a numeric
+#' @return A matrix, a vector, a list of vectors, or a numeric
 #'
 #' @example inst/examples/example.R
 #'
@@ -98,8 +99,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
-    if (time %% 1 != 0 || time < 1)
-      stop("The time argument must be a positive integer")
+
+    .validate_time_steps(time)
 
     if (dest %% 1 != 0 || dest < 1 || dest > sum(samc@map[], na.rm = TRUE))
       stop("dest must be an integer that refers to a cell in the landscape")
@@ -113,9 +114,16 @@ setMethod(
     q2@x <- -q2@x
     Matrix::diag(q2) <- Matrix::diag(q2) + 1
 
+    time <- c(0, time)
     res <- .sum_qn_q(q, q2, qv, time)
 
-    return(as.vector(res))
+    res <- lapply(res, as.vector)
+
+    if (length(res) == 1) {
+      return(res[[1]])
+    } else {
+      return(res)
+    }
   })
 
 #' @rdname dispersal
@@ -132,7 +140,11 @@ setMethod(
     pv <- pv[is.finite(pv)]
     pv <- pv[-dest]
 
-    return(as.numeric(pv %*% d))
+    if (is.list(d)) {
+      return(lapply(d, FUN = function(x){as.numeric(pv %*% x)}))
+    } else {
+      return(as.numeric(pv %*% d))
+    }
   })
 
 #' @rdname dispersal

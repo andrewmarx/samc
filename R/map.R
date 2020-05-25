@@ -40,7 +40,7 @@ setGeneric(
 #' @rdname map
 setMethod(
   "map",
-  signature(samc = "samc", vec = "vector"),
+  signature(samc = "samc", vec = "numeric"),
   function(samc, vec){
 
     if (length(vec) != sum(samc@map[], na.rm = TRUE))
@@ -52,4 +52,28 @@ setMethod(
     ras[!samc@map[]] <- NA
 
     return(ras)
+  })
+
+#' @rdname map
+setMethod(
+  "map",
+  signature(samc = "samc", vec = "list"),
+  function(samc, vec){
+
+    lapply(vec, function(x){
+      if (class(x) != "numeric")
+        stop("List contains invalid item(s); all entries must be numeric vectors.")
+      if (length(x) != sum(samc@map[], na.rm = TRUE))
+        stop("The length of one or more vectors in the list does not match the number of non-NA cells in the landscape data")
+    })
+
+    res <- lapply(vec, function(x){
+      ras <- samc@map
+
+      ras[ras[]] <- x
+      ras[!samc@map[]] <- NA
+      return(ras)
+    })
+
+    return(res)
   })

@@ -55,3 +55,4 @@ occ <- matrix(c(0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 row = 13
 col = 23
 time = 100
+time_vec = c(3, 5, 7, 11, 13)

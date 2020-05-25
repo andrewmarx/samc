@@ -1,8 +1,8 @@
 Package: samc
 Type: Package
 Title: Spatial Absorbing Markov Chains
-Version: 1.0.4
-Date: 2020-01-06
+Version: 1.1.0
+Date: 2020-05-19
 Authors@R: c(
     person("Andrew", "Marx", , "andrewjmarx@ufl.edu", role = c("aut", "cre", "cph"), 
       comment = c(ORCID = "0000-0002-7456-1631")
@@ -37,7 +37,7 @@ Imports:
     gdistance,
     Matrix,
     raster
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Suggests: knitr,
     rmarkdown,
     testthat,
@@ -55,6 +55,7 @@ Collate:
     'visitation.R'
     'dispersal.R'
     'distribution.R'
+    'internal-functions.R'
     'map.R'
     'mortality.R'
     'samc.R'
