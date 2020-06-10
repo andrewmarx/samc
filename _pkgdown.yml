@@ -44,6 +44,7 @@ reference:
       - mortality
       - survival
       - visitation
+      - gen_function
   - title: "Built-in Data"
     contents:
       - ex_abs_data
