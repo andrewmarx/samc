@@ -40,6 +40,9 @@ setMethod(
   signature(samc = "samc", origin = "missing", dest = "numeric"),
   function(samc, dest) {
 
+    if (dest %% 1 != 0 || dest < 1 || dest > sum(samc@map[], na.rm = TRUE))
+      stop("dest must be an integer that refers to a cell in the landscape")
+
     Q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qj <- Q[-dest, dest]
     Qj <- Q[-dest, -dest]
@@ -62,6 +65,9 @@ setMethod(
   "cond_passage",
   signature(samc = "samc", origin = "numeric", dest = "numeric"),
   function(samc, origin, dest) {
+
+    if (origin %% 1 != 0 || origin < 1 || origin > sum(samc@map[], na.rm = TRUE))
+      stop("origin must be an integer that refers to a cell in the landscape")
 
     t <- cond_passage(samc, dest = dest)
 
