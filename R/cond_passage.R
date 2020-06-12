@@ -11,7 +11,7 @@ NULL
 #'
 #' \eqn{\bar{t}_p=diag(\tilde{B})^{-1}\tilde{F}diag(\tilde{B}){\cdot}1}
 #' \itemize{
-#'   \item \strong{gen_function(samc)}
+#'   \item \strong{cond_passage(samc, origin, dest)}
 #'
 #' Long description
 #' }
@@ -28,15 +28,15 @@ NULL
 #' @export
 
 setGeneric(
-  "gen_function",
-  function(samc) {
-    standardGeneric("gen_function")
+  "cond_passage",
+  function(samc, origin, dest) {
+    standardGeneric("cond_passage")
   })
 
-#' @rdname gen_function
+#' @rdname cond_passage
 setMethod(
-  "gen_function",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "missing"),
+  "cond_passage",
+  signature(samc = "samc", origin = "missing", dest = "numeric"),
   function(samc, dest) {
 
   })

@@ -39,12 +39,12 @@ reference:
       - samc
   - title: "Analytical Functions"
     contents:
+      - cond_passage
       - dispersal
       - distribution
       - mortality
       - survival
       - visitation
-      - gen_function
   - title: "Built-in Data"
     contents:
       - ex_abs_data

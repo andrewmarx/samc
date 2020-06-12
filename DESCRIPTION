@@ -53,6 +53,7 @@ Collate:
     'check.R'
     'data.R'
     'visitation.R'
+    'cond_passage.R'
     'dispersal.R'
     'distribution.R'
     'internal-functions.R'
