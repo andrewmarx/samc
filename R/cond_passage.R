@@ -19,6 +19,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
+#' @template param-origin
 #' @template param-dest
 #'
 #' @return Result description
@@ -54,4 +55,15 @@ setMethod(
     t <- as.numeric(t)
 
     return(t)
+  })
+
+#' @rdname cond_passage
+setMethod(
+  "cond_passage",
+  signature(samc = "samc", origin = "numeric", dest = "numeric"),
+  function(samc, origin, dest) {
+
+    t <- cond_passage(samc, dest = dest)
+
+    return(t[origin])
   })
