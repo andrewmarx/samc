@@ -6,6 +6,18 @@
 
 using namespace Rcpp;
 
+// cond_t
+Rcpp::NumericVector cond_t(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
+RcppExport SEXP _samc_cond_t(SEXP IQSEXP, SEXP qjSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type IQ(IQSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type qj(qjSEXP);
+    rcpp_result_gen = Rcpp::wrap(cond_t(IQ, qj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sum_qn_q
 Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::SparseMatrix<double> >& M2, const Eigen::VectorXd& q, Rcpp::NumericVector t);
 RcppExport SEXP _samc_sum_qn_q(SEXP MSEXP, SEXP M2SEXP, SEXP qSEXP, SEXP tSEXP) {
@@ -159,6 +171,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_samc_cond_t", (DL_FUNC) &_samc_cond_t, 2},
     {"_samc_sum_qn_q", (DL_FUNC) &_samc_sum_qn_q, 4},
     {"_samc_psid_long", (DL_FUNC) &_samc_psid_long, 2},
     {"_samc_qpow_row", (DL_FUNC) &_samc_qpow_row, 3},

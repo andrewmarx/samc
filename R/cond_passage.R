@@ -47,17 +47,12 @@ setMethod(
     qj <- Q[-dest, dest]
     Qj <- Q[-dest, -dest]
 
-    b <- solve(diag(nrow(Qj)) - Qj, qj)
+    Qj@x <- -Qj@x
+    Matrix::diag(Qj) <- Matrix::diag(Qj) + 1
 
-    bdg <- Matrix::sparseMatrix(i = 1:length(b),
-                                j = 1:length(b),
-                                x = b,
-                                index1 = TRUE)
+    t <- .cond_t(Qj, qj)
 
-    t <- solve((diag(nrow(Qj)) - Qj) %*% bdg, as.numeric(bdg %*% rep(1, nrow(bdg))))
-    t <- as.numeric(t)
-
-    return(t)
+    return(as.numeric(t))
   })
 
 #' @rdname cond_passage
