@@ -4,16 +4,25 @@
 #' @include samc-class.R
 NULL
 
-#' Short title
+#' Conditional Mean First Passage Time
 #'
-#' Short description
+#' Calculate the mean number of steps to first passage
 #'
 #'
-#' \eqn{\bar{t}_p=diag(\tilde{B})^{-1}\tilde{F}diag(\tilde{B}){\cdot}1}
+#' \eqn{\tilde{t}=\tilde{D}_j^{-1}\tilde{F}\tilde{D}_j{\cdot}1}
 #' \itemize{
+#'   \item \strong{cond_passage(samc, dest)}
+#'
+#' The result is a vector where each element corresponds to a cell in the landscape,
+#' and can be mapped back to the landscape using the \code{\link{map}} function.
+#' Element \emph{i} is the mean number of steps for the first passage time from
+#' location \emph{i} conditional on absorption into \emph{j}
+#'
 #'   \item \strong{cond_passage(samc, origin, dest)}
 #'
-#' Long description
+#' The result is a numeric value representing the mean number of steps for the
+#' first passage time from a given origin conditional on absorption into a given
+#' destination.
 #' }
 #'
 #' @template section-perf
@@ -22,7 +31,7 @@ NULL
 #' @template param-origin
 #' @template param-dest
 #'
-#' @return Result description
+#' @return A numeric vector or a single numeric value
 #'
 #' @example inst/examples/example.R
 #'
