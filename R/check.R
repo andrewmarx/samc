@@ -95,6 +95,8 @@ setMethod(
   "check",
   signature(a = "samc", b = "RasterLayer"),
   function(a, b){
+    if (class(a@map) != "RasterLayer") stop("Parameters do not apply to a samc-object created directly from a P matrix")
+
     check(b)
 
     b[] <- is.finite(b[])
