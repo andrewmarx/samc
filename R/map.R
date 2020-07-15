@@ -42,6 +42,7 @@ setMethod(
   "map",
   signature(samc = "samc", vec = "numeric"),
   function(samc, vec){
+    if (samc@source != "map") stop(paste("This function cannot be used with a samc-class object created from a", samc@source))
 
     if (length(vec) != sum(samc@map[], na.rm = TRUE))
       stop("The length of the vector does not match the number of non-NA cells in the landscape data")
@@ -59,6 +60,7 @@ setMethod(
   "map",
   signature(samc = "samc", vec = "list"),
   function(samc, vec){
+    if (samc@source != "map") stop(paste("This function cannot be used with a samc-class object created from a", samc@source))
 
     lapply(vec, function(x){
       if (class(x) != "numeric")

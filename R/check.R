@@ -95,7 +95,7 @@ setMethod(
   "check",
   signature(a = "samc", b = "RasterLayer"),
   function(a, b){
-    if (class(a@map) != "RasterLayer") stop("Parameters do not apply to a samc-object created directly from a P matrix")
+    if (a@source != "map") stop(paste("Parameters do not apply to a samc-class object created from a", a@source))
 
     check(b)
 

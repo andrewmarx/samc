@@ -154,6 +154,7 @@ setMethod(
                                              j = samc_df$j,
                                              x = samc_df$x,
                                              index1 = FALSE),
+                    source = "map",
                     map = m,
                     override = override)
 
@@ -233,7 +234,8 @@ setMethod(
 
     samc_obj <- methods::new("samc",
                              p = p_mat,
-                             map = NA,
+                             source = "matrix",
+                             map = raster::raster(matrix()),
                              override = override)
 
     return(samc_obj)
@@ -251,5 +253,5 @@ setMethod(
   function(p_mat, override = FALSE) {
     p <- as(p_mat, "dgCMatrix")
 
-    return(samc(p, override))
+    return(samc(p_mat = p, override = override))
   })
