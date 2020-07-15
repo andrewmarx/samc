@@ -4,6 +4,9 @@ context("Conditional Passage Time")
 # Create the samc object
 samc_obj <- samc(res, abs, fid, tr_fun = function(x) 1/mean(x), override = TRUE)
 
+# Create a version from P matrix
+samc_p <- samc(p_mat = samc_obj@p)
+
 
 # Calculate the results based on De Sanctis and de Koning 2018
 Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
@@ -33,7 +36,9 @@ result <- as.numeric(result)
 # Run the tests
 test_that("Testing cond_passage(samc, dest)", {
 
-  r1 <- cond_passage(samc_obj, dest = col)
+  expect_error(cond_passage(samc_obj, dest = col))
+
+  r1 <- cond_passage(samc_p, dest = col)
 
   # Verify
   expect_equal(dim(r1), dim(result))
@@ -42,7 +47,9 @@ test_that("Testing cond_passage(samc, dest)", {
 
 test_that("Testing cond_passage(samc, origin, dest)", {
 
-  r1 <- cond_passage(samc_obj, origin = row, dest = col)
+  expect_error(cond_passage(samc_obj, origin = row, dest = col))
+
+  r1 <- cond_passage(samc_p, origin = row, dest = col)
 
   # Verify
   expect_equal(as.vector(r1), as.vector(result[row]))
