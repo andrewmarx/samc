@@ -51,6 +51,7 @@ Collate:
     'RcppExports.R'
     'samc-class.R'
     'check.R'
+    'cond_passage.R'
     'data.R'
     'visitation.R'
     'dispersal.R'

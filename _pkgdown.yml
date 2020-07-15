@@ -39,6 +39,7 @@ reference:
       - samc
   - title: "Analytical Functions"
     contents:
+      - cond_passage
       - dispersal
       - distribution
       - mortality
