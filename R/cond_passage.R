@@ -48,8 +48,9 @@ setMethod(
   "cond_passage",
   signature(samc = "samc", origin = "missing", dest = "numeric"),
   function(samc, dest) {
+    if (samc@source != "matrix") stop("This version of cond_passage() can only be used with samc-class objects created directly from a P matrix")
 
-    if (dest %% 1 != 0 || dest < 1 || dest > sum(samc@map[], na.rm = TRUE))
+    if (dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
       stop("dest must be an integer that refers to a cell in the landscape")
 
     Q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
@@ -70,7 +71,7 @@ setMethod(
   signature(samc = "samc", origin = "numeric", dest = "numeric"),
   function(samc, origin, dest) {
 
-    if (origin %% 1 != 0 || origin < 1 || origin > sum(samc@map[], na.rm = TRUE))
+    if (origin %% 1 != 0 || origin < 1 || origin > (nrow(samc@p) - 1))
       stop("origin must be an integer that refers to a cell in the landscape")
 
     t <- cond_passage(samc, dest = dest)
