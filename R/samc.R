@@ -47,6 +47,7 @@ NULL
 #' @param fidelity A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param latlon Logical (\code{TRUE} or \code{FALSE}) indicating whether the rasters use latitude/longitude
 #' @param tr_fun A function to calculate the transition values in the \code{\link[gdistance]{transition}} function
+#' @param p_mat An option to provide the P matrix directly
 #' @param override Optional flag to prevent accidentally running memory intensive functions. Defaults to \code{FALSE}
 #' @param ... Placeholder
 #'
@@ -58,7 +59,7 @@ NULL
 
 setGeneric(
   "samc",
-  function(resistance, absorption, fidelity, latlon, tr_fun, ...) {
+  function(resistance, absorption, fidelity, latlon, tr_fun, p_mat, ...) {
     standardGeneric("samc")
   })
 
@@ -69,7 +70,8 @@ setMethod(
             absorption = "RasterLayer",
             fidelity = "RasterLayer",
             latlon = "logical",
-            tr_fun = "function"),
+            tr_fun = "function",
+            p_mat = "missing"),
   function(resistance, absorption, fidelity, latlon, tr_fun, override = FALSE) {
     fid_norm = FALSE
 
@@ -152,6 +154,7 @@ setMethod(
                                              j = samc_df$j,
                                              x = samc_df$x,
                                              index1 = FALSE),
+                    source = "map",
                     map = m,
                     override = override)
 
@@ -165,7 +168,8 @@ setMethod(
             absorption = "RasterLayer",
             fidelity = "missing",
             latlon = "logical",
-            tr_fun = "function"),
+            tr_fun = "function",
+            p_mat = "missing"),
   function(resistance, absorption, latlon, tr_fun, override = FALSE) {
 
     fidelity <- resistance
@@ -181,7 +185,8 @@ setMethod(
             absorption = "matrix",
             fidelity = "matrix",
             latlon = "missing",
-            tr_fun = "function"),
+            tr_fun = "function",
+            p_mat = "missing"),
   function(resistance, absorption, fidelity, tr_fun, override = FALSE) {
 
     resistance <- raster::raster(resistance, xmn = 1, xmx = ncol(resistance), ymn = 1, ymx = nrow(resistance))
@@ -200,11 +205,53 @@ setMethod(
             absorption = "matrix",
             fidelity = "missing",
             latlon = "missing",
-            tr_fun = "function"),
+            tr_fun = "function",
+            p_mat = "missing"),
   function(resistance, absorption, tr_fun, override = FALSE) {
 
     resistance <- raster::raster(resistance, xmn = 1, xmx = ncol(resistance), ymn = 1, ymx = nrow(resistance))
     absorption <- raster::raster(absorption, xmn = 1, xmx = ncol(absorption), ymn = 1, ymx = nrow(absorption))
 
     return(samc(resistance, absorption, latlon = FALSE, tr_fun = tr_fun, override = override))
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(resistance = "missing",
+            absorption = "missing",
+            fidelity = "missing",
+            latlon = "missing",
+            tr_fun = "missing",
+            p_mat = "dgCMatrix"),
+  function(p_mat, override = FALSE) {
+    r = nrow(p_mat)
+    c = ncol(p_mat)
+
+    if (c != r) stop("Matrix is not square")
+    if (p_mat[r, c] != 1) stop("The last element must be 1")
+    if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element")
+
+    samc_obj <- methods::new("samc",
+                             p = p_mat,
+                             source = "matrix",
+                             map = raster::raster(matrix()),
+                             override = override)
+
+    return(samc_obj)
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(resistance = "missing",
+            absorption = "missing",
+            fidelity = "missing",
+            latlon = "missing",
+            tr_fun = "missing",
+            p_mat = "matrix"),
+  function(p_mat, override = FALSE) {
+    p <- as(p_mat, "dgCMatrix")
+
+    return(samc(p_mat = p, override = override))
   })

@@ -95,6 +95,8 @@ setMethod(
   "check",
   signature(a = "samc", b = "RasterLayer"),
   function(a, b){
+    if (a@source != "map") stop(paste("Parameters do not apply to a samc-class object created from a", a@source))
+
     check(b)
 
     b[] <- is.finite(b[])

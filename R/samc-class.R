@@ -35,6 +35,7 @@ setClass(
 
   # define the slots
   slots = list(p = "dgCMatrix",
+               source = "character",
                map = "RasterLayer",
                override = "logical")
 
