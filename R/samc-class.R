@@ -25,6 +25,7 @@
 #' objects.
 #'
 #' @slot p The transition probability matrix \emph{P}.
+#' @slot source Information about the data source for the P matrix
 #' @slot map Used to verify landscape inputs and mapping of vector data.
 #' @slot override Used to prevent accidental use of memory intensive functions.
 
