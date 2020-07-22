@@ -48,7 +48,6 @@ setMethod(
   "cond_passage",
   signature(samc = "samc", origin = "missing", dest = "numeric"),
   function(samc, dest) {
-    if (samc@source != "matrix") stop("This version of cond_passage() can only be used with samc-class objects created directly from a P matrix")
 
     if (dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
       stop("dest must be an integer that refers to a cell in the landscape")

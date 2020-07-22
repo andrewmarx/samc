@@ -36,8 +36,6 @@ result <- as.numeric(result)
 # Run the tests
 test_that("Testing cond_passage(samc, dest)", {
 
-  expect_error(cond_passage(samc_obj, dest = col))
-
   r1 <- cond_passage(samc_p, dest = col)
 
   # Verify
@@ -46,8 +44,6 @@ test_that("Testing cond_passage(samc, dest)", {
 })
 
 test_that("Testing cond_passage(samc, origin, dest)", {
-
-  expect_error(cond_passage(samc_obj, origin = row, dest = col))
 
   r1 <- cond_passage(samc_p, origin = row, dest = col)
 
