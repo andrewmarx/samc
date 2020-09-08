@@ -42,3 +42,28 @@
   users will generally want far fewer time steps for ecologically relevant
   results and to avoid the cummulative precision issues.")
 }
+
+
+#' Validate location vectors
+#'
+#' Performs several checks to make sure a vector locations is valid
+#'
+#' @param samc samc-class object
+#' @param x A vector object to be validated as locations
+#' @noRd
+.validate_locations <- function(samc, x) {
+  if (!is.numeric(x))
+    stop("Locations must be a positive integer or a vector of positive integers")
+
+  if (sum(is.na(x)) > 0)
+    stop("NA values are not valid locations")
+
+  if (any(x %% 1 != 0))
+    stop("Decimal values are not valid locations")
+
+  if (any(x < 1))
+    stop("All location values must be positive (greater than 0)")
+
+  if (any(x > (nrow(samc@p) - 1)))
+    stop("Location values cannot exceed the number of nodes in the landscape")
+}

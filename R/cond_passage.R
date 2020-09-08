@@ -70,10 +70,24 @@ setMethod(
   signature(samc = "samc", origin = "numeric", dest = "numeric"),
   function(samc, origin, dest) {
 
-    if (origin %% 1 != 0 || origin < 1 || origin > (nrow(samc@p) - 1))
-      stop("origin must be an integer that refers to a cell in the landscape")
+    .validate_locations(samc, origin)
+    .validate_locations(samc, dest)
 
-    t <- cond_passage(samc, dest = dest)
+    if(length(origin) != length(dest))
+      stop("The 'origin' and 'dest' parameters must have the same number of values")
 
-    return(t[origin])
+    result <- vector(mode = "numeric", length = length(length(origin)))
+
+    unique_dest <- unique(dest)
+
+    for (d in unique_dest) {
+      t <- cond_passage(samc, dest = d)
+      adj_origin <- origin
+      adj_origin[origin > d] <- adj_origin[origin > d] - 1
+      result[dest == d] <- t[origin[dest == d]]
+    }
+
+    result[dest == origin] <- NA
+
+    return(result)
   })
