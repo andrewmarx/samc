@@ -56,3 +56,6 @@ row = 13
 col = 23
 time = 100
 time_vec = c(3, 5, 7, 11, 13)
+row_vec = c(7, 34, 5, 5)
+col_vec = c(13, 13, 5, 19)
+
