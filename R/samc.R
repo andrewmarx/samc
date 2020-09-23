@@ -121,13 +121,10 @@ setMethod(
     lookup_vec <- 0:(length(unique(tr_mat@i)))
     names(lookup_vec) <- c(sort(unique(tr_mat@i)), length(abs_vec))
 
-    diag(tr_mat) <- 0
-
-    if (fid_norm) {
+    if (fid_norm) { # TODO: Needs to be finished. Note that fid_norm is set to false above
       diag(tr_mat) <- fid_vec
       tr_mat@x <- (1 - abs_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
-    }
-    else {
+    } else {
       diag(tr_mat) <- 0
       tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
       diag(tr_mat) <- fid_vec
