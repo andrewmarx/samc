@@ -135,6 +135,8 @@ setMethod(
                              x = samc_df$x,
                              index1 = FALSE)
 
+    # Adjust fidelity values for isolated cells
+    Matrix::diag(p) <- Matrix::diag(p) - Matrix::rowSums(p) + 1
 
     # Remove rows/cols for NA cells
     excl <- which(is.na(abs_vec))
