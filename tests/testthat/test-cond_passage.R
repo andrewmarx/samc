@@ -30,6 +30,8 @@ bdg <- Matrix::sparseMatrix(i = 1:nrow(b),
                             x = b[, 2],
                             index1 = TRUE)
 
+bdg <- as.matrix(bdg)
+
 result <- solve(bdg) %*% f %*% bdg %*% rep(1, nrow(bdg))
 result <- as.numeric(result)
 
@@ -47,6 +49,12 @@ test_that("Testing cond_passage(samc, origin, dest)", {
 
   r1 <- cond_passage(samc_p, origin = row, dest = col)
 
+  r_vec <- cond_passage(samc_p, row_vec, col_vec)
+
   # Verify
   expect_equal(as.vector(r1), as.vector(result[row]))
+  for (i in 1:length(row_vec)) {
+    r1 <- cond_passage(samc_p, row_vec[i], col_vec[i])
+    expect_equal(r_vec[i], r1)
+  }
 })

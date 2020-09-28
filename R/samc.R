@@ -73,7 +73,6 @@ setMethod(
             tr_fun = "function",
             p_mat = "missing"),
   function(resistance, absorption, fidelity, latlon, tr_fun, override = FALSE) {
-    fid_norm = FALSE
 
     if (!is.logical(override))
       stop("The override parameter must be set to TRUE or FALSE")
@@ -102,6 +101,11 @@ setMethod(
       stop("The fidelity data must not have values > 1")
     }
 
+    if (any((fidelity[] + absorption[]) > 1, na.rm = TRUE)) {
+      stop("No cells can have fidelity + absoprtion > 1")
+    }
+
+    # Create the transition matrix
     tr <- gdistance::transition(resistance, transitionFunction = tr_fun, 8)
     if (latlon) {
       tr <- gdistance::geoCorrection(tr, type = "c")
@@ -111,52 +115,38 @@ setMethod(
 
     tr_mat <- gdistance::transitionMatrix(tr)
 
+    # Normalize the transition Matrix
     abs_vec <- as.vector(absorption)
     fid_vec <- as.vector(fidelity)
-    tr_mat <- methods::as(tr_mat, "dgTMatrix")
 
-    # 'Remove' the null values by changing the index values using a lookup vector
-    # Originally created later in the code, but addition of the fid_norm code
-    # interfered by causing the dgTMatrix to populate i values
-    lookup_vec <- 0:(length(unique(tr_mat@i)))
-    names(lookup_vec) <- c(sort(unique(tr_mat@i)), length(abs_vec))
+    tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
 
-    diag(tr_mat) <- 0
+    Matrix::diag(tr_mat) <- 0
+    tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
+    Matrix::diag(tr_mat) <- fid_vec
 
-    if (fid_norm) {
-      diag(tr_mat) <- fid_vec
-      tr_mat@x <- (1 - abs_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
-    }
-    else {
-      diag(tr_mat) <- 0
-      tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
-      diag(tr_mat) <- fid_vec
-    }
-
-
-    # Combine the transition matrix with the absorbing data
+    # Combine the transition matrix with the absorbing data and convert back to dgCmatrix
     samc_df <- data.frame(i = c(tr_mat@i, (0:(length(abs_vec) - 1))[is.finite(abs_vec)], length(abs_vec)),
                          j = c(tr_mat@j, rep(length(abs_vec), sum(is.finite(abs_vec))), length(abs_vec)),
                          x = c(tr_mat@x, abs_vec[is.finite(abs_vec)], 1))
 
-    samc_df$i <- lookup_vec[as.character(samc_df$i)]
-    samc_df$j <- lookup_vec[as.character(samc_df$j)]
+    p = Matrix::sparseMatrix(i = samc_df$i,
+                             j = samc_df$j,
+                             x = samc_df$x,
+                             index1 = FALSE)
 
-    samc_df <- samc_df[!is.na(samc_df$i),]
-    samc_df <- samc_df[!is.na(samc_df$j),]
+    # Adjust fidelity values for isolated cells
+    Matrix::diag(p) <- Matrix::diag(p) - Matrix::rowSums(p) + 1
 
+    # Remove rows/cols for NA cells
+    excl <- which(is.na(abs_vec))
+    p = p[-excl, -excl]
+
+    # Assemble final
     m <- resistance
     m[] <- is.finite(m[])
 
-    # Create the final sparse matrix
-    samc_mat <- methods::new("samc",
-                    p = Matrix::sparseMatrix(i = samc_df$i,
-                                             j = samc_df$j,
-                                             x = samc_df$x,
-                                             index1 = FALSE),
-                    source = "map",
-                    map = m,
-                    override = override)
+    samc_mat <- methods::new("samc", p = p, source = "map", map = m, override = override)
 
     return(samc_mat)
   })
