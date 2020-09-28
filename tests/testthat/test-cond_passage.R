@@ -30,6 +30,8 @@ bdg <- Matrix::sparseMatrix(i = 1:nrow(b),
                             x = b[, 2],
                             index1 = TRUE)
 
+bdg <- as.matrix(bdg)
+
 result <- solve(bdg) %*% f %*% bdg %*% rep(1, nrow(bdg))
 result <- as.numeric(result)
 
