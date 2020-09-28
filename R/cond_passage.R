@@ -9,7 +9,7 @@ NULL
 #' Calculate the mean number of steps to first passage
 #'
 #'
-#' \eqn{\tilde{t}=\tilde{D}_j^{-1}\tilde{F}\tilde{D}_j{\cdot}1}
+#' \eqn{\tilde{t}=\tilde{B}_j^{-1}\tilde{F}\tilde{B}_j{\cdot}1}
 #' \itemize{
 #'   \item \strong{cond_passage(samc, dest)}
 #'
@@ -24,6 +24,13 @@ NULL
 #' first passage time from a given origin conditional on absorption into a given
 #' destination.
 #' }
+#'
+#' \strong{WARNING}: This function will crash when used with data representing
+#' a disconnected graph. This includes, for example, isolated pixels or islands
+#' in raster data. This is a result of the transtion matrix for disconnected
+#' graphs leading to some equations being unsolvable. Different options
+#' are being explored for how to best identify these situations in data and
+#' handle them accordingly.
 #'
 #' @template section-perf
 #'
