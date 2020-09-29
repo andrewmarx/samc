@@ -259,6 +259,7 @@ setMethod(
     if (c != r) stop("Matrix is not square")
     if (p_mat[r, c] != 1) stop("The last element must be 1")
     if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element")
+    if (any(Matrix::rowSums(p_mat) != 1)) stop("All row sums must be equal to 1")
 
     samc_obj <- methods::new("samc",
                              p = p_mat,
