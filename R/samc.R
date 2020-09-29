@@ -62,6 +62,23 @@ NULL
 #' scaling back up while monitoring their memory usage as a means to gauge what
 #' is reasonable for their system.
 #'
+#' \strong{Additional Information}
+#'
+#' Depending on the data used to construct the samc-class object, some metrics
+#' may cause crashes. This is a result of the underlying P matrix having specific
+#' properties that make some equations unsolvable. One known case is a P matrix
+#' that represents a disconnected graph, which can lead to the cond_passage()
+#' function crashing. In terms of raster/matrix inputs, a disconnected graph
+#' occurs when one or more pixels/cells are unreachable from other pixels/cells
+#' due to the presence of a full barrier made up of NA values. In a raster, these
+#' may be obvious as islands, but can be as inconspicuous as a rogue isolated
+#' pixel. There may be other currently unknown situations that lead to unsolvable
+#' metrics.
+#'
+#' Future work is planned towards identifying these issues during creation of the
+#' samc-class object and handling them appropriately to prevent inadvertent
+#' crashes.
+#'
 #'
 #' @param resistance A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param absorption A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
