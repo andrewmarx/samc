@@ -9,11 +9,16 @@ NULL
 #'
 #' Create an samc object that contains the absorbing Markov chain data
 #'
-#' This function is used to create a \code{\link{samc-class}} object from
-#' landscape data. Some of the inputs are mandatory, whereas others are
-#' optional. The different landscape data inputs must be the same type (a matrix
-#' or RasterLayer), and have identical properties, including dimensions,
-#' location of NA cells, and CRS (if using RasterLayers).
+#' This function is used to create a \code{\link{samc-class}} object. There are
+#' two options for creating this object.
+#'
+#' \strong{Option 1: Raster and Matrix Inputs}
+#'
+#' The \code{\link{samc-class}} object can be created from a combination of
+#' resistance, absorption, and fidelity data. These different landscape data
+#' inputs must be the same type (a matrix or RasterLayer), and have identical
+#' properties, including dimensions, location of NA cells, and CRS (if using
+#' RasterLayers). Some of the inputs are mandatory, whereas others are optional.
 #'
 #' The resistance and absorption inputs are always mandatory, whereas the
 #' fidelity input is optional. If the fidelity input is not provided, then it it
@@ -28,6 +33,22 @@ NULL
 #' The tr_fun parameter is mandatory. It used when calculating the values for
 #' the transition matrix. Internally, this is passed to the \code{\link[gdistance]{transition}}
 #' function in the gdistance package to create the transition matrix.
+#'
+#' \strong{Option 2: P Matrix Input}
+#'
+#' The p_mat parameter can be used to create a \code{\link{samc-class}} object
+#' directly from a preconstructed P matrix. This matrix must be either a base R
+#' matrix, or a sparse matrix (dgCMatrix format) from the Matrix package. It
+#' must meet the requirement of a P matrix described in Fletcher et al. (2019).
+#' This includes:
+#' \itemize{
+#'   \item The number of rows must equal the number of columns (a square matrix)
+#'   \item The last row must contain all 0's, except the last element, which must be 1
+#'   \item Each row must sum to 1
+#'   \item All values must be in the range of 0-1
+#' }
+#'
+#' \strong{Other Parameters}
 #'
 #' The override parameter is optional. To prevent users from unintentionally
 #' running memory intensive versions of functions that could make their systems
@@ -47,7 +68,7 @@ NULL
 #' @param fidelity A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param latlon Logical (\code{TRUE} or \code{FALSE}) indicating whether the rasters use latitude/longitude
 #' @param tr_fun A function to calculate the transition values in the \code{\link[gdistance]{transition}} function
-#' @param p_mat An option to provide the P matrix directly
+#' @param p_mat A base R \code{\link[base]{matrix}} object or Matrix package dgCMatrix sparse matrix
 #' @param override Optional flag to prevent accidentally running memory intensive functions. Defaults to \code{FALSE}
 #' @param ... Placeholder
 #'
