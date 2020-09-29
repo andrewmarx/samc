@@ -27,7 +27,7 @@ NULL
 #'
 #' \strong{WARNING}: This function will crash when used with data representing
 #' a disconnected graph. This includes, for example, isolated pixels or islands
-#' in raster data. This is a result of the transtion matrix for disconnected
+#' in raster data. This is a result of the transition matrix for disconnected
 #' graphs leading to some equations being unsolvable. Different options
 #' are being explored for how to best identify these situations in data and
 #' handle them accordingly.
