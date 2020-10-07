@@ -221,9 +221,9 @@ setMethod(
             p_mat = "missing"),
   function(resistance, absorption, fidelity, tr_fun, override = FALSE) {
 
-    resistance <- raster::raster(resistance, xmn = 1, xmx = ncol(resistance), ymn = 1, ymx = nrow(resistance))
-    absorption <- raster::raster(absorption, xmn = 1, xmx = ncol(absorption), ymn = 1, ymx = nrow(absorption))
-    fidelity <- raster::raster(fidelity, xmn = 1, xmx = ncol(fidelity), ymn = 1, ymx = nrow(fidelity))
+    resistance <- raster::raster(resistance, xmn = 0.5, xmx = ncol(resistance) + 0.5, ymn = 0.5, ymx = nrow(resistance) + 0.5)
+    absorption <- raster::raster(absorption, xmn = 0.5, xmx = ncol(absorption) + 0.5, ymn = 0.5, ymx = nrow(absorption) + 0.5)
+    fidelity <- raster::raster(fidelity, xmn = 0.5, xmx = ncol(fidelity) + 0.5, ymn = 0.5, ymx = nrow(fidelity) + 0.5)
 
     #fidelity[is.finite(fidelity)] <- 0
 
@@ -241,8 +241,8 @@ setMethod(
             p_mat = "missing"),
   function(resistance, absorption, tr_fun, override = FALSE) {
 
-    resistance <- raster::raster(resistance, xmn = 1, xmx = ncol(resistance), ymn = 1, ymx = nrow(resistance))
-    absorption <- raster::raster(absorption, xmn = 1, xmx = ncol(absorption), ymn = 1, ymx = nrow(absorption))
+    resistance <- raster::raster(resistance, xmn = 0.5, xmx = ncol(resistance) + 0.5, ymn = 0.5, ymx = nrow(resistance) + 0.5)
+    absorption <- raster::raster(absorption, xmn = 0.5, xmx = ncol(absorption) + 0.5, ymn = 0.5, ymx = nrow(absorption) + 0.5)
 
     return(samc(resistance, absorption, latlon = FALSE, tr_fun = tr_fun, override = override))
   })

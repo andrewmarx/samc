@@ -83,7 +83,7 @@ setMethod(
   signature(samc = "samc", occ = "matrix"),
   function(samc, occ) {
 
-    occ <- raster::raster(occ, xmn = 1, xmx = ncol(occ), ymn = 1, ymx = nrow(occ))
+    occ <- raster::raster(occ, xmn = 0.5, xmx = ncol(occ) + 0.5, ymn = 0.5, ymx = nrow(occ) + 0.5)
 
     return(survival(samc, occ))
   })
