@@ -123,12 +123,16 @@ setMethod(
       stop("The resistance data must not have values <= 0")
     }
 
-    if (any(absorption[] <= 0, na.rm = TRUE)) {
+    if (any(absorption[] < 0, na.rm = TRUE)) {
       stop("The absorption data must not have values <= 0")
     }
 
     if (any(absorption[] > 1, na.rm = TRUE)) {
       stop("The absorption data must not have values > 1")
+    }
+
+    if (sum(absorption[], na.rm = TRUE) == 0) {
+      stop("At least one cell must have an absorption value > 0")
     }
 
     if (any(fidelity[] < 0, na.rm = TRUE)) {
@@ -259,7 +263,7 @@ setMethod(
     if (c != r) stop("Matrix is not square")
     if (p_mat[r, c] != 1) stop("The last element must be 1")
     if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element")
-    if (any(Matrix::rowSums(p_mat) != 1)) stop("All row sums must be equal to 1")
+    if (!isTRUE(all.equal(Matrix::rowSums(p_mat), rep(1, r)))) stop("All row sums must be equal to 1") # Use all.equal() to avoid numerical precision issues
 
     samc_obj <- methods::new("samc",
                              p = p_mat,
