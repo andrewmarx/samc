@@ -1,3 +1,13 @@
+# samc 1.2.0
+
+New Features:
+- Added the ability to create samc-class objects from a custom P matrix using p_mat parameter in samc(). See the samc() documentation for details
+- Added the cond_passage(), which calculates conditional first passage times
+
+Bug Fixes:
+- Fixed an issue where raster/matrix inputs containing isolated cells (individual cells neighbored by only NA values) would lead to rows and columns for said cells t
+
+
 # samc 1.1.0
 
 - Added support for the use vectors of time steps in most short-term metrics. It is more computationally efficient and ergonomic to do this rather than calculating short-term metrics for each individual time step. Some key points:
