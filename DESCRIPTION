@@ -36,7 +36,7 @@ Imports:
     gdistance,
     Matrix,
     raster
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: knitr,
     rmarkdown,
     testthat,
@@ -56,6 +56,7 @@ Collate:
     'dispersal.R'
     'distribution.R'
     'internal-functions.R'
+    'locate.R'
     'map.R'
     'mortality.R'
     'samc.R'
