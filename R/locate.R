@@ -51,17 +51,25 @@ setGeneric(
 #' @rdname locate
 setMethod(
   "locate",
-  signature(samc = "numeric", xy = "missing"),
+  signature(samc = "samc", xy = "missing"),
   function(samc){
-    print("1")
+    if (samc@source != "map") stop("This function can only be used when the samc object was created from raster or matrix inputs for resistance data")
+
+    ras <- samc@map
+    n <- sum(ras[])
+    ras[ras] <- 1:n
+
+    return(ras)
   })
 
 #' @rdname locate
 setMethod(
   "locate",
-  signature(samc = "numeric", xy = "ANY"),
+  signature(samc = "samc", xy = "ANY"),
   function(samc, xy){
+    ras <- locate(samc)
 
-    print("2")
+    result <- raster::extract(ras, xy)
 
+    return(result)
   })
