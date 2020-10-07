@@ -24,7 +24,8 @@ NULL
 #'
 #' This function can also be used if the samc object was created from matrix inputs
 #' for the resistance, absorption, and fidelity parameters. In this case, the
-#' values in the xy coordinate parameter can be column-row values.
+#' values in the xy coordinate parameter can be column-row values with the caveat
+#' that (1,1) is the bottom left corner.
 #'
 #' The xy parameter can also be excluded. In this case, the function returns a
 #' raster where the values of the cells contains the cell number.
