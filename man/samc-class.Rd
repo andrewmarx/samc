@@ -31,6 +31,8 @@ objects.
 \describe{
 \item{\code{p}}{The transition probability matrix \emph{P}.}
 
+\item{\code{source}}{Information about the data source for the P matrix}
+
 \item{\code{map}}{Used to verify landscape inputs and mapping of vector data.}
 
 \item{\code{override}}{Used to prevent accidental use of memory intensive functions.}

@@ -35,10 +35,12 @@ reference:
   - title: "Utility Functions"
     contents:
       - check
+      - locate
       - map
       - samc
   - title: "Analytical Functions"
     contents:
+      - cond_passage
       - dispersal
       - distribution
       - mortality

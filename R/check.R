@@ -60,7 +60,7 @@ setMethod(
   "check",
   signature(a = "matrix", b = "missing"),
   function(a){
-    a <- raster::raster(a, xmn = 1, xmx = ncol(a), ymn = 1, ymx = nrow(a))
+    a <- raster::raster(a, xmn = 0.5, xmx = ncol(a) + 0.5, ymn = 0.5, ymx = nrow(a) + 0.5)
 
     check(a)
   })
@@ -84,8 +84,8 @@ setMethod(
   "check",
   signature(a = "matrix", b = "matrix"),
   function(a, b){
-    a <- raster::raster(a, xmn = 1, xmx = ncol(a), ymn = 1, ymx = nrow(a))
-    b <- raster::raster(b, xmn = 1, xmx = ncol(b), ymn = 1, ymx = nrow(b))
+    a <- raster::raster(a, xmn = 0.5, xmx = ncol(a) + 0.5, ymn = 0.5, ymx = nrow(a) + 0.5)
+    b <- raster::raster(b, xmn = 0.5, xmx = ncol(b) + 0.5, ymn = 0.5, ymx = nrow(b) + 0.5)
 
     check(a, b)
   })
@@ -95,6 +95,8 @@ setMethod(
   "check",
   signature(a = "samc", b = "RasterLayer"),
   function(a, b){
+    if (a@source != "map") stop(paste("Parameters do not apply to a samc-class object created from a", a@source))
+
     check(b)
 
     b[] <- is.finite(b[])
@@ -107,7 +109,7 @@ setMethod(
   "check",
   signature(a = "samc", b = "matrix"),
   function(a, b){
-    b <- raster::raster(b, xmn = 1, xmx = ncol(b), ymn = 1, ymx = nrow(b))
+    b <- raster::raster(b, xmn = 0.5, xmx = ncol(b) + 0.5, ymn = 0.5, ymx = nrow(b) + 0.5)
 
     check(a, b)
   })

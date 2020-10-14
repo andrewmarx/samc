@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -153,19 +153,25 @@
     <p>Create an samc object that contains the absorbing Markov chain data</p>
     </div>
 
-    <pre class="usage"><span class='fu'>samc</span>(<span class='no'>resistance</span>, <span class='no'>absorption</span>, <span class='no'>fidelity</span>, <span class='no'>latlon</span>, <span class='no'>tr_fun</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>samc</span>(<span class='no'>resistance</span>, <span class='no'>absorption</span>, <span class='no'>fidelity</span>, <span class='no'>latlon</span>, <span class='no'>tr_fun</span>, <span class='no'>p_mat</span>, <span class='no'>...</span>)
 
-<span class='co'># S4 method for RasterLayer,RasterLayer,RasterLayer,logical,`function`</span>
+<span class='co'># S4 method for RasterLayer,RasterLayer,RasterLayer,logical,`function`,missing</span>
 <span class='fu'>samc</span>(<span class='no'>resistance</span>, <span class='no'>absorption</span>, <span class='no'>fidelity</span>, <span class='no'>latlon</span>, <span class='no'>tr_fun</span>, <span class='kw'>override</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='co'># S4 method for RasterLayer,RasterLayer,missing,logical,`function`</span>
+<span class='co'># S4 method for RasterLayer,RasterLayer,missing,logical,`function`,missing</span>
 <span class='fu'>samc</span>(<span class='no'>resistance</span>, <span class='no'>absorption</span>, <span class='no'>latlon</span>, <span class='no'>tr_fun</span>, <span class='kw'>override</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='co'># S4 method for matrix,matrix,matrix,missing,`function`</span>
+<span class='co'># S4 method for matrix,matrix,matrix,missing,`function`,missing</span>
 <span class='fu'>samc</span>(<span class='no'>resistance</span>, <span class='no'>absorption</span>, <span class='no'>fidelity</span>, <span class='no'>tr_fun</span>, <span class='kw'>override</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='co'># S4 method for matrix,matrix,missing,missing,`function`</span>
-<span class='fu'>samc</span>(<span class='no'>resistance</span>, <span class='no'>absorption</span>, <span class='no'>tr_fun</span>, <span class='kw'>override</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='co'># S4 method for matrix,matrix,missing,missing,`function`,missing</span>
+<span class='fu'>samc</span>(<span class='no'>resistance</span>, <span class='no'>absorption</span>, <span class='no'>tr_fun</span>, <span class='kw'>override</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># S4 method for missing,missing,missing,missing,missing,dgCMatrix</span>
+<span class='fu'>samc</span>(<span class='no'>p_mat</span>, <span class='kw'>override</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># S4 method for missing,missing,missing,missing,missing,matrix</span>
+<span class='fu'>samc</span>(<span class='no'>p_mat</span>, <span class='kw'>override</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -191,6 +197,10 @@
       <td><p>A function to calculate the transition values in the <code><a href='https://rdrr.io/pkg/gdistance/man/transition.html'>transition</a></code> function</p></td>
     </tr>
     <tr>
+      <th>p_mat</th>
+      <td><p>A base R <code><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></code> object or Matrix package dgCMatrix sparse matrix</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>Placeholder</p></td>
     </tr>
@@ -205,11 +215,14 @@
     <p>A spatial absorbing Markov chain object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is used to create a <code><a href='samc-class.html'>samc-class</a></code> object from
-landscape data. Some of the inputs are mandatory, whereas others are
-optional. The different landscape data inputs must be the same type (a matrix
-or RasterLayer), and have identical properties, including dimensions,
-location of NA cells, and CRS (if using RasterLayers).</p>
+    <p>This function is used to create a <code><a href='samc-class.html'>samc-class</a></code> object. There are
+two options for creating this object.</p>
+<p><strong>Option 1: Raster and Matrix Inputs</strong></p>
+<p>The <code><a href='samc-class.html'>samc-class</a></code> object can be created from a combination of
+resistance, absorption, and fidelity data. These different landscape data
+inputs must be the same type (a matrix or RasterLayer), and have identical
+properties, including dimensions, location of NA cells, and CRS (if using
+RasterLayers). Some of the inputs are mandatory, whereas others are optional.</p>
 <p>The resistance and absorption inputs are always mandatory, whereas the
 fidelity input is optional. If the fidelity input is not provided, then it it
 is assumed that there is no site fidelity (i.e., individuals will always move
@@ -221,6 +234,19 @@ latitude and longitude data.</p>
 <p>The tr_fun parameter is mandatory. It used when calculating the values for
 the transition matrix. Internally, this is passed to the <code><a href='https://rdrr.io/pkg/gdistance/man/transition.html'>transition</a></code>
 function in the gdistance package to create the transition matrix.</p>
+<p><strong>Option 2: P Matrix Input</strong></p>
+<p>The p_mat parameter can be used to create a <code><a href='samc-class.html'>samc-class</a></code> object
+directly from a preconstructed P matrix. This matrix must be either a base R
+matrix, or a sparse matrix (dgCMatrix format) from the Matrix package. It
+must meet the requirement of a P matrix described in Fletcher et al. (2019).
+This includes:</p><ul>
+<li><p>The number of rows must equal the number of columns (a square matrix)</p></li>
+<li><p>The last row must contain all 0's, except the last element, which must be 1</p></li>
+<li><p>Each row must sum to 1</p></li>
+<li><p>All values must be in the range of 0-1</p></li>
+</ul>
+
+<p><strong>Other Parameters</strong></p>
 <p>The override parameter is optional. To prevent users from unintentionally
 running memory intensive versions of functions that could make their systems
 non-responsive or crash software, it is set to FALSE by default. For various
@@ -232,6 +258,20 @@ article to understand the expected memory requirements. They should also
 consider starting with scaled down version of their data and then gradually
 scaling back up while monitoring their memory usage as a means to gauge what
 is reasonable for their system.</p>
+<p><strong>Additional Information</strong></p>
+<p>Depending on the data used to construct the samc-class object, some metrics
+may cause crashes. This is a result of the underlying P matrix having specific
+properties that make some equations unsolvable. One known case is a P matrix
+that represents a disconnected graph, which can lead to the cond_passage()
+function crashing. In terms of raster/matrix inputs, a disconnected graph
+occurs when one or more pixels/cells are unreachable from other pixels/cells
+due to the presence of a full barrier made up of NA values. In a raster, these
+may be obvious as islands, but can be as inconspicuous as a rogue isolated
+pixel. There may be other currently unknown situations that lead to unsolvable
+metrics.</p>
+<p>Future work is planned towards identifying these issues during creation of the
+samc-class object and handling them appropriately to prevent inadvertent
+crashes.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># "Load" the data. In this case we are using data built into the package.</span>

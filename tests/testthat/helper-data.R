@@ -2,6 +2,9 @@
 # This helper file contains data for each of the unit tests so that it is not
 # repeated across test files.
 
+# TODO Update matrices with 1 and 2 cell islands when the tests are adjusted for it
+# TODO Rename matrices (at least abs)
+
 res <- matrix(c(1,  1,  2,  2,  3,  3,  2,  2,  1,  1,
                 1,  2,  2,  3, 10, 10,  3,  2,  2,  1,
                 1,  2,  2,  3, 10, 10,  3,  2,  2,  1,
@@ -15,12 +18,12 @@ res <- matrix(c(1,  1,  2,  2,  3,  3,  2,  2,  1,  1,
               nrow = 10)
 
 abs <- matrix(c(1,  2,  1,  1,  1,  1,  1,  1,  1,  4,
-                1,  1,  1,  2,  2,  1,  1,  3,  1,  5,
+                1,  1,  1,  2,  2,  1,  1,  0,  1,  5,
                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
                 1,  1,  1, NA, NA, NA, NA,  1,  1,  1,
-                1,  5,  1, NA, NA, NA, NA,  3,  2,  1,
-                1,  1,  1, NA, NA, NA, NA,  1,  1,  1,
-                1,  1,  1, NA, NA, NA, NA,  1,  1,  1,
+                1,  5,  1, NA, NA, NA, NA,  0,  0,  1,
+                1,  1,  1, NA, NA, NA, NA,  1,  0,  1,
+                1,  1,  1, NA, NA, NA, NA,  1,  0,  1,
                 1,  1,  1,  2,  1,  1,  1,  7,  7,  1,
                 1,  1,  1,  1,  1,  1,  1,  7,  7,  1,
                 3,  1,  1,  1,  1,  1,  1,  1,  1,  1),
@@ -56,3 +59,6 @@ row = 13
 col = 23
 time = 100
 time_vec = c(3, 5, 7, 11, 13)
+row_vec = c(7, 34, 5, 5)
+col_vec = c(13, 13, 5, 19)
+

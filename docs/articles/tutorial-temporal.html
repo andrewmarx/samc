@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -100,13 +100,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="tutorial-temporal_files/header-attrs-2.3/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Temporal Analysis</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2020-05-19</h4>
+            <h4 class="date">2020-10-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-temporal.Rmd"><code>vignettes/tutorial-temporal.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-temporal.Rmd</code></div>
@@ -158,10 +158,10 @@
 <span class="co"># The result is a list of vectors. Note that the list is named with the time steps</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">results</span>)
 <span class="co">#&gt; List of 4</span>
-<span class="co">#&gt;  $ 10   : num [1:2624] 0.0245 0.0304 0.0259 0.0191 0.0124 ...</span>
-<span class="co">#&gt;  $ 100  : num [1:2624] 0.00256 0.00336 0.00337 0.00334 0.00325 ...</span>
-<span class="co">#&gt;  $ 1000 : num [1:2624] 0.000213 0.000284 0.000295 0.000307 0.000319 ...</span>
-<span class="co">#&gt;  $ 10000: num [1:2624] 3.10e-05 3.97e-05 3.92e-05 3.88e-05 3.83e-05 ...</span>
+<span class="co">#&gt;  $ 10   : num [1:2624] 0.0246 0.0306 0.0261 0.0193 0.0125 ...</span>
+<span class="co">#&gt;  $ 100  : num [1:2624] 0.00256 0.00336 0.00338 0.00334 0.00326 ...</span>
+<span class="co">#&gt;  $ 1000 : num [1:2624] 0.000212 0.000284 0.000295 0.000307 0.00032 ...</span>
+<span class="co">#&gt;  $ 10000: num [1:2624] 3.09e-05 3.97e-05 3.93e-05 3.88e-05 3.83e-05 ...</span>
 
 <span class="co"># We can take this list, and use map() to convert it to a list of RasterLayers.</span>
 <span class="no">results_map</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span>(<span class="no">samc_obj</span>, <span class="no">results</span>)
@@ -186,16 +186,16 @@
 <p>If you want more control, the following shows how to loop through the results using two different options</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># The results of indivudal time steps can be retrieved by either index or by name </span>
 <span class="no">results</span><span class="kw">[[</span><span class="fl">3</span>]]
-<span class="co">#&gt;  [1] 0.0002126806 0.0002836587 0.0002951788 0.0003073177 0.0003194875</span>
-<span class="co">#&gt;  [6] 0.0003313417 0.0003426479 0.0003532431 0.0003630113 0.0003718700</span>
-<span class="co">#&gt; [11] 0.0003797613 0.0003866463 0.0003925001 0.0003973098 0.0004010717</span>
-<span class="co">#&gt; [16] 0.0004037907 0.0004054783 0.0004061527 0.0004058375 0.0004045612</span>
+<span class="co">#&gt;  [1] 0.0002122761 0.0002838443 0.0002953125 0.0003074062 0.0003195378</span>
+<span class="co">#&gt;  [6] 0.0003313612 0.0003426443 0.0003532239 0.0003629837 0.0003718411</span>
+<span class="co">#&gt; [11] 0.0003797378 0.0003866344 0.0003925059 0.0003973388 0.0004011292</span>
+<span class="co">#&gt; [16] 0.0004038814 0.0004056069 0.0004063231 0.0004060532 0.0004048254</span>
 <span class="co">#&gt;  [ reached getOption("max.print") -- omitted 2604 entries ]</span>
 <span class="no">results</span><span class="kw">[[</span><span class="st">"1000"</span>]]
-<span class="co">#&gt;  [1] 0.0002126806 0.0002836587 0.0002951788 0.0003073177 0.0003194875</span>
-<span class="co">#&gt;  [6] 0.0003313417 0.0003426479 0.0003532431 0.0003630113 0.0003718700</span>
-<span class="co">#&gt; [11] 0.0003797613 0.0003866463 0.0003925001 0.0003973098 0.0004010717</span>
-<span class="co">#&gt; [16] 0.0004037907 0.0004054783 0.0004061527 0.0004058375 0.0004045612</span>
+<span class="co">#&gt;  [1] 0.0002122761 0.0002838443 0.0002953125 0.0003074062 0.0003195378</span>
+<span class="co">#&gt;  [6] 0.0003313612 0.0003426443 0.0003532239 0.0003629837 0.0003718411</span>
+<span class="co">#&gt; [11] 0.0003797378 0.0003866344 0.0003925059 0.0003973388 0.0004011292</span>
+<span class="co">#&gt; [16] 0.0004038814 0.0004056069 0.0004063231 0.0004060532 0.0004048254</span>
 <span class="co">#&gt;  [ reached getOption("max.print") -- omitted 2604 entries ]</span>
 
 <span class="co"># The latter is particularly useful in making reliable for loops because indexed</span>

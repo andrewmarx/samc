@@ -4,9 +4,10 @@
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/samc)](https://cran.r-project.org/package=samc)
 [![Gitter](https://badges.gitter.im/samc-package/community.svg)](https://gitter.im/samc-package/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+
 ## Introduction
 
-This is an R package that implements functions for working with the framework described by Fletcher et al. in [*Toward a unified framework for connectivity that disentangles movement and mortality in space and time*](https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333) (Ecology Letters, 2019; DOI: [10.1111/ele.13333](https://doi.org/10.1111/ele.13333)).
+This is an R package that implements functions for working with absorbing Markov chains using theorems described in the book "Finite Markov Chains" by Kemeny and Snell. The design of this package is based on the implementation of these theorems in the framework described by Fletcher et al. in [*Toward a unified framework for connectivity that disentangles movement and mortality in space and time*](https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333) (Ecology Letters, 2019; DOI: [10.1111/ele.13333](https://doi.org/10.1111/ele.13333)), which applies them to spatial ecology. Despite the ecological context of the package, these functions can be used in any application of absorbing Markov chains.
 
 For more information, and recommended installation instructions, most users should visit the main home page at https://andrewmarx.github.io/samc. The remainder of this document is dedicated to installing the package from source (not recommended).
 
