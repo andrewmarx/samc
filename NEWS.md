@@ -3,7 +3,7 @@
 New Features:
 - Added the ability to create samc-class objects from a custom P matrix using p_mat parameter in samc(). See the samc() documentation for details
 - Added the cond_passage() function, which calculates conditional mean first passage times
-- Added the locate() function, which functions similarly to the cellsFromXY() function in the raster package. It's used to get cell numbers from xy coords, but unlike cellsFromXY(), it properly accounts for how cells are numbered when the P matrix is constructed.
+- Added the locate() function, which functions similarly to the cellFromXY() function in the raster package. It's used to get cell numbers from xy coords, but unlike cellFromXY(), it properly accounts for how cells are numbered when the P matrix is constructed.
 - Adjusted the absorption inputs to support values of 0 (i.e., no absorption). Currently, at least one cell must have a non-zero value
 
 Bug Fixes:

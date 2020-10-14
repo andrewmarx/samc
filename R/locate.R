@@ -18,8 +18,8 @@ NULL
 #' trying to determine the cell numbers that should be used in analyses.
 #'
 #' The \code{\link{locate}} function operates more-or-less like the
-#' \code{\link[raster]{cellsFromXY}} function in the raster package, but unlike
-#' \code{\link[raster]{cellsFromXY}}, locate properly accounts for NA cells
+#' \code{\link[raster]{cellFromXY}} function in the raster package, but unlike
+#' \code{\link[raster]{cellFromXY}}, locate properly accounts for NA cells
 #' in identifying cell numbers from coordinate data.
 #'
 #' This function can also be used if the samc object was created from matrix inputs
