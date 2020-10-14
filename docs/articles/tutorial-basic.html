@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -100,13 +100,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="tutorial-basic_files/header-attrs-2.3/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Basic Tutorial</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2020-05-19</h4>
+            <h4 class="date">2020-10-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-basic.Rmd"><code>vignettes/tutorial-basic.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-basic.Rmd</code></div>
@@ -118,7 +118,7 @@
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>This tutorial shows the basics of how to use the package to calculate and visualize several metrics. It utilizes the package’s built-in data, which is the same example data used in Fletcher et al. (2019).</p>
+<p>This tutorial shows the basics of how to use the package to calculate and visualize several metrics. It utilizes the package’s built-in data, which is the same example data used in Fletcher et al. (2019).</p>
 </div>
 <div id="libraries" class="section level2">
 <h2 class="hasAnchor">
@@ -173,16 +173,17 @@
 <span class="co"># cells in your data +1. In this case, our data has 2624 non-NA cells, so the</span>
 <span class="co"># matrix should be 2625 x 2625</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">samc_obj</span>)
-<span class="co">#&gt; Formal class 'samc' [package "samc"] with 3 slots</span>
+<span class="co">#&gt; Formal class 'samc' [package "samc"] with 4 slots</span>
 <span class="co">#&gt;   ..@ p       :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots</span>
-<span class="co">#&gt;   .. .. ..@ i       : int [1:21613] 1 115 116 117 0 2 116 117 118 1 ...</span>
+<span class="co">#&gt;   .. .. ..@ i       : int [1:21793] 1 115 116 117 0 2 116 117 118 1 ...</span>
 <span class="co">#&gt;   .. .. ..@ p       : int [1:2626] 0 4 9 14 19 24 29 34 39 44 ...</span>
 <span class="co">#&gt;   .. .. ..@ Dim     : int [1:2] 2625 2625</span>
 <span class="co">#&gt;   .. .. ..@ Dimnames:List of 2</span>
 <span class="co">#&gt;   .. .. .. ..$ : NULL</span>
 <span class="co">#&gt;   .. .. .. ..$ : NULL</span>
-<span class="co">#&gt;   .. .. ..@ x       : num [1:21613] 0.224 0.138 0.165 0.104 0.289 ...</span>
+<span class="co">#&gt;   .. .. ..@ x       : num [1:21793] 0.226 0.138 0.163 0.104 0.293 ...</span>
 <span class="co">#&gt;   .. .. ..@ factors : list()</span>
+<span class="co">#&gt;   ..@ source  : chr "map"</span>
 <span class="co">#&gt;   ..@ map     :Formal class 'RasterLayer' [package "raster"] with 12 slots</span>
 <span class="co">#&gt;   .. .. ..@ file    :Formal class '.RasterFile' [package "raster"] with 13 slots</span>
 <span class="co">#&gt;   .. .. .. .. ..@ name        : chr ""</span>
@@ -220,10 +221,10 @@
 <span class="co">#&gt;   .. .. .. .. ..@ colortable: logi(0) </span>
 <span class="co">#&gt;   .. .. ..@ title   : chr(0) </span>
 <span class="co">#&gt;   .. .. ..@ extent  :Formal class 'Extent' [package "raster"] with 4 slots</span>
-<span class="co">#&gt;   .. .. .. .. ..@ xmin: num 1</span>
+<span class="co">#&gt;   .. .. .. .. ..@ xmin: num 0.5</span>
 <span class="co">#&gt;   .. .. .. .. ..@ xmax: num 202</span>
-<span class="co">#&gt;   .. .. .. .. ..@ ymin: num 1</span>
-<span class="co">#&gt;   .. .. .. .. ..@ ymax: num 34</span>
+<span class="co">#&gt;   .. .. .. .. ..@ ymin: num 0.5</span>
+<span class="co">#&gt;   .. .. .. .. ..@ ymax: num 34.5</span>
 <span class="co">#&gt;   .. .. ..@ rotated : logi FALSE</span>
 <span class="co">#&gt;   .. .. ..@ rotation:Formal class '.Rotation' [package "raster"] with 2 slots</span>
 <span class="co">#&gt;   .. .. .. .. ..@ geotrans: num(0) </span>

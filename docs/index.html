@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -107,30 +107,34 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="samc" class="section level1">
+<div id="samc-" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#samc" class="anchor"></a>samc <a href="reference/figures/3d-stack.png"><img align="right" width="35%" src="reference/figures/3d-stack-small.png" style="padding-left: 10px"></a>
+<a href="#samc-" class="anchor"></a><strong>samc</strong> <a href="reference/figures/3d-stack.png"><img align="right" width="35%" src="reference/figures/3d-stack-small.png" style="padding-left: 10px"></a>
 </h1></div>
 
-<div id="introduction" class="section level2">
-<h2 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>This is an R package that implements functions for working with the framework described by Fletcher et al. in <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333"><em>Toward a unified framework for connectivity that disentangles movement and mortality in space and time</em></a> (Ecology Letters, 2019; DOI: <a href="https://doi.org/10.1111/ele.13333">10.1111/ele.13333</a>). This framework incorporates both resistance and absorption (or mortality) using spatial absorbing Markov chains to provide several short- and long-term predictions for metrics related to connectivity in landscapes. These metrics are listed in Table 1 of Fletcher et al. (2019), as well as the <a href="articles/overview.html">Overview</a> vignette.</p>
+<div id="introduction" class="section level3">
+<h3 class="hasAnchor">
+<a href="#introduction" class="anchor"></a><strong>Introduction</strong>
+</h3>
+<p>This is an R package that implements functions for working with absorbing Markov chains using theorems described in the book “Finite Markov Chains” by Kemeny and Snell. The design of this package is based on the implementation of these theorems in the framework described by Fletcher et al. in <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333"><em>Toward a unified framework for connectivity that disentangles movement and mortality in space and time</em></a> (Ecology Letters, 2019; DOI: <a href="https://doi.org/10.1111/ele.13333">10.1111/ele.13333</a>), which applies them to spatial ecology. This framework incorporates both resistance and absorption (or mortality) using spatial absorbing Markov chains to provide several short- and long-term predictions for metrics related to connectivity in landscapes. These metrics are listed in Table 1 of Fletcher et al. (2019), as well as the <a href="articles/overview.html">Overview</a> vignette. Despite the ecological context of the package, these functions can be used in any application of absorbing Markov chains.</p>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<div id="installation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#installation" class="anchor"></a><strong>Installation</strong>
+</h3>
 <p>It is recommended that users install the samc package via CRAN, where it will be regularly kept up to date.</p>
 <div class="sourceCode" id="cb1"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"samc"</span>)</pre></div>
 </div>
-<div id="citation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#citation" class="anchor"></a>Citation</h2>
-<p>Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020), samc: an R package for connectivity modeling with spatial absorbing Markov chains. Ecography, 43: 518-527. <a href="https://doi.org/10.1111/ecog.04891">doi:10.1111/ecog.04891</a></p>
+<div id="citation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#citation" class="anchor"></a><strong>Citation</strong>
+</h3>
+<p>Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020), samc: an R package for connectivity modeling with spatial absorbing Markov chains. Ecography, 43: 518-527. <a href="https://doi.org/10.1111/ecog.04891">doi:10.1111/ecog.04891</a></p>
 </div>
-<div id="support" class="section level2">
-<h2 class="hasAnchor">
-<a href="#support" class="anchor"></a>Support</h2>
+<div id="support" class="section level3">
+<h3 class="hasAnchor">
+<a href="#support" class="anchor"></a><strong>Support</strong>
+</h3>
 <p>Please note that this section is for package specific queries. If you have questions or comments about the related published articles, contact the authors.</p>
 <div id="not-sure-how-to-do-something-have-an-error-and-cant-fix-it" class="section level4">
 <h4 class="hasAnchor">
@@ -142,6 +146,13 @@
 <a href="#found-a-bug-have-a-feature-request" class="anchor"></a>Found a bug? Have a feature request?</h4>
 <p>If you’re getting an error or incorrect output, and are sure it is a bug, then report it as an issue in the GitHub repo (after making sure that it hasn’t already been posted). Make sure to include all possible relevant info (operating system, R version, samc version) and a fully reproducible example. Likewise, if you have a feature you’d like to see, submit it to the issue tracker. Keep in mind that my time is limited, so while I do have plans to add new features, I also have other obligations.</p>
 </div>
+</div>
+<div id="donate" class="section level3">
+<h3 class="hasAnchor">
+<a href="#donate" class="anchor"></a><strong>Donate</strong>
+</h3>
+<p>This package is developed in my spare time and is not a part of my job. Developing good quality software, continuing to maintain it (fix bugs, add features, improve performance, etc), and helping users requires a substantial amount of time. If you’ve used this package and have found that it has saved you time and effort, or you just think that it is a valuable contribution to the scientific community, please consider supporting it.</p>
+<p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=FHN4C95TPD3Z2&amp;currency_code=USD"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="paypal"></a></p>
 </div>
 </div>
   </div>
@@ -184,6 +195,7 @@
 <li><a href="https://cran.r-project.org/package=samc"><img src="https://www.r-pkg.org/badges/version/samc" alt="CRAN_Status_Badge"></a></li>
 <li><a href="https://cran.r-project.org/package=samc"><img src="https://cranlogs.r-pkg.org/badges/grand-total/samc" alt="metacran downloads"></a></li>
 <li><a href="https://gitter.im/samc-package/community?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge"><img src="https://badges.gitter.im/samc-package/community.svg" alt="Gitter"></a></li>
+<li><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=FHN4C95TPD3Z2&amp;currency_code=USD"><img src="https://img.shields.io/badge/Donate-PayPal-green.svg" alt="Donate"></a></li>
 </ul>
 </div>
 </div>

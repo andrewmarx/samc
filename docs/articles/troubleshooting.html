@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -100,13 +100,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="troubleshooting_files/header-attrs-2.3/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Troubleshooting</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2020-05-19</h4>
+            <h4 class="date">2020-10-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/troubleshooting.Rmd"><code>vignettes/troubleshooting.Rmd</code></a></small>
       <div class="hidden name"><code>troubleshooting.Rmd</code></div>
@@ -160,7 +160,7 @@
 <span class="co"># argument it is, R is trying to find a version of the function that expects it</span>
 <span class="co"># as the third argument, but this version does not exist.</span>
 <span class="no">samc_obj</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span>(<span class="no">res_data</span>, <span class="no">abs_data</span>, <span class="kw">function</span>(<span class="no">x</span>) <span class="fl">1</span>/<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="no">x</span>))
-<span class="co">#&gt; Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'samc' for signature '"matrix", "matrix", "function", "missing", "missing"'</span>
+<span class="co">#&gt; Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'samc' for signature '"matrix", "matrix", "function", "missing", "missing", "missing"'</span>
 
 <span class="co"># Solution</span>
 <span class="no">samc_obj</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span>(<span class="no">res_data</span>, <span class="no">abs_data</span>, <span class="kw">tr_fun</span> <span class="kw">=</span> <span class="kw">function</span>(<span class="no">x</span>) <span class="fl">1</span>/<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="no">x</span>))
@@ -170,7 +170,7 @@
 <span class="co"># single numeric value as absorption data. However, the absorption data must </span>
 <span class="co"># always be in a matrix or RasterLayer object</span>
 <span class="no">samc_obj</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span>(<span class="no">res_data</span>, <span class="fl">0.01</span>, <span class="kw">tr_fun</span> <span class="kw">=</span> <span class="kw">function</span>(<span class="no">x</span>) <span class="fl">1</span>/<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="no">x</span>))
-<span class="co">#&gt; Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'samc' for signature '"matrix", "numeric", "missing", "missing", "function"'</span>
+<span class="co">#&gt; Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'samc' for signature '"matrix", "numeric", "missing", "missing", "function", "missing"'</span>
 
 <span class="co"># Solution</span>
 <span class="no">samc_obj</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span>(<span class="no">res_data</span>, <span class="no">abs_data</span>, <span class="kw">tr_fun</span> <span class="kw">=</span> <span class="kw">function</span>(<span class="no">x</span>) <span class="fl">1</span>/<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="no">x</span>))</pre></body></html></div>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calculate mortality metrics — mortality • samc</title>
+<title>Get cell numbers — locate • samc</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Calculate mortality metrics — mortality" />
-<meta property="og:description" content="Calculates the probability of experiencing mortality at specific locations." />
+<meta property="og:title" content="Get cell numbers — locate" />
+<meta property="og:description" content="Get cell numbers from raster data" />
 
 
 
@@ -144,166 +144,61 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calculate mortality metrics</h1>
-    <small class="dont-index">Source: <a href='https://github.com/andrewmarx/samc/blob/master/R/mortality.R'><code>R/mortality.R</code></a></small>
-    <div class="hidden name"><code>mortality.Rd</code></div>
+    <h1>Get cell numbers</h1>
+    <small class="dont-index">Source: <a href='https://github.com/andrewmarx/samc/blob/master/R/locate.R'><code>R/locate.R</code></a></small>
+    <div class="hidden name"><code>locate.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the probability of experiencing mortality at specific locations.</p>
+    <p>Get cell numbers from raster data</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>occ</span>, <span class='no'>origin</span>, <span class='no'>dest</span>, <span class='no'>time</span>)
+    <pre class="usage"><span class='fu'>locate</span>(<span class='no'>samc</span>, <span class='no'>xy</span>)
 
-<span class='co'># S4 method for samc,missing,missing,missing,numeric</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>time</span>)
+<span class='co'># S4 method for samc,missing</span>
+<span class='fu'>locate</span>(<span class='no'>samc</span>)
 
-<span class='co'># S4 method for samc,missing,numeric,missing,numeric</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>origin</span>, <span class='no'>time</span>)
-
-<span class='co'># S4 method for samc,missing,missing,numeric,numeric</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>dest</span>, <span class='no'>time</span>)
-
-<span class='co'># S4 method for samc,missing,numeric,numeric,numeric</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>origin</span>, <span class='no'>dest</span>, <span class='no'>time</span>)
-
-<span class='co'># S4 method for samc,RasterLayer,missing,missing,numeric</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>occ</span>, <span class='no'>time</span>)
-
-<span class='co'># S4 method for samc,matrix,missing,missing,numeric</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>occ</span>, <span class='no'>time</span>)
-
-<span class='co'># S4 method for samc,missing,missing,missing,missing</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>)
-
-<span class='co'># S4 method for samc,missing,numeric,missing,missing</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>origin</span>)
-
-<span class='co'># S4 method for samc,missing,missing,numeric,missing</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>dest</span>)
-
-<span class='co'># S4 method for samc,missing,numeric,numeric,missing</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>origin</span>, <span class='no'>dest</span>)
-
-<span class='co'># S4 method for samc,RasterLayer,missing,missing,missing</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>occ</span>)
-
-<span class='co'># S4 method for samc,matrix,missing,missing,missing</span>
-<span class='fu'>mortality</span>(<span class='no'>samc</span>, <span class='no'>occ</span>)</pre>
+<span class='co'># S4 method for samc,ANY</span>
+<span class='fu'>locate</span>(<span class='no'>samc</span>, <span class='no'>xy</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>samc</th>
-      <td><p>A <code><a href='samc-class.html'>samc-class</a></code> object. This should be output from
-the <code><a href='samc.html'>samc</a></code> function.</p></td>
+      <td><p>A <code><a href='samc-class.html'>samc-class</a></code> object</p></td>
     </tr>
     <tr>
-      <th>occ</th>
-      <td><p>A <code><a href='https://rdrr.io/pkg/raster/man/Raster-classes.html'>RasterLayer-class</a></code> or <code><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></code>.
-The input type must match the input type used to create the
-<code><a href='samc-class.html'>samc-class</a></code> object, and must have the same properties as the
-rest of the landscape data. See the <code><a href='check.html'>check</a></code> function for more
-details.</p></td>
-    </tr>
-    <tr>
-      <th>origin</th>
-      <td><p>A positive integer representing a cell in the landscape,
-excluding <code>NA</code> cells. Corresponds to row <em>i</em> of matrix <em>P</em>
-in the <code><a href='samc-class.html'>samc-class</a></code> object.</p></td>
-    </tr>
-    <tr>
-      <th>dest</th>
-      <td><p>A positive integer representing a cell in the landscape,
-excluding <code>NA</code> cells. Corresponds to column <em>j</em> of matrix <em>P</em>
-in the <code><a href='samc-class.html'>samc-class</a></code> object.</p></td>
-    </tr>
-    <tr>
-      <th>time</th>
-      <td><p>A positive integer or a vector of positive integers representing
-time steps. Vectors must be ordered and contain no duplicates. Vectors may
-not be used for metrics that return dense matrices. The maximum time step
-value is capped at 10,000.</p></td>
+      <th>xy</th>
+      <td><p>Any valid input to the y argument of the <code><a href='https://rdrr.io/pkg/raster/man/extract.html'>extract</a></code> function in the raster package.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A matrix, vector, or numeric</p>
+    <p>A rasterlayer or a vector</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>\(\tilde{B}_t = (\sum_{n=0}^{t-1} Q^n) \tilde{R}\)</p><ul>
-<li><p><strong>mortality(samc, time)</strong></p>
-<p>The result is a matrix where element (i,j) is the probability of experiencing
-mortality at location j within t or fewer steps if starting at location i.</p>
-<p>The returned matrix will always be dense and cannot be optimized. Must enable
-override to use.</p></li>
-<li><p><strong>mortality(samc, origin, time)</strong></p>
-<p>The result is a vector (single time step) or a list of vectors (multiple
-time steps) where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. Element j is the probability of experiencing
-mortality at location j within t or fewer steps if starting at a given origin.</p></li>
-<li><p><strong>mortality(samc, dest, time)</strong></p>
-<p>The result is a vector (single time step) or a list of vectors (multiple
-time steps) where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. Element i is the probability of experiencing
-mortality at a given destination within t or fewer steps if starting at
-location i.</p></li>
-<li><p><strong>mortality(samc, origin, dest, time)</strong></p>
-<p>The result is a numeric value (single time step) or a list of numeric
-values (multiple time steps) that is the probability of experiencing
-mortality at a given destination within t or fewer steps if starting at a
-given origin.</p></li>
-</ul>
-
-<p>\(\psi^T \tilde{B}_t\)</p><ul>
-<li><p><strong>mortality(samc, occ, time)</strong></p>
-<p>The result is a vector (single time step) or a list of vectors (multiple
-time steps) where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. Element j is the unconditional probability of
-experiencing mortality at location j within t or fewer time steps.</p></li>
-</ul>
-
-<p>\(B = F \tilde{R}\)</p><ul>
-<li><p><strong>mortality(samc)</strong></p>
-<p>The result is a matrix where element (i,j) is the probability of experiencing
-mortality at location j if starting at location i.</p>
-<p>The returned matrix will always be dense and cannot be optimized. Must enable
-override to use.</p></li>
-<li><p><strong>mortality(samc, origin)</strong></p>
-<p>The result is a vector where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. Element j is the probability of experiencing
-mortality at location j if starting at a given origin.</p></li>
-<li><p><strong>mortality(samc, dest)</strong></p>
-<p>The result is a vector where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. Element i is the probability of experiencing
-mortality at a given destination if starting at location i.</p></li>
-<li><p><strong>mortality(samc, origin, dest)</strong></p>
-<p>The result is a numeric value that is the probability of experiencing
-mortality at a given destination if starting at a given origin</p></li>
-</ul>
-
-<p>\(\psi^T B\)</p><ul>
-<li><p><strong>mortality(samc, occ)</strong></p>
-<p>The result is a vector where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. Element j is the unconditional probability of
-experiencing mortality at location j, regardless of the initial state.</p></li>
-</ul>
-
-    <h2 class="hasAnchor" id="performance"><a class="anchor" href="#performance"></a>Performance</h2>
-
-    
-
-
-<p>Any relevant performance information about this function can be found in the
-performance vignette: <a href='../doc/performance.html'><code><a href='../articles/performance.html'>vignette("performance", package = "samc")</a></code></a></p>
+    <p>This function is used to get cell numbers from raster data. The numbers used
+for origin and destination values in many samc metrics refer to column/row
+numbers of the P matrix. For a P matrix derived from raster data, these numbers
+would normally line up with the cell numbers of the raster, but this is not
+always true. This is the case when the raster contains NA data; the cells
+associated with this data are excluded from the P matrix. This causes issues
+trying to determine the cell numbers that should be used in analyses.</p>
+<p>The <code>locate</code> function operates more-or-less like the
+<code>cellsFromXY</code> function in the raster package, but unlike
+<code>cellsFromXY</code>, locate properly accounts for NA cells
+in identifying cell numbers from coordinate data.</p>
+<p>This function can also be used if the samc object was created from matrix inputs
+for the resistance, absorption, and fidelity parameters. In this case, the
+values in the xy coordinate parameter can be column-row values with the caveat
+that (1,1) is the bottom left corner.</p>
+<p>The xy parameter can also be excluded. In this case, the function returns a
+raster where the values of the cells contains the cell number.</p>
+<p>Internally, this function relies on the <code><a href='https://rdrr.io/pkg/raster/man/extract.html'>extract</a></code> function
+from the raster package, and any valid input for the y argument of that function
+is valid here.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># "Load" the data. In this case we are using data built into the package.</span>
@@ -330,7 +225,7 @@ performance vignette: <a href='../doc/performance.html'><code><a href='../articl
 
 
 <span class='co'># Calculate short- and long-term metrics using the analytical functions</span>
-<span class='no'>short_mort</span> <span class='kw'>&lt;-</span> <span class='fu'>mortality</span>(<span class='no'>samc_obj</span>, <span class='no'>occ_prob_data</span>, <span class='kw'>time</span> <span class='kw'>=</span> <span class='fl'>50</span>)
+<span class='no'>short_mort</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mortality.html'>mortality</a></span>(<span class='no'>samc_obj</span>, <span class='no'>occ_prob_data</span>, <span class='kw'>time</span> <span class='kw'>=</span> <span class='fl'>50</span>)
 <span class='no'>short_dist</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='distribution.html'>distribution</a></span>(<span class='no'>samc_obj</span>, <span class='kw'>origin</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>time</span> <span class='kw'>=</span> <span class='fl'>50</span>)
 <span class='no'>long_disp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='dispersal.html'>dispersal</a></span>(<span class='no'>samc_obj</span>, <span class='no'>occ_prob_data</span>)</div><div class='output co'>#&gt; Performing setup. This can take several minutes... Complete.
 #&gt; Calculating matrix inverse diagonal...Calculating matrix inverse diagonal... Complete                                           
