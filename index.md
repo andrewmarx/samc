@@ -3,7 +3,7 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/samc)](https://cran.r-project.org/package=samc)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/samc)](https://cran.r-project.org/package=samc)
 [![Gitter](https://badges.gitter.im/samc-package/community.svg)](https://gitter.im/samc-package/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=FHN4C95TPD3Z2&currency_code=USD)
+
 
 ### **Introduction**
 
@@ -35,10 +35,3 @@ If you have an error, make sure you are using the newest version of the package.
 #### Found a bug? Have a feature request?
 
 If you're getting an error or incorrect output, and are sure it is a bug, then report it as an issue in the GitHub repo (after making sure that it hasn't already been posted). Make sure to include all possible relevant info (operating system, R version, samc version) and a fully reproducible example. Likewise, if you have a feature you'd like to see, submit it to the issue tracker. Keep in mind that my time is limited, so while I do have plans to add new features, I also have other obligations.
-
-
-### **Donate**
-
-This package is developed in my spare time and is not a part of my job. Developing good quality software, continuing to maintain it (fix bugs, add features, improve performance, etc), and helping users requires a substantial amount of time. If you've used this package and have found that it has saved you time and effort, or you just think that it is a valuable contribution to the scientific community, please consider supporting it.
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=FHN4C95TPD3Z2&currency_code=USD)

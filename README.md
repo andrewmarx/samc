@@ -3,7 +3,7 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/samc)](https://cran.r-project.org/package=samc)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/samc)](https://cran.r-project.org/package=samc)
 [![Gitter](https://badges.gitter.im/samc-package/community.svg)](https://gitter.im/samc-package/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=FHN4C95TPD3Z2&currency_code=USD)
+
 
 ## Introduction
 
