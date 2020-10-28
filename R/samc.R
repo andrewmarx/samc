@@ -182,7 +182,7 @@ setMethod(
 
     # Remove rows/cols for NA cells
     excl <- which(is.na(abs_vec))
-    p = p[-excl, -excl]
+    if (length(excl) > 0) p = p[-excl, -excl]
 
     # Assemble final
     m <- resistance
