@@ -184,9 +184,23 @@ setMethod(
     excl <- which(is.na(abs_vec))
     if (length(excl) > 0) p = p[-excl, -excl]
 
-    # Assemble final
+    # Create map template
     m <- resistance
     m[] <- is.finite(m[])
+
+    # Chekc for "clumps"
+    cl <- raster::clump(m, directions = 8, gaps = FALSE)
+    if (sum(!is.na(unique(cl[]))) > 1) warning("Input contains disconnected regions.
+                                              This can cause issues with the cond_passage()
+                                              metric, and other metrics currently
+                                              require every distinct section to contain
+                                              at least one cell wtih a non-zero absorption
+                                              value (not currently checked automatically). Future
+                                              package versions will implement additional
+                                              functionality for dealing with disconnected
+                                              regions in input data.")
+
+    # Assemble final
 
     samc_mat <- methods::new("samc", p = p, source = "map", map = m, override = override)
 
