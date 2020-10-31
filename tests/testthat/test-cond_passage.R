@@ -12,13 +12,13 @@ samc_p <- samc(p_mat = samc_obj@p)
 Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
 Q <- as.matrix(Q)
 
-qj <- Q[-col, col]
-Qj <- Q[-col, -col]
+qj <- Q[-col_vec[1], col_vec[1]]
+Qj <- Q[-col_vec[1], -col_vec[1]]
 
 I <- diag(nrow(Qj))
 
 r <- samc_obj@p[-nrow(samc_obj@p), ncol(samc_obj@p)]
-r <- r[-col]
+r <- r[-col_vec[1]]
 
 R <- cbind(r, qj)
 
@@ -38,7 +38,7 @@ result <- as.numeric(result)
 # Run the tests
 test_that("Testing cond_passage(samc, dest)", {
 
-  r1 <- cond_passage(samc_p, dest = col)
+  r1 <- cond_passage(samc_p, dest = col_vec[1])
 
   # Verify
   expect_equal(dim(r1), dim(result))
@@ -47,12 +47,12 @@ test_that("Testing cond_passage(samc, dest)", {
 
 test_that("Testing cond_passage(samc, origin, dest)", {
 
-  r1 <- cond_passage(samc_p, origin = row, dest = col)
+  r1 <- cond_passage(samc_p, origin = row_vec[1], dest = col_vec[1])
 
   r_vec <- cond_passage(samc_p, row_vec, col_vec)
 
   # Verify
-  expect_equal(as.vector(r1), as.vector(result[row]))
+  expect_equal(as.vector(r1), as.vector(result[row_vec[1]]))
   for (i in 1:length(row_vec)) {
     r1 <- cond_passage(samc_p, row_vec[i], col_vec[i])
     expect_equal(r_vec[i], r1)

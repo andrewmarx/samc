@@ -25,30 +25,30 @@ test_that("Testing visitation(samc)", {
 
 test_that("Testing visitation(samc, origin)", {
 
-  r1 <- visitation(samc_obj, origin = row)
+  r1 <- visitation(samc_obj, origin = row_vec[1])
 
   r2 <- solve(I - Q)
 
   # Verify equality
-  expect_equal(r1, r2[row, ])
+  expect_equal(r1, r2[row_vec[1], ])
 })
 
 test_that("Testing visitation(samc, dest)", {
 
-  r1 <- visitation(samc_obj, dest = col)
+  r1 <- visitation(samc_obj, dest = col_vec[1])
 
   r2 <- solve(I - Q)
 
   # Verify equality
-  expect_equal(r1, r2[, col])
+  expect_equal(r1, r2[, col_vec[1]])
 })
 
 test_that("Testing visitation(samc, origin, dest)", {
 
-  r1 <- visitation(samc_obj, origin = row, dest = col)
+  r1 <- visitation(samc_obj, origin = row_vec[1], dest = col_vec[1])
 
   r2 <- solve(I - Q)
 
   # Verify equality
-  expect_equal(r1, r2[row, col])
+  expect_equal(r1, r2[row_vec[1], col_vec[1]])
 })

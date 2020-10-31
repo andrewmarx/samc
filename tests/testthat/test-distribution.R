@@ -34,9 +34,9 @@ test_that("Testing distribution(samc, time)", {
 
 test_that("Testing distribution(samc, origin, time)", {
 
-  r1 <- distribution(samc_obj, origin = row, time = time)
+  r1 <- distribution(samc_obj, origin = row_vec[1], time = time)
 
-  r2 <- Pt[row, ]
+  r2 <- Pt[row_vec[1], ]
 
   # Verify
   expect_equal(r1, r2)
@@ -44,14 +44,14 @@ test_that("Testing distribution(samc, origin, time)", {
 
 test_that("Testing distribution(samc, origin, time_vec)", {
 
-  r1 <- distribution(samc_obj, origin = row, time = time_vec)
+  r1 <- distribution(samc_obj, origin = row_vec[1], time = time_vec)
 
   for (i in 1:length(time_vec)) {
     pt <- Q
     for (j in 2:time_vec[i]) {
       pt <- pt %*% Q
     }
-    r2 <- pt[row, ]
+    r2 <- pt[row_vec[1], ]
 
     # Verify
     expect_equal(r1[[i]], r2)
@@ -60,9 +60,9 @@ test_that("Testing distribution(samc, origin, time_vec)", {
 
 test_that("Testing distribution(samc, dest, time)", {
 
-  r1 <- distribution(samc_obj, dest = col, time = time)
+  r1 <- distribution(samc_obj, dest = col_vec[1], time = time)
 
-  r2 <- Pt[, col]
+  r2 <- Pt[, col_vec[1]]
 
   # Verify
   expect_equal(r1, r2)
@@ -70,14 +70,14 @@ test_that("Testing distribution(samc, dest, time)", {
 
 test_that("Testing distribution(samc, dest, time_vec)", {
 
-  r1 <- distribution(samc_obj, dest = col, time = time_vec)
+  r1 <- distribution(samc_obj, dest = col_vec[1], time = time_vec)
 
   for (i in 1:length(time_vec)) {
     pt <- Q
     for (j in 2:time_vec[i]) {
       pt <- Q %*% pt
     }
-    r2 <- pt[, col]
+    r2 <- pt[, col_vec[1]]
 
     # Verify
     expect_equal(r1[[i]], r2)
@@ -86,9 +86,9 @@ test_that("Testing distribution(samc, dest, time_vec)", {
 
 test_that("Testing distribution(samc, origin, dest, time)", {
 
-  r1 <- distribution(samc_obj, origin = row, dest = col, time = time)
+  r1 <- distribution(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time)
 
-  r2 <- Pt[row, col]
+  r2 <- Pt[row_vec[1], col_vec[1]]
 
   # Verify
   expect_equal(r1, r2)
@@ -96,14 +96,14 @@ test_that("Testing distribution(samc, origin, dest, time)", {
 
 test_that("Testing distribution(samc, origin, dest, time_vec)", {
 
-  r1 <- distribution(samc_obj, origin = row, dest = col, time = time_vec)
+  r1 <- distribution(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time_vec)
 
   for (i in 1:length(time_vec)) {
     pt <- Q
     for (j in 2:time_vec[i]) {
       pt <- pt %*% Q
     }
-    r2 <- pt[row, col]
+    r2 <- pt[row_vec[1], col_vec[1]]
 
     # Verify
     expect_equal(r1[[i]], r2)

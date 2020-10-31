@@ -115,15 +115,13 @@ for(m in masklist) {
 }
 
 for(i in 1: length(testlist)) {
-  print(paste("Building samc object", i))
   testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
 
   testlist[[i]]$samc <- samc(testlist[[i]]$res, testlist[[i]]$abs, testlist[[i]]$fid, tr_fun = function(x) 1/mean(x), override = TRUE)
 }
 
 
-row = 13
-col = 23
+
 time = 100
 time_vec = c(3, 5, 7, 11, 13)
 row_vec = c(7, 34, 5, 5)
