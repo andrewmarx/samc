@@ -2,7 +2,7 @@ context("Survival")
 
 
 # Create the samc object
-samc_obj <- samc(res, abs, fid, tr_fun = function(x) 1/mean(x), override = TRUE)
+samc_obj <- testlist[[1]]$samc
 
 # Extract Q
 Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
@@ -19,6 +19,7 @@ pv <- pv[is.finite(pv)]
 
 # Run the tests
 test_that("Testing survival(samc)", {
+
   r1 <- survival(samc_obj)
 
   v1 <- numeric(nrow(Q))

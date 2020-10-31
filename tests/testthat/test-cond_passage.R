@@ -2,7 +2,7 @@ context("Conditional Passage Time")
 
 
 # Create the samc object
-samc_obj <- samc(res, abs, fid, tr_fun = function(x) 1/mean(x), override = TRUE)
+samc_obj <- testlist[[1]]$samc
 
 # Create a version from P matrix
 samc_p <- samc(p_mat = samc_obj@p)
