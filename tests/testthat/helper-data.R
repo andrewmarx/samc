@@ -2,8 +2,6 @@
 # This helper file contains data for each of the unit tests so that it is not
 # repeated across test files.
 
-# TODO Update matrices with 1 and 2 cell islands when the tests are adjusted for it
-# TODO Rename matrices (at least abs)
 
 res <- matrix(c(1,  1,  2,  2,  3,  3,  2,  2,  1,  1,
                 1,  2,  2,  3, 10, 10,  3,  2,  2,  1,
@@ -46,16 +44,31 @@ fid <- fid/100
 occ <- matrix(c(0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-                0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                 0,  1,  1,  0,  0,  0,  0,  0,  0,  0,
                 0,  1,  1,  0,  0,  0,  0,  0,  0,  0,
-                0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+                0,  1,  1,  0,  0,  0,  0,  0,  0,  0,
+                0,  1,  1,  0,  0,  0,  0,  0,  0,  0,
                 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                 0,  0,  0,  0,  0,  0,  0,  0,  0,  0),
               nrow = 10)
 
+baselist <- list(res = res, abs = abs, fid = fid, occ = occ)
+
 # Raster masks for testing different scenarios
+
+mask <- matrix(c(1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,  1,  1,  1,  1,  1),
+               nrow = 10)
+
 mask1 <- matrix(c(1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
                   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
                   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -67,6 +80,48 @@ mask1 <- matrix(c(1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
                   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
                   1,  1,  1,  1,  1,  1,  1,  1,  1,  1),
                 nrow = 10)
+
+mask2 <- matrix(c(1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1),
+                nrow = 10)
+
+mask3 <- matrix(c(1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1, NA, NA, NA,  1,  1,  1,
+                  1,  1,  1,  1, NA,  1, NA,  1,  1,  1,
+                  1,  1,  1,  1, NA, NA, NA,  1,  1,  1,
+                  1, NA, NA, NA,  1,  1,  1,  1,  1,  1,
+                  1, NA,  1, NA,  1,  1,  1,  1,  1,  1,
+                  1, NA, NA, NA,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1),
+                nrow = 10)
+
+masklist <- list(mask1 = mask1, mask2 = mask2, mask3 = mask3)
+
+# lapply(baselist, function(x) {mask2 * x}) # reference for troubleshooting by quickly seeing results
+
+testlist <- list(baselist)
+for(m in masklist) {
+  testlist <- append(testlist, list(lapply(baselist, function(x) {m * x})))
+}
+
+for(i in 1: length(testlist)) {
+  print(paste("Building samc object", i))
+  testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
+
+  testlist[[i]]$samc <- samc(testlist[[i]]$res, testlist[[i]]$abs, testlist[[i]]$fid, tr_fun = function(x) 1/mean(x), override = TRUE)
+}
+
+
 row = 13
 col = 23
 time = 100
