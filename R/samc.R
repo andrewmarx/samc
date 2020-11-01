@@ -206,7 +206,7 @@ setMethod(
 
     # Assemble final
 
-    samc_mat <- methods::new("samc", p = p, source = "map", map = m, override = override)
+    samc_mat <- methods::new("samc", p = p, source = "map", map = m, clumps = clumps, override = override)
 
     return(samc_mat)
   })
@@ -283,10 +283,15 @@ setMethod(
     if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element")
     if (!isTRUE(all.equal(Matrix::rowSums(p_mat), rep(1, r)))) stop("All row sums must be equal to 1") # Use all.equal() to avoid numerical precision issues
 
+    print("Warning: Some checks for manually created P matrices are still missing:")
+    print("1) Discontinuous data will not work with the cond_passage() function.")
+    print("2) Every disconnected region of the graph must have at least one non-zero absorption value.")
+    # TODO The clumps value is a placeholder and needs to be calculated as a safety check for the cond_passage() function
     samc_obj <- methods::new("samc",
                              p = p_mat,
                              source = "matrix",
                              map = raster::raster(matrix()),
+                             clumps = 1,
                              override = override)
 
     return(samc_obj)
