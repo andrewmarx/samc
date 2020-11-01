@@ -38,6 +38,7 @@ setClass(
   slots = list(p = "dgCMatrix",
                source = "character",
                map = "RasterLayer",
+               clumps = "numeric",
                override = "logical")
 
   # set default values
