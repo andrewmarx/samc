@@ -55,6 +55,8 @@ setMethod(
   "cond_passage",
   signature(samc = "samc", origin = "missing", dest = "numeric"),
   function(samc, dest) {
+    if (samc@clumps > 1)
+      stop("This function cannot be used with discontinuous data")
 
     if (dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
       stop("dest must be an integer that refers to a cell in the landscape")
