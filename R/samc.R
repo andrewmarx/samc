@@ -147,6 +147,26 @@ setMethod(
       stop("No cells can have fidelity + absoprtion > 1")
     }
 
+
+    # Create map template
+    m <- resistance
+    m[] <- is.finite(m[])
+
+    # Check for "clumps"
+    cl <- raster::clump(m, directions = 8, gaps = FALSE)
+    clumps <- sum(!is.na(unique(cl[])))
+
+    if (clumps > 1) {
+      print("Warning: Input contains disconnected regions. This does not work with the cond_passage() metric.")
+
+      temp_abs <- absorption
+      temp_abs[temp_abs > 0] <- 1
+      temp_abs <- temp_abs * cl
+
+      if (!all(1:clumps %in% unique(temp_abs[]))) stop("All disconnected regions must have at least one non-zero absorption value")
+    }
+
+
     # Create the transition matrix
     tr <- gdistance::transition(resistance, transitionFunction = tr_fun, 8)
     if (latlon) {
@@ -183,22 +203,6 @@ setMethod(
     # Remove rows/cols for NA cells
     excl <- which(is.na(abs_vec))
     if (length(excl) > 0) p = p[-excl, -excl]
-
-    # Create map template
-    m <- resistance
-    m[] <- is.finite(m[])
-
-    # Chekc for "clumps"
-    cl <- raster::clump(m, directions = 8, gaps = FALSE)
-    if (sum(!is.na(unique(cl[]))) > 1) warning("Input contains disconnected regions.
-                                              This can cause issues with the cond_passage()
-                                              metric, and other metrics currently
-                                              require every distinct section to contain
-                                              at least one cell wtih a non-zero absorption
-                                              value (not currently checked automatically). Future
-                                              package versions will implement additional
-                                              functionality for dealing with disconnected
-                                              regions in input data.")
 
     # Assemble final
 
