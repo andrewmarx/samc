@@ -40,11 +40,7 @@ RoxygenNote: 7.1.1
 Suggests: knitr,
     rmarkdown,
     testthat,
-    ggplot2,
-    png,
-    viridis,
-    gifski,
-    gganimate
+    viridis
 VignetteBuilder: knitr
 Collate:
     'RcppExports.R'
