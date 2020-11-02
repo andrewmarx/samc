@@ -29,8 +29,8 @@ Description: Implements functions for working with absorbing Markov chains. The
     landscapes. Despite the ecological context of the framework, this package
     can be used in any application of absorbing Markov chains.
 License: GPL (>=3)
-URL: https://andrewmarx.github.io/samc
-BugReports: https://github.com/andrewmarx/samc/issues
+URL: https://andrewmarx.github.io/samc/
+BugReports: https://github.com/andrewmarx/samc/issues/
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.3.0)
