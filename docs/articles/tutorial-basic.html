@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@
       <h1 data-toc-skip>Basic Tutorial</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2020-10-14</h4>
+            <h4 class="date">2020-11-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-basic.Rmd"><code>vignettes/tutorial-basic.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-basic.Rmd</code></div>
@@ -123,21 +123,23 @@
 <div id="libraries" class="section level2">
 <h2 class="hasAnchor">
 <a href="#libraries" class="anchor"></a>Libraries</h2>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="co"># First step is to load the libraries. Not all of these libraries are stricly</span>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="co"># First step is to load the libraries. Not all of these libraries are stricly</span>
 <span class="co"># needed; some are used for convenience and visualization for this tutorial.</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"samc"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"raster"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"viridis"</span>)</pre></body></html></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://andrewmarx.github.io/samc">"samc"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/raster">"raster"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/sjmgarnier/viridis">"viridis"</a></span><span class="op">)</span></pre></div>
 </div>
 <div id="load-the-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-the-data" class="anchor"></a>Load the Data</h2>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># "Load" the data. In this case we are using data built into the package.</span>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="co"># "Load" the data. In this case we are using data built into the package.</span>
 <span class="co"># In practice, users will likely load raster data using the raster() function</span>
 <span class="co"># from the raster package.</span>
-<span class="no">res_data</span> <span class="kw">&lt;-</span> <span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_res_data.html">ex_res_data</a></span>
-<span class="no">abs_data</span> <span class="kw">&lt;-</span> <span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>
-<span class="no">occ_data</span> <span class="kw">&lt;-</span> <span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>
+<span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span>
+<span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>
+<span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>
 
 
 <span class="co"># Plot the data and make sure it looks good. The built-in data is in matrices, </span>
@@ -147,24 +149,25 @@
 <span class="co"># the default extents will be (0,1) for both x and y, which is not only</span>
 <span class="co"># uninformative, but can result in "stretching" when visualizing datasets</span>
 <span class="co"># based non-square matrices.</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span>(<span class="no">res_data</span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span>(<span class="no">res_data</span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span>(<span class="no">res_data</span>)),
-     <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Example Resistance Data"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">res_data</span>, xmn <span class="op">=</span> <span class="fl">1</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span><span class="op">(</span><span class="va">res_data</span><span class="op">)</span>, ymn <span class="op">=</span> <span class="fl">1</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">res_data</span><span class="op">)</span><span class="op">)</span>,
+     main <span class="op">=</span> <span class="st">"Example Resistance Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span>(<span class="no">abs_data</span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span>(<span class="no">abs_data</span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span>(<span class="no">abs_data</span>)),
-     <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Example Absorption Data"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">abs_data</span>, xmn <span class="op">=</span> <span class="fl">1</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span><span class="op">(</span><span class="va">abs_data</span><span class="op">)</span>, ymn <span class="op">=</span> <span class="fl">1</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">abs_data</span><span class="op">)</span><span class="op">)</span>,
+     main <span class="op">=</span> <span class="st">"Example Absorption Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span>(<span class="no">occ_data</span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span>(<span class="no">occ_data</span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span>(<span class="no">occ_data</span>)),
-     <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Example Occupancy Data"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))</pre></body></html></div>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">occ_data</span>, xmn <span class="op">=</span> <span class="fl">1</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span><span class="op">(</span><span class="va">occ_data</span><span class="op">)</span>, ymn <span class="op">=</span> <span class="fl">1</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">occ_data</span><span class="op">)</span><span class="op">)</span>,
+     main <span class="op">=</span> <span class="st">"Example Occupancy Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="tutorial-basic_files/figure-html/unnamed-chunk-2-1.png" width="700"><img src="tutorial-basic_files/figure-html/unnamed-chunk-2-2.png" width="700"><img src="tutorial-basic_files/figure-html/unnamed-chunk-2-3.png" width="700"></p>
 </div>
 <div id="create-the-samc-object" class="section level2">
 <h2 class="hasAnchor">
 <a href="#create-the-samc-object" class="anchor"></a>Create the <code>samc</code> Object</h2>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># Create a `samc-class` object using the resistance and absorption data. We use the</span>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="co"># Create a `samc-class` object using the resistance and absorption data. We use the</span>
 <span class="co"># recipricol of the arithmetic mean for calculating the transition matrix. Note,</span>
 <span class="co"># the input data here are matrices, not RasterLayers. If using RasterLayers, the</span>
 <span class="co"># `latlon` parameter must be set.</span>
-<span class="no">samc_obj</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span>(<span class="no">res_data</span>, <span class="no">abs_data</span>, <span class="kw">tr_fun</span> <span class="kw">=</span> <span class="kw">function</span>(<span class="no">x</span>) <span class="fl">1</span>/<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="no">x</span>))
+<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>
 
 
 <span class="co"># Print out the samc object and make sure everything is filled out. Try to</span>
@@ -172,8 +175,8 @@
 <span class="co"># data. The dimensions of the matrix (slot p) should be the number of non-NA</span>
 <span class="co"># cells in your data +1. In this case, our data has 2624 non-NA cells, so the</span>
 <span class="co"># matrix should be 2625 x 2625</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">samc_obj</span>)
-<span class="co">#&gt; Formal class 'samc' [package "samc"] with 4 slots</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">samc_obj</span><span class="op">)</span>
+<span class="co">#&gt; Formal class 'samc' [package "samc"] with 5 slots</span>
 <span class="co">#&gt;   ..@ p       :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots</span>
 <span class="co">#&gt;   .. .. ..@ i       : int [1:21793] 1 115 116 117 0 2 116 117 118 1 ...</span>
 <span class="co">#&gt;   .. .. ..@ p       : int [1:2626] 0 4 9 14 19 24 29 34 39 44 ...</span>
@@ -235,37 +238,39 @@
 <span class="co">#&gt;   .. .. .. .. ..@ projargs: chr NA</span>
 <span class="co">#&gt;   .. .. ..@ history : list()</span>
 <span class="co">#&gt;   .. .. ..@ z       : list()</span>
-<span class="co">#&gt;   ..@ override: logi FALSE</span></pre></body></html></div>
+<span class="co">#&gt;   ..@ clumps  : int 1</span>
+<span class="co">#&gt;   ..@ override: logi FALSE</span></pre></div>
 </div>
 <div id="basic-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#basic-analysis" class="anchor"></a>Basic Analysis</h2>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"># Convert the occupancy data to probability of occurrence
-occ_prob_data &lt;- occ_data / sum(occ_data, na.rm = TRUE)
-
-
-# Calculate short- and long-term mortality metrics and long-term dispersal
-short_mort &lt;- mortality(samc_obj, occ_prob_data, time = 4800)
-long_mort &lt;- mortality(samc_obj, occ_prob_data)
-long_disp &lt;- dispersal(samc_obj, occ_prob_data)
-#&gt; Performing setup. This can take several minutes... Complete.
-#&gt; Calculating matrix inverse diagonal...
-Calculating matrix inverse diagonal... Complete                                           
-#&gt; Performing final calculations. This may take a few minutes... Complete.</pre></body></html></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="co"># Convert the occupancy data to probability of occurrence</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>occ_prob_data &lt;-<span class="st"> </span>occ_data <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(occ_data, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="co"># Calculate short- and long-term mortality metrics and long-term dispersal</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>short_mort &lt;-<span class="st"> </span><span class="kw">mortality</span>(samc_obj, occ_prob_data, <span class="dt">time =</span> <span class="dv">4800</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>long_mort &lt;-<span class="st"> </span><span class="kw">mortality</span>(samc_obj, occ_prob_data)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>long_disp &lt;-<span class="st"> </span><span class="kw">dispersal</span>(samc_obj, occ_prob_data)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a><span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="co">#&gt; Calculating matrix inverse diagonal...</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>Calculating matrix inverse diagonal... Complete                                           </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a><span class="co">#&gt; Performing final calculations. This may take a few minutes... Complete.</span></span></code></pre></div>
 </div>
 <div id="visualization" class="section level2">
 <h2 class="hasAnchor">
 <a href="#visualization" class="anchor"></a>Visualization</h2>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="co"># Create rasters using the vector result data for plotting.</span>
-<span class="no">short_mort_map</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span>(<span class="no">samc_obj</span>, <span class="no">short_mort</span>)
-<span class="no">long_mort_map</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span>(<span class="no">samc_obj</span>, <span class="no">long_mort</span>)
-<span class="no">long_disp_map</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span>(<span class="no">samc_obj</span>, <span class="no">long_disp</span>)
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="co"># Create rasters using the vector result data for plotting.</span>
+<span class="va">short_mort_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">short_mort</span><span class="op">)</span>
+<span class="va">long_mort_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">long_mort</span><span class="op">)</span>
+<span class="va">long_disp_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">long_disp</span><span class="op">)</span>
 
 
 <span class="co"># Plot the mortality and dispersal results</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="no">short_mort_map</span>, <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Short-term Mortality"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="no">long_mort_map</span>, <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Long-term Mortality"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="no">long_disp_map</span>, <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Long-term Dispersal"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))</pre></body></html></div>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">short_mort_map</span>, main <span class="op">=</span> <span class="st">"Short-term Mortality"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">long_mort_map</span>, main <span class="op">=</span> <span class="st">"Long-term Mortality"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">long_disp_map</span>, main <span class="op">=</span> <span class="st">"Long-term Dispersal"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="tutorial-basic_files/figure-html/unnamed-chunk-5-1.png" width="700"><img src="tutorial-basic_files/figure-html/unnamed-chunk-5-2.png" width="700"><img src="tutorial-basic_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
 </div>
   </div>
@@ -285,7 +290,7 @@ Calculating matrix inverse diagonal... Complete
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
