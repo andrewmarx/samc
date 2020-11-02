@@ -43,16 +43,16 @@ long_disp_map <- map(samc_obj, long_disp)
 ## @knitr data
 # Convert the landscape data to RasterLayer objects, then to data frames for ggplot
 res_df <- as.data.frame(raster(res_data,
-                               xmn = 1, xmx = ncol(res_data),
-                               ymn = 1, ymx = nrow(res_data)),
+                               xmn = 0.5, xmx = ncol(res_data) + 0.5,
+                               ymn = 0.5, ymx = nrow(res_data) + 0.5),
                         xy = TRUE, na.rm = TRUE)
 abs_df <- as.data.frame(raster(abs_data,
-                               xmn = 1, xmx = ncol(abs_data),
-                               ymn = 1, ymx = nrow(abs_data)),
+                               xmn = 0.5, xmx = ncol(abs_data) + 0.5,
+                               ymn = 0.5, ymx = nrow(abs_data) + 0.5),
                         xy = TRUE, na.rm = TRUE)
 occ_df <- as.data.frame(raster(occ_data,
-                               xmn = 1, xmx = ncol(occ_data),
-                               ymn = 1, ymx = nrow(occ_data)),
+                               xmn = 0.5, xmx = ncol(occ_data) + 0.5,
+                               ymn = 0.5, ymx = nrow(occ_data) + 0.5),
                         xy = TRUE, na.rm = TRUE)
 
 
