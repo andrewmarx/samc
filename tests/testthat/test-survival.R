@@ -1,44 +1,46 @@
 context("Survival")
 
+for(test in testlist) {
+  # Create the samc object
+  samc_obj <- test$samc
 
-# Create the samc object
-samc_obj <- samc(res, abs, fid, tr_fun = function(x) 1/mean(x), override = TRUE)
+  # Extract Q
+  Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
+  Q <- as.matrix(Q)
 
-# Extract Q
-Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
-Q <- as.matrix(Q)
+  # Create an indentity matrix
+  I <- diag(nrow(Q))
 
-# Create an indentity matrix
-I <- diag(nrow(Q))
-
-# Prepare the occupancy data
-occ_ras <- raster::raster(occ)
-pv <- as.vector(occ_ras)
-pv <- pv[is.finite(pv)]
+  # Prepare the occupancy data
+  occ_ras <- raster::raster(test$occ)
+  pv <- as.vector(occ_ras)
+  pv <- pv[is.finite(pv)]
 
 
-# Run the tests
-test_that("Testing survival(samc)", {
-  r1 <- survival(samc_obj)
+  # Run the tests
+  test_that("Testing survival(samc)", {
 
-  v1 <- numeric(nrow(Q))
-  v1[] <- 1
+    r1 <- survival(samc_obj)
 
-  r2 <- solve(I - Q) %*% v1
+    v1 <- numeric(nrow(Q))
+    v1[] <- 1
 
-  # Verify equality
-  expect_equal(as.vector(r1), as.vector(r2))
-})
+    r2 <- solve(I - Q) %*% v1
 
-test_that("Testing survival(samc, occ)", {
-  # Calculate psi*z using survival(samc, occ)
-  r1 <- survival(samc_obj, occ)
+    # Verify equality
+    expect_equal(as.vector(r1), as.vector(r2))
+  })
 
-  v1 <- numeric(nrow(Q))
-  v1[] <- 1
+  test_that("Testing survival(samc, occ)", {
+    # Calculate psi*z using survival(samc, occ)
+    r1 <- survival(samc_obj, test$occ)
 
-  r2 <- pv %*% solve(I - Q) %*% v1
+    v1 <- numeric(nrow(Q))
+    v1[] <- 1
 
-  # Verify equality
-  expect_equal(as.vector(r1), as.vector(r2))
-})
+    r2 <- pv %*% solve(I - Q) %*% v1
+
+    # Verify equality
+    expect_equal(as.vector(r1), as.vector(r2))
+  })
+}

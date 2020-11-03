@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
       </span>
     </div>
 
@@ -153,13 +153,13 @@
     <p>Map vector data to a RasterLayer</p>
     </div>
 
-    <pre class="usage"><span class='fu'>map</span>(<span class='no'>samc</span>, <span class='no'>vec</span>)
+    <pre class="usage"><span class='fu'>map</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>vec</span><span class='op'>)</span>
 
 <span class='co'># S4 method for samc,numeric</span>
-<span class='fu'>map</span>(<span class='no'>samc</span>, <span class='no'>vec</span>)
+<span class='fu'>map</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>vec</span><span class='op'>)</span>
 
 <span class='co'># S4 method for samc,list</span>
-<span class='fu'>map</span>(<span class='no'>samc</span>, <span class='no'>vec</span>)</pre>
+<span class='fu'>map</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>vec</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -196,41 +196,45 @@ to create the samc object.</p>
     <pre class="examples"><div class='input'><span class='co'># "Load" the data. In this case we are using data built into the package.</span>
 <span class='co'># In practice, users will likely load raster data using the raster() function</span>
 <span class='co'># from the raster package.</span>
-<span class='no'>res_data</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>samc</span><span class='kw ns'>::</span><span class='no'><a href='ex_res_data.html'>ex_res_data</a></span>
-<span class='no'>abs_data</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>samc</span><span class='kw ns'>::</span><span class='no'><a href='ex_abs_data.html'>ex_abs_data</a></span>
-<span class='no'>occ_data</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>samc</span><span class='kw ns'>::</span><span class='no'><a href='ex_occ_data.html'>ex_occ_data</a></span>
+<span class='va'>res_data</span> <span class='op'>&lt;-</span> <span class='fu'>samc</span><span class='fu'>::</span><span class='va'><a href='ex_res_data.html'>ex_res_data</a></span>
+<span class='va'>abs_data</span> <span class='op'>&lt;-</span> <span class='fu'>samc</span><span class='fu'>::</span><span class='va'><a href='ex_abs_data.html'>ex_abs_data</a></span>
+<span class='va'>occ_data</span> <span class='op'>&lt;-</span> <span class='fu'>samc</span><span class='fu'>::</span><span class='va'><a href='ex_occ_data.html'>ex_occ_data</a></span>
 
 
 <span class='co'># Make sure our data meets the basic input requirements of the package using</span>
 <span class='co'># the check() function.</span>
-<span class='fu'><a href='check.html'>check</a></span>(<span class='no'>res_data</span>, <span class='no'>abs_data</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'><a href='check.html'>check</a></span>(<span class='no'>res_data</span>, <span class='no'>occ_data</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='fu'><a href='check.html'>check</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'><a href='check.html'>check</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>occ_data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 
 <span class='co'># Create a `samc-class` object with the resistance and absorption data using</span>
 <span class='co'># the samc() function. We use the recipricol of the arithmetic mean for</span>
 <span class='co'># calculating the transition matrix. Note, the input data here are matrices,</span>
 <span class='co'># not RasterLayers. If using RasterLayers, the latlon parameter must be set.</span>
-<span class='no'>samc_obj</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span>(<span class='no'>res_data</span>, <span class='no'>abs_data</span>, <span class='kw'>tr_fun</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fl'>1</span>/<span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span>(<span class='no'>x</span>))
+<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>, tr_fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
 
 
 <span class='co'># Convert the occupancy data to probability of occurrence</span>
-<span class='no'>occ_prob_data</span> <span class='kw'>&lt;-</span> <span class='no'>occ_data</span> / <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='no'>occ_data</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='va'>occ_prob_data</span> <span class='op'>&lt;-</span> <span class='va'>occ_data</span> <span class='op'>/</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>occ_data</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 
 <span class='co'># Calculate short- and long-term metrics using the analytical functions</span>
-<span class='no'>short_mort</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mortality.html'>mortality</a></span>(<span class='no'>samc_obj</span>, <span class='no'>occ_prob_data</span>, <span class='kw'>time</span> <span class='kw'>=</span> <span class='fl'>50</span>)
-<span class='no'>short_dist</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='distribution.html'>distribution</a></span>(<span class='no'>samc_obj</span>, <span class='kw'>origin</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>time</span> <span class='kw'>=</span> <span class='fl'>50</span>)
-<span class='no'>long_disp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='dispersal.html'>dispersal</a></span>(<span class='no'>samc_obj</span>, <span class='no'>occ_prob_data</span>)</div><div class='output co'>#&gt; Performing setup. This can take several minutes... Complete.
+<span class='va'>short_mort</span> <span class='op'>&lt;-</span> <span class='fu'><a href='mortality.html'>mortality</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>occ_prob_data</span>, time <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span>
+<span class='va'>short_dist</span> <span class='op'>&lt;-</span> <span class='fu'><a href='distribution.html'>distribution</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, origin <span class='op'>=</span> <span class='fl'>3</span>, time <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span>
+<span class='va'>long_disp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='dispersal.html'>dispersal</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>occ_prob_data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; Performing setup. This can take several minutes... Complete.
 #&gt; Calculating matrix inverse diagonal...Calculating matrix inverse diagonal... Complete                                           
-#&gt; Performing final calculations. This may take a few minutes... Complete.</div><div class='input'><span class='no'>visit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span>(<span class='no'>samc_obj</span>, <span class='kw'>dest</span> <span class='kw'>=</span> <span class='fl'>4</span>)
-<span class='no'>surv</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='survival.html'>survival</a></span>(<span class='no'>samc_obj</span>)
+#&gt; Performing final calculations. This may take a few minutes... Complete.</div><div class='input'><span class='va'>visit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, dest <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
+<span class='va'>surv</span> <span class='op'>&lt;-</span> <span class='fu'><a href='survival.html'>survival</a></span><span class='op'>(</span><span class='va'>samc_obj</span><span class='op'>)</span>
 
 
 <span class='co'># Use the map() function to turn vector results into RasterLayer objects.</span>
-<span class='no'>short_mort_map</span> <span class='kw'>&lt;-</span> <span class='fu'>map</span>(<span class='no'>samc_obj</span>, <span class='no'>short_mort</span>)
-<span class='no'>short_dist_map</span> <span class='kw'>&lt;-</span> <span class='fu'>map</span>(<span class='no'>samc_obj</span>, <span class='no'>short_dist</span>)
-<span class='no'>long_disp_map</span> <span class='kw'>&lt;-</span> <span class='fu'>map</span>(<span class='no'>samc_obj</span>, <span class='no'>long_disp</span>)
-<span class='no'>visit_map</span> <span class='kw'>&lt;-</span> <span class='fu'>map</span>(<span class='no'>samc_obj</span>, <span class='no'>visit</span>)
-<span class='no'>surv_map</span> <span class='kw'>&lt;-</span> <span class='fu'>map</span>(<span class='no'>samc_obj</span>, <span class='no'>surv</span>)</div></pre>
+<span class='va'>short_mort_map</span> <span class='op'>&lt;-</span> <span class='fu'>map</span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>short_mort</span><span class='op'>)</span>
+<span class='va'>short_dist_map</span> <span class='op'>&lt;-</span> <span class='fu'>map</span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>short_dist</span><span class='op'>)</span>
+<span class='va'>long_disp_map</span> <span class='op'>&lt;-</span> <span class='fu'>map</span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>long_disp</span><span class='op'>)</span>
+<span class='va'>visit_map</span> <span class='op'>&lt;-</span> <span class='fu'>map</span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>visit</span><span class='op'>)</span>
+<span class='va'>surv_map</span> <span class='op'>&lt;-</span> <span class='fu'>map</span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>surv</span><span class='op'>)</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -246,7 +250,7 @@ to create the samc object.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

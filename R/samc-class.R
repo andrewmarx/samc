@@ -27,6 +27,7 @@
 #' @slot p The transition probability matrix \emph{P}.
 #' @slot source Information about the data source for the P matrix
 #' @slot map Used to verify landscape inputs and mapping of vector data.
+#' @slot clumps Number of discontinuous regions in data
 #' @slot override Used to prevent accidental use of memory intensive functions.
 
 
@@ -38,6 +39,7 @@ setClass(
   slots = list(p = "dgCMatrix",
                source = "character",
                map = "RasterLayer",
+               clumps = "numeric",
                override = "logical")
 
   # set default values

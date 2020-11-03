@@ -1,209 +1,211 @@
 context("Dispersal")
 
-# Create the samc object
-samc_obj <- samc(res, abs, fid, tr_fun = function(x) 1/mean(x), override = TRUE)
+for(test in testlist) {
+  # Create the samc object
+  samc_obj <- test$samc
 
-# Extract Q
-Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
-Q <- as.matrix(Q)
+  # Extract Q
+  Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
+  Q <- as.matrix(Q)
 
-# Extract R
-R <- diag(nrow(Q))
-diag(R) <- samc_obj@p[-nrow(samc_obj@p), ncol(samc_obj@p)]
+  # Extract R
+  R <- diag(nrow(Q))
+  diag(R) <- samc_obj@p[-nrow(samc_obj@p), ncol(samc_obj@p)]
 
-# Create an indentity matrix
-I <- diag(nrow(Q))
+  # Create an indentity matrix
+  I <- diag(nrow(Q))
 
-# Prepare the occupancy data
-occ_ras <- raster::raster(occ)
-pv <- as.vector(occ_ras)
-pv <- pv[is.finite(pv)]
-
-
-#Run the tests
-test_that("Testing dispersal(samc, dest, time)", {
-
-  r1 <- dispersal(samc_obj, dest = col, time = time)
-
-  qj <- Q[-col, col]
-
-  Qj <- Q[-col,-col]
-
-  Qji <- diag(nrow(Qj))
-  r2 <- Qji
-
-  for (i in 1:(time - 1)) {
-    Qji <- Qji %*% Qj
-    r2 <- r2 + Qji
-  }
-
-  r2 <- r2 %*% qj
+  # Prepare the occupancy data
+  occ_ras <- raster::raster(test$occ)
+  pv <- as.vector(occ_ras)
+  pv <- pv[is.finite(pv)]
 
 
-  # Verify
-  expect_equal(as.vector(r1), as.vector(r2))
-})
+  #Run the tests
+  test_that("Testing dispersal(samc, dest, time)", {
 
-test_that("Testing dispersal(samc, dest, time_vec)", {
+    r1 <- dispersal(samc_obj, dest = col_vec[1], time = time)
 
-  r1 <- dispersal(samc_obj, dest = col, time = time_vec)
+    qj <- Q[-col_vec[1], col_vec[1]]
 
-  qj <- Q[-col, col]
+    Qj <- Q[-col_vec[1],-col_vec[1]]
 
-  Qj <- Q[-col,-col]
-  for (i in 1:length(time_vec)) {
     Qji <- diag(nrow(Qj))
     r2 <- Qji
 
-    for (j in 1:(time_vec[i] - 1)) {
+    for (i in 1:(time - 1)) {
       Qji <- Qji %*% Qj
       r2 <- r2 + Qji
     }
 
     r2 <- r2 %*% qj
 
+
     # Verify
-    expect_equal((r1[[i]]), as.vector(r2))
-  }
-})
+    expect_equal(as.vector(r1), as.vector(r2))
+  })
 
-test_that("Testing dispersal(samc, occ, dest, time)", {
+  test_that("Testing dispersal(samc, dest, time_vec)", {
 
-  r1 <- dispersal(samc_obj, occ = occ, dest = col, time = time)
+    r1 <- dispersal(samc_obj, dest = col_vec[1], time = time_vec)
 
-  qj <- Q[-col, col]
+    qj <- Q[-col_vec[1], col_vec[1]]
 
-  Qj <- Q[-col,-col]
+    Qj <- Q[-col_vec[1],-col_vec[1]]
+    for (i in 1:length(time_vec)) {
+      Qji <- diag(nrow(Qj))
+      r2 <- Qji
 
-  Qji <- diag(nrow(Qj))
-  r2 <- Qji
+      for (j in 1:(time_vec[i] - 1)) {
+        Qji <- Qji %*% Qj
+        r2 <- r2 + Qji
+      }
 
-  for (i in 1:(time - 1)) {
-    Qji <- Qji %*% Qj
-    r2 <- r2 + Qji
-  }
+      r2 <- r2 %*% qj
 
-  r2 <- pv[-col] %*% (r2 %*% qj)
+      # Verify
+      expect_equal((r1[[i]]), as.vector(r2))
+    }
+  })
 
-  # Verify
-  expect_equal(r1, as.numeric(r2))
-})
+  test_that("Testing dispersal(samc, occ, dest, time)", {
 
-test_that("Testing dispersal(samc, occ, dest, time_vec)", {
+    r1 <- dispersal(samc_obj, occ = test$occ, dest = col_vec[1], time = time)
 
-  r1 <- dispersal(samc_obj, occ = occ, dest = col, time = time_vec)
+    qj <- Q[-col_vec[1], col_vec[1]]
 
-  qj <- Q[-col, col]
-
-  for (i in 1:length(time_vec)) {
-    Qj <- Q[-col,-col]
+    Qj <- Q[-col_vec[1],-col_vec[1]]
 
     Qji <- diag(nrow(Qj))
     r2 <- Qji
 
-    for (j in 1:(time_vec[i] - 1)) {
+    for (i in 1:(time - 1)) {
       Qji <- Qji %*% Qj
       r2 <- r2 + Qji
     }
 
-    r2 <- pv[-col] %*% (r2 %*% qj)
+    r2 <- pv[-col_vec[1]] %*% (r2 %*% qj)
 
     # Verify
-    expect_equal(r1[[i]], as.numeric(r2))
-  }
-})
+    expect_equal(r1, as.numeric(r2))
+  })
 
-test_that("Testing dispersal(samc)", {
+  test_that("Testing dispersal(samc, occ, dest, time_vec)", {
 
-  r1 <- dispersal(samc_obj)
+    r1 <- dispersal(samc_obj, occ = test$occ, dest = col_vec[1], time = time_vec)
 
-  f <- solve(I - Q)
+    qj <- Q[-col_vec[1], col_vec[1]]
 
-  fdg <- I
-  diag(fdg) <- 1/diag(f)
+    for (i in 1:length(time_vec)) {
+      Qj <- Q[-col_vec[1],-col_vec[1]]
 
-  r2 <- (f - I) %*% fdg
+      Qji <- diag(nrow(Qj))
+      r2 <- Qji
 
-  # Verify
-  expect_equal(dim(r1), dim(r2))
-  expect_equal(as.vector(r1), as.vector(r2))
-})
+      for (j in 1:(time_vec[i] - 1)) {
+        Qji <- Qji %*% Qj
+        r2 <- r2 + Qji
+      }
 
-# TODO Remove the skip once dispersal(samc, origin) is implemented
-test_that("Testing dispersal(samc, origin)", {
+      r2 <- pv[-col_vec[1]] %*% (r2 %*% qj)
 
-  skip("dispersal(samc, origin) is not implemented")
+      # Verify
+      expect_equal(r1[[i]], as.numeric(r2))
+    }
+  })
 
-  r1 <- dispersal(samc_obj, origin = row)
+  test_that("Testing dispersal(samc)", {
 
-  f <- solve(I - Q)
+    r1 <- dispersal(samc_obj)
 
-  fdg <- I
-  diag(fdg) <- 1/diag(f)
+    f <- solve(I - Q)
 
-  r2 <- (f - I) %*% fdg
+    fdg <- I
+    diag(fdg) <- 1/diag(f)
 
-  # Verify
-  expect_equal(as.vector(r1), as.vector(r2[row, ]))
-})
+    r2 <- (f - I) %*% fdg
 
-test_that("Testing dispersal(samc, dest)", {
+    # Verify
+    expect_equal(dim(r1), dim(r2))
+    expect_equal(as.vector(r1), as.vector(r2))
+  })
 
-  r1 <- dispersal(samc_obj, dest = col)
+  # TODO Remove the skip once dispersal(samc, origin) is implemented
+  test_that("Testing dispersal(samc, origin)", {
 
-  f <- solve(I - Q)
+    skip("dispersal(samc, origin) is not implemented")
 
-  fdg <- I
-  diag(fdg) <- 1/diag(f)
+    r1 <- dispersal(samc_obj, origin = row_vec[1])
 
-  r2 <- (f - I) %*% fdg
+    f <- solve(I - Q)
 
-  # Verify
-  expect_equal(as.vector(r1), as.vector(r2[, col]))
-})
+    fdg <- I
+    diag(fdg) <- 1/diag(f)
 
-test_that("Testing dispersal(samc, origin, dest)", {
+    r2 <- (f - I) %*% fdg
 
-  r1 <- dispersal(samc_obj, origin = row, dest = col)
+    # Verify
+    expect_equal(as.vector(r1), as.vector(r2[row_vec[1], ]))
+  })
 
-  f <- solve(I - Q)
+  test_that("Testing dispersal(samc, dest)", {
 
-  fdg <- I
-  diag(fdg) <- 1/diag(f)
+    r1 <- dispersal(samc_obj, dest = col_vec[1])
 
-  r2 <- (f - I) %*% fdg
+    f <- solve(I - Q)
 
-  # Verify
-  expect_equal(as.vector(r1), as.vector(r2[row, col]))
-})
+    fdg <- I
+    diag(fdg) <- 1/diag(f)
 
-test_that("Testing dispersal(samc, occ)", {
+    r2 <- (f - I) %*% fdg
 
-  r1 <- dispersal(samc_obj, occ = occ)
+    # Verify
+    expect_equal(as.vector(r1), as.vector(r2[, col_vec[1]]))
+  })
 
-  f <- solve(I - Q)
+  test_that("Testing dispersal(samc, origin, dest)", {
 
-  fdg <- I
-  diag(fdg) <- 1/diag(f)
+    r1 <- dispersal(samc_obj, origin = row_vec[1], dest = col_vec[1])
 
-  r2 <- pv %*% (f - I) %*% fdg
+    f <- solve(I - Q)
 
-  # Verify
-  expect_equal(as.vector(r1), as.vector(r2))
-})
+    fdg <- I
+    diag(fdg) <- 1/diag(f)
+
+    r2 <- (f - I) %*% fdg
+
+    # Verify
+    expect_equal(as.vector(r1), as.vector(r2[row_vec[1], col_vec[1]]))
+  })
+
+  test_that("Testing dispersal(samc, occ)", {
+
+    r1 <- dispersal(samc_obj, occ = test$occ)
+
+    f <- solve(I - Q)
+
+    fdg <- I
+    diag(fdg) <- 1/diag(f)
+
+    r2 <- pv %*% (f - I) %*% fdg
+
+    # Verify
+    expect_equal(as.vector(r1), as.vector(r2))
+  })
 
 
-test_that("Testing dispersal(samc, occ, dest)", {
+  test_that("Testing dispersal(samc, occ, dest)", {
 
-  r1 <- dispersal(samc_obj, occ = occ, dest = col)
+    r1 <- dispersal(samc_obj, occ = test$occ, dest = col_vec[1])
 
-  f <- solve(I - Q)
+    f <- solve(I - Q)
 
-  fdg <- I
-  diag(fdg) <- 1/diag(f)
+    fdg <- I
+    diag(fdg) <- 1/diag(f)
 
-  r2 <- pv %*% (f - I) %*% fdg
+    r2 <- pv %*% (f - I) %*% fdg
 
-  # Verify
-  expect_equal(r1, as.vector(r2)[col])
-})
+    # Verify
+    expect_equal(r1, as.vector(r2)[col_vec[1]])
+  })
+}

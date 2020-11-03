@@ -1,5 +1,5 @@
 pandoc: 2.10.1
-pkgdown: 1.5.1
+pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   overview: overview.html
@@ -9,5 +9,5 @@ articles:
   tutorial-basic: tutorial-basic.html
   tutorial-ggplot: tutorial-ggplot.html
   tutorial-temporal: tutorial-temporal.html
-last_built: 2020-10-14T14:11Z
+last_built: 2020-11-03T01:26Z
 
