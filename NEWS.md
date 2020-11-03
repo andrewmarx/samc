@@ -1,12 +1,17 @@
+# samc 1.2.1
+
+- Fixed a regression in v1.2.0 where the samc() function would not work corectly unless matrix/raster layers contained at least one NA cell
+- Revamped the automated test suite with more test scenarios to better catch issues before release
+- Added checks during samc-class creation to prevent potential issues with discontinuous/clumped input data. Currently, this type of data will not work with the cond_passage() function, but will in a future release.
+- Reworked some of the vignettes to produce cleaner pages and remove suggested dependencies (e.g. gifski, gganimate, ggplot2) from the package so that users aren't bugged about installing them if they don't need them.
+
+
 # samc 1.2.0
 
-New Features:
 - Added the ability to create samc-class objects from a custom P matrix using p_mat parameter in samc(). See the samc() documentation for details
 - Added the cond_passage() function, which calculates conditional mean first passage times
 - Added the locate() function, which functions similarly to the cellFromXY() function in the raster package. It's used to get cell numbers from xy coords, but unlike cellFromXY(), it properly accounts for how cells are numbered when the P matrix is constructed.
 - Adjusted the absorption inputs to support values of 0 (i.e., no absorption). Currently, at least one cell must have a non-zero value
-
-Bug Fixes:
 - Fixed an issue where raster/matrix inputs containing isolated cells (individual cells neighbored by only NA values) would lead to malformed P matrices.
 
 

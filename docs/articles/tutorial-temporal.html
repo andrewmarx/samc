@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@
       <h1 data-toc-skip>Temporal Analysis</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2020-10-14</h4>
+            <h4 class="date">2020-11-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-temporal.Rmd"><code>vignettes/tutorial-temporal.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-temporal.Rmd</code></div>
@@ -123,40 +123,42 @@
 <div id="setup" class="section level2">
 <h2 class="hasAnchor">
 <a href="#setup" class="anchor"></a>Setup</h2>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="co"># First step is to load the libraries. Not all of these libraries are stricly</span>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="co"># First step is to load the libraries. Not all of these libraries are stricly</span>
 <span class="co"># needed; some are used for convenience and visualization for this tutorial.</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"samc"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"raster"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"ggplot2"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"viridis"</span>)
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://andrewmarx.github.io/samc/">"samc"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/raster">"raster"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/sjmgarnier/viridis">"viridis"</a></span><span class="op">)</span>
 
 
 <span class="co"># "Load" the data. In this case we are using data built into the package.</span>
 <span class="co"># In practice, users will likely load raster data using the raster() function</span>
 <span class="co"># from the raster package.</span>
-<span class="no">res_data</span> <span class="kw">&lt;-</span> <span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_res_data.html">ex_res_data</a></span>
-<span class="no">abs_data</span> <span class="kw">&lt;-</span> <span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>
-<span class="no">occ_data</span> <span class="kw">&lt;-</span> <span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>
+<span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span>
+<span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>
+<span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>
 
 
 <span class="co"># Create a samc object using the resistance and absorption data. We use the </span>
 <span class="co"># recipricol of the arithmetic mean for calculating the transition matrix. Note,</span>
 <span class="co"># the input data here are matrices, not RasterLayers. If using RasterLayers, the</span>
 <span class="co"># `latlon` parameter must be set.</span>
-<span class="no">samc_obj</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span>(<span class="no">res_data</span>, <span class="no">abs_data</span>, <span class="kw">tr_fun</span> <span class="kw">=</span> <span class="kw">function</span>(<span class="no">x</span>) <span class="fl">1</span>/<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="no">x</span>))</pre></body></html></div>
+<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></pre></div>
 </div>
 <div id="temporal-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#temporal-analysis" class="anchor"></a>Temporal Analysis</h2>
 <p>Given a starting location, we’re going to calculate the probabilities of where an individual will be at varying time steps. The starting location is going to be cell 1 in the landscape, which is the first non-NA cell going in a left-to-right and top-to-bottom order. The actual analysis and visualization will be shown two ways.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># First, let's specify the time steps we are interested in</span>
-<span class="no">time_steps</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="co"># First, let's specify the time steps we are interested in</span>
+<span class="va">time_steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span><span class="op">)</span></pre></div>
 <p>The easiest, most efficient, and safest approach to doing this is using the time step vector inputs added in version 1.1.0.</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># First, calculate the metric for the entire vector of time steps</span>
-<span class="no">results</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/distribution.html">distribution</a></span>(<span class="no">samc_obj</span>, <span class="kw">origin</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">time</span> <span class="kw">=</span> <span class="no">time_steps</span>)
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="co"># First, calculate the metric for the entire vector of time steps</span>
+<span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/distribution.html">distribution</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span>, time <span class="op">=</span> <span class="va">time_steps</span><span class="op">)</span>
 
 <span class="co"># The result is a list of vectors. Note that the list is named with the time steps</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">results</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span>
 <span class="co">#&gt; List of 4</span>
 <span class="co">#&gt;  $ 10   : num [1:2624] 0.0246 0.0306 0.0261 0.0193 0.0125 ...</span>
 <span class="co">#&gt;  $ 100  : num [1:2624] 0.00256 0.00336 0.00338 0.00334 0.00326 ...</span>
@@ -164,8 +166,8 @@
 <span class="co">#&gt;  $ 10000: num [1:2624] 3.09e-05 3.97e-05 3.93e-05 3.88e-05 3.83e-05 ...</span>
 
 <span class="co"># We can take this list, and use map() to convert it to a list of RasterLayers.</span>
-<span class="no">results_map</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span>(<span class="no">samc_obj</span>, <span class="no">results</span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">results_map</span>, <span class="kw">max.level</span> <span class="kw">=</span> <span class="fl">1</span>) <span class="co"># max.level is to hide a lot of gory details</span>
+<span class="va">results_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">results</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">results_map</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># max.level is to hide a lot of gory details</span>
 <span class="co">#&gt; List of 4</span>
 <span class="co">#&gt;  $ 10   :Formal class 'RasterLayer' [package "raster"] with 12 slots</span>
 <span class="co">#&gt;  $ 100  :Formal class 'RasterLayer' [package "raster"] with 12 slots</span>
@@ -173,25 +175,26 @@
 <span class="co">#&gt;  $ 10000:Formal class 'RasterLayer' [package "raster"] with 12 slots</span>
 
 <span class="co"># Conveniently, this is easy to turn into a RasterStack</span>
-<span class="no">results_stack</span> <span class="kw">&lt;-</span> <span class="kw pkg">raster</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html">stack</a></span>(<span class="no">results_map</span>)
+<span class="va">results_stack</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html">stack</a></span><span class="op">(</span><span class="va">results_map</span><span class="op">)</span>
 
 <span class="co"># A caveat: RasterStacks cannot have numeric names, so it prepends an 'X'</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span>(<span class="no">results_stack</span>)
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">results_stack</span><span class="op">)</span>
 <span class="co">#&gt; [1] "X10"    "X100"   "X1000"  "X10000"</span>
 
 <span class="co"># RasterStacks are convenient for a lot of different things, like processing the</span>
 <span class="co"># rasters all at once using spatial methods. But we're just going to plot them</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="no">results_stack</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))</pre></body></html></div>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">results_stack</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="tutorial-temporal_files/figure-html/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;"></p>
 <p>If you want more control, the following shows how to loop through the results using two different options</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># The results of indivudal time steps can be retrieved by either index or by name </span>
-<span class="no">results</span><span class="kw">[[</span><span class="fl">3</span>]]
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="co"># The results of indivudal time steps can be retrieved by either index or by name </span>
+<span class="va">results</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>
 <span class="co">#&gt;  [1] 0.0002122761 0.0002838443 0.0002953125 0.0003074062 0.0003195378</span>
 <span class="co">#&gt;  [6] 0.0003313612 0.0003426443 0.0003532239 0.0003629837 0.0003718411</span>
 <span class="co">#&gt; [11] 0.0003797378 0.0003866344 0.0003925059 0.0003973388 0.0004011292</span>
 <span class="co">#&gt; [16] 0.0004038814 0.0004056069 0.0004063231 0.0004060532 0.0004048254</span>
 <span class="co">#&gt;  [ reached getOption("max.print") -- omitted 2604 entries ]</span>
-<span class="no">results</span><span class="kw">[[</span><span class="st">"1000"</span>]]
+<span class="va">results</span><span class="op">[[</span><span class="st">"1000"</span><span class="op">]</span><span class="op">]</span>
 <span class="co">#&gt;  [1] 0.0002122761 0.0002838443 0.0002953125 0.0003074062 0.0003195378</span>
 <span class="co">#&gt;  [6] 0.0003313612 0.0003426443 0.0003532239 0.0003629837 0.0003718411</span>
 <span class="co">#&gt; [11] 0.0003797378 0.0003866344 0.0003925059 0.0003973388 0.0004011292</span>
@@ -200,26 +203,28 @@
 
 <span class="co"># The latter is particularly useful in making reliable for loops because indexed</span>
 <span class="co"># for loops can be harder to troubleshoot if something goes wrong. </span>
-<span class="kw">for</span> (<span class="no">ts</span> <span class="kw">in</span> <span class="no">time_steps</span>) {
-  <span class="no">name</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.character.html">as.character</a></span>(<span class="no">ts</span>)
-  <span class="no">r</span> <span class="kw">&lt;-</span> <span class="no">results</span><span class="kw">[[</span><span class="no">name</span>]]
-  <span class="no">r_map</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span>(<span class="no">samc_obj</span>, <span class="no">r</span>)
-  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="no">r_map</span>, <span class="kw">main</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Individual Location at Time"</span>, <span class="no">ts</span>), <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))
-}</pre></body></html></div>
+<span class="kw">for</span> <span class="op">(</span><span class="va">ts</span> <span class="kw">in</span> <span class="va">time_steps</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.character.html">as.character</a></span><span class="op">(</span><span class="va">ts</span><span class="op">)</span>
+  <span class="va">r</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[[</span><span class="va">name</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">r_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">r</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">r_map</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="st">"Individual Location at Time"</span>, <span class="va">ts</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span></pre></div>
 <p><img src="tutorial-temporal_files/figure-html/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;"><img src="tutorial-temporal_files/figure-html/unnamed-chunk-4-2.png" width="100%" style="display: block; margin: auto;"><img src="tutorial-temporal_files/figure-html/unnamed-chunk-4-3.png" width="100%" style="display: block; margin: auto;"><img src="tutorial-temporal_files/figure-html/unnamed-chunk-4-4.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r">
+<div class="sourceCode" id="cb5"><pre class="downlit">
+
 <span class="co"># For comparison, here is an indexed for loop that does the same thing</span>
-<span class="kw">for</span> (<span class="no">i</span> <span class="kw">in</span> <span class="fl">1</span>:<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">time_steps</span>)) {
-  <span class="no">name</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.character.html">as.character</a></span>(<span class="no">time_steps</span>[<span class="no">i</span>])
-  <span class="no">r</span> <span class="kw">&lt;-</span> <span class="no">results</span><span class="kw">[[</span><span class="no">i</span>]] <span class="co"># or we could replace `i` with `name` on this line</span>
+<span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">time_steps</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.character.html">as.character</a></span><span class="op">(</span><span class="va">time_steps</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>
+  <span class="va">r</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="co"># or we could replace `i` with `name` on this line</span>
   <span class="co"># ...</span>
-}</pre></body></html></div>
+<span class="op">}</span></pre></div>
 <p>Previous version required individually calculating the metric for each time step. This is ultimately slower computationally and more error prone for users that are not comfortable with for loops, but is included here for posterity.</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="kw">for</span> (<span class="no">ts</span> <span class="kw">in</span> <span class="no">time_steps</span>) {
-  <span class="no">dist</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/distribution.html">distribution</a></span>(<span class="no">samc_obj</span>, <span class="kw">origin</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">time</span> <span class="kw">=</span> <span class="no">ts</span>)
-  <span class="no">dist_map</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span>(<span class="no">samc_obj</span>, <span class="no">dist</span>)
-  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span>(<span class="no">dist_map</span>, <span class="kw">main</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Individual Location at Time"</span>, <span class="no">ts</span>), <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridis/man/reexports.html">viridis</a></span>(<span class="fl">256</span>))
-}</pre></body></html></div>
+<div class="sourceCode" id="cb6"><pre class="downlit">
+<span class="kw">for</span> <span class="op">(</span><span class="va">ts</span> <span class="kw">in</span> <span class="va">time_steps</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">dist</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/distribution.html">distribution</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span>, time <span class="op">=</span> <span class="va">ts</span><span class="op">)</span>
+  <span class="va">dist_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">dist</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">dist_map</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="st">"Individual Location at Time"</span>, <span class="va">ts</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/viridisLite/man/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span></pre></div>
 <p><img src="tutorial-temporal_files/figure-html/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;"><img src="tutorial-temporal_files/figure-html/unnamed-chunk-5-2.png" width="100%" style="display: block; margin: auto;"><img src="tutorial-temporal_files/figure-html/unnamed-chunk-5-3.png" width="100%" style="display: block; margin: auto;"><img src="tutorial-temporal_files/figure-html/unnamed-chunk-5-4.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
   </div>
@@ -239,7 +244,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

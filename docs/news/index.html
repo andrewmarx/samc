@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
       </span>
     </div>
 
@@ -147,19 +147,26 @@
       <small>Source: <a href='https://github.com/andrewmarx/samc/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="samc-121" class="section level1">
+<h1 class="page-header" data-toc-text="1.2.1">
+<a href="#samc-121" class="anchor"></a>samc 1.2.1<small> 2020-11-02 </small>
+</h1>
+<ul>
+<li>Fixed a regression in v1.2.0 where the samc() function would not work corectly unless matrix/raster layers contained at least one NA cell</li>
+<li>Revamped the automated test suite with more test scenarios to better catch issues before release</li>
+<li>Added checks during samc-class creation to prevent potential issues with discontinuous/clumped input data. Currently, this type of data will not work with the cond_passage() function, but will in a future release.</li>
+<li>Reworked some of the vignettes to produce cleaner pages and remove suggested dependencies (e.g. gifski, gganimate, ggplot2) from the package so that users aren’t bugged about installing them if they don’t need them.</li>
+</ul>
+</div>
     <div id="samc-120" class="section level1">
 <h1 class="page-header" data-toc-text="1.2.0">
 <a href="#samc-120" class="anchor"></a>samc 1.2.0<small> 2020-10-14 </small>
 </h1>
-<p>New Features:</p>
 <ul>
 <li>Added the ability to create samc-class objects from a custom P matrix using p_mat parameter in samc(). See the samc() documentation for details</li>
 <li>Added the cond_passage() function, which calculates conditional mean first passage times</li>
 <li>Added the locate() function, which functions similarly to the cellFromXY() function in the raster package. It’s used to get cell numbers from xy coords, but unlike cellFromXY(), it properly accounts for how cells are numbered when the P matrix is constructed.</li>
 <li>Adjusted the absorption inputs to support values of 0 (i.e., no absorption). Currently, at least one cell must have a non-zero value</li>
-</ul>
-<p>Bug Fixes:</p>
-<ul>
 <li>Fixed an issue where raster/matrix inputs containing isolated cells (individual cells neighbored by only NA values) would lead to malformed P matrices.</li>
 </ul>
 </div>
@@ -244,7 +251,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

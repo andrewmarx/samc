@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@
       <h1 data-toc-skip>ggplot Visualization</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2020-10-14</h4>
+            <h4 class="date">2020-11-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-ggplot.Rmd"><code>vignettes/tutorial-ggplot.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-ggplot.Rmd</code></div>
@@ -123,110 +123,121 @@
 <div id="setup" class="section level2">
 <h2 class="hasAnchor">
 <a href="#setup" class="anchor"></a>Setup</h2>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"># First step is to load the libraries. Not all of these libraries are stricly
-# needed; some are used for convenience and visualization for this tutorial.
-library("samc")
-library("raster")
-library("ggplot2")
-library("viridis")
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="co"># First step is to load the libraries. Not all of these libraries are stricly</span>
+<span class="co"># needed; some are used for convenience and visualization for this tutorial.</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://andrewmarx.github.io/samc/">"samc"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/raster">"raster"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="http://ggplot2.tidyverse.org">"ggplot2"</a></span><span class="op">)</span>
 
 
-# "Load" the data. In this case we are using data built into the package.
-# In practice, users will likely load raster data using the raster() function
-# from the raster package.
-res_data &lt;- samc::ex_res_data
-abs_data &lt;- samc::ex_abs_data
-occ_data &lt;- samc::ex_occ_data
+<span class="co"># "Load" the data. In this case we are using data built into the package.</span>
+<span class="co"># In practice, users will likely load raster data using the raster() function</span>
+<span class="co"># from the raster package.</span>
+<span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span>
+<span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>
+<span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>
 
 
-# Create a samc object using the resistance and absorption data. We use the 
-# recipricol of the arithmetic mean for calculating the transition matrix. Note,
-# the input data here are matrices, not RasterLayers. If using RasterLayers, the
-# `latlon` parameter must be set.
-samc_obj &lt;- samc(res_data, abs_data, tr_fun = function(x) 1/mean(x))
+<span class="co"># Create a samc object using the resistance and absorption data. We use the</span>
+<span class="co"># recipricol of the arithmetic mean for calculating the transition matrix. Note,</span>
+<span class="co"># the input data here are matrices, not RasterLayers. If using RasterLayers, the</span>
+<span class="co"># `latlon` parameter must be set.</span>
+<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>
 
 
-# Convert the occupancy data to probability of occurrence
-occ_prob_data &lt;- occ_data / sum(occ_data, na.rm = TRUE)
+<span class="co"># Convert the occupancy data to probability of occurrence</span>
+<span class="va">occ_prob_data</span> <span class="op">&lt;-</span> <span class="va">occ_data</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">occ_data</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
 
-# Calculate short- and long-term mortality metrics and long-term dispersal
-short_mort &lt;- mortality(samc_obj, occ_prob_data, time = 4800)
-long_mort &lt;- mortality(samc_obj, occ_prob_data)
-long_disp &lt;- dispersal(samc_obj, occ_prob_data)
-#&gt; Performing setup. This can take several minutes... Complete.
-#&gt; Calculating matrix inverse diagonal...
-Calculating matrix inverse diagonal... Complete                                           
-#&gt; Performing final calculations. This may take a few minutes... Complete.
+<span class="co"># Calculate short- and long-term mortality metrics and long-term dispersal</span>
+<span class="va">short_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span>, time <span class="op">=</span> <span class="fl">4800</span><span class="op">)</span>
+<span class="va">long_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span><span class="op">)</span>
+<span class="va">long_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span><span class="op">)</span>
 
 
-# Create rasters using the vector result data for plotting.
-short_mort_map &lt;- map(samc_obj, short_mort)
-long_mort_map &lt;- map(samc_obj, long_mort)
-long_disp_map &lt;- map(samc_obj, long_disp)</pre></body></html></div>
+<span class="co"># Create rasters using the vector result data for plotting.</span>
+<span class="va">short_mort_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">short_mort</span><span class="op">)</span>
+<span class="va">long_mort_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">long_mort</span><span class="op">)</span>
+<span class="va">long_disp_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">long_disp</span><span class="op">)</span></pre></div>
 </div>
 <div id="visualization-with-ggplot2" class="section level2">
 <h2 class="hasAnchor">
 <a href="#visualization-with-ggplot2" class="anchor"></a>Visualization With ggplot2</h2>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Convert the landscape data RasterLayer objects to data frames for ggplot</span>
-<span class="no">res_df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="fu">raster</span>(<span class="no">res_data</span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="no">res_data</span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(<span class="no">res_data</span>)),
-                        <span class="kw">xy</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">na.rm</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="no">abs_df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="fu">raster</span>(<span class="no">abs_data</span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="no">abs_data</span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(<span class="no">abs_data</span>)),
-                        <span class="kw">xy</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">na.rm</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="no">occ_df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="fu">raster</span>(<span class="no">occ_data</span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="no">occ_data</span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(<span class="no">occ_data</span>)),
-                        <span class="kw">xy</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">na.rm</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="co"># Convert the landscape data to RasterLayer objects, then to data frames for ggplot</span>
+<span class="va">res_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">res_data</span>,
+                               xmn <span class="op">=</span> <span class="fl">0.5</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span><span class="op">(</span><span class="va">res_data</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5</span>,
+                               ymn <span class="op">=</span> <span class="fl">0.5</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">res_data</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5</span><span class="op">)</span>,
+                        xy <span class="op">=</span> <span class="cn">TRUE</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">abs_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">abs_data</span>,
+                               xmn <span class="op">=</span> <span class="fl">0.5</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span><span class="op">(</span><span class="va">abs_data</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5</span>,
+                               ymn <span class="op">=</span> <span class="fl">0.5</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">abs_data</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5</span><span class="op">)</span>,
+                        xy <span class="op">=</span> <span class="cn">TRUE</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">occ_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">occ_data</span>,
+                               xmn <span class="op">=</span> <span class="fl">0.5</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span><span class="op">(</span><span class="va">occ_data</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5</span>,
+                               ymn <span class="op">=</span> <span class="fl">0.5</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">occ_data</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5</span><span class="op">)</span>,
+                        xy <span class="op">=</span> <span class="cn">TRUE</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
 
 <span class="co"># When overlaying the patch raster, we don't want to plot cells with values of 0</span>
-<span class="no">occ_df</span> <span class="kw">&lt;-</span> <span class="no">occ_df</span>[<span class="no">occ_df</span>$<span class="no">layer</span> <span class="kw">!=</span> <span class="fl">0</span>, ]
+<span class="va">occ_df</span> <span class="op">&lt;-</span> <span class="va">occ_df</span><span class="op">[</span><span class="va">occ_df</span><span class="op">$</span><span class="va">layer</span> <span class="op">!=</span> <span class="fl">0</span>, <span class="op">]</span>
 
 
 <span class="co"># Plot the example resistance and mortality data using ggplot</span>
-<span class="fu">ggplot</span>(<span class="no">res_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>)) +
-  <span class="fu">geom_raster</span>(<span class="fu">aes</span>(<span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>)) +
-  <span class="fu">scale_fill_viridis</span>(<span class="kw">begin</span> <span class="kw">=</span> <span class="fl">0.0</span>, <span class="kw">end</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">limits</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="no">res_df</span>$<span class="no">layer</span>), <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">res_df</span>$<span class="no">layer</span>))) +
-  <span class="fu">geom_tile</span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">occ_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,<span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>), <span class="kw">fill</span> <span class="kw">=</span> <span class="st">"grey70"</span>, <span class="kw">color</span> <span class="kw">=</span> <span class="st">"grey70"</span>) +
-  <span class="fu">ggtitle</span>(<span class="st">"Resistance Data"</span>) +
-  <span class="fu">coord_equal</span>() + <span class="fu">theme_bw</span>()
+<span class="va">res_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">res_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_raster</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_tile</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">occ_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>,fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"grey70"</span>, color <span class="op">=</span> <span class="st">"grey70"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"Resistance Data"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_equal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">res_plot</span><span class="op">)</span>
 
-<span class="fu">ggplot</span>(<span class="no">abs_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>)) +
-  <span class="fu">geom_raster</span>(<span class="fu">aes</span>(<span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>)) +
-  <span class="fu">scale_fill_viridis</span>(<span class="kw">begin</span> <span class="kw">=</span> <span class="fl">0.0</span>, <span class="kw">end</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">limits</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="no">abs_df</span>$<span class="no">layer</span>), <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">abs_df</span>$<span class="no">layer</span>))) +
-  <span class="fu">geom_tile</span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">occ_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>, <span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>), <span class="kw">fill</span> <span class="kw">=</span> <span class="st">"grey70"</span>, <span class="kw">color</span> <span class="kw">=</span> <span class="st">"grey70"</span>) +
-  <span class="fu">ggtitle</span>(<span class="st">"Absorption Data"</span>) +
-  <span class="fu">coord_equal</span>() + <span class="fu">theme_bw</span>()</pre></body></html></div>
-<p><img src="tutorial-ggplot_files/figure-html/unnamed-chunk-2-1.png" width="700"><img src="tutorial-ggplot_files/figure-html/unnamed-chunk-2-2.png" width="700"></p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># Convert result RasterLayer objects to data frames for ggplot</span>
-<span class="no">short_mort_df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="no">short_mort_map</span>, <span class="kw">xy</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">na.rm</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="no">long_mort_df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="no">long_mort_map</span>, <span class="kw">xy</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">na.rm</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="no">long_disp_df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="no">long_disp_map</span>, <span class="kw">xy</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">na.rm</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<span class="va">abs_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">abs_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_raster</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_tile</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">occ_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"grey70"</span>, color <span class="op">=</span> <span class="st">"grey70"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"Absorption Data"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_equal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">abs_plot</span><span class="op">)</span></pre></div>
+<p><img src="img/ggplot1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="img/ggplot2.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="co"># Convert result RasterLayer objects to data frames for ggplot</span>
+<span class="va">short_mort_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">short_mort_map</span>, xy <span class="op">=</span> <span class="cn">TRUE</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">long_mort_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">long_mort_map</span>, xy <span class="op">=</span> <span class="cn">TRUE</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">long_disp_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">long_disp_map</span>, xy <span class="op">=</span> <span class="cn">TRUE</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
 
 <span class="co"># Plot short-term mortality</span>
-<span class="fu">ggplot</span>(<span class="no">short_mort_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>)) +
-  <span class="fu">geom_raster</span>(<span class="fu">aes</span>(<span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>)) +
-  <span class="fu">scale_fill_viridis</span>(<span class="kw">limits</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="no">short_mort_df</span>$<span class="no">layer</span>), <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">short_mort_df</span>$<span class="no">layer</span>))) +
-  <span class="fu">geom_tile</span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">occ_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>, <span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>), <span class="kw">fill</span> <span class="kw">=</span> <span class="st">"grey70"</span>, <span class="kw">color</span> <span class="kw">=</span> <span class="st">"grey70"</span>) +
-  <span class="fu">ggtitle</span>(<span class="st">"Short-term Mortality"</span>) +
-  <span class="fu">coord_equal</span>() + <span class="fu">theme_bw</span>()
-
+<span class="va">stm_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">short_mort_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_raster</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_tile</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">occ_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"grey70"</span>, color <span class="op">=</span> <span class="st">"grey70"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"Short-term Mortality"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_equal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">stm_plot</span><span class="op">)</span>
 
 <span class="co"># Plot long-term mortality</span>
-<span class="fu">ggplot</span>(<span class="no">long_mort_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>)) +
-  <span class="fu">geom_raster</span>(<span class="fu">aes</span>(<span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>)) +
-  <span class="fu">scale_fill_viridis</span>(<span class="kw">limits</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="no">long_mort_df</span>$<span class="no">layer</span>), <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">long_mort_df</span>$<span class="no">layer</span>))) +
-  <span class="fu">geom_tile</span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">occ_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,<span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>), <span class="kw">fill</span> <span class="kw">=</span> <span class="st">"grey70"</span>, <span class="kw">color</span> <span class="kw">=</span> <span class="st">"grey70"</span>) +
-  <span class="fu">ggtitle</span>(<span class="st">"Long-term Mortality"</span>) +
-  <span class="fu">coord_equal</span>() + <span class="fu">theme_bw</span>()
-
+<span class="va">ltm_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">long_mort_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_raster</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_tile</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">occ_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>,fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"grey70"</span>, color <span class="op">=</span> <span class="st">"grey70"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"Long-term Mortality"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_equal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">ltm_plot</span><span class="op">)</span>
 
 <span class="co"># Plot long-term dispersal</span>
-<span class="fu">ggplot</span>(<span class="no">long_disp_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>)) + <span class="fu">geom_raster</span>(<span class="fu">aes</span>(<span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>)) +
-  <span class="fu">scale_fill_viridis</span>(<span class="kw">limits</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="no">long_disp_df</span>$<span class="no">layer</span>), <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">long_disp_df</span>$<span class="no">layer</span>))) +
-  <span class="fu">geom_tile</span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">occ_df</span>, <span class="fu">aes</span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">x</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>, <span class="kw">fill</span> <span class="kw">=</span> <span class="no">layer</span>), <span class="kw">fill</span> <span class="kw">=</span> <span class="st">"grey70"</span>, <span class="kw">color</span> <span class="kw">=</span> <span class="st">"grey70"</span>) +
-  <span class="fu">ggtitle</span>(<span class="st">"Long-term Dispersal"</span>) +
-  <span class="fu">coord_equal</span>() + <span class="fu">theme_bw</span>()</pre></body></html></div>
-<p><img src="tutorial-ggplot_files/figure-html/unnamed-chunk-3-1.png" width="700"><img src="tutorial-ggplot_files/figure-html/unnamed-chunk-3-2.png" width="700"><img src="tutorial-ggplot_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
+<span class="va">ltd_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">long_disp_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_raster</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_fill_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html">geom_tile</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">occ_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"grey70"</span>, color <span class="op">=</span> <span class="st">"grey70"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"Long-term Dispersal"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_equal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">ltd_plot</span><span class="op">)</span></pre></div>
+<p><img src="img/ggplot3.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="img/ggplot4.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="img/ggplot5.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
   </div>
 
@@ -245,7 +256,7 @@ long_disp_map &lt;- map(samc_obj, long_disp)</pre></body></html></div>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

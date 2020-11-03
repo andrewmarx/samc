@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@
       <h1 data-toc-skip>Overview</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2020-10-14</h4>
+            <h4 class="date">2020-11-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/overview.Rmd"><code>vignettes/overview.Rmd</code></a></small>
       <div class="hidden name"><code>overview.Rmd</code></div>
@@ -151,22 +151,23 @@
 <li>
 <code>ex_occ_data</code>: A matrix with landscape occupancy data.</li>
 </ul>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_res_data.html">ex_res_data</a></span>)
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span><span class="op">)</span>
 <span class="co">#&gt;  num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span><span class="op">)</span>
 <span class="co">#&gt;  num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span><span class="op">)</span>
 <span class="co">#&gt;  num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span>
 
 
-<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="fu">raster</span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_res_data.html">ex_res_data</a></span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_res_data.html">ex_res_data</a></span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_res_data.html">ex_res_data</a></span>)),
-     <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Example Resistance Data"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu">viridis</span>(<span class="fl">256</span>))
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">raster</span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span>, xmn <span class="op">=</span> <span class="fl">1</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span><span class="op">)</span>, ymn <span class="op">=</span> <span class="fl">1</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span><span class="op">)</span><span class="op">)</span>,
+     main <span class="op">=</span> <span class="st">"Example Resistance Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu">viridis</span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="fu">raster</span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>)),
-     <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Example Absorption Data"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu">viridis</span>(<span class="fl">256</span>))
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">raster</span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>, xmn <span class="op">=</span> <span class="fl">1</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span><span class="op">)</span>, ymn <span class="op">=</span> <span class="fl">1</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span><span class="op">)</span><span class="op">)</span>,
+     main <span class="op">=</span> <span class="st">"Example Absorption Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu">viridis</span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="fu">raster</span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>, <span class="kw">xmn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">xmx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>), <span class="kw">ymn</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">ymx</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span>(<span class="kw pkg">samc</span><span class="kw ns">::</span><span class="no"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>)),
-     <span class="kw">main</span> <span class="kw">=</span> <span class="st">"Example Occupancy Data"</span>, <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"y"</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="fu">viridis</span>(<span class="fl">256</span>))</pre></body></html></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">raster</span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>, xmn <span class="op">=</span> <span class="fl">1</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span><span class="op">)</span>, ymn <span class="op">=</span> <span class="fl">1</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span><span class="op">)</span><span class="op">)</span>,
+     main <span class="op">=</span> <span class="st">"Example Occupancy Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu">viridis</span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="overview_files/figure-html/unnamed-chunk-1-1.png" width="700"><img src="overview_files/figure-html/unnamed-chunk-1-2.png" width="700"><img src="overview_files/figure-html/unnamed-chunk-1-3.png" width="700"></p>
 </div>
 </div>
@@ -175,7 +176,8 @@
 <a href="#the-samc-class" class="anchor"></a>The <code>samc-class</code>
 </h2>
 <p>The <code>samc-class</code> is used to manage the transition matrix and information about your landscape data to help ensure that the calculations used by the rest of the package are used correctly. Creating an <code>samc-class</code> object is the mandatory first step in the package, and is created using the <code><a href="../reference/samc.html">samc()</a></code> utility function. The <code><a href="../reference/samc.html">samc()</a></code> function has several parameters. Some of these are mandatory, some are only mandatory in certain situations, and some are optional. The overall function signature is as follows:</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="../reference/samc.html">samc</a></span>(<span class="no">resistance</span>, <span class="no">absorption</span>, <span class="no">fidelity</span>, <span class="no">latlon</span>, <span class="no">tr_fun</span>, <span class="no">override</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">resistance</span>, <span class="va">absorption</span>, <span class="va">fidelity</span>, <span class="va">latlon</span>, <span class="va">tr_fun</span>, <span class="va">override</span><span class="op">)</span></pre></div>
 <p>An explanation of the arguments:</p>
 <ul>
 <li>
@@ -309,7 +311,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

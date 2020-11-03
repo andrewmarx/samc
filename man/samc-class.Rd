@@ -35,6 +35,8 @@ objects.
 
 \item{\code{map}}{Used to verify landscape inputs and mapping of vector data.}
 
+\item{\code{clumps}}{Number of discontinuous regions in data}
+
 \item{\code{override}}{Used to prevent accidental use of memory intensive functions.}
 }}
 
