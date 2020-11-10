@@ -101,7 +101,7 @@ setMethod(
 
     b[] <- is.finite(b[])
 
-    raster::compareRaster(a@map, b)
+    raster::compareRaster(a@map, b, values = TRUE)
   })
 
 #' @rdname check
