@@ -54,7 +54,7 @@ setMethod(
   "locate",
   signature(samc = "samc", xy = "missing"),
   function(samc){
-    if (samc@source != "map") stop("This function can only be used when the samc object was created from raster or matrix inputs for resistance data")
+    if (samc@source != "map") stop("This function can only be used when the samc object was created from raster or matrix inputs for resistance data", call. = FALSE)
 
     ras <- samc@map
     n <- sum(ras[])

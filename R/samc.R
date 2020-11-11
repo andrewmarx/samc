@@ -113,38 +113,38 @@ setMethod(
   function(resistance, absorption, fidelity, latlon, tr_fun, override = FALSE) {
 
     if (!is.logical(override))
-      stop("The override parameter must be set to TRUE or FALSE")
+      stop("The override parameter must be set to TRUE or FALSE", call. = FALSE)
 
     # Make sure the input data all aligns
     check(resistance, absorption)
     check(resistance, fidelity)
 
     if (any(resistance[] <= 0, na.rm = TRUE)) {
-      stop("The resistance data must not have values <= 0")
+      stop("The resistance data must not have values <= 0", call. = FALSE)
     }
 
     if (any(absorption[] < 0, na.rm = TRUE)) {
-      stop("The absorption data must not have values <= 0")
+      stop("The absorption data must not have values <= 0", call. = FALSE)
     }
 
     if (any(absorption[] > 1, na.rm = TRUE)) {
-      stop("The absorption data must not have values > 1")
+      stop("The absorption data must not have values > 1", call. = FALSE)
     }
 
     if (sum(absorption[], na.rm = TRUE) == 0) {
-      stop("At least one cell must have an absorption value > 0")
+      stop("At least one cell must have an absorption value > 0", call. = FALSE)
     }
 
     if (any(fidelity[] < 0, na.rm = TRUE)) {
-      stop("The fidelity data must not have values < 0")
+      stop("The fidelity data must not have values < 0", call. = FALSE)
     }
 
     if (any(fidelity[] > 1, na.rm = TRUE)) {
-      stop("The fidelity data must not have values > 1")
+      stop("The fidelity data must not have values > 1", call. = FALSE)
     }
 
     if (any((fidelity[] + absorption[]) > 1, na.rm = TRUE)) {
-      stop("No cells can have fidelity + absoprtion > 1")
+      stop("No cells can have fidelity + absoprtion > 1", call. = FALSE)
     }
 
 
@@ -163,7 +163,7 @@ setMethod(
       temp_abs[temp_abs > 0] <- 1
       temp_abs <- temp_abs * cl
 
-      if (!all(1:clumps %in% unique(temp_abs[]))) stop("All disconnected regions must have at least one non-zero absorption value")
+      if (!all(1:clumps %in% unique(temp_abs[]))) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
     }
 
 
@@ -278,10 +278,10 @@ setMethod(
     r = nrow(p_mat)
     c = ncol(p_mat)
 
-    if (c != r) stop("Matrix is not square")
-    if (p_mat[r, c] != 1) stop("The last element must be 1")
-    if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element")
-    if (!isTRUE(all.equal(Matrix::rowSums(p_mat), rep(1, r)))) stop("All row sums must be equal to 1") # Use all.equal() to avoid numerical precision issues
+    if (c != r) stop("Matrix is not square", call. = FALSE)
+    if (p_mat[r, c] != 1) stop("The last element must be 1", call. = FALSE)
+    if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element", call. = FALSE)
+    if (!isTRUE(all.equal(Matrix::rowSums(p_mat), rep(1, r)))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")

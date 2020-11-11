@@ -56,10 +56,10 @@ setMethod(
   signature(samc = "samc", origin = "missing", dest = "numeric"),
   function(samc, dest) {
     if (samc@clumps > 1)
-      stop("This function cannot be used with discontinuous data")
+      stop("This function cannot be used with discontinuous data", call. = FALSE)
 
     if (dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
-      stop("dest must be an integer that refers to a cell in the landscape")
+      stop("dest must be an integer that refers to a cell in the landscape", call. = FALSE)
 
     Q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qj <- Q[-dest, dest]
@@ -83,7 +83,7 @@ setMethod(
     .validate_locations(samc, dest)
 
     if(length(origin) != length(dest))
-      stop("The 'origin' and 'dest' parameters must have the same number of values")
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
     result <- vector(mode = "numeric", length = length(length(origin)))
 

@@ -122,10 +122,10 @@ setMethod(
   function(samc, time) {
 
     if (!samc@override)
-      stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
+      stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
-      stop("The time argument must be a single positive integer")
+      stop("The time argument must be a single positive integer", call. = FALSE)
 
     # TODO: remove as.matrix call, which is needed to convert from a sparse to
     # dense matrix for the %^% operator, which means removing expm as a dependency
@@ -213,7 +213,7 @@ setMethod(
     } else if (is.vector(mort)) {
       return(mort[dest])
     } else {
-      stop("Fatal error: This should not have been possible. Please submit a report with a fully reproducible and simplified example.")
+      stop("This should not have been possible. Please submit a report with a fully reproducible and simplified example.", call. = FALSE)
     }
   })
 
@@ -263,7 +263,7 @@ setMethod(
   function(samc) {
 
     if (!samc@override)
-      stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
+      stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
     f <- visitation(samc)
     gc()

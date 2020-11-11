@@ -81,10 +81,10 @@ setMethod(
   function(samc, time) {
 
     if (!samc@override)
-      stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
+      stop("This version of the distribution() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
-      stop("The time argument must be a single positive integer")
+      stop("The time argument must be a single positive integer", call. = FALSE)
 
     q <- as.matrix(samc@p[-nrow(samc@p), -nrow(samc@p)])
 
@@ -153,7 +153,7 @@ setMethod(
     } else if (is.vector(mov)) {
       return(mov[dest])
     } else {
-      stop("Fatal error: This should not have been possible. Please submit a report with a fully reproducible and simplified example.")
+      stop("This should not have been possible. Please submit a report with a fully reproducible and simplified example.", call. = FALSE)
     }
   })
 

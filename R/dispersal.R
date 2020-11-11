@@ -103,7 +103,7 @@ setMethod(
     .validate_time_steps(time)
 
     if (dest %% 1 != 0 || dest < 1 || dest > sum(samc@map[], na.rm = TRUE))
-      stop("dest must be an integer that refers to a cell in the landscape")
+      stop("dest must be an integer that refers to a cell in the landscape", call. = FALSE)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qv <- q[, dest]
@@ -165,7 +165,7 @@ setMethod(
   function(samc) {
 
     if (!samc@override)
-      stop("This version of the dispersal() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
+      stop("This version of the dispersal() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
     f <- visitation(samc)
     gc()
@@ -187,7 +187,7 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "missing"),
   function(samc, origin) {
-    stop("A suitably optimized version of this function has not been identified (yet). As a workaround, consider calculation destination columns instead")
+    stop("A suitably optimized version of this function has not been identified (yet). As a workaround, consider calculating destination columns instead", call. = FALSE)
   })
 
 #' @rdname dispersal

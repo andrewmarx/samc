@@ -13,22 +13,22 @@
 #' @noRd
 .validate_time_steps <- function(x) {
   if (!is.numeric(x))
-    stop("The time argument must be a positive integer or a vector of positive integers")
+    stop("The time argument must be a positive integer or a vector of positive integers", call. = FALSE)
 
   if (sum(is.na(x)) > 0)
-    stop("NA values are not allowed in the time argument")
+    stop("NA values are not allowed in the time argument", call. = FALSE)
 
   if (any(x %% 1 != 0))
-    stop("Decimal values are not allowed in the time argument")
+    stop("Decimal values are not allowed in the time argument", call. = FALSE)
 
   if (any(x < 1))
-    stop("All time steps must be positive (greater than 0)")
+    stop("All time steps must be positive (greater than 0)", call. = FALSE)
 
   if (is.unsorted(x))
-    stop("The provided time steps must be in ascending order.")
+    stop("The provided time steps must be in ascending order.", call. = FALSE)
 
   if (sum(duplicated(x) > 0))
-    stop("Duplicate time steps are not allowed in the time argument")
+    stop("Duplicate time steps are not allowed in the time argument", call. = FALSE)
 
   if (any(x > 10000))
     stop("Due to how the short-term metrics are calculated and the way that
@@ -40,7 +40,7 @@
   limit represents 24.7 years. There is flexibility to increase the limit
   if a justification can be made for it, but it's far more likely that
   users will generally want far fewer time steps for ecologically relevant
-  results and to avoid the cummulative precision issues.")
+  results and to avoid the cummulative precision issues.", call. = FALSE)
 }
 
 
@@ -53,17 +53,17 @@
 #' @noRd
 .validate_locations <- function(samc, x) {
   if (!is.numeric(x))
-    stop("Locations must be a positive integer or a vector of positive integers")
+    stop("Locations must be a positive integer or a vector of positive integers", call. = FALSE)
 
   if (sum(is.na(x)) > 0)
-    stop("NA values are not valid locations")
+    stop("NA values are not valid locations", call. = FALSE)
 
   if (any(x %% 1 != 0))
-    stop("Decimal values are not valid locations")
+    stop("Decimal values are not valid locations", call. = FALSE)
 
   if (any(x < 1))
-    stop("All location values must be positive (greater than 0)")
+    stop("All location values must be positive (greater than 0)", call. = FALSE)
 
   if (any(x > (nrow(samc@p) - 1)))
-    stop("Location values cannot exceed the number of nodes in the landscape")
+    stop("Location values cannot exceed the number of nodes in the landscape", call. = FALSE)
 }

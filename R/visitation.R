@@ -68,7 +68,7 @@ setMethod(
   function(samc){
 
     if (!samc@override)
-      stop("This version of the visitation() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
+      stop("This version of the visitation() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x
