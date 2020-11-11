@@ -76,7 +76,19 @@ setMethod(
     a[] <- is.finite(a[])
     b[] <- is.finite(b[])
 
-    raster::compareRaster(a, b, values = TRUE)
+    tryCatch(
+      {
+        raster::compareRaster(a, b, values = TRUE)
+      },
+      error = function(e) {
+        if(grepl("not all objects have the same values", e$message)) {
+          msg = "NA mismatch"
+        } else {
+          msg = e$message
+        }
+        stop(msg, " in input data", call. = FALSE)
+      }
+    )
   })
 
 #' @rdname check
@@ -101,7 +113,19 @@ setMethod(
 
     b[] <- is.finite(b[])
 
-    raster::compareRaster(a@map, b, values = TRUE)
+    tryCatch(
+      {
+        raster::compareRaster(a@map, b, values = TRUE)
+      },
+      error = function(e) {
+        if(grepl("not all objects have the same values", e$message)) {
+          msg = "NA mismatch"
+        } else {
+          msg = e$message
+        }
+        stop(msg, " in input data", call. = FALSE)
+      }
+    )
   })
 
 #' @rdname check
