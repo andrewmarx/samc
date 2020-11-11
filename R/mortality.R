@@ -251,7 +251,7 @@ setMethod(
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
 
-    occ <- raster::raster(occ, xmn = 0.5, xmx = ncol(occ) + 0.5, ymn = 0.5, ymx = nrow(occ) + 0.5)
+    occ <- .rasterize(occ)
 
     return(mortality(samc, occ, time = time))
   })
@@ -352,7 +352,7 @@ setMethod(
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
 
-    occ <- raster::raster(occ, xmn = 0.5, xmx = ncol(occ) + 0.5, ymn = 0.5, ymx = nrow(occ) + 0.5)
+    occ <- .rasterize(occ)
 
     return(mortality(samc, occ))
   })

@@ -67,3 +67,14 @@
   if (any(x > (nrow(samc@p) - 1)))
     stop("Location values cannot exceed the number of nodes in the landscape", call. = FALSE)
 }
+
+
+#' Rasterize matrices
+#'
+#' Convert a matrix to a RasterLayer. Ensures consistency of conversion throughout the package
+#'
+#' @param x A matrix
+#' @noRd
+.rasterize <- function(x) {
+  return(raster::raster(x, xmn = 0.5, xmx = ncol(x) + 0.5, ymn = 0.5, ymx = nrow(x) + 0.5))
+}

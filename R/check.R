@@ -60,7 +60,7 @@ setMethod(
   "check",
   signature(a = "matrix", b = "missing"),
   function(a){
-    a <- raster::raster(a, xmn = 0.5, xmx = ncol(a) + 0.5, ymn = 0.5, ymx = nrow(a) + 0.5)
+    a <- .rasterize(a)
 
     check(a)
   })
@@ -96,8 +96,8 @@ setMethod(
   "check",
   signature(a = "matrix", b = "matrix"),
   function(a, b){
-    a <- raster::raster(a, xmn = 0.5, xmx = ncol(a) + 0.5, ymn = 0.5, ymx = nrow(a) + 0.5)
-    b <- raster::raster(b, xmn = 0.5, xmx = ncol(b) + 0.5, ymn = 0.5, ymx = nrow(b) + 0.5)
+    a <- .rasterize(a)
+    b <- .rasterize(b)
 
     check(a, b)
   })
@@ -120,7 +120,7 @@ setMethod(
   "check",
   signature(a = "samc", b = "matrix"),
   function(a, b){
-    b <- raster::raster(b, xmn = 0.5, xmx = ncol(b) + 0.5, ymn = 0.5, ymx = nrow(b) + 0.5)
+    b <- .rasterize(b)
 
     check(a, b)
   })
