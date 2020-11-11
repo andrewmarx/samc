@@ -109,23 +109,10 @@ setMethod(
   function(a, b){
     if (a@source != "map") stop(paste("Parameters do not apply to a samc-class object created from a", a@source))
 
-    check(b)
+    a <- a@map
+    a[!a[]] <- NA
 
-    b[] <- is.finite(b[])
-
-    tryCatch(
-      {
-        raster::compareRaster(a@map, b, values = TRUE)
-      },
-      error = function(e) {
-        if(grepl("not all objects have the same values", e$message)) {
-          msg = "NA mismatch"
-        } else {
-          msg = e$message
-        }
-        stop(msg, " in input data", call. = FALSE)
-      }
-    )
+    check(a, b)
   })
 
 #' @rdname check
