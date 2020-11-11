@@ -47,9 +47,9 @@ setMethod(
   function(a){
 
     if (sum(is.infinite(a[]), na.rm = TRUE) > 0) {
-      stop("Data contains Inf or -Inf element")
+      stop("Data contains Inf or -Inf element", call. = FALSE)
     } else if (sum(is.nan(a[]), na.rm = TRUE) > 0) {
-      stop("Data contains NaN elements")
+      stop("Data contains NaN elements", call. = FALSE)
     }
 
     return(TRUE)
@@ -107,7 +107,7 @@ setMethod(
   "check",
   signature(a = "samc", b = "RasterLayer"),
   function(a, b){
-    if (a@source != "map") stop(paste("Parameters do not apply to a samc-class object created from a", a@source))
+    if (a@source != "map") stop("Parameters do not apply to a samc-class object created from a ", a@source, call. = FALSE)
 
     a <- a@map
     a[!a[]] <- NA
