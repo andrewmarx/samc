@@ -123,7 +123,7 @@ setMethod(
   "distribution",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
-
+    .validate_locations(samc, dest)
     .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
@@ -145,6 +145,7 @@ setMethod(
   "distribution",
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "numeric"),
   function(samc, origin, dest, time) {
+    .validate_locations(samc, dest)
 
     mov <- distribution(samc, origin = origin, time = time)
 

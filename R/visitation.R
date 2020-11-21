@@ -82,6 +82,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", origin = "numeric", dest = "missing"),
   function(samc, origin){
+    .validate_locations(samc, origin)
+
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
@@ -95,6 +97,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", origin = "missing", dest = "numeric"),
   function(samc, dest){
+    .validate_locations(samc, dest)
+
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
@@ -108,6 +112,7 @@ setMethod(
   "visitation",
   signature(samc = "samc", origin = "numeric", dest = "numeric"),
   function(samc, origin, dest){
+    .validate_locations(samc, dest)
 
     v <- visitation(samc, origin)
 

@@ -99,7 +99,7 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
-
+    .validate_locations(samc, dest)
     .validate_time_steps(time)
 
     if (dest %% 1 != 0 || dest < 1 || dest > sum(samc@map[], na.rm = TRUE))
@@ -209,6 +209,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "missing"),
   function(samc, origin, dest) {
+    .validate_locations(samc, origin)
+
     d <- dispersal(samc, dest = dest)
 
     return(d[origin])

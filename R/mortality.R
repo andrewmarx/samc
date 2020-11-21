@@ -153,7 +153,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
-
+    .validate_locations(samc, origin)
     .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
@@ -178,7 +178,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
   function(samc, dest, time) {
-
+    .validate_locations(samc, dest)
     .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
@@ -205,7 +205,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "numeric"),
   function(samc, origin, dest, time) {
-
+    .validate_locations(samc, dest)
     mort <- mortality(samc, origin = origin, time = time)
 
     if (is.list(mort)){
@@ -299,7 +299,6 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "missing"),
   function(samc, dest) {
-
     rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
 
     vis <- visitation(samc, dest = dest)
@@ -314,6 +313,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "missing"),
   function(samc, origin, dest) {
+    .validate_locations(samc, origin)
 
     rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
 
