@@ -59,6 +59,7 @@ setMethod(
     ras <- samc@map
     n <- sum(ras[])
     ras[ras] <- 1:n
+    ras[ras[] == 0] <- NA
 
     return(ras)
   })
