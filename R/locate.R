@@ -73,5 +73,7 @@ setMethod(
 
     result <- raster::extract(ras, xy)
 
+    if (anyNA(result)) stop("One or more coordinates do not correspond to non-NA cells.", call. = FALSE)
+
     return(result)
   })
