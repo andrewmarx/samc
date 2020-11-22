@@ -39,7 +39,7 @@ NULL
 #
 #' @return A rasterlayer or a vector
 #'
-#' @example inst/examples/example.R
+#' @example inst/examples/locate.R
 #'
 #' @export
 
