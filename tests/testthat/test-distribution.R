@@ -40,7 +40,7 @@ for(test in testlist) {
     r2 <- Pt[row_vec[1], ]
 
     # Verify
-    expect_equal(r1, r2)
+    expect_equal(r1, r2, check.names = FALSE)
   })
 
   test_that("Testing distribution(samc, origin, time_vec)", {
@@ -55,7 +55,7 @@ for(test in testlist) {
       r2 <- pt[row_vec[1], ]
 
       # Verify
-      expect_equal(r1[[i]], r2)
+      expect_equal(r1[[i]], r2, check.names = FALSE)
     }
   })
 
@@ -66,7 +66,7 @@ for(test in testlist) {
     r2 <- Pt[, col_vec[1]]
 
     # Verify
-    expect_equal(r1, r2)
+    expect_equal(r1, r2, check.names = FALSE)
   })
 
   test_that("Testing distribution(samc, dest, time_vec)", {
@@ -81,7 +81,7 @@ for(test in testlist) {
       r2 <- pt[, col_vec[1]]
 
       # Verify
-      expect_equal(r1[[i]], r2)
+      expect_equal(r1[[i]], r2, check.names = FALSE)
     }
   })
 
