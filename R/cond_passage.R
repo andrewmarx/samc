@@ -114,3 +114,20 @@ setMethod(
 
     return(result)
   })
+
+#' @rdname cond_passage
+setMethod(
+  "cond_passage",
+  signature(samc = "samc", origin = "character", dest = "character"),
+  function(samc, origin, dest) {
+
+    row_names <- dimnames(samc@p)[[1]]
+    .validate_names(row_names, origin)
+
+    col_names <- dimnames(samc@p)[[2]]
+    .validate_names(col_names, dest)
+
+    return(cond_passage(samc,
+                        origin = match(origin, row_names),
+                        dest = match(dest, col_names)))
+  })
