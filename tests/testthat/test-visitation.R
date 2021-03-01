@@ -31,7 +31,7 @@ for(test in testlist) {
     r2 <- solve(I - Q)
 
     # Verify equality
-    expect_equal(r1, r2[row_vec[1], ])
+    expect_equal(r1, r2[row_vec[1], ], check.names = FALSE)
   })
 
   test_that("Testing visitation(samc, dest)", {
@@ -41,7 +41,7 @@ for(test in testlist) {
     r2 <- solve(I - Q)
 
     # Verify equality
-    expect_equal(r1, r2[, col_vec[1]])
+    expect_equal(r1, r2[, col_vec[1]], check.names = FALSE)
   })
 
   test_that("Testing visitation(samc, origin, dest)", {
@@ -51,6 +51,6 @@ for(test in testlist) {
     r2 <- solve(I - Q)
 
     # Verify equality
-    expect_equal(r1, r2[row_vec[1], col_vec[1]])
+    expect_equal(r1, r2[row_vec[1], col_vec[1]], check.names = FALSE)
   })
 }

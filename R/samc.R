@@ -204,6 +204,10 @@ setMethod(
     excl <- which(is.na(abs_vec))
     if (length(excl) > 0) p = p[-excl, -excl]
 
+    # Check dimnames
+    if (is.null(dimnames(p)[[1]])) dimnames(p)[[1]] <- 1:dim(p)[1]
+    if (is.null(dimnames(p)[[2]])) dimnames(p)[[2]] <- 1:dim(p)[2]
+
     # Assemble final
 
     samc_mat <- methods::new("samc", p = p, source = "map", map = m, clumps = clumps, override = override)
@@ -281,7 +285,7 @@ setMethod(
     if (c != r) stop("Matrix is not square", call. = FALSE)
     if (p_mat[r, c] != 1) stop("The last element must be 1", call. = FALSE)
     if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element", call. = FALSE)
-    if (!isTRUE(all.equal(Matrix::rowSums(p_mat), rep(1, r)))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
+    if (!isTRUE(all.equal(Matrix::rowSums(p_mat), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
