@@ -58,8 +58,8 @@ setMethod(
     if (samc@clumps > 1)
       stop("This function cannot be used with discontinuous data", call. = FALSE)
 
-    if (dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
-      stop("dest must be an integer that refers to a cell in the landscape", call. = FALSE)
+    if (length(dest) != 1 || dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
+      stop("dest must be a single integer that refers to a cell in the landscape", call. = FALSE)
 
     Q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qj <- Q[-dest, dest]
