@@ -76,6 +76,20 @@ setMethod(
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
+  signature(samc = "samc", origin = "missing", dest = "character"),
+  function(samc, dest) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    col_names <- dimnames(samc@p)[[2]]
+    .validate_names(col_names, dest)
+
+    return(cond_passage(samc, dest = match(dest, col_names)))
+  })
+
+#' @rdname cond_passage
+setMethod(
+  "cond_passage",
   signature(samc = "samc", origin = "numeric", dest = "numeric"),
   function(samc, origin, dest) {
 
