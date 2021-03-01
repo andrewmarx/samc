@@ -204,6 +204,10 @@ setMethod(
     excl <- which(is.na(abs_vec))
     if (length(excl) > 0) p = p[-excl, -excl]
 
+    # Check dimnames
+    if (is.null(dimnames(p)[[1]])) dimnames(p)[[1]] <- 1:dim(p)[1]
+    if (is.null(dimnames(p)[[2]])) dimnames(p)[[2]] <- 1:dim(p)[2]
+
     # Assemble final
 
     samc_mat <- methods::new("samc", p = p, source = "map", map = m, clumps = clumps, override = override)
