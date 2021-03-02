@@ -81,7 +81,7 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    col_names <- dimnames(samc@p)[[2]]
+    col_names <- colnames(samc@p)
     .validate_names(col_names, dest)
 
     return(cond_passage(samc, dest = match(dest, col_names)))
@@ -121,10 +121,10 @@ setMethod(
   signature(samc = "samc", origin = "character", dest = "character"),
   function(samc, origin, dest) {
 
-    row_names <- dimnames(samc@p)[[1]]
+    row_names <- rownames(samc@p)
     .validate_names(row_names, origin)
 
-    col_names <- dimnames(samc@p)[[2]]
+    col_names <- colnames(samc@p)
     .validate_names(col_names, dest)
 
     return(cond_passage(samc,
