@@ -30,4 +30,4 @@ locate(samc_obj, coords)
 coords <- data.frame(x = c(1),
                      y = c(1))
 print(coords)
-locate(samc_obj, coords)
+try(locate(samc_obj, coords))
