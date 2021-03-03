@@ -107,7 +107,7 @@ setMethod(
       t <- cond_passage(samc, dest = d)
       adj_origin <- origin
       adj_origin[origin > d] <- adj_origin[origin > d] - 1
-      result[dest == d] <- t[origin[dest == d]]
+      result[dest == d] <- t[adj_origin[dest == d]]
     }
 
     result[dest == origin] <- NA
