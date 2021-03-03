@@ -205,11 +205,15 @@ setMethod(
     if (length(excl) > 0) p = p[-excl, -excl]
 
     # Check dimnames
-    if (is.null(dimnames(p)[[1]])) dimnames(p)[[1]] <- 1:dim(p)[1]
-    if (is.null(dimnames(p)[[2]])) dimnames(p)[[2]] <- 1:dim(p)[2]
+    if (is.null(rownames(p))) rownames(p) <- 1:nrow(p)
+    if (is.null(colnames(p))) colnames(p) <- 1:ncol(p)
+
+    if (any(duplicated(rownames(p))))
+      stop("Row names must be unique")
+    if (any(duplicated(colnames(p))))
+      stop("Column names must be unique")
 
     # Assemble final
-
     samc_mat <- methods::new("samc", p = p, source = "map", map = m, clumps = clumps, override = override)
 
     return(samc_mat)
@@ -286,6 +290,14 @@ setMethod(
     if (p_mat[r, c] != 1) stop("The last element must be 1", call. = FALSE)
     if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element", call. = FALSE)
     if (!isTRUE(all.equal(Matrix::rowSums(p_mat), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
+
+    if (is.null(rownames(p_mat))) rownames(p_mat) <- 1:r
+    if (is.null(colnames(p_mat))) colnames(p_mat) <- 1:c
+
+    if (any(duplicated(rownames(p_mat))))
+      stop("Row names must be unique")
+    if (any(duplicated(colnames(p_mat))))
+      stop("Column names must be unique")
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")

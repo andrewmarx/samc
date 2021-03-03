@@ -69,6 +69,21 @@
 }
 
 
+#' Validate location names
+#'
+#' Performs several checks to make sure a vector of names is valid
+#'
+#' @param vec A vector of location names
+#' @param x A vector object to be validated as names
+#' @noRd
+.validate_names <- function(vec, x) {
+  invalid_names <- x[!(x %in% vec)]
+
+  if (length(invalid_names > 0))
+    stop(paste("\nInvalid location name:", invalid_names), call. = FALSE)
+}
+
+
 #' Rasterize matrices
 #'
 #' Convert a matrix to a RasterLayer. Ensures consistency of conversion throughout the package

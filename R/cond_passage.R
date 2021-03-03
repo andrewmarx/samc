@@ -58,8 +58,8 @@ setMethod(
     if (samc@clumps > 1)
       stop("This function cannot be used with discontinuous data", call. = FALSE)
 
-    if (dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
-      stop("dest must be an integer that refers to a cell in the landscape", call. = FALSE)
+    if (length(dest) != 1 || dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
+      stop("dest must be a single integer that refers to a cell in the landscape", call. = FALSE)
 
     Q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qj <- Q[-dest, dest]
@@ -71,6 +71,20 @@ setMethod(
     t <- .cond_t(Qj, qj)
 
     return(as.numeric(t))
+  })
+
+#' @rdname cond_passage
+setMethod(
+  "cond_passage",
+  signature(samc = "samc", origin = "missing", dest = "character"),
+  function(samc, dest) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    col_names <- colnames(samc@p)
+    .validate_names(col_names[-length(col_names)], dest)
+
+    return(cond_passage(samc, dest = match(dest, col_names)))
   })
 
 #' @rdname cond_passage
@@ -99,4 +113,21 @@ setMethod(
     result[dest == origin] <- NA
 
     return(result)
+  })
+
+#' @rdname cond_passage
+setMethod(
+  "cond_passage",
+  signature(samc = "samc", origin = "character", dest = "character"),
+  function(samc, origin, dest) {
+
+    row_names <- rownames(samc@p)
+    .validate_names(row_names[-length(row_names)], origin)
+
+    col_names <- colnames(samc@p)
+    .validate_names(col_names[-length(col_names)], dest)
+
+    return(cond_passage(samc,
+                        origin = match(origin, row_names),
+                        dest = match(dest, col_names)))
   })

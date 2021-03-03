@@ -43,10 +43,12 @@ for(test in testlist) {
   test_that("Testing cond_passage(samc, dest)", {
 
     r1 <- cond_passage(samc_p, dest = col_vec[1])
+    r2 <- cond_passage(samc_p, dest = as.character(col_vec[1]))
 
     # Verify
     expect_equal(dim(r1), dim(result))
     expect_equal(as.vector(r1), as.vector(result))
+    expect_equal(r1, r2)
   })
 
   test_that("Testing cond_passage(samc, origin, dest)", {
@@ -54,9 +56,11 @@ for(test in testlist) {
     r1 <- cond_passage(samc_p, origin = row_vec[1], dest = col_vec[1])
 
     r_vec <- cond_passage(samc_p, row_vec, col_vec)
+    r_vec2 <- cond_passage(samc_p, as.character(row_vec), as.character(col_vec))
 
     # Verify
     expect_equal(as.vector(r1), as.vector(result[row_vec[1]]))
+    expect_equal(r_vec, r_vec2)
     for (i in 1:length(row_vec)) {
       r1 <- cond_passage(samc_p, row_vec[i], col_vec[i])
       expect_equal(r_vec[i], r1)
