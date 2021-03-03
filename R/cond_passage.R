@@ -82,7 +82,7 @@ setMethod(
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
     col_names <- colnames(samc@p)
-    .validate_names(col_names, dest)
+    .validate_names(col_names[-length(col_names)], dest)
 
     return(cond_passage(samc, dest = match(dest, col_names)))
   })
@@ -122,10 +122,10 @@ setMethod(
   function(samc, origin, dest) {
 
     row_names <- rownames(samc@p)
-    .validate_names(row_names, origin)
+    .validate_names(row_names[-length(row_names)], origin)
 
     col_names <- colnames(samc@p)
-    .validate_names(col_names, dest)
+    .validate_names(col_names[-length(col_names)], dest)
 
     return(cond_passage(samc,
                         origin = match(origin, row_names),
