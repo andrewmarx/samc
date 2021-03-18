@@ -10,6 +10,8 @@ navbar:
         href: articles/performance.html
       - text: "Troubleshooting"
         href: articles/troubleshooting.html
+      - text: "Code Snippets"
+        href: articles/code-snippets.html
     - text: "Tutorials"
       menu:
       - text: "Basic Tutorial"
