@@ -314,14 +314,21 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "missing"),
   function(samc, origin, dest) {
     .validate_locations(samc, origin)
+    .validate_locations(samc, dest)
+
+    if(length(origin) != length(dest))
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
     rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
 
-    vis <- visitation(samc, dest = dest)
+    result <- vector(mode = "numeric", length = length(origin))
 
-    mort <- vis[origin] * rdg[dest]
+    for (d in unique(dest)) {
+      vis <- visitation(samc, dest = d)
+      result[dest == d] <- vis[origin[dest == d]] * rdg[d]
+    }
 
-    return(as.numeric(mort))
+    return(result)
   })
 
 #' @rdname mortality

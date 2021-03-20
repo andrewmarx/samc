@@ -165,17 +165,19 @@ for(test in testlist) {
 
   test_that("Testing dispersal(samc, origin, dest)", {
 
-    r1 <- dispersal(samc_obj, origin = row_vec[1], dest = col_vec[1])
-
     f <- solve(I - Q)
-
     fdg <- I
     diag(fdg) <- 1/diag(f)
+    base_result <- (f - I) %*% fdg
 
-    r2 <- (f - I) %*% fdg
+    vector_result <- dispersal(samc_obj, origin = row_vec, des = col_vec)
 
-    # Verify
-    expect_equal(as.vector(r1), as.vector(r2[row_vec[1], col_vec[1]]))
+    for (i in 1:length(row_vec)) {
+      r <- dispersal(samc_obj, origin = row_vec[i], dest = col_vec[i])
+
+      expect_equal(vector_result[i], r)
+      expect_equal(r, base_result[row_vec[i], col_vec[i]], check.names = FALSE)
+    }
   })
 
   test_that("Testing dispersal(samc, occ)", {
