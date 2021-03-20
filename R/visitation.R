@@ -94,6 +94,20 @@ setMethod(
     return(as.vector(r))
   })
 
+#' @rdname visitation
+setMethod(
+  "visitation",
+  signature(samc = "samc", origin = "character", dest = "missing"),
+  function(samc, origin){
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    row_names <- rownames(samc@p)
+    .validate_names(row_names[-length(row_names)], origin)
+
+    return(visitation(samc, origin = match(origin, row_names)))
+  })
+
 # visitation(samc, dest) ----
 #' @rdname visitation
 setMethod(
@@ -108,6 +122,20 @@ setMethod(
 
     r <- .f_col(q, dest);
     return(as.vector(r))
+  })
+
+#' @rdname visitation
+setMethod(
+  "visitation",
+  signature(samc = "samc", origin = "missing", dest = "character"),
+  function(samc, dest){
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    col_names <- colnames(samc@p)
+    .validate_names(col_names[-length(col_names)], dest)
+
+    return(visitation(samc, dest = match(dest, col_names)))
   })
 
 # visitation(samc, origin, dest) ----
@@ -133,3 +161,18 @@ setMethod(
     return(result)
   })
 
+#' @rdname visitation
+setMethod(
+  "visitation",
+  signature(samc = "samc", origin = "character", dest = "character"),
+  function(samc, origin, dest){
+    row_names <- rownames(samc@p)
+    samc:::.validate_names(row_names[-length(row_names)], origin)
+
+    col_names <- colnames(samc@p)
+    samc:::.validate_names(col_names[-length(col_names)], dest)
+
+    return(visitation(samc,
+                      origin = match(origin, row_names),
+                      dest = match(dest, col_names)))
+  })
