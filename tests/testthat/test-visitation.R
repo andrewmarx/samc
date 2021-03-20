@@ -12,42 +12,41 @@ for(test in testlist) {
   # Create an indentity matrix
   I <- diag(nrow(Q))
 
+  base_result <- solve(I - Q)
 
   # Run the tests
   test_that("Testing visitation(samc)", {
-    r1 <- visitation(samc_obj)
+    r <- visitation(samc_obj)
 
-    r2 <- solve(I - Q)
-
-    # Verify equality
-    expect_equal(dim(r1), dim(r2))
-    expect_equal(as.vector(r1), as.vector(r2))
+    expect_equal(dim(r), dim(base_result))
+    expect_equal(as.vector(r), as.vector(base_result))
   })
 
   test_that("Testing visitation(samc, origin)", {
+    for (i in 1:length(row_vec)) {
+      r <- visitation(samc_obj, origin = row_vec[i])
+      r_char <- visitation(samc_obj, origin = as.character(row_vec[i]))
 
-    r1 <- visitation(samc_obj, origin = row_vec[1])
-
-    r2 <- solve(I - Q)
-
-    # Verify equality
-    expect_equal(r1, r2[row_vec[1], ], check.names = FALSE)
+      expect_equal(r, r_char)
+      expect_equal(r, base_result[row_vec[i], ], check.names = FALSE)
+    }
   })
 
   test_that("Testing visitation(samc, dest)", {
+    for (i in 1:length(row_vec)) {
+      r <- visitation(samc_obj, dest = col_vec[i])
+      r_char <- visitation(samc_obj, dest = as.character(col_vec[i]))
 
-    r1 <- visitation(samc_obj, dest = col_vec[1])
-
-    r2 <- solve(I - Q)
-
-    # Verify equality
-    expect_equal(r1, r2[, col_vec[1]], check.names = FALSE)
+      expect_equal(r, r_char)
+      expect_equal(r, base_result[, col_vec[i]], check.names = FALSE)
+    }
   })
 
   test_that("Testing visitation(samc, origin, dest)", {
+    vector_result <- visitation(samc_obj, origin = row_vec, dest = col_vec)
+    vector_result_char <- visitation(samc_obj, origin = as.character(row_vec), dest = as.character(col_vec))
 
-    base_result <- solve(I - Q)
-    vector_result <- visitation(samc_obj, origin = row_vec, des = col_vec)
+    expect_equal(vector_result, vector_result_char)
 
     for (i in 1:length(row_vec)) {
       r <- visitation(samc_obj, origin = row_vec[i], dest = col_vec[i])
