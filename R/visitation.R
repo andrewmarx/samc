@@ -112,9 +112,20 @@ setMethod(
   "visitation",
   signature(samc = "samc", origin = "numeric", dest = "numeric"),
   function(samc, origin, dest){
+    .validate_locations(samc, origin)
     .validate_locations(samc, dest)
 
-    v <- visitation(samc, origin)
+    if(length(origin) != length(dest))
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
-    return(v[dest])
+    result <- vector(mode = "numeric", length = length(origin))
+
+    for (o in unique(origin)) {
+      # Using visitiation(samc, origin) because visitation(samc, dest) involves an extra transpose operation
+      t <- visitation(samc, origin = o)
+      result[origin == o] <- t[dest[origin == o]]
+    }
+
+    return(result)
   })
+
