@@ -115,6 +115,7 @@ setGeneric(
     standardGeneric("mortality")
   })
 
+# mortality(samc, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -148,6 +149,7 @@ setMethod(
     return(bt)
   })
 
+# mortality(samc, origin, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -173,6 +175,7 @@ setMethod(
     }
   })
 
+# mortality(samc, dest, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -200,6 +203,7 @@ setMethod(
     }
   })
 
+# mortality(samc, origin, dest, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -217,6 +221,7 @@ setMethod(
     }
   })
 
+# mortality(samc, occ, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -256,6 +261,7 @@ setMethod(
     return(mortality(samc, occ, time = time))
   })
 
+# mortality(samc) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -279,6 +285,7 @@ setMethod(
     return(b)
   })
 
+# mortality(samc, origin) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -294,6 +301,7 @@ setMethod(
     return(as.vector(mort))
   })
 
+# mortality(samc, dest) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -308,6 +316,7 @@ setMethod(
     return(as.vector(mort))
   })
 
+# mortality(samc, origin, dest) ----
 #' @rdname mortality
 setMethod(
   "mortality",
@@ -331,6 +340,7 @@ setMethod(
     return(result)
   })
 
+# mortality(samc, occ) ----
 #' @rdname mortality
 setMethod(
   "mortality",

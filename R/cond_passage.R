@@ -50,6 +50,7 @@ setGeneric(
     standardGeneric("cond_passage")
   })
 
+# cond_passage(samc, dest) ----
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
@@ -87,6 +88,7 @@ setMethod(
     return(cond_passage(samc, dest = match(dest, col_names)))
   })
 
+# cond_passage(samc, origin, dest) ----
 #' @rdname cond_passage
 setMethod(
   "cond_passage",

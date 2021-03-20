@@ -61,6 +61,7 @@ setGeneric(
     standardGeneric("visitation")
   })
 
+# visitation(samc) ----
 #' @rdname visitation
 setMethod(
   "visitation",
@@ -77,6 +78,7 @@ setMethod(
     return(as.matrix(n))
   })
 
+# visitation(samc, origin) ----
 #' @rdname visitation
 setMethod(
   "visitation",
@@ -92,6 +94,7 @@ setMethod(
     return(as.vector(r))
   })
 
+# visitation(samc, dest) ----
 #' @rdname visitation
 setMethod(
   "visitation",
@@ -107,6 +110,7 @@ setMethod(
     return(as.vector(r))
   })
 
+# visitation(samc, origin, dest) ----
 #' @rdname visitation
 setMethod(
   "visitation",

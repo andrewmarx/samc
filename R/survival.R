@@ -45,6 +45,7 @@ setGeneric(
     standardGeneric("survival")
   })
 
+# survival(samc) ----
 #' @rdname survival
 setMethod(
   "survival",
@@ -59,6 +60,7 @@ setMethod(
     return(as.vector(z))
   })
 
+# survival(samc, occ) ----
 #' @rdname survival
 setMethod(
   "survival",

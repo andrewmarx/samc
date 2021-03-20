@@ -74,6 +74,7 @@ setGeneric(
 # Q^t
 #
 
+# distribution(samc, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
@@ -97,6 +98,7 @@ setMethod(
     return(res)
   })
 
+# distribution(samc, origin, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
@@ -118,6 +120,7 @@ setMethod(
     }
   })
 
+# distribution(samc, dest, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
@@ -140,6 +143,7 @@ setMethod(
     }
   })
 
+# distribution(samc, origin, dest, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
@@ -163,6 +167,7 @@ setMethod(
 # \psiQ^t
 #
 
+# distribution(samc, occ, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",

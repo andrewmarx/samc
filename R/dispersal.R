@@ -94,6 +94,7 @@ setGeneric(
     standardGeneric("dispersal")
   })
 
+# dispersal(samc, dest, time) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
@@ -126,6 +127,7 @@ setMethod(
     }
   })
 
+# dispersal(samc, occ, dest, time) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
@@ -141,7 +143,7 @@ setMethod(
     pv <- pv[-dest]
 
     if (is.list(d)) {
-      return(lapply(d, FUN = function(x){as.numeric(pv %*% x)}))
+      return(lapply(d, function(x){as.numeric(pv %*% x)}))
     } else {
       return(as.numeric(pv %*% d))
     }
@@ -158,6 +160,7 @@ setMethod(
     return(dispersal(samc, occ, dest = dest, time = time))
   })
 
+# dispersal(samc) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
@@ -182,6 +185,7 @@ setMethod(
     return(d_mat)
   })
 
+# dispersal(samc, origin) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
@@ -190,6 +194,7 @@ setMethod(
     stop("A suitably optimized version of this function has not been identified (yet). As a workaround, consider calculating destination columns instead", call. = FALSE)
   })
 
+# dispersal(samc, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
@@ -204,6 +209,7 @@ setMethod(
     return(d_vec)
   })
 
+# dispersal(samc, origin, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
@@ -226,6 +232,7 @@ setMethod(
     return(result)
   })
 
+# dispersal(samc, occ) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
@@ -257,6 +264,7 @@ setMethod(
     return(dispersal(samc, occ))
   })
 
+# dispersal(samc, occ, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
