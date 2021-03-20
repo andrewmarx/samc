@@ -99,7 +99,7 @@ setMethod(
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
-    result <- vector(mode = "numeric", length = length(length(origin)))
+    result <- vector(mode = "numeric", length = length(origin))
 
     unique_dest <- unique(dest)
 
