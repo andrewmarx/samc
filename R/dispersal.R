@@ -210,10 +210,20 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "missing"),
   function(samc, origin, dest) {
     .validate_locations(samc, origin)
+    .validate_locations(samc, dest)
 
-    d <- dispersal(samc, dest = dest)
+    if(length(origin) != length(dest))
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
-    return(d[origin])
+    result <- vector(mode = "numeric", length = length(origin))
+
+    for (d in unique(dest)) {
+      # Using dispersal(samc, dest) because dispersal(samc, origin) is not optimized
+      t <- dispersal(samc, dest = d)
+      result[dest == d] <- t[origin[dest == d]]
+    }
+
+    return(result)
   })
 
 #' @rdname dispersal
