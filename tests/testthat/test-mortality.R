@@ -236,12 +236,16 @@ for(test in testlist) {
 
   test_that("Testing mortality(samc, origin, dest)", {
 
-    r1 <- mortality(samc_obj, origin = row_vec[1], dest = col_vec[1])
+    base_result <- solve(I - Q) %*% R
 
-    r2 <- solve(I - Q) %*% R
+    vector_result <- mortality(samc_obj, origin = row_vec, des = col_vec)
 
-    # Verify
-    expect_equal(as.vector(r1), as.vector(r2[row_vec[1], col_vec[1]]))
+    for (i in 1:length(row_vec)) {
+      r <- mortality(samc_obj, origin = row_vec[i], dest = col_vec[i])
+
+      expect_equal(vector_result[i], r)
+      expect_equal(r, base_result[row_vec[i], col_vec[i]], check.names = FALSE)
+    }
   })
 
   test_that("Testing mortality(samc, occ)", {
