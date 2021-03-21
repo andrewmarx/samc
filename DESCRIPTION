@@ -58,6 +58,7 @@ Collate:
     'locate.R'
     'map.R'
     'mortality.R'
+    'pairwise.R'
     'samc.R'
     'survival.R'
 LinkingTo: Rcpp (>= 1.0.1), RcppEigen (>= 0.3.3.5.0)
