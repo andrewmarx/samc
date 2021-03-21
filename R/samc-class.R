@@ -51,3 +51,5 @@ setClass(
   #   return(TRUE)
   # }
   )
+
+setClassUnion("location", c("numeric", "character"))
