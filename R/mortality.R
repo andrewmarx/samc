@@ -175,6 +175,20 @@ setMethod(
     }
   })
 
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", occ = "missing", origin = "character", dest = "missing", time = "numeric"),
+  function(samc, origin, time) {
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    row_names <- rownames(samc@p)
+    .validate_names(row_names[-length(row_names)], origin)
+
+    return(mortality(samc, origin = match(origin, row_names), time = time))
+  })
+
 # mortality(samc, dest, time) ----
 #' @rdname mortality
 setMethod(
@@ -203,6 +217,20 @@ setMethod(
     }
   })
 
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "character", time = "numeric"),
+  function(samc, dest, time) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    col_names <- colnames(samc@p)
+    .validate_names(col_names[-length(col_names)], dest)
+
+    return(mortality(samc, dest = match(dest, col_names), time = time))
+  })
+
 # mortality(samc, origin, dest, time) ----
 #' @rdname mortality
 setMethod(
@@ -219,6 +247,23 @@ setMethod(
     } else {
       stop("This should not have been possible. Please submit a report with a fully reproducible and simplified example.", call. = FALSE)
     }
+  })
+
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "numeric"),
+  function(samc, origin, dest, time) {
+    row_names <- rownames(samc@p)
+    samc:::.validate_names(row_names[-length(row_names)], origin)
+
+    col_names <- colnames(samc@p)
+    samc:::.validate_names(col_names[-length(col_names)], dest)
+
+    return(mortality(samc,
+                     origin = match(origin, row_names),
+                     dest = match(dest, col_names),
+                     time = time))
   })
 
 # mortality(samc, occ, time) ----
@@ -301,6 +346,20 @@ setMethod(
     return(as.vector(mort))
   })
 
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", occ = "missing", origin = "character", dest = "missing", time = "missing"),
+  function(samc, origin) {
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    row_names <- rownames(samc@p)
+    .validate_names(row_names[-length(row_names)], origin)
+
+    return(mortality(samc, origin = match(origin, row_names)))
+  })
+
 # mortality(samc, dest) ----
 #' @rdname mortality
 setMethod(
@@ -314,6 +373,20 @@ setMethod(
     mort <- vis * rdg[dest]
 
     return(as.vector(mort))
+  })
+
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "character", time = "missing"),
+  function(samc, dest) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    col_names <- colnames(samc@p)
+    .validate_names(col_names[-length(col_names)], dest)
+
+    return(mortality(samc, dest = match(dest, col_names)))
   })
 
 # mortality(samc, origin, dest) ----
@@ -338,6 +411,22 @@ setMethod(
     }
 
     return(result)
+  })
+
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "missing"),
+  function(samc, origin, dest) {
+    row_names <- rownames(samc@p)
+    samc:::.validate_names(row_names[-length(row_names)], origin)
+
+    col_names <- colnames(samc@p)
+    samc:::.validate_names(col_names[-length(col_names)], dest)
+
+    return(mortality(samc,
+                     origin = match(origin, row_names),
+                     dest = match(dest, col_names)))
   })
 
 # mortality(samc, occ) ----

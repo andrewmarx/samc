@@ -120,6 +120,20 @@ setMethod(
     }
   })
 
+#' @rdname distribution
+setMethod(
+  "distribution",
+  signature(samc = "samc", occ = "missing", origin = "character", dest = "missing", time = "numeric"),
+  function(samc, origin, time) {
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    row_names <- rownames(samc@p)
+    .validate_names(row_names[-length(row_names)], origin)
+
+    return(distribution(samc, origin = match(origin, row_names), time = time))
+  })
+
 # distribution(samc, dest, time) ----
 #' @rdname distribution
 setMethod(
@@ -143,6 +157,20 @@ setMethod(
     }
   })
 
+#' @rdname distribution
+setMethod(
+  "distribution",
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "character", time = "numeric"),
+  function(samc, dest, time) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    col_names <- colnames(samc@p)
+    .validate_names(col_names[-length(col_names)], dest)
+
+    return(distribution(samc, dest = match(dest, col_names), time = time))
+  })
+
 # distribution(samc, origin, dest, time) ----
 #' @rdname distribution
 setMethod(
@@ -160,6 +188,23 @@ setMethod(
     } else {
       stop("This should not have been possible. Please submit a report with a fully reproducible and simplified example.", call. = FALSE)
     }
+  })
+
+#' @rdname distribution
+setMethod(
+  "distribution",
+  signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "numeric"),
+  function(samc, origin, dest, time) {
+    row_names <- rownames(samc@p)
+    .validate_names(row_names[-length(row_names)], origin)
+
+    col_names <- colnames(samc@p)
+    .validate_names(col_names[-length(col_names)], dest)
+
+    return(distribution(samc,
+                        origin = match(origin, row_names),
+                        dest = match(dest, col_names),
+                        time = time))
   })
 
 

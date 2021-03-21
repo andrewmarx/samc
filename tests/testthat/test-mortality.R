@@ -24,221 +24,225 @@ for(test in testlist) {
 
   # Run the tests
   test_that("Testing mortality(samc, time)", {
+    result <- mortality(samc_obj, time = time)
 
-    r1 <- mortality(samc_obj, time = time)
-
-    r2 <- diag(nrow(Q))
+    base_result <- diag(nrow(Q))
 
     Qt <- diag(nrow(Q))
 
     for (i in 1:(time - 1)) {
       Qt <- Qt %*% Q
-      r2 <- r2 + Qt
+      base_result <- base_result + Qt
     }
 
-    r2 <- r2 %*% R
+    base_result <- base_result %*% R
 
     # Verify
-    expect_equal(dim(r1), dim(r2))
-    expect_equal(as.vector(r1), as.vector(r2))
+    expect_equal(dim(result), dim(base_result))
+    expect_equal(as.vector(result), as.vector(base_result))
   })
 
   test_that("Testing mortality(samc, origin, time)", {
+    result <- mortality(samc_obj, origin = row_vec[1], time = time)
+    result_char <- mortality(samc_obj, origin = as.vector(row_vec[1]), time = time)
+    expect_equal(result, result_char)
 
-    r1 <- mortality(samc_obj, origin = row_vec[1], time = time)
-
-    r2 <- diag(nrow(Q))
+    base_result <- diag(nrow(Q))
 
     Qt <- diag(nrow(Q))
 
     for (i in 1:(time - 1)) {
       Qt <- Qt %*% Q
-      r2 <- r2 + Qt
+      base_result <- base_result + Qt
     }
 
-    r2 <- r2 %*% R
+    base_result <- base_result %*% R
 
     # Verify
-    expect_equal(as.vector(r1), as.vector(r2[row_vec[1], ]))
+    expect_equal(as.vector(result), as.vector(base_result[row_vec[1], ]))
   })
 
   test_that("Testing mortality(samc, origin, time_vec)", {
-
-    r1 <- mortality(samc_obj, origin = row_vec[1], time = time_vec)
+    result <- mortality(samc_obj, origin = row_vec[1], time = time_vec)
+    result_char <- mortality(samc_obj, origin = as.vector(row_vec[1]), time = time_vec)
+    expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      r2 <- diag(nrow(Q))
+      base_result <- diag(nrow(Q))
 
       Qt <- diag(nrow(Q))
 
       for (j in 1:(time_vec[i] - 1)) {
         Qt <- Qt %*% Q
-        r2 <- r2 + Qt
+        base_result <- base_result + Qt
       }
 
-      r2 <- r2 %*% R
+      base_result <- base_result %*% R
 
       # Verify
-      expect_equal(r1[[i]], as.vector(r2[row_vec[1], ]))
+      expect_equal(result[[i]], as.vector(base_result[row_vec[1], ]))
     }
   })
 
   test_that("Testing mortality(samc, dest, time)", {
+    result <- mortality(samc_obj, dest = col_vec[1], time = time)
+    result_char <- mortality(samc_obj, dest = as.vector(col_vec[1]), time = time)
+    expect_equal(result, result_char)
 
-    r1 <- mortality(samc_obj, dest = col_vec[1], time = time)
-
-    r2 <- diag(nrow(Q))
+    base_result <- diag(nrow(Q))
 
     Qt <- diag(nrow(Q))
 
     for (i in 1:(time - 1)) {
       Qt <- Qt %*% Q
-      r2 <- r2 + Qt
+      base_result <- base_result + Qt
     }
 
-    r2 <- r2 %*% R
+    base_result <- base_result %*% R
 
     # Verify
-    expect_equal(as.vector(r1), as.vector(r2[, col_vec[1]]))
+    expect_equal(as.vector(result), as.vector(base_result[, col_vec[1]]))
   })
 
   test_that("Testing mortality(samc, dest, time_vec)", {
-
-    r1 <- mortality(samc_obj, dest = col_vec[1], time = time_vec)
+    result <- mortality(samc_obj, dest = col_vec[1], time = time_vec)
+    result_char <- mortality(samc_obj, dest = as.vector(col_vec[1]), time = time_vec)
+    expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      r2 <- diag(nrow(Q))
+      base_result <- diag(nrow(Q))
 
       Qt <- diag(nrow(Q))
 
       for (j in 1:(time_vec[i] - 1)) {
         Qt <- Qt %*% Q
-        r2 <- r2 + Qt
+        base_result <- base_result + Qt
       }
 
-      r2 <- r2 %*% R
+      base_result <- base_result %*% R
 
       # Verify
-      expect_equal(r1[[i]], as.vector(r2[, col_vec[1]]))
+      expect_equal(result[[i]], as.vector(base_result[, col_vec[1]]))
     }
   })
 
   test_that("Testing mortality(samc, origin, dest, time)", {
+    result <- mortality(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time)
+    result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), dest = as.character(col_vec[1]), time = time)
+    expect_equal(result, result_char)
 
-    r1 <- mortality(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time)
-
-    r2 <- diag(nrow(Q))
+    base_result <- diag(nrow(Q))
 
     Qt <- diag(nrow(Q))
 
     for (i in 1:(time - 1)) {
       Qt <- Qt %*% Q
-      r2 <- r2 + Qt
+      base_result <- base_result + Qt
     }
 
-    r2 <- r2 %*% R
+    base_result <- base_result %*% R
 
     # Verify
-    expect_equal(as.vector(r1), as.vector(r2[row_vec[1], col_vec[1]]))
+    expect_equal(as.vector(result), as.vector(base_result[row_vec[1], col_vec[1]]))
   })
 
   test_that("Testing mortality(samc, origin, dest, time_vec)", {
-
-    r1 <- mortality(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time_vec)
+    result <- mortality(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time_vec)
+    result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), dest = as.character(col_vec[1]), time = time_vec)
+    expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      r2 <- diag(nrow(Q))
+      base_result <- diag(nrow(Q))
 
       Qt <- diag(nrow(Q))
 
       for (j in 1:(time_vec[i] - 1)) {
         Qt <- Qt %*% Q
-        r2 <- r2 + Qt
+        base_result <- base_result + Qt
       }
 
-      r2 <- r2 %*% R
+      base_result <- base_result %*% R
 
       # Verify
-      expect_equal(r1[[i]], as.vector(r2[row_vec[1], col_vec[1]]))
+      expect_equal(result[[i]], as.vector(base_result[row_vec[1], col_vec[1]]))
     }
   })
 
   test_that("Testing mortality(samc, occ, time)", {
+    result <- mortality(samc_obj, occ = test$occ, time = time)
 
-    r1 <- mortality(samc_obj, occ = test$occ, time = time)
-
-    r2 <- I
+    base_result <- I
 
     Qt <- diag(nrow(Q))
 
     for (i in 1:(time - 1)) {
       Qt <- Qt %*% Q
-      r2 <- r2 + Qt
+      base_result <- base_result + Qt
     }
 
-    r2 <- pv %*% r2 %*% R
+    base_result <- pv %*% base_result %*% R
 
     # Verify
-    expect_equal(as.vector(r1), as.vector(r2))
+    expect_equal(as.vector(result), as.vector(base_result))
   })
 
   test_that("Testing mortality(samc, occ, time_vec)", {
-
-    r1 <- mortality(samc_obj, occ = test$occ, time = time_vec)
+    result <- mortality(samc_obj, occ = test$occ, time = time_vec)
 
     for (i in 1:length(time_vec)) {
-      r2 <- I
+      base_result <- I
 
       Qt <- diag(nrow(Q))
 
       for (j in 1:(time_vec[i] - 1)) {
         Qt <- Qt %*% Q
-        r2 <- r2 + Qt
+        base_result <- base_result + Qt
       }
 
-      r2 <- pv %*% r2 %*% R
+      base_result <- pv %*% base_result %*% R
 
       # Verify
-      expect_equal(r1[[i]], as.vector(r2))
+      expect_equal(result[[i]], as.vector(base_result))
     }
   })
 
   test_that("Testing mortality(samc)", {
+    result <- mortality(samc_obj)
 
-    r1 <- mortality(samc_obj)
-
-    r2 <- solve(I - Q) %*% R
+    base_result <- solve(I - Q) %*% R
 
     # Verify
-    expect_equal(as.vector(r1), as.vector(r2))
+    expect_equal(as.vector(result), as.vector(base_result))
   })
 
 
   test_that("Testing mortality(samc, origin)", {
+    base_result <- solve(I - Q) %*% R
 
-    r1 <- mortality(samc_obj, origin = row_vec[1])
+    result <- mortality(samc_obj, origin = row_vec[1])
+    result_char <- mortality(samc_obj, origin = as.character(row_vec[1]))
 
-    r2 <- solve(I - Q) %*% R
-
-    # Verify
-    expect_equal(as.vector(r1), as.vector(r2[row_vec[1], ]))
+    expect_equal(result, result_char)
+    expect_equal(as.vector(result), as.vector(base_result[row_vec[1], ]))
   })
 
   test_that("Testing mortality(samc, dest)", {
+    base_result <- solve(I - Q) %*% R
 
-    r1 <- mortality(samc_obj, dest = col_vec[1])
+    result <- mortality(samc_obj, dest = col_vec[1])
+    result_char <- mortality(samc_obj, dest = as.character(col_vec[1]))
 
-    r2 <- solve(I - Q) %*% R
-
-    # Verify
-    expect_equal(as.vector(r1), as.vector(r2[, col_vec[1]]))
+    expect_equal(result, result_char)
+    expect_equal(as.vector(result), as.vector(base_result[, col_vec[1]]))
   })
 
   test_that("Testing mortality(samc, origin, dest)", {
-
     base_result <- solve(I - Q) %*% R
 
     vector_result <- mortality(samc_obj, origin = row_vec, des = col_vec)
+    vector_result_char <- mortality(samc_obj, origin = as.character(row_vec), des = as.character(col_vec))
+
+    expect_equal(vector_result, vector_result_char)
 
     for (i in 1:length(row_vec)) {
       r <- mortality(samc_obj, origin = row_vec[i], dest = col_vec[i])
@@ -249,12 +253,11 @@ for(test in testlist) {
   })
 
   test_that("Testing mortality(samc, occ)", {
+    result <- mortality(samc_obj, occ = test$occ)
 
-    r1 <- mortality(samc_obj, occ = test$occ)
-
-    r2 <- pv %*% solve(I - Q) %*% R
+    base_result <- pv %*% solve(I - Q) %*% R
 
     # Verify
-    expect_equal(as.vector(r1), as.vector(r2))
+    expect_equal(as.vector(result), as.vector(base_result))
   })
 }
