@@ -52,6 +52,7 @@ Collate:
     'cond_passage.R'
     'data.R'
     'visitation.R'
+    'location-class.R'
     'dispersal.R'
     'distribution.R'
     'internal-functions.R'
