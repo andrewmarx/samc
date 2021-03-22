@@ -29,7 +29,7 @@ This page is home to code that isn't suitable for inclusion in the samc package 
 df <- pairwise(...)
 
 # Use reshape2 to convert to a pairwise matrix
-reshape2::acast(df, origin ~ dest, value.var = "result"))
+reshape2::acast(df, origin ~ dest, value.var = "result")
 
 ```
 

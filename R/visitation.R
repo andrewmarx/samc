@@ -167,10 +167,10 @@ setMethod(
   signature(samc = "samc", origin = "character", dest = "character"),
   function(samc, origin, dest){
     row_names <- rownames(samc@p)
-    samc:::.validate_names(row_names[-length(row_names)], origin)
+    .validate_names(row_names[-length(row_names)], origin)
 
     col_names <- colnames(samc@p)
-    samc:::.validate_names(col_names[-length(col_names)], dest)
+    .validate_names(col_names[-length(col_names)], dest)
 
     return(visitation(samc,
                       origin = match(origin, row_names),

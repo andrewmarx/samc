@@ -255,10 +255,10 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "numeric"),
   function(samc, origin, dest, time) {
     row_names <- rownames(samc@p)
-    samc:::.validate_names(row_names[-length(row_names)], origin)
+    .validate_names(row_names[-length(row_names)], origin)
 
     col_names <- colnames(samc@p)
-    samc:::.validate_names(col_names[-length(col_names)], dest)
+    .validate_names(col_names[-length(col_names)], dest)
 
     return(mortality(samc,
                      origin = match(origin, row_names),
@@ -419,10 +419,10 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "missing"),
   function(samc, origin, dest) {
     row_names <- rownames(samc@p)
-    samc:::.validate_names(row_names[-length(row_names)], origin)
+    .validate_names(row_names[-length(row_names)], origin)
 
     col_names <- colnames(samc@p)
-    samc:::.validate_names(col_names[-length(col_names)], dest)
+    .validate_names(col_names[-length(col_names)], dest)
 
     return(mortality(samc,
                      origin = match(origin, row_names),

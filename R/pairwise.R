@@ -52,7 +52,9 @@ setMethod(
   signature(fun = "function", samc = "samc", origin = "location", dest = "location"),
   function(fun, samc, origin, dest) {
     # Create all possible pairs
-    df <- expand.grid(origin = origin, dest = dest, stringsAsFactors = FALSE)
+    df <- expand.grid(origin = origin, dest = dest,
+                      KEEP.OUT.ATTRS = FALSE,
+                      stringsAsFactors = FALSE)
 
     # Remove duplicates
     df <- unique(df)
