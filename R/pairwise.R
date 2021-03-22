@@ -38,8 +38,6 @@ NULL
 #'
 #' @return A 'long' format data.frame
 #'
-#' @example inst/examples/locate.R
-#'
 #' @export
 
 setGeneric(

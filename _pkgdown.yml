@@ -34,11 +34,13 @@ reference:
   - title: "Classes"
     contents:
       - samc-class
+      - location-class
   - title: "Utility Functions"
     contents:
       - check
       - locate
       - map
+      - pairwise
       - samc
   - title: "Analytical Functions"
     contents:
