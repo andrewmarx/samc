@@ -70,10 +70,6 @@ setGeneric(
     standardGeneric("distribution")
   })
 
-#
-# Q^t
-#
-
 # distribution(samc, time) ----
 #' @rdname distribution
 setMethod(
@@ -102,8 +98,12 @@ setMethod(
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    origin <- .process_locations(samc, origin)
 
     .validate_time_steps(time)
 
@@ -120,27 +120,16 @@ setMethod(
     }
   })
 
-#' @rdname distribution
-setMethod(
-  "distribution",
-  signature(samc = "samc", occ = "missing", origin = "character", dest = "missing", time = "numeric"),
-  function(samc, origin, time) {
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
-
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    return(distribution(samc, origin = match(origin, row_names), time = time))
-  })
-
 # distribution(samc, dest, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
-    .validate_locations(samc, dest)
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
@@ -157,27 +146,16 @@ setMethod(
     }
   })
 
-#' @rdname distribution
-setMethod(
-  "distribution",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "character", time = "numeric"),
-  function(samc, dest, time) {
-    if (length(dest) != 1)
-      stop("dest can only contain a single location for this version of the function", call. = FALSE)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(distribution(samc, dest = match(dest, col_names), time = time))
-  })
-
 # distribution(samc, origin, dest, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
-    .validate_locations(samc, dest)
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
 
     mov <- distribution(samc, origin = origin, time = time)
 
@@ -190,35 +168,12 @@ setMethod(
     }
   })
 
-#' @rdname distribution
-setMethod(
-  "distribution",
-  signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "numeric"),
-  function(samc, origin, dest, time) {
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(distribution(samc,
-                        origin = match(origin, row_names),
-                        dest = match(dest, col_names),
-                        time = time))
-  })
-
-
-#
-# \psiQ^t
-#
-
 # distribution(samc, occ, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-
     check(samc, occ)
 
     .validate_time_steps(time)
@@ -246,7 +201,6 @@ setMethod(
   "distribution",
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-
     occ <- .rasterize(occ)
 
     return(distribution(samc, occ = occ, time = time))

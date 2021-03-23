@@ -98,13 +98,13 @@ setGeneric(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
-    .validate_locations(samc, dest)
-    .validate_time_steps(time)
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    if (dest %% 1 != 0 || dest < 1 || dest > sum(samc@map[], na.rm = TRUE))
-      stop("dest must be an integer that refers to a cell in the landscape", call. = FALSE)
+    dest <- .process_locations(samc, dest)
+    .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qv <- q[, dest]
@@ -127,25 +127,16 @@ setMethod(
     }
   })
 
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "character", time = "numeric"),
-  function(samc, dest, time) {
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(dispersal(samc,
-                     dest = match(dest, col_names),
-                     time = time))
-  })
-
 # dispersal(samc, occ, dest, time) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "location", time = "numeric"),
   function(samc, occ, dest, time) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
 
     check(samc, occ)
 
@@ -165,20 +156,6 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "character", time = "numeric"),
-  function(samc, occ, dest, time) {
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(dispersal(samc,
-                     occ = occ,
-                     dest = match(dest, col_names),
-                     time = time))
-  })
-
-#' @rdname dispersal
-setMethod(
-  "dispersal",
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "location", time = "numeric"),
   function(samc, occ, dest, time) {
     occ <- .rasterize(occ)
@@ -192,7 +169,6 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
-
     if (!samc@override)
       stop("This version of the dispersal() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
@@ -225,8 +201,10 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
+    dest <- .process_locations(samc, dest)
+
     f_col <- visitation(samc, dest = dest)
     fjj <- f_col[dest]
     f_col[dest] <- f_col[dest] - 1
@@ -236,25 +214,14 @@ setMethod(
     return(d_vec)
   })
 
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "character", time = "missing"),
-  function(samc, dest) {
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(dispersal(samc, dest = match(dest, col_names)))
-  })
-
 # dispersal(samc, origin, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
-    .validate_locations(samc, origin)
-    .validate_locations(samc, dest)
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
@@ -270,29 +237,12 @@ setMethod(
     return(result)
   })
 
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "missing"),
-  function(samc, origin, dest) {
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(dispersal(samc,
-                     origin = match(origin, row_names),
-                     dest = match(dest, col_names)))
-  })
-
 # dispersal(samc, occ) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-
     check(samc, occ)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
@@ -312,7 +262,6 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-
     occ <- .rasterize(occ)
 
     return(dispersal(samc, occ))
@@ -322,9 +271,8 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "location", time = "missing"),
   function(samc, occ, dest) {
-
     check(samc, occ)
 
     pv <- as.vector(occ)
@@ -338,22 +286,8 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "character", time = "missing"),
-  function(samc, occ, dest) {
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(dispersal(samc,
-                     occ = occ,
-                     dest = match(dest, col_names)))
-  })
-
-#' @rdname dispersal
-setMethod(
-  "dispersal",
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "location", time = "missing"),
   function(samc, occ, dest) {
-
     occ <- .rasterize(occ)
 
     return(dispersal(samc, occ, dest = dest))

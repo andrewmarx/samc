@@ -44,7 +44,7 @@ for(test in testlist) {
 
   test_that("Testing mortality(samc, origin, time)", {
     result <- mortality(samc_obj, origin = row_vec[1], time = time)
-    result_char <- mortality(samc_obj, origin = as.vector(row_vec[1]), time = time)
+    result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), time = time)
     expect_equal(result, result_char)
 
     base_result <- diag(nrow(Q))
@@ -64,7 +64,7 @@ for(test in testlist) {
 
   test_that("Testing mortality(samc, origin, time_vec)", {
     result <- mortality(samc_obj, origin = row_vec[1], time = time_vec)
-    result_char <- mortality(samc_obj, origin = as.vector(row_vec[1]), time = time_vec)
+    result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), time = time_vec)
     expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
@@ -86,7 +86,7 @@ for(test in testlist) {
 
   test_that("Testing mortality(samc, dest, time)", {
     result <- mortality(samc_obj, dest = col_vec[1], time = time)
-    result_char <- mortality(samc_obj, dest = as.vector(col_vec[1]), time = time)
+    result_char <- mortality(samc_obj, dest = as.character(col_vec[1]), time = time)
     expect_equal(result, result_char)
 
     base_result <- diag(nrow(Q))
@@ -106,7 +106,7 @@ for(test in testlist) {
 
   test_that("Testing mortality(samc, dest, time_vec)", {
     result <- mortality(samc_obj, dest = col_vec[1], time = time_vec)
-    result_char <- mortality(samc_obj, dest = as.vector(col_vec[1]), time = time_vec)
+    result_char <- mortality(samc_obj, dest = as.character(col_vec[1]), time = time_vec)
     expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {

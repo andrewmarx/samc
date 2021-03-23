@@ -66,7 +66,6 @@ setMethod(
   "survival",
   signature(samc = "samc", occ = "RasterLayer"),
   function(samc, occ) {
-
     check(samc, occ)
 
     pv <- as.vector(occ)
@@ -84,7 +83,6 @@ setMethod(
   "survival",
   signature(samc = "samc", occ = "matrix"),
   function(samc, occ) {
-
     occ <- .rasterize(occ)
 
     return(survival(samc, occ))

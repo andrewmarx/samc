@@ -1,7 +1,7 @@
 # Copyright (c) 2020 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
-#' @include samc-class.R
+#' @include samc-class.R location-class.R
 NULL
 
 #' Conditional Mean First Passage Time
@@ -54,13 +54,15 @@ setGeneric(
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
-  signature(samc = "samc", origin = "missing", dest = "numeric"),
+  signature(samc = "samc", origin = "missing", dest = "location"),
   function(samc, dest) {
     if (samc@clumps > 1)
       stop("This function cannot be used with discontinuous data", call. = FALSE)
 
-    if (length(dest) != 1 || dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
-      stop("dest must be a single integer that refers to a cell in the landscape", call. = FALSE)
+    if (length(dest) != 1)
+      stop("dest must be a single location that refers to a cell in the landscape", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
 
     Q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qj <- Q[-dest, dest]
@@ -74,32 +76,17 @@ setMethod(
     return(as.numeric(t))
   })
 
-#' @rdname cond_passage
-setMethod(
-  "cond_passage",
-  signature(samc = "samc", origin = "missing", dest = "character"),
-  function(samc, dest) {
-    if (length(dest) != 1)
-      stop("dest can only contain a single location for this version of the function", call. = FALSE)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(cond_passage(samc, dest = match(dest, col_names)))
-  })
-
 # cond_passage(samc, origin, dest) ----
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
-  signature(samc = "samc", origin = "numeric", dest = "numeric"),
+  signature(samc = "samc", origin = "location", dest = "location"),
   function(samc, origin, dest) {
-
-    .validate_locations(samc, origin)
-    .validate_locations(samc, dest)
-
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
 
     result <- vector(mode = "numeric", length = length(origin))
 
@@ -115,21 +102,4 @@ setMethod(
     result[dest == origin] <- NA
 
     return(result)
-  })
-
-#' @rdname cond_passage
-setMethod(
-  "cond_passage",
-  signature(samc = "samc", origin = "character", dest = "character"),
-  function(samc, origin, dest) {
-
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(cond_passage(samc,
-                        origin = match(origin, row_names),
-                        dest = match(dest, col_names)))
   })

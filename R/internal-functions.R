@@ -93,3 +93,36 @@
 .rasterize <- function(x) {
   return(raster::raster(x, xmn = 0.5, xmx = ncol(x) + 0.5, ymn = 0.5, ymx = nrow(x) + 0.5))
 }
+
+
+#' Process location inputs
+#'
+#' Process location inputs
+#'
+#' @param samc A samc-class object
+#' @param x A vector of integers or character names
+#' @noRd
+setGeneric(
+  ".process_locations",
+  function(samc, x) {
+    standardGeneric(".process_locations")
+  })
+
+#' @noRd
+setMethod(
+  ".process_locations",
+  signature(samc = "samc", x = "numeric"),
+  function(samc, x) {
+    .validate_locations(samc, x)
+    return(x)
+  })
+
+setMethod(
+  ".process_locations",
+  signature(samc = "samc", x = "character"),
+  function(samc, x) {
+    row_names <- rownames(samc@p)
+    .validate_names(row_names[-length(row_names)], x)
+
+    return(match(x, row_names))
+  })
