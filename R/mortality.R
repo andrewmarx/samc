@@ -1,7 +1,7 @@
 # Copyright (c) 2019 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
-#' @include samc-class.R visitation.R
+#' @include samc-class.R location-class.R visitation.R
 NULL
 
 
@@ -121,7 +121,6 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
-
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
@@ -153,9 +152,12 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
-    .validate_locations(samc, origin)
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    origin <- .process_locations(samc, origin)
     .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
@@ -175,27 +177,16 @@ setMethod(
     }
   })
 
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "missing", origin = "character", dest = "missing", time = "numeric"),
-  function(samc, origin, time) {
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
-
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    return(mortality(samc, origin = match(origin, row_names), time = time))
-  })
-
 # mortality(samc, dest, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
-    .validate_locations(samc, dest)
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
@@ -217,27 +208,14 @@ setMethod(
     }
   })
 
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "character", time = "numeric"),
-  function(samc, dest, time) {
-    if (length(dest) != 1)
-      stop("dest can only contain a single location for this version of the function", call. = FALSE)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(mortality(samc, dest = match(dest, col_names), time = time))
-  })
-
 # mortality(samc, origin, dest, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
-    .validate_locations(samc, dest)
+    dest <- .process_locations(samc, dest)
+
     mort <- mortality(samc, origin = origin, time = time)
 
     if (is.list(mort)){
@@ -249,30 +227,12 @@ setMethod(
     }
   })
 
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "numeric"),
-  function(samc, origin, dest, time) {
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(mortality(samc,
-                     origin = match(origin, row_names),
-                     dest = match(dest, col_names),
-                     time = time))
-  })
-
 # mortality(samc, occ, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-
     .validate_time_steps(time)
 
     check(samc, occ)
@@ -300,7 +260,6 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-
     occ <- .rasterize(occ)
 
     return(mortality(samc, occ, time = time))
@@ -312,7 +271,6 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
-
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
@@ -334,72 +292,43 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
+    vis <- visitation(samc, origin = origin)
 
     rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
-
-    vis <- visitation(samc, origin = origin)
 
     mort <- vis * rdg
 
     return(as.vector(mort))
   })
 
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "missing", origin = "character", dest = "missing", time = "missing"),
-  function(samc, origin) {
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
-
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    return(mortality(samc, origin = match(origin, row_names)))
-  })
-
 # mortality(samc, dest) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
-
     vis <- visitation(samc, dest = dest)
+
+    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
 
     mort <- vis * rdg[dest]
 
     return(as.vector(mort))
   })
 
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "character", time = "missing"),
-  function(samc, dest) {
-    if (length(dest) != 1)
-      stop("dest can only contain a single location for this version of the function", call. = FALSE)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(mortality(samc, dest = match(dest, col_names)))
-  })
-
 # mortality(samc, origin, dest) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
-    .validate_locations(samc, origin)
-    .validate_locations(samc, dest)
-
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
 
     rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
 
@@ -413,29 +342,12 @@ setMethod(
     return(result)
   })
 
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "missing", origin = "character", dest = "character", time = "missing"),
-  function(samc, origin, dest) {
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(mortality(samc,
-                     origin = match(origin, row_names),
-                     dest = match(dest, col_names)))
-  })
-
 # mortality(samc, occ) ----
 #' @rdname mortality
 setMethod(
   "mortality",
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-
     check(samc, occ)
 
     pv <- as.vector(occ)
@@ -457,7 +369,6 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-
     occ <- .rasterize(occ)
 
     return(mortality(samc, occ))

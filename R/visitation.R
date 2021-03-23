@@ -1,7 +1,7 @@
 # Copyright (c) 2019 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
-#' @include samc-class.R
+#' @include samc-class.R location-class.R
 NULL
 
 
@@ -67,7 +67,6 @@ setMethod(
   "visitation",
   signature(samc = "samc", origin = "missing", dest = "missing"),
   function(samc){
-
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
@@ -82,9 +81,12 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "numeric", dest = "missing"),
+  signature(samc = "samc", origin = "location", dest = "missing"),
   function(samc, origin){
-    .validate_locations(samc, origin)
+    if (length(origin) != 1)
+      stop("origin can only contain a single value for this version of the function", call. = FALSE)
+
+    origin = .process_locations(samc, origin)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x
@@ -94,27 +96,16 @@ setMethod(
     return(as.vector(r))
   })
 
-#' @rdname visitation
-setMethod(
-  "visitation",
-  signature(samc = "samc", origin = "character", dest = "missing"),
-  function(samc, origin){
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
-
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    return(visitation(samc, origin = match(origin, row_names)))
-  })
-
 # visitation(samc, dest) ----
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "missing", dest = "numeric"),
+  signature(samc = "samc", origin = "missing", dest = "location"),
   function(samc, dest){
-    .validate_locations(samc, dest)
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x
@@ -124,28 +115,14 @@ setMethod(
     return(as.vector(r))
   })
 
-#' @rdname visitation
-setMethod(
-  "visitation",
-  signature(samc = "samc", origin = "missing", dest = "character"),
-  function(samc, dest){
-    if (length(dest) != 1)
-      stop("dest can only contain a single location for this version of the function", call. = FALSE)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(visitation(samc, dest = match(dest, col_names)))
-  })
-
 # visitation(samc, origin, dest) ----
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "numeric", dest = "numeric"),
+  signature(samc = "samc", origin = "location", dest = "location"),
   function(samc, origin, dest){
-    .validate_locations(samc, origin)
-    .validate_locations(samc, dest)
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
@@ -159,20 +136,4 @@ setMethod(
     }
 
     return(result)
-  })
-
-#' @rdname visitation
-setMethod(
-  "visitation",
-  signature(samc = "samc", origin = "character", dest = "character"),
-  function(samc, origin, dest){
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], origin)
-
-    col_names <- colnames(samc@p)
-    .validate_names(col_names[-length(col_names)], dest)
-
-    return(visitation(samc,
-                      origin = match(origin, row_names),
-                      dest = match(dest, col_names)))
   })
