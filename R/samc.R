@@ -294,10 +294,15 @@ setMethod(
     if (is.null(rownames(p_mat))) rownames(p_mat) <- 1:r
     if (is.null(colnames(p_mat))) colnames(p_mat) <- 1:c
 
-    if (any(duplicated(rownames(p_mat))))
-      stop("Row names must be unique")
-    if (any(duplicated(colnames(p_mat))))
-      stop("Column names must be unique")
+    rn <- rownames(p_mat)[-r]
+    cn <- colnames(p_mat)[-r]
+
+    if (!isTRUE(all.equal(rn, cn)))
+      stop("The row and col names of the Q matrix must be identical", call. = FALSE)
+
+    if (any(duplicated(rn)))
+      stop("The row and col names of the Q matrix must be unique", call. = FALSE)
+
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
