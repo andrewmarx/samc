@@ -52,7 +52,7 @@ NULL
 #' dimnames(), rowname(), colnames(), etc). When specifying \code{origin} or \code{dest} inputs
 #' to metrics, these names may be used instead of cell numbers. This has the
 #' advantage of making the code for an analysis easier to read and interpret,
-#' which may also help to elimate unintentional mistakes. There are two
+#' which may also help to eliminate unintentional mistakes. There are two
 #' requirements for naming the rows/cols of a P matrix. First, since the P matrix
 #' represents a pairwise matrix, the row and column names must be the same. Second,
 #' there must be no duplicate names. The exception to these rules is the very last

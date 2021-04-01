@@ -11,7 +11,7 @@
 
 # samc 1.2.1
 
-- Fixed a regression in v1.2.0 where the samc() function would not work corectly unless matrix/raster layers contained at least one NA cell
+- Fixed a regression in v1.2.0 where the samc() function would not work correctly unless matrix/raster layers contained at least one NA cell
 - Revamped the automated test suite with more test scenarios to better catch issues before release
 - Added checks during samc-class creation to prevent potential issues with discontinuous/clumped input data. Currently, this type of data will not work with the cond_passage() function, but will in a future release.
 - Reworked some of the vignettes to produce cleaner pages and remove suggested dependencies (e.g. gifski, gganimate, ggplot2) from the package so that users aren't bugged about installing them if they don't need them.
