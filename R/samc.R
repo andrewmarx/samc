@@ -20,23 +20,23 @@ NULL
 #' properties, including dimensions, location of NA cells, and CRS (if using
 #' RasterLayers). Some of the inputs are mandatory, whereas others are optional.
 #'
-#' The resistance and absorption inputs are always mandatory, whereas the
-#' fidelity input is optional. If the fidelity input is not provided, then it it
+#' The \code{resistance} and \code{absorption} inputs are always mandatory, whereas the
+#' \code{fidelity} input is optional. If the \code{fidelity} input is not provided, then it it
 #' is assumed that there is no site fidelity (i.e., individuals will always move
 #' to an adjacent cell each time step).
 #'
-#' The latlon parameter is required if the landscape data inputs are RasterLayer
+#' The \code{latlon} parameter is required if the landscape data inputs are RasterLayer
 #' objects. The package does not attempt to determine this automatically, and it
-#' does not assume a default. Users must set it to TRUE if they are using
+#' does not assume a default. Users must set it to \code{TRUE} if they are using
 #' latitude and longitude data.
 #'
-#' The tr_fun parameter is mandatory. It used when calculating the values for
+#' The \code{tr_fun} parameter is mandatory. It used when calculating the values for
 #' the transition matrix. Internally, this is passed to the \code{\link[gdistance]{transition}}
 #' function in the gdistance package to create the transition matrix.
 #'
 #' \strong{Option 2: P Matrix Input}
 #'
-#' The p_mat parameter can be used to create a \code{\link{samc-class}} object
+#' The \code{p_mat} parameter can be used to create a \code{\link{samc-class}} object
 #' directly from a preconstructed P matrix. This matrix must be either a base R
 #' matrix, or a sparse matrix (dgCMatrix format) from the Matrix package. It
 #' must meet the requirement of a P matrix described in Fletcher et al. (2019).
@@ -48,26 +48,48 @@ NULL
 #'   \item All values must be in the range of 0-1
 #' }
 #'
+#' Additionally, the columns and rows of the P matrix may be named (e.g., using
+#' dimnames(), rowname(), colnames(), etc). When specifying \code{origin} or \code{dest} inputs
+#' to metrics, these names may be used instead of cell numbers. This has the
+#' advantage of making the code for an analysis easier to read and interpret,
+#' which may also help to elimate unintentional mistakes. There are two
+#' requirements for naming the rows/cols of a P matrix. First, since the P matrix
+#' represents a pairwise matrix, the row and column names must be the same. Second,
+#' there must be no duplicate names. The exception to these rules is the very last
+#' column and the very last row of the P matrix. Since these are not part of the
+#' pairwise transition matrix, they may have whatever names the user prefers.
+#'
 #' \strong{Other Parameters}
 #'
-#' The override parameter is optional. To prevent users from unintentionally
+#' The \code{override} parameter is optional. To prevent users from unintentionally
 #' running memory intensive versions of functions that could make their systems
-#' non-responsive or crash software, it is set to FALSE by default. For various
-#' reasons, it can be set to TRUE. In particular, a user might do this if they
+#' non-responsive or crash software, it is set to \code{FALSE} by default. For various
+#' reasons, it can be set to \code{TRUE}. In particular, a user might do this if they
 #' are using a very small landscape dataset, or perhaps for a moderately sized
 #' dataset if they have access to a system with exceptionally large amounts of
-#' RAM. Before setting this to TRUE, users should read the Performance vignette/
+#' RAM. Before setting this to \code{TRUE}, users should read the Performance vignette/
 #' article to understand the expected memory requirements. They should also
 #' consider starting with scaled down version of their data and then gradually
 #' scaling back up while monitoring their memory usage as a means to gauge what
 #' is reasonable for their system.
+#'
+#' The \code{directions} parameter is optional. When constructing the P matrix from
+#' matrix or raster data, the \code{samc()} function must decide how adjacent cells are
+#' connected. This value can be set to either 4 or 8. When set to 4, nodes are
+#' connected horizontally and vertically (similar to the directions of how a rook
+#' moves in chess). When set to 8, nodes are connected diagonally in addition to
+#' horizontally and vertically (queen movement in chess). When not specified,
+#' the \code{samc()} function defaults to a value of 8. When using large datasets to
+#' construct a P matrix, setting the directions to 4 may lead to significant
+#' improvements in computation time and the amount of memory needed to perform
+#' an analysis.
 #'
 #' \strong{Additional Information}
 #'
 #' Depending on the data used to construct the samc-class object, some metrics
 #' may cause crashes. This is a result of the underlying P matrix having specific
 #' properties that make some equations unsolvable. One known case is a P matrix
-#' that represents a disconnected graph, which can lead to the cond_passage()
+#' that represents a disconnected graph, which can lead to the \code{cond_passage()}
 #' function crashing. In terms of raster/matrix inputs, a disconnected graph
 #' occurs when one or more pixels/cells are unreachable from other pixels/cells
 #' due to the presence of a full barrier made up of NA values. In a raster, these
@@ -87,6 +109,7 @@ NULL
 #' @param tr_fun A function to calculate the transition values in the \code{\link[gdistance]{transition}} function
 #' @param p_mat A base R \code{\link[base]{matrix}} object or Matrix package dgCMatrix sparse matrix
 #' @param override Optional flag to prevent accidentally running memory intensive functions. Defaults to \code{FALSE}
+#' @param directions Optional param. Must be set to either 4 or 8 (default is 8)
 #' @param ... Placeholder
 #'
 #' @return A spatial absorbing Markov chain object
@@ -110,7 +133,7 @@ setMethod(
             latlon = "logical",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, fidelity, latlon, tr_fun, override = FALSE) {
+  function(resistance, absorption, fidelity, latlon, tr_fun, override = FALSE, directions = 8) {
 
     if (!is.logical(override))
       stop("The override parameter must be set to TRUE or FALSE", call. = FALSE)
@@ -147,13 +170,16 @@ setMethod(
       stop("No cells can have fidelity + absoprtion > 1", call. = FALSE)
     }
 
+    if (!(directions %in% c(4, 8))) {
+      stop("directions must be set to either 4 or 8", call. = FALSE)
+    }
 
     # Create map template
     m <- resistance
     m[] <- is.finite(m[])
 
     # Check for "clumps"
-    cl <- raster::clump(m, directions = 8, gaps = FALSE)
+    cl <- raster::clump(m, directions = directions, gaps = FALSE)
     clumps <- sum(!is.na(unique(cl[])))
 
     if (clumps > 1) {
@@ -168,7 +194,7 @@ setMethod(
 
 
     # Create the transition matrix
-    tr <- gdistance::transition(resistance, transitionFunction = tr_fun, 8)
+    tr <- gdistance::transition(resistance, transitionFunction = tr_fun, directions)
     if (latlon) {
       tr <- gdistance::geoCorrection(tr, type = "c")
     } else {
@@ -228,12 +254,12 @@ setMethod(
             latlon = "logical",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, latlon, tr_fun, override = FALSE) {
+  function(resistance, absorption, latlon, tr_fun, override = FALSE, directions = 8) {
 
     fidelity <- resistance
     fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, latlon, tr_fun, override = override))
+    return(samc(resistance, absorption, fidelity, latlon, tr_fun, override = override, directions = directions))
   })
 
 #' @rdname samc
@@ -245,7 +271,7 @@ setMethod(
             latlon = "missing",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, fidelity, tr_fun, override = FALSE) {
+  function(resistance, absorption, fidelity, tr_fun, override = FALSE, directions = 8) {
 
     resistance <- .rasterize(resistance)
     absorption <- .rasterize(absorption)
@@ -253,7 +279,7 @@ setMethod(
 
     #fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, FALSE, tr_fun, override = override))
+    return(samc(resistance, absorption, fidelity, FALSE, tr_fun, override = override, directions = directions))
   })
 
 #' @rdname samc
@@ -265,12 +291,12 @@ setMethod(
             latlon = "missing",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, tr_fun, override = FALSE) {
+  function(resistance, absorption, tr_fun, override = FALSE, directions = 8) {
 
     resistance <- .rasterize(resistance)
     absorption <- .rasterize(absorption)
 
-    return(samc(resistance, absorption, latlon = FALSE, tr_fun = tr_fun, override = override))
+    return(samc(resistance, absorption, latlon = FALSE, tr_fun = tr_fun, override = override, directions = directions))
   })
 
 #' @rdname samc
