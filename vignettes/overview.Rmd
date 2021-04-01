@@ -22,7 +22,7 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
 
 library("raster")
 library("samc")
-library("viridis")
+library("viridisLite")
 ```
 
 ## Data

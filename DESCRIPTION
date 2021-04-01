@@ -43,7 +43,7 @@ RoxygenNote: 7.1.1
 Suggests: knitr,
     rmarkdown,
     testthat,
-    viridis
+    viridisLite
 VignetteBuilder: knitr
 Collate:
     'RcppExports.R'

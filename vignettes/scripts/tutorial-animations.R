@@ -8,7 +8,7 @@
 library("samc")
 library("raster")
 library("ggplot2")
-library("viridis")
+library("viridisLite")
 library("gifski")
 library("gganimate")
 
