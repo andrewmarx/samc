@@ -16,6 +16,8 @@ navbar:
       menu:
       - text: "Basic Tutorial"
         href: articles/tutorial-basic.html
+      - text: "Locations"
+        href: articles/tutorial-locations.html
       - text: "ggplot Visualization"
         href: articles/tutorial-ggplot.html
       - text: "Temporal Analysis"
