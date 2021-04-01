@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-This page is home to code that isn't suitable for inclusion in the samc package or dedicated vignettes, but that users may find benificial nonetheless. Some of what is included here may eventually be integrated into the package. Code here is not as thoroughly tested as the package and may not work in all situations or versions of the package.
+This page is home to code that isn't suitable for inclusion in the samc package or dedicated vignettes, but that users may find beneficial nonetheless. Some of what is included here may eventually be integrated into the package. Code here is not as thoroughly tested as the package and may not work in all situations or versions of the package.
 
 
 ## Reshaping output from pairwise()
