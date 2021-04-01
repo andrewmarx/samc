@@ -15,14 +15,13 @@ NULL
 #'
 #' The result is a vector where each element corresponds to a cell in the landscape,
 #' and can be mapped back to the landscape using the \code{\link{map}} function.
-#' Element \emph{i} is the mean number of steps for the first passage time from
+#' Element \emph{i} is the mean number of steps before absorption starting from
 #' location \emph{i} conditional on absorption into \emph{j}
 #'
 #'   \item \strong{cond_passage(samc, origin, dest)}
 #'
-#' The result is a numeric value representing the mean number of steps for the
-#' first passage time from a given origin conditional on absorption into a given
-#' destination.
+#' The result is a numeric value representing the mean number of steps before
+#' absorption starting from a given origin conditional on absorption into \emph{j}.
 #' }
 #'
 #' \strong{WARNING}: This function will crash when used with data representing
