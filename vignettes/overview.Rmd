@@ -22,7 +22,7 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
 
 library("raster")
 library("samc")
-library("viridis")
+library("viridisLite")
 ```
 
 ## Data
@@ -75,7 +75,7 @@ plot(raster(samc::ex_occ_data, xmn = 1, xmx = ncol(samc::ex_occ_data), ymn = 1, 
 
 The `samc-class` is used to manage the transition matrix and information about your landscape data to help ensure that the calculations used by the rest of the package are used correctly. Creating an `samc-class` object is the mandatory first step in the package, and is created using the `samc()` utility function. The `samc()` function has several parameters. Some of these are mandatory, some are only mandatory in certain situations, and some are optional. The overall function signature is as follows:
 ```r
-samc(resistance, absorption, fidelity, latlon, tr_fun, override)
+samc(resistance, absorption, fidelity, latlon, tr_fun, p_mat, ...)
 ```
 
 An explanation of the arguments:
@@ -84,7 +84,10 @@ An explanation of the arguments:
 * `fidelity` is optional. If included, it must meet the data requirements outlined in the Data section above.
 * `latlon` is mandatory when the input data is in a `RasterLayer` object. It should be set to either `TRUE` or `FALSE`.
 * `tr_fun` is always mandatory. It is used to create the transition matrix.
-* `override` is optional. It is used to control whether or not memory intensive functions can be run on the data. By default it is set to `FALSE` to prevent users from accidentally running these functions, which can potentially crash R if the computer does not have enough memory. The function documentation provides specific details for which calculations need the override, but in general it will rarely be useful for users and should be left off.
+* `directions` is an optional parameter. It can be used to set how adjacent cells are connected.
+* `override` is an optional parameter. It is used to control whether or not memory intensive functions can be run on the data. By default it is set to `FALSE` to prevent users from accidentally running these functions, which can potentially crash R if the computer does not have enough memory. The function documentation provides specific details for which calculations need the override, but in general it will rarely be useful for users and should be left off.
+
+The `p_mat` parameter provides an alternative method for creating a `samc-class` directly from a preconstructed P matrix. See the `samc()` documentation for more details.
 
 
 ## Utility Functions
@@ -94,6 +97,7 @@ In addition to the extremely important `samc()` function, the package has other 
 - The `check()` function is used to check that input landscape data meets the data requirements outlined above. It can be used to compare two `RasterLayer` objects, two `matrix` objects, or check either a `RasterLayer` or a `matrix` against an already created `samc-class` object.
 - The `map()` function is used to simplify mapping vector data back into the landscape and return it as a `RasterLayer`. This is provided because R handles matrices and raster layers somewhat differently when reading and writing vector data, which can cause users to map the data incorrectly if they aren't careful. It also handles mapping to landscapes with NA values, another potential source of error.
 - The `locate()` function is used to get cell numbers for use as origin and dest values in various analytical function arguments. This function should be used instead of `cellFromXY()` in the raster package because `cellFromXY()` cell numbers do not necessarily correspond to cell numbers in the samc package (the samc package does not assign cell numbers to `NA` cells, whereas the raster package does). The `locate()` function can be used to return a `RasterLayer` with the cell numbers encoded as cell values by simply excluding the `xy` argument.
+- The `pairwise()` function is provided to easily and efficiently run specfic metrics for all the pairwise combinations of start and end locations.
 
 
 ## Analytical Functions

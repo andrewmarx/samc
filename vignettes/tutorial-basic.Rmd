@@ -33,7 +33,7 @@ This tutorial shows the basics of how to use the package to calculate and visual
 # needed; some are used for convenience and visualization for this tutorial.
 library("samc")
 library("raster")
-library("viridis")
+library("viridisLite")
 ```
 
 

@@ -34,7 +34,7 @@ This tutorial shows the basics of working with the short-term temporal metrics a
 # needed; some are used for convenience and visualization for this tutorial.
 library("samc")
 library("raster")
-library("viridis")
+library("viridisLite")
 
 
 # "Load" the data. In this case we are using data built into the package.
