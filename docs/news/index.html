@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
       </span>
     </div>
 
@@ -93,6 +93,9 @@
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
     </li>
+    <li>
+      <a href="../articles/code-snippets.html">Code Snippets</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -104,6 +107,9 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/tutorial-basic.html">Basic Tutorial</a>
+    </li>
+    <li>
+      <a href="../articles/tutorial-locations.html">Locations</a>
     </li>
     <li>
       <a href="../articles/tutorial-ggplot.html">ggplot Visualization</a>
@@ -147,12 +153,27 @@
       <small>Source: <a href='https://github.com/andrewmarx/samc/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="samc-130" class="section level1">
+<h1 class="page-header" data-toc-text="1.3.0">
+<a href="#samc-130" class="anchor"></a>samc 1.3.0<small> 2021-04-01 </small>
+</h1>
+<ul>
+<li>Fixed an issue with the check() function when data contains NA’s.</li>
+<li>Fixed an issue with the raster returned from locate(samc) having 0 for NA cells.</li>
+<li>Improved error checking and messaging for the check() and locate() functions.</li>
+<li>Named rows and columns for the P matrix is now supported. Previously, naming the rows and columns would cause some checks to fail. If names are not manually assigned, the names are simply the row/column numbers converted to character strings.</li>
+<li>Analytical functions updated to support named inputs for the origin and dest location parameters</li>
+<li>When both the origin and dest parameter is used in a function, the inputs can be paired vectors.</li>
+<li>Added the pairwise() utility function</li>
+<li>Created a new <em>Locations</em> tutorial vignette for new location input options.</li>
+</ul>
+</div>
     <div id="samc-121" class="section level1">
 <h1 class="page-header" data-toc-text="1.2.1">
 <a href="#samc-121" class="anchor"></a>samc 1.2.1<small> 2020-11-02 </small>
 </h1>
 <ul>
-<li>Fixed a regression in v1.2.0 where the samc() function would not work corectly unless matrix/raster layers contained at least one NA cell</li>
+<li>Fixed a regression in v1.2.0 where the samc() function would not work correctly unless matrix/raster layers contained at least one NA cell</li>
 <li>Revamped the automated test suite with more test scenarios to better catch issues before release</li>
 <li>Added checks during samc-class creation to prevent potential issues with discontinuous/clumped input data. Currently, this type of data will not work with the cond_passage() function, but will in a future release.</li>
 <li>Reworked some of the vignettes to produce cleaner pages and remove suggested dependencies (e.g. gifski, gganimate, ggplot2) from the package so that users aren’t bugged about installing them if they don’t need them.</li>

@@ -1,7 +1,7 @@
 # Copyright (c) 2019 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
-#' @include samc-class.R visitation.R
+#' @include samc-class.R location-class.R visitation.R
 NULL
 
 
@@ -94,16 +94,17 @@ setGeneric(
     standardGeneric("dispersal")
   })
 
+# dispersal(samc, dest, time) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
+    dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
-
-    if (dest %% 1 != 0 || dest < 1 || dest > sum(samc@map[], na.rm = TRUE))
-      stop("dest must be an integer that refers to a cell in the landscape")
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qv <- q[, dest]
@@ -126,11 +127,16 @@ setMethod(
     }
   })
 
+# dispersal(samc, occ, dest, time) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "location", time = "numeric"),
   function(samc, occ, dest, time) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
 
     check(samc, occ)
 
@@ -141,7 +147,7 @@ setMethod(
     pv <- pv[-dest]
 
     if (is.list(d)) {
-      return(lapply(d, FUN = function(x){as.numeric(pv %*% x)}))
+      return(lapply(d, function(x){as.numeric(pv %*% x)}))
     } else {
       return(as.numeric(pv %*% d))
     }
@@ -150,22 +156,21 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "location", time = "numeric"),
   function(samc, occ, dest, time) {
-
-    occ <- raster::raster(occ, xmn = 0.5, xmx = ncol(occ) + 0.5, ymn = 0.5, ymx = nrow(occ) + 0.5)
+    occ <- .rasterize(occ)
 
     return(dispersal(samc, occ, dest = dest, time = time))
   })
 
+# dispersal(samc) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
-
     if (!samc@override)
-      stop("This version of the dispersal() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
+      stop("This version of the dispersal() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
     f <- visitation(samc)
     gc()
@@ -182,19 +187,24 @@ setMethod(
     return(d_mat)
   })
 
+# dispersal(samc, origin) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
-    stop("A suitably optimized version of this function has not been identified (yet). As a workaround, consider calculation destination columns instead")
+    stop("A suitably optimized version of this function has not been identified (yet). As a workaround, consider calculating destination columns instead", call. = FALSE)
+    # TODO fix origin signature if this function gets implemented
   })
 
+# dispersal(samc, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
+    dest <- .process_locations(samc, dest)
+
     f_col <- visitation(samc, dest = dest)
     fjj <- f_col[dest]
     f_col[dest] <- f_col[dest] - 1
@@ -204,22 +214,35 @@ setMethod(
     return(d_vec)
   })
 
+# dispersal(samc, origin, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
-    d <- dispersal(samc, dest = dest)
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
 
-    return(d[origin])
+    if(length(origin) != length(dest))
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+
+    result <- vector(mode = "numeric", length = length(origin))
+
+    for (d in unique(dest)) {
+      # Using dispersal(samc, dest) because dispersal(samc, origin) is not optimized
+      t <- dispersal(samc, dest = d)
+      result[dest == d] <- t[origin[dest == d]]
+    }
+
+    return(result)
   })
 
+# dispersal(samc, occ) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-
     check(samc, occ)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
@@ -239,18 +262,17 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-
-    occ <- raster::raster(occ, xmn = 0.5, xmx = ncol(occ) + 0.5, ymn = 0.5, ymx = nrow(occ) + 0.5)
+    occ <- .rasterize(occ)
 
     return(dispersal(samc, occ))
   })
 
+# dispersal(samc, occ, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "location", time = "missing"),
   function(samc, occ, dest) {
-
     check(samc, occ)
 
     pv <- as.vector(occ)
@@ -264,10 +286,9 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "numeric", time = "missing"),
+  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "location", time = "missing"),
   function(samc, occ, dest) {
-
-    occ <- raster::raster(occ, xmn = 0.5, xmx = ncol(occ) + 0.5, ymn = 0.5, ymx = nrow(occ) + 0.5)
+    occ <- .rasterize(occ)
 
     return(dispersal(samc, occ, dest = dest))
   })

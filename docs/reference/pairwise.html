@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get cell numbers — locate • samc</title>
+<title>Pairwise analyses — pairwise • samc</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Get cell numbers — locate" />
-<meta property="og:description" content="Get cell numbers from raster data" />
+<meta property="og:title" content="Pairwise analyses — pairwise" />
+<meta property="og:description" content="Analysis for pairwise combinations locations" />
 
 
 
@@ -150,66 +150,70 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get cell numbers</h1>
-    <small class="dont-index">Source: <a href='https://github.com/andrewmarx/samc/blob/master/R/locate.R'><code>R/locate.R</code></a></small>
-    <div class="hidden name"><code>locate.Rd</code></div>
+    <h1>Pairwise analyses</h1>
+    <small class="dont-index">Source: <a href='https://github.com/andrewmarx/samc/blob/master/R/pairwise.R'><code>R/pairwise.R</code></a></small>
+    <div class="hidden name"><code>pairwise.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get cell numbers from raster data</p>
+    <p>Analysis for pairwise combinations locations</p>
     </div>
 
-    <pre class="usage"><span class='fu'>locate</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>xy</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>pairwise</span><span class='op'>(</span><span class='va'>fun</span>, <span class='va'>samc</span>, <span class='va'>origin</span>, <span class='va'>dest</span><span class='op'>)</span>
 
-<span class='co'># S4 method for samc,missing</span>
-<span class='fu'>locate</span><span class='op'>(</span><span class='va'>samc</span><span class='op'>)</span>
+<span class='co'># S4 method for `function`,samc,location,location</span>
+<span class='fu'>pairwise</span><span class='op'>(</span><span class='va'>fun</span>, <span class='va'>samc</span>, <span class='va'>origin</span>, <span class='va'>dest</span><span class='op'>)</span>
 
-<span class='co'># S4 method for samc,ANY</span>
-<span class='fu'>locate</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>xy</span><span class='op'>)</span></pre>
+<span class='co'># S4 method for `function`,samc,location,missing</span>
+<span class='fu'>pairwise</span><span class='op'>(</span><span class='va'>fun</span>, <span class='va'>samc</span>, <span class='va'>origin</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>fun</th>
+      <td><p>A samc analytical function with signature fun(samc, origin, dest)</p></td>
+    </tr>
+    <tr>
       <th>samc</th>
       <td><p>A <code><a href='samc-class.html'>samc-class</a></code> object</p></td>
     </tr>
     <tr>
-      <th>xy</th>
-      <td><p>Any valid input to the y argument of the <code><a href='https://rdrr.io/pkg/raster/man/extract.html'>extract</a></code> function in the raster package.</p></td>
+      <th>origin</th>
+      <td><p>A vector of locations</p></td>
+    </tr>
+    <tr>
+      <th>dest</th>
+      <td><p>A vector of locations. Can be excluded to reuse the origin parameter</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A rasterlayer or a vector</p>
+    <p>A 'long' format data.frame</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is used to get cell numbers from raster data. The numbers used
-for origin and destination values in many samc metrics refer to column/row
-numbers of the P matrix. For a P matrix derived from raster data, these numbers
-would normally line up with the cell numbers of the raster, but this is not
-always true. This is the case when the raster contains NA data; the cells
-associated with this data are excluded from the P matrix. This causes issues
-trying to determine the cell numbers that should be used in analyses.</p>
-<p>The <code>locate</code> function operates more-or-less like the
-<code><a href='https://rdrr.io/pkg/raster/man/cellFrom.html'>cellFromXY</a></code> function in the raster package, but unlike
-<code><a href='https://rdrr.io/pkg/raster/man/cellFrom.html'>cellFromXY</a></code>, locate properly accounts for NA cells
-in identifying cell numbers from coordinate data.</p>
-<p>This function can also be used if the samc object was created from matrix inputs
-for the resistance, absorption, and fidelity parameters. In this case, the
-values in the xy coordinate parameter can be column-row values with the caveat
-that (1,1) is the bottom left corner.</p>
-<p>The xy parameter can also be excluded. In this case, the function returns a
-raster where the values of the cells contains the cell number.</p>
-<p>Internally, this function relies on the <code><a href='https://rdrr.io/pkg/raster/man/extract.html'>extract</a></code> function
-from the raster package, and any valid input for the y argument of that function
-is valid here.</p>
+    <p>When providing vector inputs for the `origin` and `dest` parameters to analytical
+functions, the package assumes that users are providing pairs of `origin` and
+`dest`. That is, `origin[1]` is paired with `dest[1]`, `origin[2]` is paired
+`dest[2]`, etc. Another way to think about it is that these two vector inputs
+can be treated as columns in the same dataframe. The result of the analytical
+function then is a vector of the same length as the input. This behavior works
+for any situation, so it is the default for the package.</p>
+<p>However, some users may wish to run an analytical function for all the pairwise
+combinations of the values in the input vectors. That is, `origin[1]` is paired
+with `dest[1]`,`dest[2]`, `dest[3]`, etc, before moving on to the next elements
+in `origin`. This approach has the advantage of potentially reducing the amount
+of code needed for an analysis, and the results can be represented as a pairwise
+matrix, but it is not suitable for all situations. To enable this second approach
+more easily, the `pairwise()` function runs all the combinations of the `origin`
+and `dest` parameters for an analytical function and returns the results in a
+'long' format data.frame. This data.frame can then be reshaped into a pairwise
+matrix or 'wide' format data.frame using tools like the reshape2 or tidyr packages.</p>
+<p>This function is not intended to be used with other inputs such as `occ` or `time`</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://andrewmarx.github.io/samc/'>samc</a></span><span class='op'>)</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://rspatial.org/raster'>raster</a></span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Loading required package: sp</span></div><div class='input'>
 
 <span class='co'># Load example data</span>
 <span class='va'>res_data</span> <span class='op'>&lt;-</span> <span class='fu'>samc</span><span class='fu'>::</span><span class='va'><a href='ex_res_data.html'>ex_res_data</a></span>
@@ -220,31 +224,24 @@ is valid here.</p>
 <span class='co'># Create samc-class object</span>
 <span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>, tr_fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
 
+<span class='co'># pairwise() example</span>
+<span class='va'>pw</span> <span class='op'>&lt;-</span> <span class='fu'>pairwise</span><span class='op'>(</span><span class='va'>cond_passage</span>, <span class='va'>samc_obj</span>, origin <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, dest <span class='op'>=</span> <span class='fl'>5</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>pw</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   origin dest   result
+#&gt; 1      1    5 5402.175
+#&gt; 2      2    5 4642.001
+#&gt; 3      3    5 3600.117
+#&gt; 4      4    5 2249.220</div><div class='input'>
+<span class='co'># pairwise() example without dest</span>
+<span class='va'>pw</span> <span class='op'>&lt;-</span> <span class='fu'>pairwise</span><span class='op'>(</span><span class='va'>dispersal</span>, <span class='va'>samc_obj</span>, origin <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>, <span class='fl'>7</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>pw</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   origin dest    result
+#&gt; 1      2    2 0.7908536
+#&gt; 2      7    2 0.6243287
+#&gt; 3      2    7 0.6052441
+#&gt; 4      7    7 0.7972468</div><div class='input'>
 
-<span class='co'># We can use locate() to return a raster with the cell numbers encoded as data</span>
-<span class='co'># in the cells</span>
-<span class='va'>cell_raster</span> <span class='op'>&lt;-</span> <span class='fu'>locate</span><span class='op'>(</span><span class='va'>samc_obj</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/pkg/raster/man/plot.html'>plot</a></span><span class='op'>(</span><span class='va'>cell_raster</span><span class='op'>)</span>
-</div><div class='img'><img src='locate-1.png' alt='' width='700' height='433' /></div><div class='input'>
-
-<span class='co'># We can use a variety of spatial inputs to get cell numbers using locate()</span>
-<span class='co'># The simplest is a two-column data.frame</span>
-<span class='va'>coords</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>50</span>, <span class='fl'>79</span>, <span class='fl'>22</span><span class='op'>)</span>,
-                     y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>25</span>, <span class='fl'>11</span>, <span class='fl'>19</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>coords</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;    x  y
-#&gt; 1 50 25
-#&gt; 2 79 11
-#&gt; 3 22 19</div><div class='input'><span class='fu'>locate</span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>coords</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1]  494 1925 1193</div><div class='input'>
-<span class='co'># You will get an error if you input a coordinate that does not correspond</span>
-<span class='co'># to a non-NA cell</span>
-<span class='va'>coords</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>,
-                     y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>coords</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   x y
-#&gt; 1 1 1</div><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/try.html'>try</a></span><span class='op'>(</span><span class='fu'>locate</span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>coords</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Error : One or more coordinates do not correspond to non-NA cells.</div></pre>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

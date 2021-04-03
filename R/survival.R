@@ -45,6 +45,7 @@ setGeneric(
     standardGeneric("survival")
   })
 
+# survival(samc) ----
 #' @rdname survival
 setMethod(
   "survival",
@@ -59,12 +60,12 @@ setMethod(
     return(as.vector(z))
   })
 
+# survival(samc, occ) ----
 #' @rdname survival
 setMethod(
   "survival",
   signature(samc = "samc", occ = "RasterLayer"),
   function(samc, occ) {
-
     check(samc, occ)
 
     pv <- as.vector(occ)
@@ -82,8 +83,7 @@ setMethod(
   "survival",
   signature(samc = "samc", occ = "matrix"),
   function(samc, occ) {
-
-    occ <- raster::raster(occ, xmn = 0.5, xmx = ncol(occ) + 0.5, ymn = 0.5, ymx = nrow(occ) + 0.5)
+    occ <- .rasterize(occ)
 
     return(survival(samc, occ))
   })

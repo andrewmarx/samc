@@ -1,7 +1,7 @@
 # Copyright (c) 2019 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
-#' @include samc-class.R
+#' @include samc-class.R location-class.R
 NULL
 
 
@@ -61,14 +61,14 @@ setGeneric(
     standardGeneric("visitation")
   })
 
+# visitation(samc) ----
 #' @rdname visitation
 setMethod(
   "visitation",
   signature(samc = "samc", origin = "missing", dest = "missing"),
   function(samc){
-
     if (!samc@override)
-      stop("This version of the visitation() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
+      stop("This version of the visitation() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x
@@ -77,11 +77,17 @@ setMethod(
     return(as.matrix(n))
   })
 
+# visitation(samc, origin) ----
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "numeric", dest = "missing"),
+  signature(samc = "samc", origin = "location", dest = "missing"),
   function(samc, origin){
+    if (length(origin) != 1)
+      stop("origin can only contain a single value for this version of the function", call. = FALSE)
+
+    origin = .process_locations(samc, origin)
+
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
@@ -90,11 +96,17 @@ setMethod(
     return(as.vector(r))
   })
 
+# visitation(samc, dest) ----
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "missing", dest = "numeric"),
+  signature(samc = "samc", origin = "missing", dest = "location"),
   function(samc, dest){
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
+
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
@@ -103,13 +115,25 @@ setMethod(
     return(as.vector(r))
   })
 
+# visitation(samc, origin, dest) ----
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "numeric", dest = "numeric"),
+  signature(samc = "samc", origin = "location", dest = "location"),
   function(samc, origin, dest){
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
 
-    v <- visitation(samc, origin)
+    if(length(origin) != length(dest))
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
-    return(v[dest])
+    result <- vector(mode = "numeric", length = length(origin))
+
+    for (o in unique(origin)) {
+      # Using visitiation(samc, origin) because visitation(samc, dest) involves an extra transpose operation
+      t <- visitation(samc, origin = o)
+      result[origin == o] <- t[dest[origin == o]]
+    }
+
+    return(result)
   })

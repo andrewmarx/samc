@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
       </span>
     </div>
 
@@ -94,6 +94,9 @@
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
     </li>
+    <li>
+      <a href="../articles/code-snippets.html">Code Snippets</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -105,6 +108,9 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/tutorial-basic.html">Basic Tutorial</a>
+    </li>
+    <li>
+      <a href="../articles/tutorial-locations.html">Locations</a>
     </li>
     <li>
       <a href="../articles/tutorial-ggplot.html">ggplot Visualization</a>
@@ -156,16 +162,31 @@
     <pre class="usage"><span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span>, <span class='va'>latlon</span>, <span class='va'>tr_fun</span>, <span class='va'>p_mat</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S4 method for RasterLayer,RasterLayer,RasterLayer,logical,`function`,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span>, <span class='va'>latlon</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'>samc</span><span class='op'>(</span>
+  <span class='va'>resistance</span>,
+  <span class='va'>absorption</span>,
+  <span class='va'>fidelity</span>,
+  <span class='va'>latlon</span>,
+  <span class='va'>tr_fun</span>,
+  override <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  directions <span class='op'>=</span> <span class='fl'>8</span>
+<span class='op'>)</span>
 
 <span class='co'># S4 method for RasterLayer,RasterLayer,missing,logical,`function`,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>latlon</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>latlon</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span>
 
 <span class='co'># S4 method for matrix,matrix,matrix,missing,`function`,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'>samc</span><span class='op'>(</span>
+  <span class='va'>resistance</span>,
+  <span class='va'>absorption</span>,
+  <span class='va'>fidelity</span>,
+  <span class='va'>tr_fun</span>,
+  override <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  directions <span class='op'>=</span> <span class='fl'>8</span>
+<span class='op'>)</span>
 
 <span class='co'># S4 method for matrix,matrix,missing,missing,`function`,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span>
 
 <span class='co'># S4 method for missing,missing,missing,missing,missing,dgCMatrix</span>
 <span class='fu'>samc</span><span class='op'>(</span><span class='va'>p_mat</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
@@ -194,7 +215,7 @@
     </tr>
     <tr>
       <th>tr_fun</th>
-      <td><p>A function to calculate the transition values in the <code><a href='https://agrobioinfoservices.github.io/gdistance/reference/transition.html'>transition</a></code> function</p></td>
+      <td><p>A function to calculate the transition values in the <code><a href='https://rdrr.io/pkg/gdistance/man/transition.html'>transition</a></code> function</p></td>
     </tr>
     <tr>
       <th>p_mat</th>
@@ -207,6 +228,10 @@
     <tr>
       <th>override</th>
       <td><p>Optional flag to prevent accidentally running memory intensive functions. Defaults to <code>FALSE</code></p></td>
+    </tr>
+    <tr>
+      <th>directions</th>
+      <td><p>Optional param. Must be set to either 4 or 8 (default is 8)</p></td>
     </tr>
     </table>
 
@@ -223,19 +248,19 @@ resistance, absorption, and fidelity data. These different landscape data
 inputs must be the same type (a matrix or RasterLayer), and have identical
 properties, including dimensions, location of NA cells, and CRS (if using
 RasterLayers). Some of the inputs are mandatory, whereas others are optional.</p>
-<p>The resistance and absorption inputs are always mandatory, whereas the
-fidelity input is optional. If the fidelity input is not provided, then it it
+<p>The <code>resistance</code> and <code>absorption</code> inputs are always mandatory, whereas the
+<code>fidelity</code> input is optional. If the <code>fidelity</code> input is not provided, then it it
 is assumed that there is no site fidelity (i.e., individuals will always move
 to an adjacent cell each time step).</p>
-<p>The latlon parameter is required if the landscape data inputs are RasterLayer
+<p>The <code>latlon</code> parameter is required if the landscape data inputs are RasterLayer
 objects. The package does not attempt to determine this automatically, and it
-does not assume a default. Users must set it to TRUE if they are using
+does not assume a default. Users must set it to <code>TRUE</code> if they are using
 latitude and longitude data.</p>
-<p>The tr_fun parameter is mandatory. It used when calculating the values for
-the transition matrix. Internally, this is passed to the <code><a href='https://agrobioinfoservices.github.io/gdistance/reference/transition.html'>transition</a></code>
+<p>The <code>tr_fun</code> parameter is mandatory. It used when calculating the values for
+the transition matrix. Internally, this is passed to the <code><a href='https://rdrr.io/pkg/gdistance/man/transition.html'>transition</a></code>
 function in the gdistance package to create the transition matrix.</p>
 <p><strong>Option 2: P Matrix Input</strong></p>
-<p>The p_mat parameter can be used to create a <code><a href='samc-class.html'>samc-class</a></code> object
+<p>The <code>p_mat</code> parameter can be used to create a <code><a href='samc-class.html'>samc-class</a></code> object
 directly from a preconstructed P matrix. This matrix must be either a base R
 matrix, or a sparse matrix (dgCMatrix format) from the Matrix package. It
 must meet the requirement of a P matrix described in Fletcher et al. (2019).
@@ -246,23 +271,43 @@ This includes:</p><ul>
 <li><p>All values must be in the range of 0-1</p></li>
 </ul>
 
+<p>Additionally, the columns and rows of the P matrix may be named (e.g., using
+dimnames(), rowname(), colnames(), etc). When specifying <code>origin</code> or <code>dest</code> inputs
+to metrics, these names may be used instead of cell numbers. This has the
+advantage of making the code for an analysis easier to read and interpret,
+which may also help to eliminate unintentional mistakes. There are two
+requirements for naming the rows/cols of a P matrix. First, since the P matrix
+represents a pairwise matrix, the row and column names must be the same. Second,
+there must be no duplicate names. The exception to these rules is the very last
+column and the very last row of the P matrix. Since these are not part of the
+pairwise transition matrix, they may have whatever names the user prefers.</p>
 <p><strong>Other Parameters</strong></p>
-<p>The override parameter is optional. To prevent users from unintentionally
+<p>The <code>override</code> parameter is optional. To prevent users from unintentionally
 running memory intensive versions of functions that could make their systems
-non-responsive or crash software, it is set to FALSE by default. For various
-reasons, it can be set to TRUE. In particular, a user might do this if they
+non-responsive or crash software, it is set to <code>FALSE</code> by default. For various
+reasons, it can be set to <code>TRUE</code>. In particular, a user might do this if they
 are using a very small landscape dataset, or perhaps for a moderately sized
 dataset if they have access to a system with exceptionally large amounts of
-RAM. Before setting this to TRUE, users should read the Performance vignette/
+RAM. Before setting this to <code>TRUE</code>, users should read the Performance vignette/
 article to understand the expected memory requirements. They should also
 consider starting with scaled down version of their data and then gradually
 scaling back up while monitoring their memory usage as a means to gauge what
 is reasonable for their system.</p>
+<p>The <code>directions</code> parameter is optional. When constructing the P matrix from
+matrix or raster data, the <code>samc()</code> function must decide how adjacent cells are
+connected. This value can be set to either 4 or 8. When set to 4, nodes are
+connected horizontally and vertically (similar to the directions of how a rook
+moves in chess). When set to 8, nodes are connected diagonally in addition to
+horizontally and vertically (queen movement in chess). When not specified,
+the <code>samc()</code> function defaults to a value of 8. When using large datasets to
+construct a P matrix, setting the directions to 4 may lead to significant
+improvements in computation time and the amount of memory needed to perform
+an analysis.</p>
 <p><strong>Additional Information</strong></p>
 <p>Depending on the data used to construct the samc-class object, some metrics
 may cause crashes. This is a result of the underlying P matrix having specific
 properties that make some equations unsolvable. One known case is a P matrix
-that represents a disconnected graph, which can lead to the cond_passage()
+that represents a disconnected graph, which can lead to the <code><a href='cond_passage.html'>cond_passage()</a></code>
 function crashing. In terms of raster/matrix inputs, a disconnected graph
 occurs when one or more pixels/cells are unreachable from other pixels/cells
 due to the presence of a full barrier made up of NA values. In a raster, these

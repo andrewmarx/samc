@@ -39,7 +39,7 @@ NULL
 #
 #' @return A rasterlayer or a vector
 #'
-#' @example inst/examples/example.R
+#' @example inst/examples/locate.R
 #'
 #' @export
 
@@ -54,11 +54,12 @@ setMethod(
   "locate",
   signature(samc = "samc", xy = "missing"),
   function(samc){
-    if (samc@source != "map") stop("This function can only be used when the samc object was created from raster or matrix inputs for resistance data")
+    if (samc@source != "map") stop("This function can only be used when the samc object was created from raster or matrix inputs for resistance data", call. = FALSE)
 
     ras <- samc@map
     n <- sum(ras[])
     ras[ras] <- 1:n
+    ras[ras[] == 0] <- NA
 
     return(ras)
   })
@@ -71,6 +72,8 @@ setMethod(
     ras <- locate(samc)
 
     result <- raster::extract(ras, xy)
+
+    if (anyNA(result)) stop("One or more coordinates do not correspond to non-NA cells.", call. = FALSE)
 
     return(result)
   })

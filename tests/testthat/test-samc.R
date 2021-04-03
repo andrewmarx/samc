@@ -14,7 +14,7 @@ test_that("samc p matrix row sums equal 1 without fidelity data", {
   v[] <- 1
 
   # Verify equality
-  expect_equal(rs, v)
+  expect_equal(rs, v, check.names = FALSE)
 })
 
 test_that("samc p matrix row sums equal 1 with fidelity data", {
@@ -30,5 +30,5 @@ test_that("samc p matrix row sums equal 1 with fidelity data", {
   v[] <- 1
 
   # Verify equality
-  expect_equal(rs, v)
+  expect_equal(rs, v, check.names = FALSE)
 })

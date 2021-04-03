@@ -10,10 +10,14 @@ navbar:
         href: articles/performance.html
       - text: "Troubleshooting"
         href: articles/troubleshooting.html
+      - text: "Code Snippets"
+        href: articles/code-snippets.html
     - text: "Tutorials"
       menu:
       - text: "Basic Tutorial"
         href: articles/tutorial-basic.html
+      - text: "Locations"
+        href: articles/tutorial-locations.html
       - text: "ggplot Visualization"
         href: articles/tutorial-ggplot.html
       - text: "Temporal Analysis"
@@ -32,11 +36,13 @@ reference:
   - title: "Classes"
     contents:
       - samc-class
+      - location-class
   - title: "Utility Functions"
     contents:
       - check
       - locate
       - map
+      - pairwise
       - samc
   - title: "Analytical Functions"
     contents:

@@ -42,10 +42,10 @@ setMethod(
   "map",
   signature(samc = "samc", vec = "numeric"),
   function(samc, vec){
-    if (samc@source != "map") stop(paste("This function cannot be used with a samc-class object created from a", samc@source))
+    if (samc@source != "map") stop("This function cannot be used with a samc-class object created from a ", samc@source, call. = FALSE)
 
     if (length(vec) != sum(samc@map[], na.rm = TRUE))
-      stop("The length of the vector does not match the number of non-NA cells in the landscape data")
+      stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
 
     ras <- samc@map
 
@@ -60,13 +60,13 @@ setMethod(
   "map",
   signature(samc = "samc", vec = "list"),
   function(samc, vec){
-    if (samc@source != "map") stop(paste("This function cannot be used with a samc-class object created from a", samc@source))
+    if (samc@source != "map") stop("This function cannot be used with a samc-class object created from a ", samc@source, call. = FALSE)
 
     lapply(vec, function(x){
       if (class(x) != "numeric")
-        stop("List contains invalid item(s); all entries must be numeric vectors.")
+        stop("List contains invalid item(s); all entries must be numeric vectors.", call. = FALSE)
       if (length(x) != sum(samc@map[], na.rm = TRUE))
-        stop("The length of one or more vectors in the list does not match the number of non-NA cells in the landscape data")
+        stop("The length of one or more vectors in the list does not match the number of non-NA cells in the landscape data", call. = FALSE)
     })
 
     res <- lapply(vec, function(x){

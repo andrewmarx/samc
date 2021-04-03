@@ -1,7 +1,7 @@
 # Copyright (c) 2020 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
-#' @include samc-class.R
+#' @include samc-class.R location-class.R
 NULL
 
 #' Conditional Mean First Passage Time
@@ -15,14 +15,13 @@ NULL
 #'
 #' The result is a vector where each element corresponds to a cell in the landscape,
 #' and can be mapped back to the landscape using the \code{\link{map}} function.
-#' Element \emph{i} is the mean number of steps for the first passage time from
+#' Element \emph{i} is the mean number of steps before absorption starting from
 #' location \emph{i} conditional on absorption into \emph{j}
 #'
 #'   \item \strong{cond_passage(samc, origin, dest)}
 #'
-#' The result is a numeric value representing the mean number of steps for the
-#' first passage time from a given origin conditional on absorption into a given
-#' destination.
+#' The result is a numeric value representing the mean number of steps before
+#' absorption starting from a given origin conditional on absorption into \emph{j}.
 #' }
 #'
 #' \strong{WARNING}: This function will crash when used with data representing
@@ -50,16 +49,19 @@ setGeneric(
     standardGeneric("cond_passage")
   })
 
+# cond_passage(samc, dest) ----
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
-  signature(samc = "samc", origin = "missing", dest = "numeric"),
+  signature(samc = "samc", origin = "missing", dest = "location"),
   function(samc, dest) {
     if (samc@clumps > 1)
-      stop("This function cannot be used with discontinuous data")
+      stop("This function cannot be used with discontinuous data", call. = FALSE)
 
-    if (dest %% 1 != 0 || dest < 1 || dest > (ncol(samc@p) - 1))
-      stop("dest must be an integer that refers to a cell in the landscape")
+    if (length(dest) != 1)
+      stop("dest must be a single location that refers to a cell in the landscape", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
 
     Q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     qj <- Q[-dest, dest]
@@ -73,19 +75,19 @@ setMethod(
     return(as.numeric(t))
   })
 
+# cond_passage(samc, origin, dest) ----
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
-  signature(samc = "samc", origin = "numeric", dest = "numeric"),
+  signature(samc = "samc", origin = "location", dest = "location"),
   function(samc, origin, dest) {
-
-    .validate_locations(samc, origin)
-    .validate_locations(samc, dest)
-
     if(length(origin) != length(dest))
-      stop("The 'origin' and 'dest' parameters must have the same number of values")
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
-    result <- vector(mode = "numeric", length = length(length(origin)))
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
+
+    result <- vector(mode = "numeric", length = length(origin))
 
     unique_dest <- unique(dest)
 
@@ -93,7 +95,7 @@ setMethod(
       t <- cond_passage(samc, dest = d)
       adj_origin <- origin
       adj_origin[origin > d] <- adj_origin[origin > d] - 1
-      result[dest == d] <- t[origin[dest == d]]
+      result[dest == d] <- t[adj_origin[dest == d]]
     }
 
     result[dest == origin] <- NA

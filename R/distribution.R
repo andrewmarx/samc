@@ -70,10 +70,7 @@ setGeneric(
     standardGeneric("distribution")
   })
 
-#
-# Q^t
-#
-
+# distribution(samc, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
@@ -81,10 +78,10 @@ setMethod(
   function(samc, time) {
 
     if (!samc@override)
-      stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.")
+      stop("This version of the distribution() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
 
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
-      stop("The time argument must be a single positive integer")
+      stop("The time argument must be a single positive integer", call. = FALSE)
 
     q <- as.matrix(samc@p[-nrow(samc@p), -nrow(samc@p)])
 
@@ -97,11 +94,16 @@ setMethod(
     return(res)
   })
 
+# distribution(samc, origin, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "missing", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    origin <- .process_locations(samc, origin)
 
     .validate_time_steps(time)
 
@@ -118,12 +120,16 @@ setMethod(
     }
   })
 
+# distribution(samc, dest, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
+    dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
@@ -140,11 +146,16 @@ setMethod(
     }
   })
 
+# distribution(samc, origin, dest, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "numeric", dest = "numeric", time = "numeric"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest <- .process_locations(samc, dest)
 
     mov <- distribution(samc, origin = origin, time = time)
 
@@ -153,21 +164,16 @@ setMethod(
     } else if (is.vector(mov)) {
       return(mov[dest])
     } else {
-      stop("Fatal error: This should not have been possible. Please submit a report with a fully reproducible and simplified example.")
+      stop("This should not have been possible. Please submit a report with a fully reproducible and simplified example.", call. = FALSE)
     }
   })
 
-
-#
-# \psiQ^t
-#
-
+# distribution(samc, occ, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
   signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-
     check(samc, occ)
 
     .validate_time_steps(time)
@@ -195,8 +201,7 @@ setMethod(
   "distribution",
   signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-
-    occ <- raster::raster(occ, xmn = 0.5, xmx = ncol(occ) + 0.5, ymn = 0.5, ymx = nrow(occ) + 0.5)
+    occ <- .rasterize(occ)
 
     return(distribution(samc, occ = occ, time = time))
   })

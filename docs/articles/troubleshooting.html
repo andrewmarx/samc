@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
       </span>
     </div>
 
@@ -53,6 +53,9 @@
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
     </li>
+    <li>
+      <a href="../articles/code-snippets.html">Code Snippets</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -64,6 +67,9 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/tutorial-basic.html">Basic Tutorial</a>
+    </li>
+    <li>
+      <a href="../articles/tutorial-locations.html">Locations</a>
     </li>
     <li>
       <a href="../articles/tutorial-ggplot.html">ggplot Visualization</a>
@@ -100,13 +106,13 @@
 
       
 
-      </header><script src="troubleshooting_files/header-attrs-2.3/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Troubleshooting</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2020-11-02</h4>
+            <h4 class="date">2021-04-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/troubleshooting.Rmd"><code>vignettes/troubleshooting.Rmd</code></a></small>
       <div class="hidden name"><code>troubleshooting.Rmd</code></div>
@@ -139,7 +145,7 @@
 <span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">ex_res_data</span>
 <span class="va">r2</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
 <span class="fu"><a href="../reference/check.html">check</a></span><span class="op">(</span><span class="va">r1</span>, <span class="va">r2</span><span class="op">)</span>
-<span class="co">#&gt; Error in raster::compareRaster(a, b, values = TRUE): not all objects have the same values</span>
+<span class="co">#&gt; Error: NA mismatch in input data</span>
 
 
 <span class="co"># Change the dimensions of r2 by subsetting it. check() ensures that the data</span>
@@ -148,7 +154,7 @@
 <span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">ex_res_data</span>
 <span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">r2</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
 <span class="fu"><a href="../reference/check.html">check</a></span><span class="op">(</span><span class="va">r1</span>, <span class="va">r2</span><span class="op">)</span>
-<span class="co">#&gt; Error in raster::compareRaster(a, b, values = TRUE): different extent</span></pre></div>
+<span class="co">#&gt; Error: different extent in input data</span></pre></div>
 </div>
 <div id="unable-to-find-an-inherited-method" class="section level2">
 <h2 class="hasAnchor">

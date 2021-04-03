@@ -1,7 +1,7 @@
 Package: samc
 Type: Package
 Title: Spatial Absorbing Markov Chains
-Version: 1.2.1
+Version: 1.3.0
 Authors@R: c(
     person("Andrew", "Marx", , "andrewjmarx@ufl.edu", role = c("aut", "cre", "cph"), 
       comment = c(ORCID = "0000-0002-7456-1631")
@@ -43,12 +43,13 @@ RoxygenNote: 7.1.1
 Suggests: knitr,
     rmarkdown,
     testthat,
-    viridis
+    viridisLite
 VignetteBuilder: knitr
 Collate:
     'RcppExports.R'
     'samc-class.R'
     'check.R'
+    'location-class.R'
     'cond_passage.R'
     'data.R'
     'visitation.R'
@@ -58,6 +59,7 @@ Collate:
     'locate.R'
     'map.R'
     'mortality.R'
+    'pairwise.R'
     'samc.R'
     'survival.R'
 LinkingTo: Rcpp (>= 1.0.1), RcppEigen (>= 0.3.3.5.0)
