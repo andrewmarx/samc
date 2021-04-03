@@ -3,7 +3,7 @@
 - Fixed an issue with the check() function when data contains NA's.
 - Fixed an issue with the raster returned from locate(samc) having 0 for NA cells.
 - Improved error checking and messaging for the check() and locate() functions.
-- Named rows and columns for the P matrix is now supported. Previously, naming the rows and columns would cause some checks fail. If names are not manually assigned, the names are simply the row/column numbers converted to character strings.
+- Named rows and columns for the P matrix is now supported. Previously, naming the rows and columns would cause some checks to fail. If names are not manually assigned, the names are simply the row/column numbers converted to character strings.
 - Analytical functions updated to support named inputs for the origin and dest location parameters
 - When both the origin and dest parameter is used in a function, the inputs can be paired vectors.
 - Added the pairwise() utility function
