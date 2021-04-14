@@ -25,11 +25,6 @@ NULL
 #' is assumed that there is no site fidelity (i.e., individuals will always move
 #' to an adjacent cell each time step).
 #'
-#' The \code{latlon} parameter is required if the landscape data inputs are RasterLayer
-#' objects. The package does not attempt to determine this automatically, and it
-#' does not assume a default. Users must set it to \code{TRUE} if they are using
-#' latitude and longitude data.
-#'
 #' The \code{tr_fun} parameter is mandatory. It used when calculating the values for
 #' the transition matrix. Internally, this is passed to the \code{\link[gdistance]{transition}}
 #' function in the gdistance package to create the transition matrix.
@@ -105,7 +100,6 @@ NULL
 #' @param resistance A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param absorption A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param fidelity A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
-#' @param latlon Logical (\code{TRUE} or \code{FALSE}) indicating whether the rasters use latitude/longitude
 #' @param tr_fun A function to calculate the transition values in the \code{\link[gdistance]{transition}} function
 #' @param p_mat A base R \code{\link[base]{matrix}} object or Matrix package dgCMatrix sparse matrix
 #' @param override Optional flag to prevent accidentally running memory intensive functions. Defaults to \code{FALSE}
@@ -121,7 +115,7 @@ NULL
 
 setGeneric(
   "samc",
-  function(resistance, absorption, fidelity, latlon, tr_fun, p_mat, ...) {
+  function(resistance, absorption, fidelity, tr_fun, p_mat, ...) {
     standardGeneric("samc")
   })
 
@@ -131,13 +125,16 @@ setMethod(
   signature(resistance = "RasterLayer",
             absorption = "RasterLayer",
             fidelity = "RasterLayer",
-            latlon = "logical",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, fidelity, latlon, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
+  function(resistance, absorption, fidelity, tr_fun, override = FALSE, directions = 8, symm = TRUE, latlon) {
 
     if (!is.logical(override))
       stop("The override parameter must be set to TRUE or FALSE", call. = FALSE)
+
+    if (!missing(latlon)) {
+      warning("latlon is deprecated and no longer needed; please remove it.", call. = FALSE)
+    }
 
     # Make sure the input data all aligns
     check(resistance, absorption)
@@ -196,11 +193,16 @@ setMethod(
 
     # Create the transition matrix
     tr <- gdistance::transition(resistance, transitionFunction = tr_fun, directions, symm = symm)
-    if (latlon) {
+    if(directions == 8 || raster::isLonLat(resistance)) {
       tr <- gdistance::geoCorrection(tr, type = "c")
-    } else {
-      tr <- gdistance::geoCorrection(tr)
     }
+
+    if(is.na(raster::projection(resistance)) &&
+       ncol(resistance)/nrow(resistance) != raster::xres(resistance)/raster::yres(resistance)) {
+      warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
+    }
+
+
 
     tr_mat <- gdistance::transitionMatrix(tr)
 
@@ -252,15 +254,14 @@ setMethod(
   signature(resistance = "RasterLayer",
             absorption = "RasterLayer",
             fidelity = "missing",
-            latlon = "logical",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, latlon, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
+  function(resistance, absorption, tr_fun, override = FALSE, directions = 8, symm = TRUE, latlon) {
 
     fidelity <- resistance
     fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, latlon, tr_fun, override = override, directions = directions, symm = symm))
+    return(samc(resistance, absorption, fidelity, tr_fun, override = override, directions = directions, symm = symm, latlon = latlon))
   })
 
 #' @rdname samc
@@ -269,7 +270,6 @@ setMethod(
   signature(resistance = "matrix",
             absorption = "matrix",
             fidelity = "matrix",
-            latlon = "missing",
             tr_fun = "function",
             p_mat = "missing"),
   function(resistance, absorption, fidelity, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
@@ -280,7 +280,7 @@ setMethod(
 
     #fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, FALSE, tr_fun, override = override, directions = directions, symm = symm))
+    return(samc(resistance, absorption, fidelity, tr_fun, override = override, directions = directions, symm = symm))
   })
 
 #' @rdname samc
@@ -289,7 +289,6 @@ setMethod(
   signature(resistance = "matrix",
             absorption = "matrix",
             fidelity = "missing",
-            latlon = "missing",
             tr_fun = "function",
             p_mat = "missing"),
   function(resistance, absorption, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
@@ -297,7 +296,7 @@ setMethod(
     resistance <- .rasterize(resistance)
     absorption <- .rasterize(absorption)
 
-    return(samc(resistance, absorption, latlon = FALSE, tr_fun = tr_fun, override = override, directions = directions, symm = symm))
+    return(samc(resistance, absorption, tr_fun = tr_fun, override = override, directions = directions, symm = symm))
   })
 
 #' @rdname samc
@@ -306,7 +305,6 @@ setMethod(
   signature(resistance = "missing",
             absorption = "missing",
             fidelity = "missing",
-            latlon = "missing",
             tr_fun = "missing",
             p_mat = "dgCMatrix"),
   function(p_mat, override = FALSE) {
@@ -351,7 +349,6 @@ setMethod(
   signature(resistance = "missing",
             absorption = "missing",
             fidelity = "missing",
-            latlon = "missing",
             tr_fun = "missing",
             p_mat = "matrix"),
   function(p_mat, override = FALSE) {

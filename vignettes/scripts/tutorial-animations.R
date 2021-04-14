@@ -23,8 +23,7 @@ occ_data <- samc::ex_occ_data
 
 # Create a samc object using the resistance and absorption data. We use the
 # recipricol of the arithmetic mean for calculating the transition matrix. Note,
-# the input data here are matrices, not RasterLayers. If using RasterLayers, the
-# `latlon` parameter must be set.
+# the input data here are matrices, not RasterLayers.
 samc_obj <- samc(res_data, abs_data, tr_fun = function(x) 1/mean(x))
 
 

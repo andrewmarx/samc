@@ -63,8 +63,7 @@ The SAMC package makes use of R's S4 method dispatch system to enforce how the d
 
 ```{r, error = TRUE}
 # Example: Skipping optional arguments. In this case, the `fidelity` argument is
-# optional and the `latlon` argument doesn't apply because our input data are
-# matrices, so we skip them. The tr_fun argument, however, is always required, 
+# optional, so we skip it. The tr_fun argument, however, is always required, 
 # so we pass `function(x) 1/mean(x)` to it. But because we don't specify which
 # argument it is, R is trying to find a version of the function that expects it
 # as the third argument, but this version does not exist.

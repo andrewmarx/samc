@@ -1,6 +1,7 @@
 # Dev
 
 - Added `symm` parameter to samc() for transition functions
+- Updated long/lat handling in samc(). Deprecated `latlon` parameter. Added warning for rasters with non-square cells and missing projection.
 
 # samc 1.3.0
 
