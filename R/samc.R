@@ -197,8 +197,7 @@ setMethod(
       tr <- gdistance::geoCorrection(tr, type = "c")
     }
 
-    if(is.na(raster::projection(resistance)) &&
-       ncol(resistance)/nrow(resistance) != raster::xres(resistance)/raster::yres(resistance)) {
+    if(is.na(raster::projection(resistance)) && raster::xres(resistance) != raster::yres(resistance)) {
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 

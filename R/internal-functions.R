@@ -91,7 +91,7 @@
 #' @param x A matrix
 #' @noRd
 .rasterize <- function(x) {
-  return(raster::raster(x, xmn = 0.5, xmx = ncol(x) + 0.5, ymn = 0.5, ymx = nrow(x) + 0.5))
+  return(raster::raster(x, xmn = 0.5, xmx = ncol(x) + 0.5, ymn = 0.5, ymx = nrow(x) + 0.5, crs = NA))
 }
 
 
