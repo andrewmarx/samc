@@ -1,3 +1,7 @@
+# Dev
+
+- Added `symm` parameter to samc() for transition functions
+
 # samc 1.3.0
 
 - Fixed an issue with the check() function when data contains NA's.

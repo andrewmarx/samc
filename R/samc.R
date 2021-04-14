@@ -110,6 +110,7 @@ NULL
 #' @param p_mat A base R \code{\link[base]{matrix}} object or Matrix package dgCMatrix sparse matrix
 #' @param override Optional flag to prevent accidentally running memory intensive functions. Defaults to \code{FALSE}
 #' @param directions Optional param. Must be set to either 4 or 8 (default is 8)
+#' @param symm Optional param for specifying if the transition matrix should be symmetric. Defaults to \code{TRUE}
 #' @param ... Placeholder
 #'
 #' @return A spatial absorbing Markov chain object
@@ -133,7 +134,7 @@ setMethod(
             latlon = "logical",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, fidelity, latlon, tr_fun, override = FALSE, directions = 8) {
+  function(resistance, absorption, fidelity, latlon, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
 
     if (!is.logical(override))
       stop("The override parameter must be set to TRUE or FALSE", call. = FALSE)
@@ -194,7 +195,7 @@ setMethod(
 
 
     # Create the transition matrix
-    tr <- gdistance::transition(resistance, transitionFunction = tr_fun, directions)
+    tr <- gdistance::transition(resistance, transitionFunction = tr_fun, directions, symm = symm)
     if (latlon) {
       tr <- gdistance::geoCorrection(tr, type = "c")
     } else {
@@ -254,12 +255,12 @@ setMethod(
             latlon = "logical",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, latlon, tr_fun, override = FALSE, directions = 8) {
+  function(resistance, absorption, latlon, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
 
     fidelity <- resistance
     fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, latlon, tr_fun, override = override, directions = directions))
+    return(samc(resistance, absorption, fidelity, latlon, tr_fun, override = override, directions = directions, symm = symm))
   })
 
 #' @rdname samc
@@ -271,7 +272,7 @@ setMethod(
             latlon = "missing",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, fidelity, tr_fun, override = FALSE, directions = 8) {
+  function(resistance, absorption, fidelity, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
 
     resistance <- .rasterize(resistance)
     absorption <- .rasterize(absorption)
@@ -279,7 +280,7 @@ setMethod(
 
     #fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, FALSE, tr_fun, override = override, directions = directions))
+    return(samc(resistance, absorption, fidelity, FALSE, tr_fun, override = override, directions = directions, symm = symm))
   })
 
 #' @rdname samc
@@ -291,12 +292,12 @@ setMethod(
             latlon = "missing",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, tr_fun, override = FALSE, directions = 8) {
+  function(resistance, absorption, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
 
     resistance <- .rasterize(resistance)
     absorption <- .rasterize(absorption)
 
-    return(samc(resistance, absorption, latlon = FALSE, tr_fun = tr_fun, override = override, directions = directions))
+    return(samc(resistance, absorption, latlon = FALSE, tr_fun = tr_fun, override = override, directions = directions, symm = symm))
   })
 
 #' @rdname samc
