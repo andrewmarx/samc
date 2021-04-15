@@ -23,9 +23,9 @@ for(test in testlist) {
 
   # Run the tests
   test_that("Testing distribution(samc, time)", {
-    override(samc_obj) <- TRUE
+    samc_obj$override <- TRUE
     result <- distribution(samc_obj, time = time)
-    override(samc_obj) <- FALSE
+    samc_obj$override <- FALSE
 
     base_result <- Pt
 

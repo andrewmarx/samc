@@ -119,9 +119,9 @@ for(test in testlist) {
   })
 
   test_that("Testing dispersal(samc)", {
-    override(samc_obj) <- TRUE
+    samc_obj$override <- TRUE
     result <- dispersal(samc_obj)
-    override(samc_obj) <- FALSE
+    samc_obj$override <- FALSE
 
     base_result <- (f - I) %*% fdg
 
