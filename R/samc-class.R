@@ -36,6 +36,15 @@
 #'   starting with scaled down versions of their data and then gradually scale
 #'   back up while monitoring their memory usage to guage what their system can
 #'   handle.
+#'
+#'   \item \strong{q_matrix}
+#'
+#'   Advanced users may wish to have direct access to the Q matrix for developing
+#'   custom calculations/analyses. Assumptions should not be made about the internal
+#'   structure of the P and Q matrices in the samc-class, nor should it be assumed
+#'   that they will not change in the future. To safely access the Q matrix, use
+#'   \code{samc_obj$q_matrix}. The Q matrix inside of the samc-class cannot be
+#'   modified
 #' }
 #'
 #' @slot p The transition probability matrix \emph{P}.
@@ -70,6 +79,8 @@ setClass(
 setMethod("$", signature(x = "samc"), function(x, name) {
   if(name == "override"){
     return(x@override)
+  } else if (name == "q_matrix"){
+    return(samc@p[-nrow(samc@p), -nrow(samc@p)])
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
@@ -79,6 +90,8 @@ setMethod("$", signature(x = "samc"), function(x, name) {
 setMethod("$<-", signature(x = "samc"), function(x, name, value) {
   if (name == "override") {
     x@override <- value
+  } else if (name == "q_matrix"){
+    warning("Cannot modify the Q matrix.", call. = FALSE)
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
