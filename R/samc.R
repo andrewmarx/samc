@@ -56,18 +56,6 @@ NULL
 #'
 #' \strong{Other Parameters}
 #'
-#' The \code{override} parameter is optional. To prevent users from unintentionally
-#' running memory intensive versions of functions that could make their systems
-#' non-responsive or crash software, it is set to \code{FALSE} by default. For various
-#' reasons, it can be set to \code{TRUE}. In particular, a user might do this if they
-#' are using a very small landscape dataset, or perhaps for a moderately sized
-#' dataset if they have access to a system with exceptionally large amounts of
-#' RAM. Before setting this to \code{TRUE}, users should read the Performance vignette/
-#' article to understand the expected memory requirements. They should also
-#' consider starting with scaled down version of their data and then gradually
-#' scaling back up while monitoring their memory usage as a means to gauge what
-#' is reasonable for their system.
-#'
 #' The \code{directions} parameter is optional. When constructing the P matrix from
 #' matrix or raster data, the \code{samc()} function must decide how adjacent cells are
 #' connected. This value can be set to either 4 or 8. When set to 4, nodes are
@@ -102,9 +90,10 @@ NULL
 #' @param fidelity A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param tr_fun A function to calculate the transition values in the \code{\link[gdistance]{transition}} function
 #' @param p_mat A base R \code{\link[base]{matrix}} object or Matrix package dgCMatrix sparse matrix
-#' @param override Optional flag to prevent accidentally running memory intensive functions. Defaults to \code{FALSE}
 #' @param directions Optional param. Must be set to either 4 or 8 (default is 8)
 #' @param symm Optional param for specifying if the transition matrix should be symmetric. Defaults to \code{TRUE}
+#' @param latlon Deprecated. No longer needed.
+#' @param override Deprecated. See \code{\link{samc-class}} for the alternative.
 #' @param ... Placeholder
 #'
 #' @return A spatial absorbing Markov chain object
@@ -127,10 +116,10 @@ setMethod(
             fidelity = "RasterLayer",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, fidelity, tr_fun, override = FALSE, directions = 8, symm = TRUE, latlon) {
+  function(resistance, absorption, fidelity, tr_fun, directions = 8, symm = TRUE, latlon, override) {
 
-    if (!is.logical(override))
-      stop("The override parameter must be set to TRUE or FALSE", call. = FALSE)
+    if (!missing(override))
+      warning("The override parameter is deprecated. See the samc-class documentation for more details.", call. = FALSE)
 
     if (!missing(latlon)) {
       warning("latlon is deprecated and no longer needed; please remove it.", call. = FALSE)
@@ -242,7 +231,7 @@ setMethod(
       stop("Column names must be unique")
 
     # Assemble final
-    samc_mat <- methods::new("samc", p = p, source = "map", map = m, clumps = clumps, override = override)
+    samc_mat <- methods::new("samc", p = p, source = "map", map = m, clumps = clumps, override = FALSE)
 
     return(samc_mat)
   })
@@ -255,12 +244,12 @@ setMethod(
             fidelity = "missing",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, tr_fun, override = FALSE, directions = 8, symm = TRUE, latlon) {
+  function(resistance, absorption, tr_fun, directions = 8, symm = TRUE, latlon, override) {
 
     fidelity <- resistance
     fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, tr_fun, override = override, directions = directions, symm = symm, latlon = latlon))
+    return(samc(resistance, absorption, fidelity, tr_fun, directions = directions, symm = symm, latlon = latlon, override = override))
   })
 
 #' @rdname samc
@@ -271,7 +260,7 @@ setMethod(
             fidelity = "matrix",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, fidelity, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
+  function(resistance, absorption, fidelity, tr_fun, directions = 8, symm = TRUE, override) {
 
     resistance <- .rasterize(resistance)
     absorption <- .rasterize(absorption)
@@ -279,7 +268,7 @@ setMethod(
 
     #fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, tr_fun, override = override, directions = directions, symm = symm))
+    return(samc(resistance, absorption, fidelity, tr_fun, directions = directions, symm = symm, override = override))
   })
 
 #' @rdname samc
@@ -290,12 +279,12 @@ setMethod(
             fidelity = "missing",
             tr_fun = "function",
             p_mat = "missing"),
-  function(resistance, absorption, tr_fun, override = FALSE, directions = 8, symm = TRUE) {
+  function(resistance, absorption, tr_fun, directions = 8, symm = TRUE, override) {
 
     resistance <- .rasterize(resistance)
     absorption <- .rasterize(absorption)
 
-    return(samc(resistance, absorption, tr_fun = tr_fun, override = override, directions = directions, symm = symm))
+    return(samc(resistance, absorption, tr_fun = tr_fun, directions = directions, symm = symm, override = override))
   })
 
 #' @rdname samc
@@ -306,7 +295,11 @@ setMethod(
             fidelity = "missing",
             tr_fun = "missing",
             p_mat = "dgCMatrix"),
-  function(p_mat, override = FALSE) {
+  function(p_mat, override) {
+
+    if (!missing(override))
+      warning("The override parameter is deprecated. See the samc_opt() function instead.", call. = FALSE)
+
     r = nrow(p_mat)
     c = ncol(p_mat)
 
@@ -337,7 +330,7 @@ setMethod(
                              source = "matrix",
                              map = raster::raster(matrix()),
                              clumps = 1,
-                             override = override)
+                             override = FALSE)
 
     return(samc_obj)
   })
@@ -350,8 +343,26 @@ setMethod(
             fidelity = "missing",
             tr_fun = "missing",
             p_mat = "matrix"),
-  function(p_mat, override = FALSE) {
+  function(p_mat, override) {
     p <- as(p_mat, "dgCMatrix")
 
     return(samc(p_mat = p, override = override))
   })
+
+
+
+# #' @rdname samc
+# `samc_opt<-` <- function(x, option, value) {
+#   if (!is(x, "samc")) stop("x must be an samc-class object created with the samc() function.", call. = FALSE)
+#
+#   if(option == "override") {
+#     if (is.logical(value)) {
+#       x@override <- value
+#     } else {
+#       stop("The override option must be set to TRUE/FALSE.")
+#     }
+#   } else {
+#     stop("Invalid option specified.", call. = FALSE)
+#   }
+# }
+

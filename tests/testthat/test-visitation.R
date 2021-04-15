@@ -16,7 +16,9 @@ for(test in testlist) {
 
   # Run the tests
   test_that("Testing visitation(samc)", {
+    override(samc_obj) <- TRUE
     r <- visitation(samc_obj)
+    override(samc_obj) <- FALSE
 
     expect_equal(dim(r), dim(base_result))
     expect_equal(as.vector(r), as.vector(base_result))

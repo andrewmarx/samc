@@ -20,7 +20,7 @@ NULL
 #' dies.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
-#' override to use.
+#' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{visitation(samc, origin)}
 #'
@@ -68,7 +68,7 @@ setMethod(
   signature(samc = "samc", origin = "missing", dest = "missing"),
   function(samc){
     if (!samc@override)
-      stop("This version of the visitation() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
+      stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
     q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
     q@x <- -q@x

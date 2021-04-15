@@ -23,7 +23,10 @@ for(test in testlist) {
 
   # Run the tests
   test_that("Testing distribution(samc, time)", {
+    override(samc_obj) <- TRUE
     result <- distribution(samc_obj, time = time)
+    override(samc_obj) <- FALSE
+
     base_result <- Pt
 
     expect_equal(dim(result), dim(base_result))

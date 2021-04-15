@@ -24,7 +24,9 @@ for(test in testlist) {
 
   # Run the tests
   test_that("Testing mortality(samc, time)", {
+    override(samc_obj) <- TRUE
     result <- mortality(samc_obj, time = time)
+    override(samc_obj) <- FALSE
 
     base_result <- diag(nrow(Q))
 
@@ -207,7 +209,9 @@ for(test in testlist) {
   })
 
   test_that("Testing mortality(samc)", {
+    override(samc_obj) <- TRUE
     result <- mortality(samc_obj)
+    override(samc_obj) <- FALSE
 
     base_result <- solve(I - Q) %*% R
 

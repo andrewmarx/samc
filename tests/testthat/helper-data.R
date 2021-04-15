@@ -104,7 +104,7 @@ for(i in 1: length(masklist)) {
 
   testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
 
-  testlist[[i]]$samc <- samc(testlist[[i]]$res, testlist[[i]]$abs, testlist[[i]]$fid, tr_fun = function(x) 1/mean(x), override = TRUE)
+  testlist[[i]]$samc <- samc(testlist[[i]]$res, testlist[[i]]$abs, testlist[[i]]$fid, tr_fun = function(x) 1/mean(x))
 
   testlist[[i]]$id <- i
 }

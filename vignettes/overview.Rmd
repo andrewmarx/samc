@@ -73,20 +73,7 @@ plot(raster(samc::ex_occ_data, xmn = 1, xmx = ncol(samc::ex_occ_data), ymn = 1, 
 
 ## The `samc-class`
 
-The `samc-class` is used to manage the transition matrix and information about your landscape data to help ensure that the calculations used by the rest of the package are used correctly. Creating an `samc-class` object is the mandatory first step in the package, and is created using the `samc()` utility function. The `samc()` function has several parameters. Some of these are mandatory, some are only mandatory in certain situations, and some are optional. The overall function signature is as follows:
-```r
-samc(resistance, absorption, fidelity, tr_fun, p_mat, ...)
-```
-
-An explanation of the arguments:
-
-* `resistance` and `absorption` are always mandatory, and must meet the data requirements in the Data section above.
-* `fidelity` is optional. If included, it must meet the data requirements outlined in the Data section above.
-* `tr_fun` is always mandatory. It is used to create the transition matrix.
-* `directions` is an optional parameter. It can be used to set how adjacent cells are connected.
-* `override` is an optional parameter. It is used to control whether or not memory intensive functions can be run on the data. By default it is set to `FALSE` to prevent users from accidentally running these functions, which can potentially crash R if the computer does not have enough memory. The function documentation provides specific details for which calculations need the override, but in general it will rarely be useful for users and should be left off.
-
-The `p_mat` parameter provides an alternative method for creating a `samc-class` directly from a preconstructed P matrix. See the `samc()` documentation for more details.
+The `samc-class` is used to manage the transition matrix and information about your landscape data to help ensure that the calculations used by the rest of the package are used correctly. Creating an `samc-class` object is the mandatory first step in the package, and is created using the `samc()` utility function. The `samc()` function has several parameters that provide a number of different options for constructing the P matrix that is at the core of the `samc-class`.
 
 
 ## Utility Functions

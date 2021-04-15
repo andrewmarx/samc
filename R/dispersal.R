@@ -38,7 +38,7 @@ NULL
 #' that location \emph{j} is visited when starting in location \emph{i}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
-#' override to use.
+#' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{dispersal(samc, origin)}
 #'
@@ -170,7 +170,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
     if (!samc@override)
-      stop("This version of the dispersal() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
+      stop("This version of the dispersal() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
     f <- visitation(samc)
     gc()

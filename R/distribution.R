@@ -18,7 +18,7 @@ NULL
 #' at location j after t time steps if starting at location i.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
-#' override to use.
+#' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{distribution(samc, origin, time)}
 #'
@@ -78,7 +78,7 @@ setMethod(
   function(samc, time) {
 
     if (!samc@override)
-      stop("This version of the distribution() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
+      stop("This version of the distribution() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
       stop("The time argument must be a single positive integer", call. = FALSE)
