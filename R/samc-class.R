@@ -44,7 +44,7 @@
 #'   structure of the P and Q matrices in the samc-class, nor should it be assumed
 #'   that they will not change in the future. To safely access the Q matrix, use
 #'   \code{samc_obj$q_matrix}. The Q matrix inside of the samc-class cannot be
-#'   modified
+#'   modified.
 #' }
 #'
 #' @slot p The transition probability matrix \emph{P}.
@@ -80,7 +80,7 @@ setMethod("$", signature(x = "samc"), function(x, name) {
   if(name == "override"){
     return(x@override)
   } else if (name == "q_matrix"){
-    return(samc@p[-nrow(samc@p), -nrow(samc@p)])
+    return(x@p[-nrow(x@p), -nrow(x@p)])
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
