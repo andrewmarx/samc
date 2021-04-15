@@ -13,13 +13,13 @@
 #' that users are less likely to inadvertently alter it in a way that will cause
 #' issues in calculations.
 #'
-#' The \code{\link{samc()}} function is used to create \code{\link{samc-class}}
+#' The \code{\link{samc}} function is used to create \code{\link{samc-class}}
 #' objects.
 #'
 #' The samc-class slots are subject to change, so users should not be using the
 #' \code{@} operator to access or change them. Doing so leads to the risk of broken
 #' code in the future. Instead, where relevant, the \code{$} operator can be used
-#' to get and set values in the class safely. This is a current list of what can
+#' to get and set components of the class safely. This is a current list of what can
 #' be accessed and modified in the class:
 #'
 #' \itemize{
@@ -53,7 +53,6 @@
 #' @slot clumps Number of discontinuous regions in data
 #' @slot override Used to prevent accidental use of memory intensive functions.
 
-
 setClass(
   # set the name of the class
   "samc",
@@ -74,26 +73,3 @@ setClass(
   #   return(TRUE)
   # }
   )
-
-
-setMethod("$", signature(x = "samc"), function(x, name) {
-  if(name == "override"){
-    return(x@override)
-  } else if (name == "q_matrix"){
-    return(x@p[-nrow(x@p), -nrow(x@p)])
-  } else {
-    warning("Invalid object specified.", call. = FALSE)
-  }
-  return(NULL)
-})
-
-setMethod("$<-", signature(x = "samc"), function(x, name, value) {
-  if (name == "override") {
-    x@override <- value
-  } else if (name == "q_matrix"){
-    warning("Cannot modify the Q matrix.", call. = FALSE)
-  } else {
-    warning("Invalid object specified.", call. = FALSE)
-  }
-  return(x)
-})

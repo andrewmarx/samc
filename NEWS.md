@@ -2,7 +2,8 @@
 
 - Added symm parameter to samc() for transition functions
 - Updated long/lat handling in samc(). Deprecated latlon parameter. Added warning for rasters with non-square cells and missing projection.
-- Deprecated override parameter in the samc() function. Added override() get/set methods for samc-class objects. See documentation for samc-class for details.
+- Deprecated override parameter in the samc() function. See samc-class documentation for details.
+- Added the ability to use the $ operator for accessing and modifying components of samc-class objects. See samc-class documentation for details.
 
 # samc 1.3.0
 

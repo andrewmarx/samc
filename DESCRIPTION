@@ -55,6 +55,7 @@ Collate:
     'visitation.R'
     'dispersal.R'
     'distribution.R'
+    'generics.R'
     'internal-functions.R'
     'locate.R'
     'map.R'
