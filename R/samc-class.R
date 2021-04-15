@@ -18,19 +18,20 @@
 #'
 #' The samc-class slots are subject to change, so users should not be using the
 #' \code{@} operator to access or change them. Doing so leads to the risk of broken
-#' code in the future. Instead, where relevant, special functions are supplied to
-#' get and set the values in the slots safely. This is a current list:
+#' code in the future. Instead, where relevant, the \code{$} operator can be used
+#' to get and set values in the class safely. This is a current list of what can
+#' be accessed and modified in the class:
 #'
 #' \itemize{
-#'   \item \code{override()}
+#'   \item \strong{override}
 #'
 #'   Some analyses are memory intensive and have the potential to make a user's
 #'   system non-responsive or crash. By default, a samc-class object cannot be used
 #'   in these analyses to prevent unintentional loss of work. In some cases, users
 #'   may wish to use these particular analyses, in which case this behavior can
-#'   be overridden. To get the current state of the override, use \code{override(samc)}.
-#'   To enable the use of the analyses, the override can be set to \code{TRUE}, for example:
-#'   \code{override(samc) <- TRUE}. Before enabling the override, users should
+#'   be overridden. To get the current state of the override, use \code{samc_obj$override}.
+#'   To enable the use of the analyses, the override can be set to \code{TRUE} using
+#'   \code{samc_obj$override <- TRUE}. Before enabling the override, users should
 #'   familiarize themselves with the Performance vignette. They should also consider
 #'   starting with scaled down versions of their data and then gradually scale
 #'   back up while monitoring their memory usage to guage what their system can
@@ -65,46 +66,21 @@ setClass(
   # }
   )
 
-setGeneric("override",
-           function(samc) {
-             standardGeneric("override")
-           })
 
-setMethod("override",
-          signature(samc = "samc"),
-          function(samc) {
-            return(samc@override)
-          })
+setMethod("$", signature(x = "samc"), function(x, name) {
+  if(name == "override"){
+    return(x@override)
+  } else {
+    warning("Invalid object specified.", call. = FALSE)
+  }
+  return(NULL)
+})
 
-setGeneric("override<-",
-           function(samc, value) {
-             standardGeneric("override<-")
-           })
-
-setMethod("override<-",
-          signature(samc = "samc", value = "logical"),
-          function(samc, value) {
-            samc@override <- value
-            return(samc)
-          })
-
-
-
-# setMethod( "$<-", signature(x = "samc"), function(x, name, value) {
-#   if(name=="override"){
-#     x@override <- value
-#   } else {
-#     warning("Invalid option name specified.", call. = FALSE)
-#   }
-#   return(x)
-# })
-#
-#
-# setMethod( "$", signature(x = "samc"), function(x, name) {
-#   if(name=="override"){
-#     return(x@override)
-#   } else {
-#     warning("Invalid option name specified.", call. = FALSE)
-#   }
-#   return(NULL)
-# })
+setMethod("$<-", signature(x = "samc"), function(x, name, value) {
+  if (name == "override") {
+    x@override <- value
+  } else {
+    warning("Invalid object specified.", call. = FALSE)
+  }
+  return(x)
+})
