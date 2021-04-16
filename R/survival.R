@@ -17,7 +17,7 @@ NULL
 #' The result is a vector where each element corresponds to a cell in the
 #' landscape, and can be mapped back to the landscape using the
 #' \code{\link{map}} function. The value of element \emph{i} is the expected
-#' amount of time that individuals survive when starting at location \emph{j}.
+#' amount of time that individuals survive when starting at location \emph{i}.
 #' }
 #'
 #' \eqn{\psi^Tz}
