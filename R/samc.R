@@ -365,28 +365,34 @@ setMethod(
     return(samc(data, absorption, fidelity, tr_fun = tr_fun, directions = directions, symm = symm, latlon = latlon, override = override))
   })
 
+
+# P matrix inputs
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "dgCMatrix",
             absorption = "missing",
             fidelity = "missing",
-            tr_fun = "missing",
-            p_mat = "dgCMatrix"),
-  function(p_mat, override) {
+            tr_fun = "missing"),
+  function(data, override) {
 
     if (!missing(override))
       warning("The override parameter is deprecated. See the samc_opt() function instead.", call. = FALSE)
 
-    r = nrow(p_mat)
-    c = ncol(p_mat)
+    r = nrow(data)
+    c = ncol(data)
 
     if (c != r) stop("Matrix is not square", call. = FALSE)
-    if (p_mat[r, c] != 1) stop("The last element must be 1", call. = FALSE)
-    if (sum(p_mat[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element", call. = FALSE)
-    if (!isTRUE(all.equal(Matrix::rowSums(p_mat), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
+    if (data[r, c] != 1) stop("The last element must be 1", call. = FALSE)
+    if (sum(data[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element", call. = FALSE)
+    if (!isTRUE(all.equal(Matrix::rowSums(data), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
-    if (is.null(rownames(p_mat))) rownames(p_mat) <- 1:r
-    if (is.null(colnames(p_mat))) colnames(p_mat) <- 1:c
+    if (is.null(rownames(data))) rownames(data) <- 1:r
+    if (is.null(colnames(data))) colnames(data) <- 1:c
 
-    rn <- rownames(p_mat)[-r]
-    cn <- colnames(p_mat)[-r]
+    rn <- rownames(data)[-r]
+    cn <- colnames(data)[-r]
 
     if (!isTRUE(all.equal(rn, cn)))
       stop("The row and col names of the Q matrix must be identical", call. = FALSE)
@@ -400,7 +406,7 @@ setMethod(
     print("2) Every disconnected region of the graph must have at least one non-zero absorption value.")
     # TODO The clumps value is a placeholder and needs to be calculated as a safety check for the cond_passage() function
     samc_obj <- methods::new("samc",
-                             p = p_mat,
+                             p = data,
                              source = "matrix",
                              map = raster::raster(matrix()),
                              clumps = 1,
@@ -412,31 +418,29 @@ setMethod(
 #' @rdname samc
 setMethod(
   "samc",
-  signature(resistance = "missing",
+  signature(data = "matrix",
             absorption = "missing",
             fidelity = "missing",
-            tr_fun = "missing",
-            p_mat = "matrix"),
-  function(p_mat, override) {
-    p <- as(p_mat, "dgCMatrix")
+            tr_fun = "missing"),
+  function(data, override) {
+    p <- methods::as(data, "dgCMatrix")
 
-    return(samc(p_mat = p, override = override))
+    return(samc(data = p, override = override))
   })
 
-
-
-# #' @rdname samc
-# `samc_opt<-` <- function(x, option, value) {
-#   if (!is(x, "samc")) stop("x must be an samc-class object created with the samc() function.", call. = FALSE)
-#
-#   if(option == "override") {
-#     if (is.logical(value)) {
-#       x@override <- value
-#     } else {
-#       stop("The override option must be set to TRUE/FALSE.")
-#     }
-#   } else {
-#     stop("Invalid option specified.", call. = FALSE)
-#   }
-# }
-
+# TODO: stop-gap for parameter changes. Remove in future version.
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "missing",
+            absorption = "missing",
+            fidelity = "missing",
+            tr_fun = "missing"),
+  function(p_mat, override) {
+    if (!missing(p_mat)) {
+      warning("The p_mat parameter is deprecated. Use the data parameter instead. See samc() documentation for details.", call. = FALSE)
+      return(samc(data = p_mat, override = override))
+    } else {
+      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
+    }
+  })
