@@ -85,13 +85,15 @@ NULL
 #' crashes.
 #'
 #'
-#' @param resistance A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
+#' @param data A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}} or Matrix package dgCMatrix sparse matrix.
 #' @param absorption A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param fidelity A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param tr_fun A function to calculate the transition values in the \code{\link[gdistance]{transition}} function
-#' @param p_mat A base R \code{\link[base]{matrix}} object or Matrix package dgCMatrix sparse matrix
 #' @param directions Optional param. Must be set to either 4 or 8 (default is 8)
 #' @param symm Optional param for specifying if the transition matrix should be symmetric. Defaults to \code{TRUE}
+#'
+#' @param resistance Deprecated. Use the `data` parameter.
+#' @param p_mat Deprecated. Use the `data` parameter.
 #' @param latlon Deprecated. No longer needed.
 #' @param override Deprecated. See \code{\link{samc-class}} for the alternative.
 #' @param ... Placeholder
@@ -104,7 +106,7 @@ NULL
 
 setGeneric(
   "samc",
-  function(resistance, absorption, fidelity, tr_fun, p_mat, ...) {
+  function(data, absorption, fidelity, tr_fun, ...) {
     standardGeneric("samc")
   })
 
