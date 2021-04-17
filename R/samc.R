@@ -113,12 +113,11 @@ setGeneric(
 #' @rdname samc
 setMethod(
   "samc",
-  signature(resistance = "RasterLayer",
+  signature(data = "RasterLayer",
             absorption = "RasterLayer",
             fidelity = "RasterLayer",
-            tr_fun = "function",
-            p_mat = "missing"),
-  function(resistance, absorption, fidelity, tr_fun, directions = 8, symm = TRUE, latlon, override) {
+            tr_fun = "function"),
+  function(data, absorption, fidelity, tr_fun, directions = 8, symm = TRUE, latlon, override) {
 
     if (!missing(override))
       warning("The override parameter is deprecated. See the samc-class documentation for more details.", call. = FALSE)
@@ -128,11 +127,11 @@ setMethod(
     }
 
     # Make sure the input data all aligns
-    check(resistance, absorption)
-    check(resistance, fidelity)
+    check(data, absorption)
+    check(data, fidelity)
 
-    if (any(resistance[] <= 0, na.rm = TRUE)) {
-      stop("The resistance data must not have values <= 0", call. = FALSE)
+    if (any(data[] <= 0, na.rm = TRUE)) {
+      stop("The data must not have values <= 0", call. = FALSE)
     }
 
     if (any(absorption[] < 0, na.rm = TRUE)) {
@@ -164,7 +163,7 @@ setMethod(
     }
 
     # Create map template
-    m <- resistance
+    m <- data
     m[] <- is.finite(m[])
 
     # Check for "clumps"
@@ -183,12 +182,12 @@ setMethod(
 
 
     # Create the transition matrix
-    tr <- gdistance::transition(resistance, transitionFunction = tr_fun, directions, symm = symm)
-    if(directions == 8 || raster::isLonLat(resistance)) {
+    tr <- gdistance::transition(data, transitionFunction = tr_fun, directions, symm = symm)
+    if(directions == 8 || raster::isLonLat(data)) {
       tr <- gdistance::geoCorrection(tr, type = "c")
     }
 
-    if(is.na(raster::projection(resistance)) && raster::xres(resistance) != raster::yres(resistance)) {
+    if(is.na(raster::projection(data)) && raster::xres(data) != raster::yres(data)) {
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 
@@ -241,58 +240,131 @@ setMethod(
 #' @rdname samc
 setMethod(
   "samc",
-  signature(resistance = "RasterLayer",
+  signature(data = "RasterLayer",
             absorption = "RasterLayer",
             fidelity = "missing",
-            tr_fun = "function",
-            p_mat = "missing"),
-  function(resistance, absorption, tr_fun, directions = 8, symm = TRUE, latlon, override) {
+            tr_fun = "function"),
+  function(data, absorption, tr_fun, directions = 8, symm = TRUE, latlon, override) {
 
-    fidelity <- resistance
+    fidelity <- data
     fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, tr_fun, directions = directions, symm = symm, latlon = latlon, override = override))
+    return(samc(data, absorption, fidelity, tr_fun, directions = directions, symm = symm, latlon = latlon, override = override))
   })
 
 #' @rdname samc
 setMethod(
   "samc",
-  signature(resistance = "matrix",
+  signature(data = "matrix",
             absorption = "matrix",
             fidelity = "matrix",
-            tr_fun = "function",
-            p_mat = "missing"),
-  function(resistance, absorption, fidelity, tr_fun, directions = 8, symm = TRUE, override) {
+            tr_fun = "function"),
+  function(data, absorption, fidelity, tr_fun, directions = 8, symm = TRUE, override) {
 
-    resistance <- .rasterize(resistance)
+    data <- .rasterize(data)
     absorption <- .rasterize(absorption)
     fidelity <- .rasterize(fidelity)
 
     #fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(resistance, absorption, fidelity, tr_fun, directions = directions, symm = symm, override = override))
+    return(samc(data, absorption, fidelity, tr_fun, directions = directions, symm = symm, override = override))
   })
 
 #' @rdname samc
 setMethod(
   "samc",
-  signature(resistance = "matrix",
+  signature(data = "matrix",
             absorption = "matrix",
             fidelity = "missing",
-            tr_fun = "function",
-            p_mat = "missing"),
-  function(resistance, absorption, tr_fun, directions = 8, symm = TRUE, override) {
+            tr_fun = "function"),
+  function(data, absorption, tr_fun, directions = 8, symm = TRUE, override) {
 
-    resistance <- .rasterize(resistance)
+    data <- .rasterize(data)
     absorption <- .rasterize(absorption)
 
-    return(samc(resistance, absorption, tr_fun = tr_fun, directions = directions, symm = symm, override = override))
+    return(samc(data, absorption, tr_fun = tr_fun, directions = directions, symm = symm, override = override))
   })
 
+# TODO: stop-gap for parameter changes. Remove in future version.
 #' @rdname samc
 setMethod(
   "samc",
-  signature(resistance = "missing",
+  signature(data = "missing",
+            absorption = "matrix",
+            fidelity = "missing",
+            tr_fun = "function"),
+  function(absorption, fidelity, tr_fun, directions = 8, symm = TRUE, override, resistance) {
+
+    if (!missing(resistance)) {
+      warning("The resistance parameter is depcrecated. Use the data parameter instead", call. = FALSE)
+      data <- resistance
+    } else {
+      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
+    }
+
+    return(samc(data, absorption, tr_fun = tr_fun, directions = directions, symm = symm, override = override))
+  })
+
+# TODO: stop-gap for parameter changes. Remove in future version.
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "missing",
+            absorption = "RasterLayer",
+            fidelity = "missing",
+            tr_fun = "function"),
+  function(absorption, fidelity, tr_fun, directions = 8, symm = TRUE, override, resistance, latlon) {
+
+    if (!missing(resistance)) {
+      warning("The resistance parameter is depcrecated. Use the data parameter instead", call. = FALSE)
+      data <- resistance
+    } else {
+      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
+    }
+
+    return(samc(data, absorption, tr_fun = tr_fun, directions = directions, symm = symm, latlon = latlon, override = override))
+  })
+
+# TODO: stop-gap for parameter changes. Remove in future version.
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "missing",
+            absorption = "matrix",
+            fidelity = "matrix",
+            tr_fun = "function"),
+  function(absorption, fidelity, tr_fun, directions = 8, symm = TRUE, override, resistance) {
+
+    if (!missing(resistance)) {
+      warning("The resistance parameter is depcrecated. Use the data parameter instead", call. = FALSE)
+      data <- resistance
+    } else {
+      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
+    }
+
+    return(samc(data, absorption, fidelity, tr_fun = tr_fun, directions = directions, symm = symm, override = override))
+  })
+
+# TODO: stop-gap for parameter changes. Remove in future version.
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "missing",
+            absorption = "RasterLayer",
+            fidelity = "RasterLayer",
+            tr_fun = "function"),
+  function(absorption, fidelity, tr_fun, directions = 8, symm = TRUE, override, resistance, latlon) {
+
+    if (!missing(resistance)) {
+      warning("The resistance parameter is depcrecated. Use the data parameter instead", call. = FALSE)
+      data <- resistance
+    } else {
+      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
+    }
+
+    return(samc(data, absorption, fidelity, tr_fun = tr_fun, directions = directions, symm = symm, latlon = latlon, override = override))
+  })
+
             absorption = "missing",
             fidelity = "missing",
             tr_fun = "missing",
