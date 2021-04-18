@@ -63,4 +63,5 @@ Collate:
     'pairwise.R'
     'samc.R'
     'survival.R'
+    'zzz.R'
 LinkingTo: Rcpp (>= 1.0.1), RcppEigen (>= 0.3.3.5.0)

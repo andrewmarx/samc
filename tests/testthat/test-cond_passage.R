@@ -37,7 +37,7 @@ for(test in testlist) {
   samc_obj <- test$samc
 
   # Create a version from P matrix
-  samc_p <- samc(p_mat = samc_obj@p)
+  samc_p <- samc(samc_obj@p)
 
   # Run the tests
   test_that("Testing cond_passage(samc, dest)", {

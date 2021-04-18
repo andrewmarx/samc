@@ -18,10 +18,15 @@ abs_data <- samc::ex_abs_data
 occ_data <- samc::ex_occ_data
 
 
+# Setup the details for our transition function
+tr <- list(fun = function(x) 1/mean(x), # Function for calculating transition probabilities
+           dir = 8, # Directions of the transitions. Either 4 or 8.
+           sym = TRUE) # Is the function symmetric?
+
 # Create a samc object using the resistance and absorption data. We use the
 # recipricol of the arithmetic mean for calculating the transition matrix. Note,
 # the input data here are matrices, not RasterLayers.
-samc_obj <- samc(res_data, abs_data, tr_fun = function(x) 1/mean(x))
+samc_obj <- samc(res_data, abs_data, tr_args = tr)
 
 
 # Convert the occupancy data to probability of occurrence
