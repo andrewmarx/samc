@@ -1,4 +1,4 @@
-# Copyright (c) 2020 Andrew Marx. All rights reserved.
+# Copyright (c) 2021 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R
@@ -24,6 +24,8 @@ setMethod("$", signature(x = "samc"), function(x, name) {
     return(x@override)
   } else if (name == "q_matrix"){
     return(x@p[-nrow(x@p), -nrow(x@p)])
+  } else if (name == "p_matrix") {
+    return(x@p)
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
@@ -51,7 +53,9 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
   if (name == "override") {
     x@override <- value
   } else if (name == "q_matrix"){
-    warning("Cannot modify the Q matrix.", call. = FALSE)
+    warning("Cannot modify the Q matrix this way.", call. = FALSE)
+  } else if (name == "p_matrix"){
+    warning("Cannot modify the P matrix this way.", call. = FALSE)
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
