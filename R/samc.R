@@ -20,7 +20,7 @@ NULL
 #' properties, including dimensions, location of NA cells, and CRS (if using
 #' RasterLayers). Some of the inputs are mandatory, whereas others are optional.
 #'
-#' The \code{resistance} and \code{absorption} inputs are always mandatory, whereas the
+#' The \code{data} and \code{absorption} inputs are always mandatory, whereas the
 #' \code{fidelity} input is optional. If the \code{fidelity} input is not provided, then it it
 #' is assumed that there is no site fidelity (i.e., individuals will always move
 #' to an adjacent cell each time step).
@@ -31,7 +31,7 @@ NULL
 #'
 #' \strong{Option 2: P Matrix Input}
 #'
-#' The \code{p_mat} parameter can be used to create a \code{\link{samc-class}} object
+#' The \code{data} parameter can be used alone to create a \code{\link{samc-class}} object
 #' directly from a preconstructed P matrix. This matrix must be either a base R
 #' matrix, or a sparse matrix (dgCMatrix format) from the Matrix package. It
 #' must meet the requirement of a P matrix described in Fletcher et al. (2019).
@@ -92,8 +92,8 @@ NULL
 #' @param directions Optional param. Must be set to either 4 or 8 (default is 8)
 #' @param symm Optional param for specifying if the transition matrix should be symmetric. Defaults to \code{TRUE}
 #'
-#' @param resistance Deprecated. Use the `data` parameter.
-#' @param p_mat Deprecated. Use the `data` parameter.
+#' @param resistance Deprecated. Use the \code{data} parameter.
+#' @param p_mat Deprecated. Use the \code{data} parameter.
 #' @param latlon Deprecated. No longer needed.
 #' @param override Deprecated. See \code{\link{samc-class}} for the alternative.
 #' @param ... Placeholder
