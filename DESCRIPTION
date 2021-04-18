@@ -47,6 +47,7 @@ Suggests: knitr,
 VignetteBuilder: knitr
 Collate:
     'RcppExports.R'
+    'internal-classes.R'
     'samc-class.R'
     'check.R'
     'location-class.R'
