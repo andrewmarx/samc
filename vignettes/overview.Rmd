@@ -29,26 +29,29 @@ library("viridisLite")
 
 ### Required Data
 
-In order to use this package, two different sets of landscape data are required: *resistance* and *absorption*. There are certain requirements for these:
+There are multiple options for using this package. The first is using transition functions in conjunction with maps of resistance (or conducatance) and absorption to calculate the transition probabilities between cells in the maps. There are certain requirements for these maps:
 
 * They must be 2-dimensional matrices or `RasterLayer` objects. They have to be the same type.
 * They must have the same dimensions (number of rows and columns).
-* `NA` data is allowed in the cells, but must match between the sets of data. I.e., if cell `[3, 6]` of the *resistance* data has a `NA` value, then cell `[3, 6]` of the *absorption* data must also have a `NA` value, and vice versa.
+* `NA`s are allowed in the cells, but must match between the sets of data. I.e., if cell `[3, 6]` of the *resistance* data has a `NA` value, then cell `[3, 6]` of the *absorption* data must also have a `NA` value, and vice versa.
 
 If using `RasterLayer` objects, then additional conditions must be met:
 
 * Both sets of data must have the same coordinate extents.
 * Both sets of data must use the same coordinate reference system (CRS).
 
+The second option for using this package is to directly supply a P matrix as described by by Fletcher et al. in [*Toward a unified framework for connectivity that disentangles movement and mortality in space and time*](https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333) (Ecology Letters, 2019; DOI: [10.1111/ele.13333](https://doi.org/10.1111/ele.13333)). The advantage of this approach over the maps option is total flexibility in the number of connections going to and from nodes. The P matrix can be provided either as a base R matrix or a dgCmatrix, which is a sparse matrix object available through the Matrix package.
+
+A future version of the package will incorporate igraph support for graph based inputs. This will provide the flexibility of a custom P matrix, but will likely be more user-friendly to construct.
 
 ### Optional Data
 
-The use of landscape fidelity data is optional. By default, the package treats all cells in the landscape data the same and uses a value of `0` for fidelity. If custom data is desired, then it must meet all of the same requirements listed above for the *resistance* and *absorption* landscape data.
+When using map inputs, an optional fidelity map may be provided. This map would represent the probability of no transition between timesteps (e.g., no movement). By default, the package treats all cells in the maps the same and uses a value of `0` for fidelity. If used, the fidelity map must meet all of the same requirements listed above for the other map inputs.
 
 
 ### Built-in Example Data
 
-The package includes built-in example data. Some of this data was used to create the figures in the SAMC paper, and is used in this tutorial. They are:
+The package includes built-in example map data. Some of this data was used to create the figures in the SAMC paper, and is used in this tutorial. They are:
 
 * `ex_res_data`: A matrix with landscape resistance data.
 * `ex_abs_data`: A matrix with landscape absorption (mortality) data.
