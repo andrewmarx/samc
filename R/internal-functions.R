@@ -126,3 +126,35 @@ setMethod(
 
     return(match(x, row_names))
   })
+
+
+#' Validate transition args
+#'
+#' Validates the transition args for the samc() function
+#'
+#' @param x A list
+#' @noRd
+.validate_tr_args <- function(x) {
+  args <- c("fun", "dir", "sym")
+  names <- names(x)
+
+  missing_args <- args[!(args %in% names)]
+  if (length(missing_args) > 0)
+    stop(paste("Missing argument in tr_args:", missing_args), call. = FALSE)
+
+  unknown_args <- names[!(names %in% args)]
+  if (length(unknown_args) > 0)
+    stop(paste("Unknown argument in tr_args:", unknown_args), call. = FALSE)
+
+  dup_args <- names[duplicated(names)]
+  if (length(dup_args) > 0)
+    stop(paste("Duplicate argument in tr_args:", dup_args), call. = FALSE)
+
+  if (!is.function(x$fun)) {
+    stop("`fun`` must be a function.", call. = FALSE)
+  } else if (!(x$dir %in% c(4,8))) {
+    stop("`dir` must be set to either 4 or 8", call. = FALSE)
+  } else if (!is.logical(x$sym)) {
+    stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
+  }
+}
