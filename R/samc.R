@@ -210,10 +210,9 @@ setMethod(
 #    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
 
 
-    Matrix::diag(tr_mat) <- fid_vec
-
-    # Adjust fidelity values for isolated cells
-    Matrix::diag(tr_mat) <- Matrix::diag(tr_mat) - Matrix::rowSums(tr_mat) - Matrix::rowSums(abs_mat) + 1
+    # Calculate fidelity values rather than assigning directly.
+    # This approach ensures that P(abs) + P(fid) = 1 for isolated cells.
+    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - Matrix::rowSums(abs_mat)
 
     # Remove rows/cols for NA cells
     excl <- which(is.na(abs_vec))
