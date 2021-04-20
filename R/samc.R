@@ -127,8 +127,7 @@ setMethod(
     symm <- tr_args$sym
 
     # Make sure the input data all aligns
-    check(data, absorption)
-    check(data, fidelity)
+    check(stack(data, fidelity, absorption))
 
     if (any(data[] <= 0, na.rm = TRUE)) {
       stop("The data must not have values <= 0", call. = FALSE)

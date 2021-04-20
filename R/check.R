@@ -105,6 +105,22 @@ setMethod(
 #' @rdname check
 setMethod(
   "check",
+  signature(a = "RasterStack", b = "missing"),
+  function(a){
+    n <- raster::nlayers(a)
+
+    if (n == 0) {
+      stop("Empty RasterStack", call. = FALSE)
+    }
+
+    for (i in 1:n) {
+      check(a[[1]], a[[i]])
+    }
+  })
+
+#' @rdname check
+setMethod(
+  "check",
   signature(a = "samc", b = "RasterLayer"),
   function(a, b){
     if (a@source != "map") stop("Parameters do not apply to a samc-class object created from a ", a@source, call. = FALSE)
