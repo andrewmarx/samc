@@ -204,7 +204,7 @@ setMethod(
 
     # Old approach
     tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
-    tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
+    tr_mat@x <- (1 - sum(abs_mat[tr_mat@i + 1, ]) - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
 
     # New approach that causes crash
 #    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
