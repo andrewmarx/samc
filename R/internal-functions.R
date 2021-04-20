@@ -64,7 +64,7 @@
   if (any(x < 1))
     stop("All location values must be positive (greater than 0)", call. = FALSE)
 
-  if (any(x > (nrow(samc@p) - 1)))
+  if (any(x > nrow(samc$q_matrix)))
     stop("Location values cannot exceed the number of nodes in the landscape", call. = FALSE)
 }
 
@@ -121,8 +121,8 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "character"),
   function(samc, x) {
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], x)
+    row_names <- rownames(samc$q_matrix)
+    .validate_names(row_names, x)
 
     return(match(x, row_names))
   })
