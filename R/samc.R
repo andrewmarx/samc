@@ -192,47 +192,62 @@ setMethod(
     }
 
 
-
     tr_mat <- gdistance::transitionMatrix(tr)
 
     # Normalize the transition Matrix
     abs_vec <- as.vector(absorption)
     fid_vec <- as.vector(fidelity)
 
+    abs_mat <- matrix(abs_vec, ncol = 1)
+
+
+    # Old approach
     tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
 
     Matrix::diag(tr_mat) <- 0
     tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
     Matrix::diag(tr_mat) <- fid_vec
 
-    # Combine the transition matrix with the absorbing data and convert back to dgCmatrix
-    samc_df <- data.frame(i = c(tr_mat@i, (0:(length(abs_vec) - 1))[is.finite(abs_vec)], length(abs_vec)),
-                         j = c(tr_mat@j, rep(length(abs_vec), sum(is.finite(abs_vec))), length(abs_vec)),
-                         x = c(tr_mat@x, abs_vec[is.finite(abs_vec)], 1))
+    tr_mat <- methods::as(tr_mat, "dgCMatrix")
 
-    p = Matrix::sparseMatrix(i = samc_df$i,
-                             j = samc_df$j,
-                             x = samc_df$x,
-                             index1 = FALSE)
+
+    # New approach that causes crash
+#    Matrix::diag(tr_mat) <- 0
+#    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
+#    Matrix::diag(tr_mat) <- fid_vec
+
 
     # Adjust fidelity values for isolated cells
-    Matrix::diag(p) <- Matrix::diag(p) - Matrix::rowSums(p) + 1
+    Matrix::diag(tr_mat) <- Matrix::diag(tr_mat) - Matrix::rowSums(tr_mat) - Matrix::rowSums(abs_mat) + 1
 
     # Remove rows/cols for NA cells
     excl <- which(is.na(abs_vec))
-    if (length(excl) > 0) p = p[-excl, -excl]
+    if (length(excl) > 0) {
+      tr_mat = tr_mat[-excl, -excl]
+      abs_mat <- abs_mat[-excl, , drop = FALSE]
+    }
 
     # Check dimnames
-    if (is.null(rownames(p))) rownames(p) <- 1:nrow(p)
-    if (is.null(colnames(p))) colnames(p) <- 1:ncol(p)
+    if (is.null(rownames(tr_mat))) rownames(tr_mat) <- 1:nrow(tr_mat)
+    if (is.null(colnames(tr_mat))) colnames(tr_mat) <- 1:ncol(tr_mat)
 
-    if (any(duplicated(rownames(p))))
+    if (any(duplicated(rownames(tr_mat))))
       stop("Row names must be unique")
-    if (any(duplicated(colnames(p))))
+    if (any(duplicated(colnames(tr_mat))))
       stop("Column names must be unique")
 
+    rownames(abs_mat) <- rownames(tr_mat)
+    colnames(abs_mat) <- 1:ncol(abs_mat)
+
     # Assemble final
-    samc_mat <- methods::new("samc", p = p, source = "map", map = m, clumps = clumps, override = FALSE)
+    samc_mat <- methods::new("samc",
+                             data = methods::new("samc_data",
+                                                 q = methods::as(tr_mat, "dgCMatrix"),
+                                                 r = abs_mat),
+                             source = "map",
+                             map = m,
+                             clumps = clumps,
+                             override = FALSE)
 
     return(samc_mat)
   })
@@ -327,7 +342,9 @@ setMethod(
     print("2) Every disconnected region of the graph must have at least one non-zero absorption value.")
     # TODO The clumps value is a placeholder and needs to be calculated as a safety check for the cond_passage() function
     samc_obj <- methods::new("samc",
-                             p = data,
+                             data = methods::new("samc_data",
+                                                 q = methods::as(data[-r, -c], "dgCMatrix"),
+                                                 r = as.matrix(data[-r, c])),
                              source = "matrix",
                              map = raster::raster(matrix()),
                              clumps = 1,
