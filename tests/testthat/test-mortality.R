@@ -6,12 +6,12 @@ for(test in testlist) {
   samc_obj <- test$samc
 
   # Extract Q
-  Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
+  Q <- samc_obj$q_matrix
   Q <- as.matrix(Q)
 
   # Extract R
   R <- diag(nrow(Q))
-  diag(R) <- samc_obj@p[-nrow(samc_obj@p), ncol(samc_obj@p)]
+  diag(R) <- rowSums(samc_obj$r_matrix)
 
   # Create an indentity matrix
   I <- diag(nrow(Q))
