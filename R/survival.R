@@ -51,7 +51,7 @@ setMethod(
   "survival",
   signature(samc = "samc", occ = "missing"),
   function(samc) {
-    q = samc@p[-nrow(samc@p),-nrow(samc@p)]
+    q <- samc$q_matrix
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
 

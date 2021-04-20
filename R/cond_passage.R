@@ -63,7 +63,7 @@ setMethod(
 
     dest <- .process_locations(samc, dest)
 
-    Q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    Q <- samc$q_matrix
     qj <- Q[-dest, dest]
     Qj <- Q[-dest, -dest]
 

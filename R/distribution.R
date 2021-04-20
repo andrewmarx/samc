@@ -83,7 +83,7 @@ setMethod(
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
       stop("The time argument must be a single positive integer", call. = FALSE)
 
-    q <- as.matrix(samc@p[-nrow(samc@p), -nrow(samc@p)])
+    q <- as.matrix(samc$q_matrix)
 
     res <- base::diag(nrow(q))
 
@@ -107,7 +107,7 @@ setMethod(
 
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
 
     time <- c(1, time)
 
@@ -132,7 +132,7 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
 
     time <- c(1, time)
 
@@ -178,7 +178,7 @@ setMethod(
 
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
 
     pv <- as.vector(occ)
     pv <- pv[is.finite(pv)]

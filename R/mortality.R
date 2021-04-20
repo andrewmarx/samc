@@ -129,9 +129,9 @@ setMethod(
 
     # TODO: remove as.matrix call, which is needed to convert from a sparse to
     # dense matrix for the %^% operator, which means removing expm as a dependency
-    q <- as.matrix(samc@p[-nrow(samc@p), -nrow(samc@p)])
+    q <- as.matrix(samc$q_matrix)
     r <- matrix(0, nrow = nrow(q), ncol = nrow(q))
-    diag(r) <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    diag(r) <- rowSums(samc$r_matrix)
     qi <- diag(dim(q)[2])
 
     # Sum of geometric series
@@ -160,9 +160,9 @@ setMethod(
     origin <- .process_locations(samc, origin)
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
+    q <- samc$q_matrix
 
-    rdg <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
+    rdg <- rowSums(samc$r_matrix)
 
     time <- c(1, time)
 
@@ -189,9 +189,9 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
+    q <- samc$q_matrix
 
-    rdg <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
+    rdg <- rowSums(samc$r_matrix)
 
     rdg[-dest] <- 0
 
@@ -240,8 +240,8 @@ setMethod(
     pv <- as.vector(occ)
     pv <- pv[is.finite(pv)]
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
-    Rdiag <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
+    q <- samc$q_matrix
+    Rdiag <- rowSums(samc$r_matrix)
 
     time <- c(1, time)
     mort <- .sum_psiqpow(q, pv, time)
@@ -276,7 +276,7 @@ setMethod(
 
     f <- visitation(samc)
     gc()
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    rdg <- rowSums(samc$r_matrix)
     r <- Matrix::sparseMatrix(i = 1:length(rdg),
                               j = 1:length(rdg),
                               x = rdg,
@@ -296,7 +296,7 @@ setMethod(
   function(samc, origin) {
     vis <- visitation(samc, origin = origin)
 
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    rdg <- rowSums(samc$r_matrix)
 
     mort <- vis * rdg
 
@@ -311,7 +311,7 @@ setMethod(
   function(samc, dest) {
     vis <- visitation(samc, dest = dest)
 
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    rdg <- rowSums(samc$r_matrix)
 
     mort <- vis * rdg[dest]
 
@@ -330,7 +330,7 @@ setMethod(
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
 
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    rdg <- rowSums(samc$r_matrix)
 
     result <- vector(mode = "numeric", length = length(origin))
 
@@ -353,8 +353,8 @@ setMethod(
     pv <- as.vector(occ)
     pv <- pv[is.finite(pv)]
 
-    q = samc@p[-nrow(samc@p),-nrow(samc@p)]
-    rdg <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
+    q <- samc$q_matrix
+    rdg <- rowSums(samc$r_matrix)
 
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1

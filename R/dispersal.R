@@ -106,7 +106,7 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
     qv <- q[, dest]
     qv <- qv[-dest]
     q <- q[-dest, -dest]
@@ -245,7 +245,7 @@ setMethod(
   function(samc, occ) {
     check(samc, occ)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
