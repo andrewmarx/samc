@@ -47,6 +47,15 @@ NULL
 #'   that they will not change in the future. To safely access the Q matrix, use
 #'   \code{samc_obj$q_matrix}. The Q matrix inside of the samc-class cannot be
 #'   modified.
+#'
+#'   \item \strong{r_matrix}
+#'
+#'   \code{samc_obj$r_matrix} can be used to get the R matrix component of the P
+#'   matrix. This matrix contains the absorption probabilities.
+#'
+#'   \item \strong{p_matrix}
+#'
+#'   \code{samc_obj$p_matrix} can be used to get the P matrix.
 #' }
 #'
 #' @slot data Data associated with different components of the P matrix
