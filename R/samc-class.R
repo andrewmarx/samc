@@ -49,7 +49,7 @@ NULL
 #'   modified.
 #' }
 #'
-#' @slot p The transition probability matrix \emph{P}.
+#' @slot data Data associated with different components of the P matrix
 #' @slot source Information about the data source for the P matrix
 #' @slot map Used to verify landscape inputs and mapping of vector data.
 #' @slot clumps Number of discontinuous regions in data
@@ -60,7 +60,7 @@ setClass(
   "samc",
 
   # define the slots
-  slots = list(p = "dgCMatrix",
+  slots = list(data = "samc_data",
                source = "character",
                map = "RasterLayer",
                clumps = "numeric",
