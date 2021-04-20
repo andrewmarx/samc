@@ -200,22 +200,17 @@ setMethod(
 
     abs_mat <- matrix(abs_vec, ncol = 1)
 
+    Matrix::diag(tr_mat) <- 0
 
     # Old approach
     tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
-
-    Matrix::diag(tr_mat) <- 0
     tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
-    Matrix::diag(tr_mat) <- fid_vec
-
-    tr_mat <- methods::as(tr_mat, "dgCMatrix")
-
 
     # New approach that causes crash
-#    Matrix::diag(tr_mat) <- 0
 #    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
-#    Matrix::diag(tr_mat) <- fid_vec
 
+
+    Matrix::diag(tr_mat) <- fid_vec
 
     # Adjust fidelity values for isolated cells
     Matrix::diag(tr_mat) <- Matrix::diag(tr_mat) - Matrix::rowSums(tr_mat) - Matrix::rowSums(abs_mat) + 1
@@ -226,6 +221,8 @@ setMethod(
       tr_mat = tr_mat[-excl, -excl]
       abs_mat <- abs_mat[-excl, , drop = FALSE]
     }
+
+    tr_mat <- methods::as(tr_mat, "dgCMatrix")
 
     # Check dimnames
     if (is.null(rownames(tr_mat))) rownames(tr_mat) <- 1:nrow(tr_mat)
@@ -242,7 +239,7 @@ setMethod(
     # Assemble final
     samc_mat <- methods::new("samc",
                              data = methods::new("samc_data",
-                                                 q = methods::as(tr_mat, "dgCMatrix"),
+                                                 q = tr_mat,
                                                  r = abs_mat),
                              source = "map",
                              map = m,
