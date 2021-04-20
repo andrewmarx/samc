@@ -13,7 +13,8 @@ setClass(
   "samc_data",
 
   # define the slots
-  slots = list(p = "dgCMatrix")
+  slots = list(q = "dgCMatrix",
+               r = "matrix")
 
   # set default values
   #prototype = list(p = NA)
