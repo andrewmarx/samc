@@ -70,7 +70,7 @@ setMethod(
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
     n <- Matrix::solve(q)
@@ -88,7 +88,7 @@ setMethod(
 
     origin = .process_locations(samc, origin)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
@@ -107,7 +107,7 @@ setMethod(
 
     dest <- .process_locations(samc, dest)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
 

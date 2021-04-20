@@ -2,7 +2,7 @@ context("Conditional Passage Time")
 
 br_function <- function(samc, col) {
   # Calculate the results based on De Sanctis and de Koning 2018
-  Q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
+  Q <- samc$q_matrix
   Q <- as.matrix(Q)
 
   qj <- Q[-col, col]
@@ -10,7 +10,7 @@ br_function <- function(samc, col) {
 
   I <- diag(nrow(Qj))
 
-  r <- samc@p[-nrow(samc@p), ncol(samc@p)]
+  r <- rowSums(samc$r_matrix)
   r <- r[-col]
 
   R <- cbind(r, qj)
@@ -37,7 +37,7 @@ for(test in testlist) {
   samc_obj <- test$samc
 
   # Create a version from P matrix
-  samc_p <- samc(samc_obj@p)
+  samc_p <- samc(samc_obj$p_matrix)
 
   # Run the tests
   test_that("Testing cond_passage(samc, dest)", {

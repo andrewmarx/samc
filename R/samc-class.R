@@ -1,6 +1,8 @@
 # Copyright (c) 2019 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
+#' @include internal-classes.R
+NULL
 
 #' samc class
 #'
@@ -45,9 +47,18 @@
 #'   that they will not change in the future. To safely access the Q matrix, use
 #'   \code{samc_obj$q_matrix}. The Q matrix inside of the samc-class cannot be
 #'   modified.
+#'
+#'   \item \strong{r_matrix}
+#'
+#'   \code{samc_obj$r_matrix} can be used to get the R matrix component of the P
+#'   matrix. This matrix contains the absorption probabilities.
+#'
+#'   \item \strong{p_matrix}
+#'
+#'   \code{samc_obj$p_matrix} can be used to get the P matrix.
 #' }
 #'
-#' @slot p The transition probability matrix \emph{P}.
+#' @slot data Data associated with different components of the P matrix
 #' @slot source Information about the data source for the P matrix
 #' @slot map Used to verify landscape inputs and mapping of vector data.
 #' @slot clumps Number of discontinuous regions in data
@@ -58,7 +69,7 @@ setClass(
   "samc",
 
   # define the slots
-  slots = list(p = "dgCMatrix",
+  slots = list(data = "samc_data",
                source = "character",
                map = "RasterLayer",
                clumps = "numeric",
