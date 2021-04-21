@@ -7,7 +7,7 @@ NULL
 
 #' Calculate mortality metrics
 #'
-#' Calculates the probability of experiencing mortality at specific locations.
+#' Calculates the probability of absorption at individual transient states.
 #'
 #' \eqn{\tilde{B}_t = (\sum_{n=0}^{t-1} Q^n) \tilde{R}}
 #' \itemize{
