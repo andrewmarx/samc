@@ -359,6 +359,23 @@ setMethod(
     if (any(duplicated(rn)))
       stop("The row and col names of the Q matrix must be unique", call. = FALSE)
 
+    # Figure out number of absorbing states
+    p_diag <- Matrix::diag(data)
+    r_dim <- 0
+    for (i in 1:r) {
+      if (p_diag[i] == 1) {
+        r_dim <- r_dim + 1
+      } else {
+        if (r_dim > 0) stop(paste("An absorbing was state detected mixed in with non-absorbing states.",
+                                  "All absorbing states should be located in a single group on",
+                                  "the right-hand side of the matrix."), call. = FALSE)
+      }
+    }
+
+    if (r_dim == 0) stop("No absorbing states found.", call. = FALSE) # Probably redundant with above check
+    if (r_dim == r) stop("Matrix consists entirely of absorbing states.", call. = FALSE)
+
+    r_start <- r - (r_dim - 1)
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
@@ -366,8 +383,8 @@ setMethod(
     # TODO The clumps value is a placeholder and needs to be calculated as a safety check for the cond_passage() function
     samc_obj <- methods::new("samc",
                              data = methods::new("samc_data",
-                                                 q = methods::as(data[-r, -c], "dgCMatrix"),
-                                                 r = as.matrix(data[-r, c])),
+                                                 q = methods::as(data[-(r_start:r), -(r_start:r)], "dgCMatrix"),
+                                                 r = as.matrix(data[-(r_start:r), r_start:r])),
                              source = "matrix",
                              map = raster::raster(matrix()),
                              clumps = 1,
