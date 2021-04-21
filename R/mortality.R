@@ -13,86 +13,112 @@ NULL
 #' \itemize{
 #'   \item \strong{mortality(samc, time)}
 #'
-#' The result is a matrix where element (i,j) is the probability of experiencing
-#' mortality at location j within t or fewer steps if starting at location i.
+#' The result is a matrix \eqn{\mathbf{M}} where \eqn{\mathbf{M}_{i,j}} is the
+#' probability of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}}
+#' or fewer steps if starting at transient state \eqn{\mathit{i}}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
 #' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{mortality(samc, origin, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element j is the probability of experiencing
-#' mortality at location j within t or fewer steps if starting at a given origin.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}} or
+#' fewer steps if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{mortality(samc, dest, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element i is the probability of experiencing
-#' mortality at a given destination within t or fewer steps if starting at
-#' location i.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability
+#' of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}} or
+#' fewer steps if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{mortality(samc, origin, dest, time)}
 #'
-#' The result is a numeric value (single time step) or a list of numeric
-#' values (multiple time steps) that is the probability of experiencing
-#' mortality at a given destination within t or fewer steps if starting at a
-#' given origin.
+#' The result is a numeric value that is the probability of absorption at transient
+#' state \eqn{\mathit{j}} within \eqn{\mathit{t}} or fewer time steps if starting
+#' at transient state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a numeric value for each time step.
 #' }
 #'
 #' \eqn{\psi^T \tilde{B}_t}
 #' \itemize{
 #'   \item \strong{mortality(samc, occ, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element j is the unconditional probability of
-#' experiencing mortality at location j within t or fewer time steps.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
+#' probability of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}}
+#' or fewer steps given an initial state.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
+#'
 #' }
 #'
 #' \eqn{B = F \tilde{R}}
 #' \itemize{
 #'   \item \strong{mortality(samc)}
 #'
-#' The result is a matrix where element (i,j) is the probability of experiencing
-#' mortality at location j if starting at location i.
+#' The result is a matrix \eqn{\mathbf{M}} where \eqn{\mathbf{M}_{i,j}} is the
+#' probability of absorption at transient state \eqn{\mathit{j}} if starting at
+#' transient state \eqn{\mathit{i}}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
 #' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{mortality(samc, origin)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element j is the probability of experiencing
-#' mortality at location j if starting at a given origin.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability of absorption
+#' at transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{mortality(samc, dest)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element i is the probability of experiencing
-#' mortality at a given destination if starting at location i.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability of absorption
+#' at transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{mortality(samc, origin, dest)}
 #'
-#' The result is a numeric value that is the probability of experiencing
-#' mortality at a given destination if starting at a given origin
+#' The result is a numeric value that is the probability of absorption
+#' at transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
 #' }
 #'
 #' \eqn{\psi^T B}
 #' \itemize{
 #'   \item \strong{mortality(samc, occ)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element j is the unconditional probability of
-#' experiencing mortality at location j, regardless of the initial state.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
+#' probability of absorption at transient state \eqn{\mathit{j}} given aninitial
+#' state.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #' }
 #'
 #' @template section-perf
@@ -103,7 +129,7 @@ NULL
 #' @template param-dest
 #' @template param-time
 #'
-#' @return A matrix, vector, or numeric
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'
