@@ -181,6 +181,8 @@ setMethod(
       abs_mat <- matrix(abs_vec, ncol = 1)
     }
 
+    colnames(abs_mat) <- 1:ncol(abs_mat)
+
     abs_total <- Matrix::rowSums(abs_mat)
     if (any(abs_total > 1, na.rm = TRUE) || any(abs_total < 0, na.rm = TRUE)) {
       stop("Sum of absorption values must be in range of 0-1", call. = FALSE)
@@ -369,18 +371,6 @@ setMethod(
     if (sum(data[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element", call. = FALSE)
     if (!isTRUE(all.equal(Matrix::rowSums(data), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
-    if (is.null(rownames(data))) rownames(data) <- 1:r
-    if (is.null(colnames(data))) colnames(data) <- 1:c
-
-    rn <- rownames(data)[-r]
-    cn <- colnames(data)[-r]
-
-    if (!isTRUE(all.equal(rn, cn)))
-      stop("The row and col names of the Q matrix must be identical", call. = FALSE)
-
-    if (any(duplicated(rn)))
-      stop("The row and col names of the Q matrix must be unique", call. = FALSE)
-
     # Figure out number of absorbing states
     p_diag <- Matrix::diag(data)
     r_dim <- 0
@@ -398,6 +388,18 @@ setMethod(
     if (r_dim == r) stop("Matrix consists entirely of absorbing states.", call. = FALSE)
 
     r_start <- r - (r_dim - 1)
+
+    if (is.null(rownames(data))) rownames(data) <- 1:r
+    if (is.null(colnames(data))) colnames(data) <- 1:c
+
+    rn <- rownames(data)[-(r_start:r)]
+    cn <- colnames(data)[-(r_start:r)]
+
+    if (!isTRUE(all.equal(rn, cn)))
+      stop("The row and col names of the Q matrix must be identical", call. = FALSE)
+
+    if (any(duplicated(rn)))
+      stop("The row and col names of the Q matrix must be unique", call. = FALSE)
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
