@@ -62,7 +62,7 @@ NULL
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
 #' probability of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}}
-#' or fewer steps given an initial state.
+#' or fewer steps given an initial state \eqn{\psi}.
 #'
 #' If multiple time steps were provided as a vector, then the result will be an
 #' ordered named list containing a vector for each time step.
@@ -113,8 +113,8 @@ NULL
 #'   \item \strong{mortality(samc, occ)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
-#' probability of absorption at transient state \eqn{\mathit{j}} given aninitial
-#' state.
+#' probability of absorption at transient state \eqn{\mathit{j}} given an initial
+#' state \eqn{\psi}.
 #'
 #' If the samc-class object was created using matrix or RasterLayer maps, then
 #' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
