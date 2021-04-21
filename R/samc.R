@@ -294,18 +294,44 @@ setMethod(
 setMethod(
   "samc",
   signature(data = "matrix",
-            absorption = "matrix",
+            absorption = "list",
             fidelity = "matrix",
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
 
     data <- .rasterize(data)
-    absorption <- .rasterize(absorption)
+    absorption <- lapply(absorption, .rasterize)
     fidelity <- .rasterize(fidelity)
 
     #fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(data, absorption, fidelity, tr_args))
+    return(samc(data, raster::stack(absorption), fidelity, tr_args))
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "matrix",
+            absorption = "matrix",
+            fidelity = "matrix",
+            tr_args = "list"),
+  function(data, absorption, fidelity, tr_args) {
+    return(samc(data, list(absorption), fidelity, tr_args))
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "matrix",
+            absorption = "list",
+            fidelity = "missing",
+            tr_args = "list"),
+  function(data, absorption, tr_args) {
+
+    data <- .rasterize(data)
+    absorption <- lapply(absorption, .rasterize)
+
+    return(samc(data, raster::stack(absorption), tr_args = tr_args))
   })
 
 #' @rdname samc
@@ -316,11 +342,7 @@ setMethod(
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {
-
-    data <- .rasterize(data)
-    absorption <- .rasterize(absorption)
-
-    return(samc(data, absorption, tr_args = tr_args))
+    return(samc(data, list(absorption), tr_args = tr_args))
   })
 
 #
