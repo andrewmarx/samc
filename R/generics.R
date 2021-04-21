@@ -25,8 +25,13 @@ setMethod("$", signature(x = "samc"), function(x, name) {
   } else if (name == "q_matrix"){
     return(x@data@q)
   } else if (name == "p_matrix") {
-    p <- rbind(x@data@q, rep(0, ncol(x@data@q)))
-    p <- cbind(p, c(rowSums(x@data@r), 1))
+    p <- cbind(x@data@q, x@data@r)
+    p <- rbind(p, matrix(0, ncol(x@data@r), ncol(p)))
+    Matrix::diag(p)[(ncol(p) - ncol(x@data@r) + 1):ncol(p)] <- 1
+
+    colnames(p) <- c(colnames(x@data@q), colnames(x@data@r))
+    rownames(p) <- colnames(p)
+
     return(p)
   } else if (name == "r_matrix"){
     return(x@data@r)
