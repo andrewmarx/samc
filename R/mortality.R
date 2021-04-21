@@ -298,9 +298,19 @@ setMethod(
 
     rdg <- rowSums(samc$r_matrix)
 
-    mort <- vis * rdg
+    mort <- as.vector(vis * rdg)
+    names(mort) <- rownames(samc$q_matrix)
 
-    return(as.vector(mort))
+    if (ncol(samc$r_matrix) > 1) {
+      mort_list <- list()
+      for (n in colnames(samc$r_matrix)) {
+        mort_list[[n]] <- mort * (samc$r_matrix[, n] / rdg)
+      }
+      mort_list$total <- mort
+      return(mort_list)
+    } else {
+      return(mort)
+    }
   })
 
 # mortality(samc, dest) ----
