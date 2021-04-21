@@ -137,18 +137,6 @@ setMethod(
       stop("The data must not have values <= 0", call. = FALSE)
     }
 
-    if (any(absorption[] < 0, na.rm = TRUE)) {
-      stop("The absorption data must not have values <= 0", call. = FALSE)
-    }
-
-    if (any(absorption[] > 1, na.rm = TRUE)) {
-      stop("The absorption data must not have values > 1", call. = FALSE)
-    }
-
-    if (sum(absorption[], na.rm = TRUE) == 0) {
-      stop("At least one cell must have an absorption value > 0", call. = FALSE)
-    }
-
     if (any(fidelity[] < 0, na.rm = TRUE)) {
       stop("The fidelity data must not have values < 0", call. = FALSE)
     }
@@ -194,9 +182,13 @@ setMethod(
     }
 
     abs_total <- Matrix::rowSums(abs_mat)
-    if (any(abs_total > 1, na.rm = TRUE) || any(abs_total < 0, na.rm = TRUE))
+    if (any(abs_total > 1, na.rm = TRUE) || any(abs_total < 0, na.rm = TRUE)) {
       stop("Sum of absorption values must be in range of 0-1", call. = FALSE)
+    }
 
+    if (sum(abs_total, na.rm = TRUE) == 0) {
+      stop("At least one cell must have a total absorption value > 0", call. = FALSE)
+    }
 
     # Create the transition matrix
     tr <- gdistance::transition(data, transitionFunction = tr_fun, directions, symm = symm)
