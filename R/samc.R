@@ -116,7 +116,7 @@ setGeneric(
 setMethod(
   "samc",
   signature(data = "RasterLayer",
-            absorption = "RasterLayer",
+            absorption = "RasterStack",
             fidelity = "RasterLayer",
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
@@ -127,7 +127,11 @@ setMethod(
     symm <- tr_args$sym
 
     # Make sure the input data all aligns
-    check(stack(data, fidelity, absorption))
+    check(raster::stack(data, fidelity, absorption))
+
+    if (raster::nlayers(absorption) == 0) {
+      stop("Missing absorption data", call. = FALSE)
+    }
 
     if (any(data[] <= 0, na.rm = TRUE)) {
       stop("The data must not have values <= 0", call. = FALSE)
@@ -172,12 +176,26 @@ setMethod(
     if (clumps > 1) {
       print("Warning: Input contains disconnected regions. This does not work with the cond_passage() metric.")
 
-      temp_abs <- absorption
+      temp_abs <- absorption[[1]]
       temp_abs[temp_abs > 0] <- 1
       temp_abs <- temp_abs * cl
 
       if (!all(1:clumps %in% unique(temp_abs[]))) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
     }
+
+
+    abs_vec <- as.vector(absorption[[1]])
+    fid_vec <- as.vector(fidelity)
+
+    if (raster::nlayers(absorption) > 1) {
+      abs_mat <- raster::as.matrix(absorption)
+    } else {
+      abs_mat <- matrix(abs_vec, ncol = 1)
+    }
+
+    abs_total <- Matrix::rowSums(abs_mat)
+    if (any(abs_total > 1, na.rm = TRUE) || any(abs_total < 0, na.rm = TRUE))
+      stop("Sum of absorption values must be in range of 0-1", call. = FALSE)
 
 
     # Create the transition matrix
@@ -190,14 +208,10 @@ setMethod(
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 
-
     tr_mat <- gdistance::transitionMatrix(tr)
 
-    # Normalize the transition Matrix
-    abs_vec <- as.vector(absorption)
-    fid_vec <- as.vector(fidelity)
 
-    abs_mat <- matrix(abs_vec, ncol = 1)
+    # Normalize the transition Matrix
 
     Matrix::diag(tr_mat) <- 0
 
@@ -205,13 +219,13 @@ setMethod(
     tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
     tr_mat@x <- (1 - sum(abs_mat[tr_mat@i + 1, ]) - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
 
-    # New approach that causes crash
+    # New approach that causes crash during one of the dispersal() tests
 #    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
 
 
     # Calculate fidelity values rather than assigning directly.
     # This approach ensures that P(abs) + P(fid) = 1 for isolated cells.
-    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - Matrix::rowSums(abs_mat)
+    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - abs_total
 
     # Remove rows/cols for NA cells
     excl <- which(is.na(abs_vec))
@@ -252,6 +266,17 @@ setMethod(
   "samc",
   signature(data = "RasterLayer",
             absorption = "RasterLayer",
+            fidelity = "RasterLayer",
+            tr_args = "list"),
+  function(data, absorption, fidelity, tr_args) {
+    return(samc(data, raster::stack(absorption), fidelity, tr_args))
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "RasterLayer",
+            absorption = "RasterStack",
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {
@@ -260,6 +285,17 @@ setMethod(
     fidelity[is.finite(fidelity)] <- 0
 
     return(samc(data, absorption, fidelity, tr_args))
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "RasterLayer",
+            absorption = "RasterLayer",
+            fidelity = "missing",
+            tr_args = "list"),
+  function(data, absorption, tr_args) {
+    return(samc(data, raster::stack(absorption), tr_args = tr_args))
   })
 
 #' @rdname samc
