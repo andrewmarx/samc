@@ -46,6 +46,7 @@ reference:
       - samc
   - title: "Analytical Functions"
     contents:
+      - absorption
       - cond_passage
       - dispersal
       - distribution

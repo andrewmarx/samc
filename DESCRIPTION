@@ -47,10 +47,11 @@ Suggests: knitr,
 VignetteBuilder: knitr
 Collate:
     'RcppExports.R'
+    'location-class.R'
     'internal-classes.R'
     'samc-class.R'
+    'absorption.R'
     'check.R'
-    'location-class.R'
     'cond_passage.R'
     'data.R'
     'visitation.R'
