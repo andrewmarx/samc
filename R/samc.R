@@ -37,11 +37,15 @@ NULL
 #' The \code{data} parameter can be used alone to create a \code{\link{samc-class}} object
 #' directly from a preconstructed P matrix. This matrix must be either a base R
 #' matrix, or a sparse matrix (dgCMatrix format) from the Matrix package. It
-#' must meet the requirement of a P matrix described in Fletcher et al. (2019).
-#' This includes:
+#' must meet the following requirements:
 #' \itemize{
 #'   \item The number of rows must equal the number of columns (a square matrix)
-#'   \item The last row must contain all 0's, except the last element, which must be 1
+#'   \item Absorbing states must be a single group located in the right-hand most columns
+#'   \item At the bottom of the matrix, there must be a row for every absorbing state.
+#'   Each of these rows must be filled with 0's except for elements that are part of
+#'   the main diagonal, which must be set to 1
+#'   \item Every disconnected region of the matrix must have at least one non-zero
+#'   absorbing value
 #'   \item Each row must sum to 1
 #'   \item All values must be in the range of 0-1
 #' }

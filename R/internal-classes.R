@@ -1,12 +1,16 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
+# Copyright (c) 2021 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
-
+NULL
 
 #' data class
 #'
 #' Contains the data fields used in the samc-class
 #'
-#' @noRd
+#' @slot q Q matrix
+#' @slot r R matrix
+#'
+#' @name samc_data-class
+#' @keywords internal
 
 setClass(
   # set the name of the class

@@ -7,9 +7,9 @@ NULL
 
 #' Calculate absorption metrics
 #'
-#' Calculates the total probability of absorption for each absorbing state, rather
+#' Calculates the probability of absorption for absorbing states rather
 #' than individual transient states. This is distint from, yet very closely linked
-#' to the mortality() metric, which calculates the probability of absorption at
+#' to, the mortality() metric, which calculates the probability of absorption at
 #' individual transient states. If the results of the mortality() metric are decomposed
 #' into individual results for each absorbing state, then the sums of the individual
 #' results for every transient state are equivalent to the results of the absorption()
