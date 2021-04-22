@@ -13,7 +13,7 @@ NULL
 #' \itemize{
 #'   \item \strong{mortality(samc, time)}
 #'
-#' The result is a matrix \eqn{\mathbf{M}} where \eqn{\mathbf{M}_{i,j}} is the
+#' The result is a matrix \eqn{M} where \eqn{M_{i,j}} is the
 #' probability of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}}
 #' or fewer steps if starting at transient state \eqn{\mathit{i}}.
 #'
@@ -77,7 +77,7 @@ NULL
 #' \itemize{
 #'   \item \strong{mortality(samc)}
 #'
-#' The result is a matrix \eqn{\mathbf{M}} where \eqn{\mathbf{M}_{i,j}} is the
+#' The result is a matrix \eqn{M} where \eqn{M_{i,j}} is the
 #' probability of absorption at transient state \eqn{\mathit{j}} if starting at
 #' transient state \eqn{\mathit{i}}.
 #'
