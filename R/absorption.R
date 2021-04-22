@@ -15,11 +15,11 @@ NULL
 #' results for every transient state are equivalent to the results of the absorption()
 #' metric.
 #'
-#' \eqn{B = F R}
+#' \eqn{A = F R}
 #' \itemize{
 #'   \item \strong{absorption(samc)}
 #'
-#' The result is a matrix \eqn{\mathbf{M}} where \eqn{\mathbf{M}_{i,k}} is the
+#' The result is a matrix \eqn{M} where \eqn{M_{i,k}} is the
 #' probability of absorption due to absorbing state \eqn{\mathit{k}} if starting
 #' at transient state \eqn{\mathit{i}}.
 #'
@@ -28,7 +28,10 @@ NULL
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_{k}} is the
 #' probability of absorption due to absorbing state \eqn{\mathit{k}} if starting
 #' at transient state \eqn{\mathit{i}}.
+#' }
 #'
+#' \eqn{\psi^T A}
+#' \itemize{
 #'   \item \strong{absorption(samc, occ)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_{k}} is the
