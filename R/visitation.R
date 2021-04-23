@@ -7,40 +7,45 @@ NULL
 
 #' Calculate visitation metrics
 #'
-#' Calculates the number of times that individuals from each location visit each
-#' location in the landscape before death.
+#' Calculates the number of times that transient states are visited before absorption.
 #'
 #'
 #' \eqn{F = (I-Q)^{-1}}
 #' \itemize{
 #'   \item \strong{visitation(samc)}
 #'
-#' The result is a matrix where element (\emph{i},\emph{j}) is the expected
-#' number of times an individual that starts in \emph{i} uses \emph{j} before it
-#' dies.
+#' The result is a matrix \eqn{M} where \eqn{M_{i,j}} is the number of times that
+#' transient state \eqn{\mathit{j}} is visited before absorption if starting at
+#' transient state \eqn{\mathit{i}}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
 #' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{visitation(samc, origin)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{j} is the number of times that an
-#' individual starting at the origin visits location \emph{j} before it dies.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the number
+#' of times that transient state \eqn{\mathit{j}} is visited before absorption if
+#' starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{visitation(samc, dest)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{i} is the number of times that an
-#' individual starting at location \emph{i} visits the destination before it
-#' dies.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the number
+#' of times that transient state \eqn{\mathit{j}} is visited before absorption if
+#' starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{visitation(samc, origin, dest)}
 #'
-#' The result is a numeric value that is the expected number of times an
-#' individual starting at the origin visits the destination before it dies.
+#' The result is a numeric value that is the number of times transient state
+#' \eqn{\mathit{j}} is visited before absorption if starting at transient
+#' state \eqn{\mathit{i}}.
 #' }
 #'
 #' @template section-perf
