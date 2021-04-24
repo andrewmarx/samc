@@ -129,12 +129,10 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result))
   })
 
-  # TODO Remove the skip once dispersal(samc, origin) is implemented
   test_that("Testing dispersal(samc, origin)", {
-
-    skip("dispersal(samc, origin) is not implemented")
-
     result <- dispersal(samc_obj, origin = row_vec[1])
+    result_char <- dispersal(samc_obj, origin = as.character(row_vec[1]))
+    expect_equal(result, result_char)
 
     base_result <- (f - I) %*% fdg
 
