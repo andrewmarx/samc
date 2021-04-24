@@ -9,8 +9,12 @@
     .Call('_samc_sum_qn_q', PACKAGE = 'samc', M, M2, q, t)
 }
 
-.psid_long <- function(M, psi) {
-    .Call('_samc_psid_long', PACKAGE = 'samc', M, psi)
+.diagf <- function(M) {
+    .Call('_samc_diagf', PACKAGE = 'samc', M)
+}
+
+.psid_long <- function(M, psi, dg) {
+    .Call('_samc_psid_long', PACKAGE = 'samc', M, psi, dg)
 }
 
 .qpow_row <- function(M, row, steps) {
