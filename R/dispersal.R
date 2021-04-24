@@ -226,9 +226,10 @@ setMethod(
     fjj <- f_col[dest]
     f_col[dest] <- f_col[dest] - 1
 
-    d_vec <- f_col/fjj
+    result <- as.vector(f_col/fjj)
+    names(result) <- rownames(samc$q_matrix)
 
-    return(d_vec)
+    return(result)
   })
 
 # dispersal(samc, origin, dest) ----
