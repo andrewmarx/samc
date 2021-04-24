@@ -249,10 +249,15 @@ setMethod(
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
+    if (!samc@.cache$dgf_exists) {
+      dg <- .diagf(q)
+      samc@.cache$dgf <- dg
+      samc@.cache$dgf_exists <- TRUE
+    }
+
     pv <- as.vector(occ)
     pv <- pv[is.finite(pv)]
-
-    disp <- .psid_long(q, pv)
+    disp <- .psid_long(q, pv, samc@.cache$dgf)
 
     return(as.vector(disp))
   })
