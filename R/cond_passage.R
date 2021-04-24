@@ -37,7 +37,7 @@ NULL
 #' @template param-origin
 #' @template param-dest
 #'
-#' @return A numeric vector or a single numeric value
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'

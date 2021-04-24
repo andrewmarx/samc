@@ -54,7 +54,7 @@ NULL
 #' @template param-origin
 #' @template param-dest
 #'
-#' @return A matrix, a vector, or a numeric
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'

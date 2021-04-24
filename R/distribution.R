@@ -60,12 +60,16 @@ NULL
 #' \itemize{
 #'   \item \strong{distribution(samc, occ, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{i} is the unconditional
-#' probability of finding an individual (or expected number of individuals) in
-#' location \emph{i} after \emph{t} time steps.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of being at transient state \eqn{\mathit{i}} after \eqn{\mathit{t}} time steps
+#' given an initial state \eqn{\psi}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #' }
 #'
 #' @template section-perf
@@ -76,7 +80,7 @@ NULL
 #' @template param-dest
 #' @template param-time
 #'
-#' @return A \code{vector}
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'

@@ -7,25 +7,26 @@ NULL
 
 #' Calculate survival metrics
 #'
-#' Calculates the expected amount of time that individuals survive
-#' in the landscape.
+#' Calculates the expected time to absorption
 #'
 #' \eqn{z=(I-Q)^{-1}{\cdot}1=F{\cdot}1}
 #' \itemize{
 #'   \item \strong{survival(samc)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. The value of element \emph{i} is the expected
-#' amount of time that individuals survive when starting at location \emph{i}.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the expected
+#' time to absorption if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #' }
 #'
 #' \eqn{\psi^Tz}
 #' \itemize{
 #'   \item \strong{survival(samc, occ)}
 #'
-#' The result is a numeric that represents the expected time that any individual
-#' stays in the landscape before death, regardless of the initial location.
+#' The result is a numeric that is the expected time to absorption given an initial
+#' state \eqn{\psi}.
 #' }
 #'
 #' @template section-perf
@@ -33,7 +34,7 @@ NULL
 #' @template param-samc
 #' @template param-occ
 #'
-#' @return A \code{vector} or a \code{numeric}
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'

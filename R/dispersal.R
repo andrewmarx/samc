@@ -14,64 +14,81 @@ NULL
 #' \itemize{
 #'   \item \strong{dispersal(samc, dest, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the landscape,
-#' and can be mapped back to the landscape using the \code{\link{map}} function.
-#' Element \emph{k} is the probability of ever visiting a given destination,
-#' if starting at any other location, within \emph{t} or fewer time steps.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability
+#' of visiting transient state \eqn{\mathit{j}} within \eqn{\mathit{t}} or fewer
+#' time steps if starting at transient state \eqn{\mathit{i}}.
+#'
+#' Note: Given the current derivation, when \eqn{\mathit{i=j}}, then \eqn{\mathbf{v}_i}
+#' is unknown and has been set to \code{NA}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #' }
 #'
 #' \eqn{\psi^T\tilde{D}_{jt}}
 #' \itemize{
 #'   \item \strong{dispersal(samc, occ, dest, time)}
 #'
-#' The result is a numeric (single time step) or a list of numerics (multiple
-#' time steps) that is the unconditional probability of visiting a
-#' given destination within \emph{t} or fewer time steps.
+#' The result is a numeric that is the probability of visiting transient state \eqn{\mathit{j}}
+#' within \eqn{\mathit{t}} or fewer time steps given an initial state \eqn{\psi}
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
 #' }
 #'
 #' \eqn{D=(F-I)diag(F)^{-1}}
 #' \itemize{
 #'   \item \strong{dispersal(samc)}
 #'
-#' The result is a matrix where element (\emph{i},\emph{j}) is the probability
-#' that location \emph{j} is visited when starting in location \emph{i}.
+#' The result is a matrix \eqn{M} where \eqn{M_{i,j}} is the probability of visiting
+#' transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
 #' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{dispersal(samc, origin)}
 #'
-#' This function has not been optimized yet, and will not run.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of visiting transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{dispersal(samc, dest)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{i} is the probability that the
-#' destination is visited when starting in location \emph{i}.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability
+#' of visiting transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{dispersal(samc, origin, dest)}
 #'
-#' The result is a numeric value that is the probability that an individual
-#' starting at the origin visits the destination.
+#' The result is a numeric value that is the probability of visiting transient
+#' state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
 #' }
 #'
 #' \eqn{\psi^TD}
 #' \itemize{
 #'   \item \strong{dispersal(samc, occ)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{j} is the unconditional
-#' probability distribution of ever visiting location \emph{j}, regardless of
-#' the initial location.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of visiting transient state \eqn{\mathit{j}} given an initial state \eqn{\psi}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{dispersal(samc, occ, dest)}
 #'
-#' The result is a numeric value that is the unconditional probability
-#' distribution of ever visiting a given destination, regardless of the initial
-#' location.
+#' The result is a numeric value that is the probability of visiting transient
+#' state \eqn{\mathit{j}} given an initial state \eqn{\psi}.
 #' }
 #'
 #' @template section-perf
@@ -82,7 +99,7 @@ NULL
 #' @template param-dest
 #' @template param-time
 #'
-#' @return A matrix, a vector, a list of vectors, or a numeric
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'
