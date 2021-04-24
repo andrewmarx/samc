@@ -193,8 +193,25 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
-    stop("A suitably optimized version of this function has not been identified (yet). As a workaround, consider calculating destination columns instead", call. = FALSE)
-    # TODO fix origin signature if this function gets implemented
+    origin <- .process_locations(samc, origin)
+
+    if (!samc@.cache$dgf_exists) {
+      q <- samc$q_matrix
+      q@x <- -q@x
+      Matrix::diag(q) <- Matrix::diag(q) + 1
+
+      dg <- samc:::.diagf(q)
+      samc@.cache$dgf <- dg
+      samc@.cache$dgf_exists <- TRUE
+    }
+
+    f_row <- visitation(samc, origin = origin)
+    f_row[origin] <- f_row[origin] - 1
+
+    result <- as.vector(f_row/samc@.cache$dgf)
+    names(result) <- colnames(samc$q_matrix)
+
+    return(result)
   })
 
 # dispersal(samc, dest) ----
