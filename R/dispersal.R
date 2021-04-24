@@ -120,6 +120,12 @@ setMethod(
 
     res <- lapply(res, as.vector)
 
+    # Element for i=j is missing, so fill in with NA
+    res <- lapply(res, function(x) {
+      lx <- length(x)
+      y <- c(x[0:(dest-1)], NA, x[dest:(lx + 1)])
+      return(y[1:(lx + 1)])})
+
     if (length(res) == 1) {
       return(res[[1]])
     } else {
@@ -147,9 +153,9 @@ setMethod(
     pv <- pv[-dest]
 
     if (is.list(d)) {
-      return(lapply(d, function(x){as.numeric(pv %*% x)}))
+      return(lapply(d, function(x){as.numeric(pv %*% x[-dest])}))
     } else {
-      return(as.numeric(pv %*% d))
+      return(as.numeric(pv %*% d[-dest]))
     }
   })
 

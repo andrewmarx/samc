@@ -46,7 +46,7 @@ for(test in testlist) {
 
     base_result <- base_result %*% qj
 
-    expect_equal(as.vector(result), as.vector(base_result))
+    expect_equal(as.vector(result)[-col_vec[1]], as.vector(base_result))
   })
 
   test_that("Testing dispersal(samc, dest, time_vec)", {
@@ -68,7 +68,7 @@ for(test in testlist) {
 
       base_result <- base_result %*% qj
 
-      expect_equal((result[[i]]), as.vector(base_result))
+      expect_equal((result[[i]])[-col_vec[1]], as.vector(base_result))
     }
   })
 
