@@ -254,7 +254,10 @@ setMethod(
                              source = "map",
                              map = m,
                              clumps = clumps,
-                             override = FALSE)
+                             override = FALSE,
+                             .cache = new.env())
+    samc_mat@.cache$dgf = numeric(nrow(tr_mat))
+    samc_mat@.cache$dgf_exists = FALSE
 
     return(samc_mat)
   })

@@ -60,9 +60,10 @@ NULL
 #'
 #' @slot data Data associated with different components of the P matrix
 #' @slot source Information about the data source for the P matrix
-#' @slot map Used to verify landscape inputs and mapping of vector data.
+#' @slot map Used to verify landscape inputs and mapping of vector data
 #' @slot clumps Number of discontinuous regions in data
-#' @slot override Used to prevent accidental use of memory intensive functions.
+#' @slot override Used to prevent accidental use of memory intensive functions
+#' @slot .cache Cached data for performance boosts
 
 setClass(
   # set the name of the class
@@ -73,7 +74,8 @@ setClass(
                source = "character",
                map = "RasterLayer",
                clumps = "numeric",
-               override = "logical")
+               override = "logical",
+               .cache = "environment")
 
   # set default values
   #prototype = list(p = NA)
