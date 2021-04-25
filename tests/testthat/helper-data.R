@@ -102,19 +102,13 @@ p1 <- runif(100, max = 0.4)
 p2 <- 1 - p1
 
 testlist <- list()
-for(i in 1: length(masklist)) {
+for(i in 1:length(masklist)) {
   testlist[[i]] <- lapply(baselist, function(x) {masklist[[i]] * x})
 
   testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
 
-  # Version for mult absorption see mortality(samc, origin)
-  # testlist[[i]]$samc <- samc(testlist[[i]]$res,
-  #                            list(testlist[[i]]$abs * p1, testlist[[i]]$abs * p2),
-  #                            testlist[[i]]$fid,
-  #                            tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
-
   testlist[[i]]$samc <- samc(testlist[[i]]$res,
-                             testlist[[i]]$abs,
+                             list(testlist[[i]]$abs * p1, testlist[[i]]$abs * p2),
                              testlist[[i]]$fid,
                              tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 

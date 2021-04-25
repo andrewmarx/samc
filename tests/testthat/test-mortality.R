@@ -226,12 +226,8 @@ for(test in testlist) {
     result <- mortality(samc_obj, origin = row_vec[1])
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]))
 
-    expect_equal(result, result_char)
-    expect_equal(as.vector(result), as.vector(base_result[row_vec[1], ]))
-
-    # Version for mult absorption
-    # expect_equal(result$total, result_char$total)
-    # expect_equal(as.vector(result$total), as.vector(base_result[row_vec[1], ]))
+    expect_equal(result$total, result_char$total)
+    expect_equal(as.vector(result$total), as.vector(base_result[row_vec[1], ]))
   })
 
   test_that("Testing mortality(samc, dest)", {
