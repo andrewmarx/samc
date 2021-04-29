@@ -309,9 +309,19 @@ setMethod(
                               index1 = TRUE)
 
     # TODO f %*% r can be simplified to an elementwise multiplication of the matrix columns by the corresponding elements in the rdg vector. This might be helpful for memory allocations and performance.
-    b <- f %*% r
+    mort <- f %*% r
     gc()
-    return(b)
+
+    if (ncol(samc$r_matrix) > 1) {
+      mort_list <- list()
+      for (n in colnames(samc$r_matrix)) {
+        mort_list[[n]] <- mort * (samc$r_matrix[, n] / rdg)
+      }
+      mort_list$total <- mort
+      return(mort_list)
+    } else {
+      return(mort)
+    }
   })
 
 # mortality(samc, origin) ----
@@ -349,9 +359,19 @@ setMethod(
 
     rdg <- rowSums(samc$r_matrix)
 
-    mort <- vis * rdg[dest]
+    mort <- as.vector(vis * rdg[dest])
+    names(mort) <- rownames(samc$q_matrix)
 
-    return(as.vector(mort))
+    if (ncol(samc$r_matrix) > 1) {
+      mort_list <- list()
+      for (n in colnames(samc$r_matrix)) {
+        mort_list[[n]] <- mort * (samc$r_matrix[dest, n] / rdg[dest])
+      }
+      mort_list$total <- mort
+      return(mort_list)
+    } else {
+      return(mort)
+    }
   })
 
 # mortality(samc, origin, dest) ----
@@ -368,14 +388,26 @@ setMethod(
 
     rdg <- rowSums(samc$r_matrix)
 
-    result <- vector(mode = "numeric", length = length(origin))
+    mort <- vector(mode = "numeric", length = length(origin))
 
     for (d in unique(dest)) {
       vis <- visitation(samc, dest = d)
-      result[dest == d] <- vis[origin[dest == d]] * rdg[d]
+      mort[dest == d] <- vis[origin[dest == d]] * rdg[d]
     }
 
-    return(result)
+    names(mort) <- rownames(samc$q_matrix)[dest]
+
+
+    if (ncol(samc$r_matrix) > 1) {
+      mort_list <- list()
+      for (n in colnames(samc$r_matrix)) {
+        mort_list[[n]] <- mort * (samc$r_matrix[dest, n] / rdg[dest])
+      }
+      mort_list$total <- mort
+      return(mort_list)
+    } else {
+      return(mort)
+    }
   })
 
 # mortality(samc, occ) ----
@@ -397,7 +429,19 @@ setMethod(
 
     pf <- .psif(q, pv)
 
-    return(pf * rdg)
+    mort <- as.vector(pf * rdg)
+    names(mort) <- rownames(samc$q_matrix)
+
+    if (ncol(samc$r_matrix) > 1) {
+      mort_list <- list()
+      for (n in colnames(samc$r_matrix)) {
+        mort_list[[n]] <- mort * (samc$r_matrix[, n] / rdg)
+      }
+      mort_list$total <- mort
+      return(mort_list)
+    } else {
+      return(mort)
+    }
   })
 
 #' @rdname mortality

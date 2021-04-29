@@ -216,7 +216,7 @@ for(test in testlist) {
     base_result <- solve(I - Q) %*% R
 
     # Verify
-    expect_equal(as.vector(result), as.vector(base_result))
+    expect_equal(as.vector(result$total), as.vector(base_result))
   })
 
 
@@ -236,23 +236,23 @@ for(test in testlist) {
     result <- mortality(samc_obj, dest = col_vec[1])
     result_char <- mortality(samc_obj, dest = as.character(col_vec[1]))
 
-    expect_equal(result, result_char)
-    expect_equal(as.vector(result), as.vector(base_result[, col_vec[1]]))
+    expect_equal(result$total, result_char$total)
+    expect_equal(as.vector(result$total), as.vector(base_result[, col_vec[1]]))
   })
 
   test_that("Testing mortality(samc, origin, dest)", {
     base_result <- solve(I - Q) %*% R
 
     vector_result <- mortality(samc_obj, origin = row_vec, des = col_vec)
-    vector_result_char <- mortality(samc_obj, origin = as.character(row_vec), des = as.character(col_vec))
+    vector_result_char <- mortality(samc_obj, origin = as.character(row_vec), dest = as.character(col_vec))
 
-    expect_equal(vector_result, vector_result_char)
+    expect_equal(vector_result$total, vector_result_char$total)
 
     for (i in 1:length(row_vec)) {
       r <- mortality(samc_obj, origin = row_vec[i], dest = col_vec[i])
 
-      expect_equal(vector_result[i], r)
-      expect_equal(r, base_result[row_vec[i], col_vec[i]], check.names = FALSE)
+      expect_equal(vector_result$total[i], r$total)
+      expect_equal(r$total, base_result[row_vec[i], col_vec[i]], check.names = FALSE)
     }
   })
 
@@ -262,6 +262,6 @@ for(test in testlist) {
     base_result <- pv %*% solve(I - Q) %*% R
 
     # Verify
-    expect_equal(as.vector(result), as.vector(base_result))
+    expect_equal(as.vector(result$total), as.vector(base_result))
   })
 }
