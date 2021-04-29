@@ -185,7 +185,7 @@ setMethod(
       abs_mat <- matrix(abs_vec, ncol = 1)
     }
 
-    colnames(abs_mat) <- 1:ncol(abs_mat)
+    colnames(abs_mat) <- names(abs_mat)
 
     abs_total <- rowSums(abs_mat)
     if (any(abs_total > 1, na.rm = TRUE) || any(abs_total < 0, na.rm = TRUE)) {
@@ -266,18 +266,18 @@ setMethod(
 setMethod(
   "samc",
   signature(data = "RasterLayer",
-            absorption = "RasterLayer",
+            absorption = "Raster",
             fidelity = "RasterLayer",
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
-    return(samc(data, raster::stack(absorption), fidelity, tr_args))
+    return(samc(data, absorption, fidelity, tr_args))
   })
 
 #' @rdname samc
 setMethod(
   "samc",
   signature(data = "RasterLayer",
-            absorption = "RasterStack",
+            absorption = "Raster",
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {
@@ -286,17 +286,6 @@ setMethod(
     fidelity[is.finite(fidelity)] <- 0
 
     return(samc(data, absorption, fidelity, tr_args))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "RasterLayer",
-            absorption = "RasterLayer",
-            fidelity = "missing",
-            tr_args = "list"),
-  function(data, absorption, tr_args) {
-    return(samc(data, raster::stack(absorption), tr_args = tr_args))
   })
 
 #' @rdname samc
