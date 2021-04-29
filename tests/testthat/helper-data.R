@@ -115,6 +115,21 @@ for(i in 1:length(masklist)) {
   testlist[[i]]$id <- i
 }
 
+# Asymmetric versions
+n <- length(testlist)
+for(i in (n + 1):(n + length(masklist))) {
+  testlist[[i]] <- lapply(baselist, function(x) {masklist[[i - n]] * x})
+
+  testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
+
+  testlist[[i]]$samc <- samc(testlist[[i]]$res,
+                             list(testlist[[i]]$abs * p1, testlist[[i]]$abs * p2),
+                             testlist[[i]]$fid,
+                             tr_args = list(fun = function(x) 1/(mean(x) + x[1]), dir = 4, sym = FALSE))
+
+  testlist[[i]]$id <- i
+}
+
 
 time = 100
 time_vec = c(3, 5, 7, 11, 13)
