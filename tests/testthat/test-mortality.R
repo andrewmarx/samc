@@ -16,6 +16,9 @@ for(test in testlist) {
   # Create an indentity matrix
   I <- diag(nrow(Q))
 
+  # Fundamental matrix
+  F_mat <- solve(I - Q)
+
   # Prepare the occupancy data
   occ_ras <- raster::raster(test$occ)
   pv <- as.vector(occ_ras)
@@ -213,7 +216,7 @@ for(test in testlist) {
     result <- mortality(samc_obj)
     samc_obj$override <- FALSE
 
-    base_result <- solve(I - Q) %*% R
+    base_result <- F_mat %*% R
 
     # Verify
     expect_equal(as.vector(result$total), as.vector(base_result))
@@ -221,7 +224,7 @@ for(test in testlist) {
 
 
   test_that("Testing mortality(samc, origin)", {
-    base_result <- solve(I - Q) %*% R
+    base_result <- F_mat %*% R
 
     result <- mortality(samc_obj, origin = row_vec[1])
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]))
@@ -231,7 +234,7 @@ for(test in testlist) {
   })
 
   test_that("Testing mortality(samc, dest)", {
-    base_result <- solve(I - Q) %*% R
+    base_result <- F_mat %*% R
 
     result <- mortality(samc_obj, dest = col_vec[1])
     result_char <- mortality(samc_obj, dest = as.character(col_vec[1]))
@@ -241,7 +244,7 @@ for(test in testlist) {
   })
 
   test_that("Testing mortality(samc, origin, dest)", {
-    base_result <- solve(I - Q) %*% R
+    base_result <- F_mat %*% R
 
     vector_result <- mortality(samc_obj, origin = row_vec, des = col_vec)
     vector_result_char <- mortality(samc_obj, origin = as.character(row_vec), dest = as.character(col_vec))
@@ -259,7 +262,7 @@ for(test in testlist) {
   test_that("Testing mortality(samc, occ)", {
     result <- mortality(samc_obj, occ = test$occ)
 
-    base_result <- pv %*% solve(I - Q) %*% R
+    base_result <- pv %*% F_mat %*% R
 
     # Verify
     expect_equal(as.vector(result$total), as.vector(base_result))

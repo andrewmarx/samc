@@ -11,6 +11,9 @@ for(test in testlist) {
   # Create an indentity matrix
   I <- diag(nrow(Q))
 
+  # Fundamental matrix
+  F_mat <- solve(I - Q)
+
   # Prepare the occupancy data
   occ_ras <- raster::raster(test$occ)
   pv <- as.vector(occ_ras)
@@ -25,7 +28,7 @@ for(test in testlist) {
     v1 <- numeric(nrow(Q))
     v1[] <- 1
 
-    r2 <- solve(I - Q) %*% v1
+    r2 <- F_mat %*% v1
 
     # Verify equality
     expect_equal(as.vector(r1), as.vector(r2))
@@ -38,7 +41,7 @@ for(test in testlist) {
     v1 <- numeric(nrow(Q))
     v1[] <- 1
 
-    r2 <- pv %*% solve(I - Q) %*% v1
+    r2 <- pv %*% F_mat %*% v1
 
     # Verify equality
     expect_equal(as.vector(r1), as.vector(r2))
