@@ -1,0 +1,146 @@
+---
+title: "Multiple Absorption Tutorial"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multiple Absorption Tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+required <- c("viridis")
+if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
+```
+
+## Introduction
+
+Starting in v1.4.0, the samc package included support for multiple sources of absorption when creating an samc object. Additionally, when multiple sources of absorption are provided, the results of the mortality() metrix are now decomposed into its individual and total components, which are returned in a named list. When only a single absorption input is provided, the function will work exactly like it did previously to maintain backwards compatability with existing code.
+
+*Note: only the asymptotic calculations are currently decomposed. The short-term mortality metrics still need to be updated.*
+
+
+## Setup
+
+For this example, we will use the example data included in the package, but will sem-randomly divide the absorption matrix into two separate layers. These layers are used for illustrative purposes and do not represent anything meaningful.
+
+```{r, message = FALSE, fig.show='hold'}
+# First step is to load the libraries. Not all of these libraries are stricly
+# needed; some are used for convenience and visualization for this tutorial.
+library("raster")
+library("samc")
+library("viridisLite")
+
+# "Load" the data. In this case we are using data built into the package.
+# In practice, users will likely load raster data using the raster() function
+# from the raster package.
+res_data <- samc::ex_res_data
+abs_data <- samc::ex_abs_data
+occ_data <- samc::ex_occ_data
+
+# Generate some random values that will be used as proportions for dividing the
+# absorption data.
+p1 <- runif(length(abs_data), max = 0.3)
+p2 <- 1 - p1
+
+# Divide our absorption data into two layers. When added together, these two
+# layers should be identical to the original
+abs_data_a <- abs_data * p1
+abs_data_b <- abs_data * p2
+
+all.equal(abs_data_a + abs_data_b, abs_data)
+```
+
+
+## Create the `samc` Object
+
+We're going to create two samc objects. The first will be using just the original absorption layer. The second will be using our subdivided layers. Since our data is a matrix object, we will provide the absorption layers in a list object. When using raster data, it would be provided as either a RasterStack or a RasterBrick. The layers in the list/RasterStack/RasterBrick can be named, which will carryover into the results, which can help with code readability when accessing different parts of the results (we'll see this later).
+
+It's important to note that the absorption probabilities from multiple layers are summed together, and the total must be in the range of 0 to 1 for each transient state or location.
+
+```{r}
+# Setup the details for our transition function
+tr <- list(fun = function(x) 1/mean(x), # Function for calculating transition probabilities
+           dir = 8, # Directions of the transitions. Either 4 or 8.
+           sym = TRUE) # Is the function symmetric?
+
+# Create the first samc object using the original absorption layer
+samc_single <- samc(res_data, abs_data, tr_args = tr)
+
+# Create the second samc object using the subdivided layers in a named list
+samc_multiple <- samc(res_data,
+                 list(abs1 = abs_data_a,
+                      abs2 = abs_data_b),
+                 tr_args = tr)
+
+```
+
+
+## Analysis
+
+The use of multiple absorption layers is mainly of interest for the mortality() metric, which calculates the probability of absorption at different transient states or locations. By providing multiple absorption layers, we can tease apart the role that different sources of absorption might have in a model.
+
+
+
+```{r, fig.width = 6.5, out.width = '100%', fig.height= 3, fig.align = "center"}
+# Let's say we're interested in where absorption is expected to occur throughout
+# the model if starting from a single location
+mort_single <- mortality(samc_single, origin = 1)
+mort_multiple <- mortality(samc_multiple, origin = 1)
+
+# Let's note the different objects that have been returned
+
+# First, for the single absorption input, we have a named vector
+str(mort_single)
+
+# Second, for the multiple absorption input, we have a list of named vectors. The
+# first two are the results for original subdivided absorption inputs. The third
+# is for the total absorption
+str(mort_multiple)
+
+# Let's see what everything looks like
+single_map <- map(samc_single, mort_single)
+multiple_map <- map(samc_multiple, mort_multiple)
+
+# Let's convert the list of maps to a RasterStack for plotting
+multiple_map <- raster::stack(multiple_map)
+
+plot(single_map, xlab = "x", ylab = "y", col = viridis(256))
+```
+
+```{r, fig.width = 6.5, out.width = '100%', fig.height= 9, fig.align = "center"}
+plot(multiple_map, xlab = "x", ylab = "y", col = viridis(256), nc = 1, nr = 3)
+
+# Let's check some things.
+
+#First, the results of the decomposed layers in the list should add up to the total result
+all.equal(multiple_map[[1]] + multiple_map[[2]], multiple_map[[3]])
+# Alternatively, we could use the layer names:
+all.equal(multiple_map$abs1 + multiple_map$abs2, multiple_map$total)
+
+# Second, notice in the plots above that the result for the single input and the total
+# result for the multiple input look very similar? That's because they are identical
+all.equal(single_map, multiple_map$total)
+
+```
+
+
+## Advanced
+
+Previously it was mentioned that the sum of multiple absorption layers must be in the range of 0 to 1 for each transient state or location. However, as long as this condition is met, individidual absorption layers can have negative values. Why does this matter? Because, depending on the context, absorption can mean multiple things, and those things may or may not be independent and/or mutually exclusive. Let's use a hypothetical example to illustrate this.
+
+Imagine we are interested in modelling the dispersal of a deer across a landscape where we have data on predation and road mortality (hit by a vehicle) as potential sources of absorption. In this case, both types of absorption result in death of the deer, and since a deer cannot die twice, this means that both types of absorption are *mutually exclusive.* In terms of probability, we can think of this as $P(A\text{ or }B) = P(A) + P(B)$ where $P(A) = \text{Probability of Predation}$ and $P(B) = \text{Probability of Road Mortality}$. For the samc package, $P(A)$ and $P(B)$ can simply be constructed as two separate absorption layers and passed to the samc() function.
+
+But let's say that instead of road mortality data, we have data on settlement. In other words, as the deer is moving around, it eventually finds a location it really likes and decides to never leave (i.e., "settle"). This is a case that can be treated as absorption in an absorbing Markov chain, but it has a fundamentally different meaning from absorption due to death. In fact, the two events can actually occur simultaneously; they are *not mutually exclusive*. And assuming that the decision to settle by the deer is not being influenced by the chance of predation (i.e., *independent*), then we have a situation where we might not strictly want to just sum the two absorption probabilities. Instead, our total absorption might be better calculated as $P(A\text{ or }B) = P(A) + P(B) - P(A)P(B)$ where $P(A) = \text{Probability of Predation}$, $P(b) = \text{Probability of Settling}$, and $P(A)P(B) = \text{Probability of Both}$.
+
+This situation, while more complex, is an example of why the samc package allows negative absorption values for individual layers (again, as long as the sum of the values for each transient state across absorption layers falls in the range of 0 to 1). $P(A)$ can be passed as the first absorption layer, $P(B)$ can be passed as the second absorption layer, and $-P(A)P(B)$ can be passed as the third absorption layer (it's negated because samc() sums all the layers together). The total absorption from the mortality() metric will now return an accurate result while still allowing access to results for individual sources of absorption. The only thing to be careful about is that the results corresponding to the third absorption input $-P(A)P(B)$ will be negative, so if there is interest in interpreting or using the results for when both events occur, this part of the result will need to be multiplied by -1.
+
+*Depending on potential uses and interest, a future version of the package may incorporate the ability to define custom relationships or equations for absorption layers, allowing even more nuanced interactions not possible using default summation behavior.*
