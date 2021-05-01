@@ -185,7 +185,7 @@ setMethod(
       abs_mat <- matrix(abs_vec, ncol = 1)
     }
 
-    colnames(abs_mat) <- names(abs_mat)
+    colnames(abs_mat) <- names(absorption)
 
     abs_total <- rowSums(abs_mat)
     if (any(abs_total > 1, na.rm = TRUE) || any(abs_total < 0, na.rm = TRUE)) {
@@ -244,7 +244,6 @@ setMethod(
       stop("Column names must be unique")
 
     rownames(abs_mat) <- rownames(tr_mat)
-    colnames(abs_mat) <- 1:ncol(abs_mat)
 
     # Assemble final
     samc_mat <- methods::new("samc",
