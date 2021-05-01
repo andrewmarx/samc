@@ -405,7 +405,7 @@ setMethod(
     if (ncol(samc$r_matrix) > 1) {
       mort_list <- list()
       for (n in colnames(samc$r_matrix)) {
-        mort_list[[n]] <- mort * samc$r_matrix[dest, n]
+        mort_list[[n]] <- results * samc$r_matrix[dest, n]
       }
       mort_list$total <- mort
       return(mort_list)
