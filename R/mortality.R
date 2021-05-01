@@ -302,6 +302,8 @@ setMethod(
 
     f <- visitation(samc)
     gc()
+    dimnames(f) <- dimnames(samc$q_matrix) # Not sure why dimnames aren't carrying through later calculations
+
     rdg <- rowSums(samc$r_matrix)
     r <- Matrix::sparseMatrix(i = 1:length(rdg),
                               j = 1:length(rdg),
@@ -310,12 +312,16 @@ setMethod(
 
     # TODO f %*% r can be simplified to an elementwise multiplication of the matrix columns by the corresponding elements in the rdg vector. This might be helpful for memory allocations and performance.
     mort <- f %*% r
+    dimnames(mort) <- dimnames(samc$q_matrix) # See above dimnames comment
+
     gc()
 
     if (ncol(samc$r_matrix) > 1) {
       mort_list <- list()
       for (n in colnames(samc$r_matrix)) {
-        mort_list[[n]] <- mort * (samc$r_matrix[, n] / rdg)
+        Matrix::diag(r) <- samc$r_matrix[, n]
+        mort_list[[n]] <- f %*% r
+        dimnames(mort_list[[n]]) <- dimnames(samc$q_matrix) # See above dimnames comment
       }
       mort_list$total <- mort
       return(mort_list)
@@ -331,16 +337,15 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
     vis <- visitation(samc, origin = origin)
+    names(vis) <- rownames(samc$q_matrix)
 
     rdg <- rowSums(samc$r_matrix)
-
-    mort <- as.vector(vis * rdg)
-    names(mort) <- rownames(samc$q_matrix)
+    mort <- vis * rdg
 
     if (ncol(samc$r_matrix) > 1) {
       mort_list <- list()
       for (n in colnames(samc$r_matrix)) {
-        mort_list[[n]] <- mort * (samc$r_matrix[, n] / rdg)
+        mort_list[[n]] <- vis * samc$r_matrix[, n]
       }
       mort_list$total <- mort
       return(mort_list)
@@ -356,16 +361,15 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
     vis <- visitation(samc, dest = dest)
+    names(vis) <- rownames(samc$q_matrix)
 
     rdg <- rowSums(samc$r_matrix)
-
-    mort <- as.vector(vis * rdg[dest])
-    names(mort) <- rownames(samc$q_matrix)
+    mort <- vis * rdg[dest]
 
     if (ncol(samc$r_matrix) > 1) {
       mort_list <- list()
       for (n in colnames(samc$r_matrix)) {
-        mort_list[[n]] <- mort * (samc$r_matrix[dest, n] / rdg[dest])
+        mort_list[[n]] <- vis * samc$r_matrix[dest, n]
       }
       mort_list$total <- mort
       return(mort_list)
@@ -388,20 +392,20 @@ setMethod(
 
     rdg <- rowSums(samc$r_matrix)
 
-    mort <- vector(mode = "numeric", length = length(origin))
+    results <- vector(mode = "numeric", length = length(origin))
 
     for (d in unique(dest)) {
       vis <- visitation(samc, dest = d)
-      mort[dest == d] <- vis[origin[dest == d]] * rdg[d]
+      results[dest == d] <- vis[origin[dest == d]]
     }
+    names(results) <- rownames(samc$q_matrix)[dest]
 
-    names(mort) <- rownames(samc$q_matrix)[dest]
-
+    mort <- results * rdg[dest]
 
     if (ncol(samc$r_matrix) > 1) {
       mort_list <- list()
       for (n in colnames(samc$r_matrix)) {
-        mort_list[[n]] <- mort * (samc$r_matrix[dest, n] / rdg[dest])
+        mort_list[[n]] <- mort * samc$r_matrix[dest, n]
       }
       mort_list$total <- mort
       return(mort_list)
@@ -428,14 +432,14 @@ setMethod(
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
     pf <- .psif(q, pv)
+    names(pf) <- rownames(samc$q_matrix)
 
-    mort <- as.vector(pf * rdg)
-    names(mort) <- rownames(samc$q_matrix)
+    mort <- pf * rdg
 
     if (ncol(samc$r_matrix) > 1) {
       mort_list <- list()
       for (n in colnames(samc$r_matrix)) {
-        mort_list[[n]] <- mort * (samc$r_matrix[, n] / rdg)
+        mort_list[[n]] <- pf * samc$r_matrix[, n]
       }
       mort_list$total <- mort
       return(mort_list)
