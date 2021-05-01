@@ -218,7 +218,9 @@ for(test in testlist) {
 
     base_result <- F_mat %*% R
 
-    # Verify
+    # Make sure absorption components add up
+    expect_equal(as.vector(result$total), as.vector(Reduce('+', result) - result$total))
+
     expect_equal(as.vector(result$total), as.vector(base_result))
   })
 
@@ -228,6 +230,9 @@ for(test in testlist) {
 
     result <- mortality(samc_obj, origin = row_vec[1])
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]))
+
+    # Make sure absorption components add up
+    expect_equal(as.vector(result$total), as.vector(Reduce('+', result) - result$total))
 
     expect_equal(result$total, result_char$total)
     expect_equal(as.vector(result$total), as.vector(base_result[row_vec[1], ]))
@@ -239,6 +244,9 @@ for(test in testlist) {
     result <- mortality(samc_obj, dest = col_vec[1])
     result_char <- mortality(samc_obj, dest = as.character(col_vec[1]))
 
+    # Make sure absorption components add up
+    expect_equal(as.vector(result$total), as.vector(Reduce('+', result) - result$total))
+
     expect_equal(result$total, result_char$total)
     expect_equal(as.vector(result$total), as.vector(base_result[, col_vec[1]]))
   })
@@ -248,6 +256,9 @@ for(test in testlist) {
 
     vector_result <- mortality(samc_obj, origin = row_vec, des = col_vec)
     vector_result_char <- mortality(samc_obj, origin = as.character(row_vec), dest = as.character(col_vec))
+
+    # Make sure absorption components add up
+    expect_equal(as.vector(vector_result$total), as.vector(Reduce('+', vector_result) - vector_result$total))
 
     expect_equal(vector_result$total, vector_result_char$total)
 
@@ -264,7 +275,9 @@ for(test in testlist) {
 
     base_result <- pv %*% F_mat %*% R
 
-    # Verify
+    # Make sure absorption components add up
+    expect_equal(as.vector(result$total), as.vector(Reduce('+', result) - result$total))
+
     expect_equal(as.vector(result$total), as.vector(base_result))
   })
 }
