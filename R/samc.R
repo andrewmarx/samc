@@ -185,6 +185,7 @@ setMethod(
       abs_mat <- matrix(abs_vec, ncol = 1)
     }
 
+    if ("total" %in% names(absorption)) stop("'total' is a reserved name and cannot be used for absorption layers", call. = FALSE)
     colnames(abs_mat) <- names(absorption)
 
     abs_total <- rowSums(abs_mat)
