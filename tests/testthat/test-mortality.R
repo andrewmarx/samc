@@ -11,7 +11,7 @@ for(test in testlist) {
 
   # Extract R
   R <- diag(nrow(Q))
-  diag(R) <- rowSums(samc_obj$r_matrix)
+  diag(R) <- samc_obj@data@t_abs
 
   R_list <- lapply(split(samc_obj$r_matrix, col(samc_obj$r_matrix)),
                    function(x){
@@ -19,7 +19,8 @@ for(test in testlist) {
                      diag(mat) <- x
                      return(mat)
                    })
-  R_list$total <- R
+
+  R_list <- c(list(total = R), R_list)
 
   # Create an indentity matrix
   I <- diag(nrow(Q))
@@ -224,7 +225,7 @@ for(test in testlist) {
     samc_obj$override <- TRUE
     result <- mortality(samc_obj)
     samc_obj$override <- FALSE
-    expect_equal(as.vector(result$total), as.vector(Reduce('+', result) - result$total))
+    expect_equal(as.vector(result[[1]]), as.vector(Reduce('+', result) - result[[1]]))
 
     # Make sure all absorption components match
     base_result <- lapply(R_list, function(x) F_mat %*% x)
@@ -236,11 +237,11 @@ for(test in testlist) {
   test_that("Testing mortality(samc, origin)", {
     # Make sure absorption components add up
     result <- mortality(samc_obj, origin = row_vec[1])
-    expect_equal(as.vector(result$total), as.vector(Reduce('+', result) - result$total))
+    expect_equal(as.vector(result[[1]]), as.vector(Reduce('+', result) - result[[1]]))
 
     # Make sure named and unnamed results match up
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]))
-    expect_equal(result$total, result_char$total)
+    expect_equal(result[[1]], result_char[[1]])
 
     # Make sure all absorption components match
     base_result <- lapply(R_list, function(x) F_mat %*% x)
@@ -251,11 +252,11 @@ for(test in testlist) {
   test_that("Testing mortality(samc, dest)", {
     # Make sure absorption components add up
     result <- mortality(samc_obj, dest = col_vec[1])
-    expect_equal(as.vector(result$total), as.vector(Reduce('+', result) - result$total))
+    expect_equal(as.vector(result[[1]]), as.vector(Reduce('+', result) - result[[1]]))
 
     # Make sure named and unnamed results match up
     result_char <- mortality(samc_obj, dest = as.character(col_vec[1]))
-    expect_equal(result$total, result_char$total)
+    expect_equal(result[[1]], result_char[[1]])
 
     # Make sure all absorption components match
     base_result <- lapply(R_list, function(x) F_mat %*% x)
@@ -266,11 +267,11 @@ for(test in testlist) {
   test_that("Testing mortality(samc, origin, dest)", {
     # Make sure absorption components add up
     vector_result <- mortality(samc_obj, origin = row_vec, des = col_vec)
-    expect_equal(as.vector(vector_result$total), as.vector(Reduce('+', vector_result) - vector_result$total))
+    expect_equal(as.vector(vector_result[[1]]), as.vector(Reduce('+', vector_result) - vector_result[[1]]))
 
     # Make sure named and unnamed results match up
     vector_result_char <- mortality(samc_obj, origin = as.character(row_vec), dest = as.character(col_vec))
-    expect_equal(vector_result$total, vector_result_char$total)
+    expect_equal(vector_result[[1]], vector_result_char[[1]])
 
 
     base_result <- lapply(R_list, function(x) F_mat %*% x)
@@ -289,7 +290,7 @@ for(test in testlist) {
   test_that("Testing mortality(samc, occ)", {
     # Make sure absorption components add up
     result <- mortality(samc_obj, occ = test$occ)
-    expect_equal(as.vector(result$total), as.vector(Reduce('+', result) - result$total))
+    expect_equal(as.vector(result[[1]]), as.vector(Reduce('+', result) - result[[1]]))
 
     # Make sure all absorption components match
     base_result <- lapply(R_list, function(x) pv %*% F_mat %*% x)

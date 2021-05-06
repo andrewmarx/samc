@@ -185,6 +185,8 @@ setMethod(
       abs_mat <- matrix(abs_vec, ncol = 1)
     }
 
+    if(any(abs_mat > 1, na.rm = TRUE) || any(abs_mat < 0, na.rm = TRUE))
+
     if ("total" %in% names(absorption)) stop("'total' is a reserved name and cannot be used for absorption layers", call. = FALSE)
     colnames(abs_mat) <- names(absorption)
 
@@ -231,6 +233,7 @@ setMethod(
     if (length(excl) > 0) {
       tr_mat = tr_mat[-excl, -excl]
       abs_mat <- abs_mat[-excl, , drop = FALSE]
+      abs_total <- abs_total[-excl]
     }
 
     tr_mat <- methods::as(tr_mat, "dgCMatrix")
@@ -245,12 +248,14 @@ setMethod(
       stop("Column names must be unique")
 
     rownames(abs_mat) <- rownames(tr_mat)
+    names(abs_total) <- rownames(tr_mat)
 
     # Assemble final
     samc_mat <- methods::new("samc",
                              data = methods::new("samc_data",
                                                  q = tr_mat,
-                                                 r = abs_mat),
+                                                 r = abs_mat,
+                                                 t_abs = abs_total),
                              source = "map",
                              map = m,
                              clumps = clumps,
@@ -365,7 +370,6 @@ setMethod(
     if (c != r) stop("Matrix is not square", call. = FALSE)
     if (data[r, c] != 1) stop("The last element must be 1", call. = FALSE)
     if (sum(data[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element", call. = FALSE)
-    if (!isTRUE(all.equal(Matrix::rowSums(data), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
     # Figure out number of absorbing states
     p_diag <- Matrix::diag(data)
@@ -385,11 +389,20 @@ setMethod(
 
     r_start <- r - (r_dim - 1)
 
-    if (is.null(rownames(data))) rownames(data) <- 1:r
-    if (is.null(colnames(data))) colnames(data) <- 1:c
+    q_mat <- methods::as(data[-(r_start:r), -(r_start:r)], "dgCMatrix")
+    r_mat <- as.matrix(data[-(r_start:r), r_start:r])
+    abs_total <- rowSums(r_mat)
 
-    rn <- rownames(data)[-(r_start:r)]
-    cn <- colnames(data)[-(r_start:r)]
+    if (!isTRUE(all.equal(Matrix::rowSums(q_mat) + abs_total, rep(1, length(abs_total)), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
+
+    if (is.null(rownames(q_mat))) rownames(q_mat) <- 1:nrow(q_mat)
+    if (is.null(colnames(q_mat))) colnames(q_mat) <- 1:ncol(q_mat)
+
+    if (is.null(rownames(r_mat))) rownames(r_mat) <- 1:nrow(r_mat)
+    if (is.null(colnames(r_mat))) colnames(r_mat) <- 1:ncol(r_mat)
+
+    rn <- rownames(q_mat)
+    cn <- colnames(q_mat)
 
     if (!isTRUE(all.equal(rn, cn)))
       stop("The row and col names of the Q matrix must be identical", call. = FALSE)
@@ -397,14 +410,18 @@ setMethod(
     if (any(duplicated(rn)))
       stop("The row and col names of the Q matrix must be unique", call. = FALSE)
 
+    if (any(duplicated(colnames(r_mat))))
+      stop("The col names of the R matrix must be unique", call. = FALSE)
+
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
     print("2) Every disconnected region of the graph must have at least one non-zero absorption value.")
     # TODO The clumps value is a placeholder and needs to be calculated as a safety check for the cond_passage() function
     samc_obj <- methods::new("samc",
                              data = methods::new("samc_data",
-                                                 q = methods::as(data[-(r_start:r), -(r_start:r)], "dgCMatrix"),
-                                                 r = as.matrix(data[-(r_start:r), r_start:r])),
+                                                 q = q_mat,
+                                                 r = r_mat,
+                                                 t_abs = abs_total),
                              source = "matrix",
                              map = raster::raster(matrix()),
                              clumps = 1,

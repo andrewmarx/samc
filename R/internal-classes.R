@@ -8,6 +8,7 @@ NULL
 #'
 #' @slot q Q matrix
 #' @slot r R matrix
+#' @slot t_abs Total absorption
 #'
 #' @name samc_data-class
 #' @keywords internal
@@ -18,7 +19,8 @@ setClass(
 
   # define the slots
   slots = list(q = "dgCMatrix",
-               r = "matrix")
+               r = "matrix",
+               t_abs = "numeric")
 
   # set default values
   #prototype = list(p = NA)
