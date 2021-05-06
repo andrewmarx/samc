@@ -4,6 +4,15 @@
 - Updated long/lat handling in samc(). Deprecated latlon parameter. Added warning for rasters with non-square cells and missing projection.
 - Deprecated override parameter in the samc() function. See samc-class documentation for details.
 - Added the ability to use the $ operator for accessing and modifying components of samc-class objects. See samc-class documentation for details.
+- Updated check() so that multiple rasters can be inputted in the first argument as a RasterStack. This eliminates the need to manually run check() for every pair of rasters.
+- caching
+- multiple absorption
+- absorption()
+- Fix missing value short-term dispersal
+- Overview update
+- Performance update
+- Metric docs update
+- Named vector outputs
 
 # samc 1.3.0
 
