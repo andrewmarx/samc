@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-required <- c("viridis")
+required <- c("viridisLite")
 if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
   knitr::opts_chunk$set(eval = FALSE)
 }
@@ -122,25 +122,12 @@ plot(multiple_map, xlab = "x", ylab = "y", col = viridis(256), nc = 1, nr = 3)
 # Let's check some things.
 
 #First, the results of the decomposed layers in the list should add up to the total result
-all.equal(multiple_map[[1]] + multiple_map[[2]], multiple_map[[3]])
+all.equal(multiple_map[[1]], multiple_map[[2]] + multiple_map[[3]])
 # Alternatively, we could use the layer names:
-all.equal(multiple_map$abs1 + multiple_map$abs2, multiple_map$total)
+all.equal(multiple_map$total, multiple_map$abs1 + multiple_map$abs2)
 
 # Second, notice in the plots above that the result for the single input and the total
 # result for the multiple input look very similar? That's because they are identical
 all.equal(single_map, multiple_map$total)
 
 ```
-
-
-## Advanced
-
-Previously it was mentioned that the sum of multiple absorption layers must be in the range of 0 to 1 for each transient state or location. However, as long as this condition is met, individidual absorption layers can have negative values. Why does this matter? Because, depending on the context, absorption can mean multiple things, and those things may or may not be independent and/or mutually exclusive. Let's use a hypothetical example to illustrate this.
-
-Imagine we are interested in modelling the dispersal of a deer across a landscape where we have data on predation and road mortality (hit by a vehicle) as potential sources of absorption. In this case, both types of absorption result in death of the deer, and since a deer cannot die twice, this means that both types of absorption are *mutually exclusive.* In terms of probability, we can think of this as $P(A\text{ or }B) = P(A) + P(B)$ where $P(A) = \text{Probability of Predation}$ and $P(B) = \text{Probability of Road Mortality}$. For the samc package, $P(A)$ and $P(B)$ can simply be constructed as two separate absorption layers and passed to the samc() function.
-
-But let's say that instead of road mortality data, we have data on settlement. In other words, as the deer is moving around, it eventually finds a location it really likes and decides to never leave (i.e., "settle"). This is a case that can be treated as absorption in an absorbing Markov chain, but it has a fundamentally different meaning from absorption due to death. In fact, the two events can actually occur simultaneously; they are *not mutually exclusive*. And assuming that the decision to settle by the deer is not being influenced by the chance of predation (i.e., *independent*), then we have a situation where we might not strictly want to just sum the two absorption probabilities. Instead, our total absorption might be better calculated as $P(A\text{ or }B) = P(A) + P(B) - P(A)P(B)$ where $P(A) = \text{Probability of Predation}$, $P(b) = \text{Probability of Settling}$, and $P(A)P(B) = \text{Probability of Both}$.
-
-This situation, while more complex, is an example of why the samc package allows negative absorption values for individual layers (again, as long as the sum of the values for each transient state across absorption layers falls in the range of 0 to 1). $P(A)$ can be passed as the first absorption layer, $P(B)$ can be passed as the second absorption layer, and $-P(A)P(B)$ can be passed as the third absorption layer (it's negated because samc() sums all the layers together). The total absorption from the mortality() metric will now return an accurate result while still allowing access to results for individual sources of absorption. The only thing to be careful about is that the results corresponding to the third absorption input $-P(A)P(B)$ will be negative, so if there is interest in interpreting or using the results for when both events occur, this part of the result will need to be multiplied by -1.
-
-*Depending on potential uses and interest, a future version of the package may incorporate the ability to define custom relationships or equations for absorption layers, allowing even more nuanced interactions not possible using default summation behavior.*
