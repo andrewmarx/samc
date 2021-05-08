@@ -7,8 +7,8 @@ NULL
 #' Contains the data fields used in the samc-class
 #'
 #' @slot q Q matrix
-#' @slot r R matrix
 #' @slot t_abs Total absorption
+#' @slot c_abs Component absorptions
 #'
 #' @name samc_data-class
 #' @keywords internal
@@ -19,8 +19,8 @@ setClass(
 
   # define the slots
   slots = list(q = "dgCMatrix",
-               r = "matrix",
-               t_abs = "numeric")
+               t_abs = "numeric",
+               c_abs = "matrix")
 
   # set default values
   #prototype = list(p = NA)

@@ -10,7 +10,7 @@ for(test in testlist) {
 
   # Extract R
   R <- diag(nrow(Q))
-  diag(R) <- rowSums(samc_obj$r_matrix)
+  diag(R) <- samc_obj@data@t_abs
 
   # Create an indentity matrix
   I <- diag(nrow(Q))

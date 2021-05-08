@@ -314,11 +314,11 @@ setMethod(
     mort <- f %*% r
     dimnames(mort) <- dimnames(samc$q_matrix) # See above dimnames comment
 
-    if (ncol(samc$r_matrix) > 1) {
+    if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
 
-      for (n in colnames(samc$r_matrix)) {
-        Matrix::diag(r) <- samc$r_matrix[, n]
+      for (n in colnames(samc@data@c_abs)) {
+        Matrix::diag(r) <- samc@data@c_abs[, n]
         # TODO f %*% r can be simplified to an elementwise multiplication of the matrix columns by the corresponding elements in the rdg vector. This might be helpful for memory allocations and performance.
         mort[[n]] <- f %*% r
         dimnames(mort[[n]]) <- dimnames(samc$q_matrix) # See above dimnames comment
@@ -340,10 +340,10 @@ setMethod(
 
     mort <- vis * samc@data@t_abs
 
-    if (ncol(samc$r_matrix) > 1) {
+    if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
-      for (n in colnames(samc$r_matrix)) {
-        mort[[n]] <- vis * samc$r_matrix[, n]
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] <- vis * samc@data@c_abs[, n]
       }
     }
 
@@ -356,15 +356,17 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
+    dest <- .process_locations(samc, dest)
+
     vis <- visitation(samc, dest = dest)
     names(vis) <- rownames(samc$q_matrix)
 
     mort <- vis * samc@data@t_abs[dest]
 
-    if (ncol(samc$r_matrix) > 1) {
+    if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
-      for (n in colnames(samc$r_matrix)) {
-        mort[[n]] <- vis * samc$r_matrix[dest, n]
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] <- vis * samc@data@c_abs[dest, n]
       }
     }
 
@@ -394,10 +396,10 @@ setMethod(
 
     mort <- results * samc@data@t_abs[dest]
 
-    if (ncol(samc$r_matrix) > 1) {
+    if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
-      for (n in colnames(samc$r_matrix)) {
-        mort[[n]] <- results * samc$r_matrix[dest, n]
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] <- results * samc@data@c_abs[dest, n]
       }
     }
 
@@ -416,7 +418,6 @@ setMethod(
     pv <- pv[is.finite(pv)]
 
     q <- samc$q_matrix
-    rdg <- samc$r_matrix[, 1]
 
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
@@ -426,10 +427,10 @@ setMethod(
 
     mort <- pf * samc@data@t_abs
 
-    if (ncol(samc$r_matrix) > 1) {
+    if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
-      for (n in colnames(samc$r_matrix)) {
-        mort[[n]] <- pf * samc$r_matrix[, n]
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] <- pf * samc@data@c_abs[, n]
       }
     }
 

@@ -25,16 +25,14 @@ setMethod("$", signature(x = "samc"), function(x, name) {
   } else if (name == "q_matrix"){
     return(x@data@q)
   } else if (name == "p_matrix") {
-    p <- cbind(x@data@q, x@data@r)
-    p <- rbind(p, matrix(0, ncol(x@data@r), ncol(p)))
-    Matrix::diag(p)[(ncol(p) - ncol(x@data@r) + 1):ncol(p)] <- 1
+    p <- cbind(x@data@q, x@data@t_abs)
+    p <- rbind(p, matrix(0, nrow = 1, ncol = ncol(p)))
+    Matrix::diag(p)[ncol(p)] <- 1
 
-    colnames(p) <- c(colnames(x@data@q), colnames(x@data@r))
+    colnames(p) <- c(colnames(x@data@q), "total")
     rownames(p) <- colnames(p)
 
     return(p)
-  } else if (name == "r_matrix"){
-    return(x@data@r)
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
@@ -61,10 +59,14 @@ NULL
 setMethod("$<-", signature(x = "samc"), function(x, name, value) {
   if (name == "override") {
     x@override <- value
+  } else if (name == "abs_states"){
+    if (is.logical(value) && length(value) == 1 && is.na(value)) {
+      x@data@c_abs <- matrix(ncol = 0, nrow = 0)
+    } else {
+      x@data@c_abs <- .process_abs_states(x, value)
+    }
   } else if (name == "q_matrix"){
     warning("Cannot modify the Q matrix this way.", call. = FALSE)
-  } else if (name == "r_matrix"){
-    warning("Cannot modify the R matrix this way.", call. = FALSE)
   } else if (name == "p_matrix"){
     warning("Cannot modify the P matrix this way.", call. = FALSE)
   } else {

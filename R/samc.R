@@ -40,10 +40,9 @@ NULL
 #' must meet the following requirements:
 #' \itemize{
 #'   \item The number of rows must equal the number of columns (a square matrix)
-#'   \item Absorbing states must be a single group located in the right-hand most columns
-#'   \item At the bottom of the matrix, there must be a row for every absorbing state.
-#'   Each of these rows must be filled with 0's except for elements that are part of
-#'   the main diagonal, which must be set to 1
+#'   \item Total absorption must be a single column on the right-hand side of the matrix
+#'   \item At the bottom of the matrix, there must be a row filled with 0's except
+#'   for last element (bottom-right of the matrix diagonal), which must be set to 1
 #'   \item Every disconnected region of the matrix must have at least one non-zero
 #'   absorbing value
 #'   \item Each row must sum to 1
@@ -120,7 +119,7 @@ setGeneric(
 setMethod(
   "samc",
   signature(data = "RasterLayer",
-            absorption = "RasterStack",
+            absorption = "RasterLayer",
             fidelity = "RasterLayer",
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
@@ -132,10 +131,6 @@ setMethod(
 
     # Make sure the input data all aligns
     check(raster::stack(data, fidelity, absorption))
-
-    if (raster::nlayers(absorption) == 0) {
-      stop("Missing absorption data", call. = FALSE)
-    }
 
     if (any(data[] <= 0, na.rm = TRUE)) {
       stop("The data must not have values <= 0", call. = FALSE)
@@ -176,26 +171,14 @@ setMethod(
     }
 
 
-    abs_vec <- as.vector(absorption[[1]])
+    abs_vec <- as.vector(absorption)
     fid_vec <- as.vector(fidelity)
 
-    if (raster::nlayers(absorption) > 1) {
-      abs_mat <- raster::as.matrix(absorption)
-    } else {
-      abs_mat <- matrix(abs_vec, ncol = 1)
-    }
-
-    if(any(abs_mat > 1, na.rm = TRUE) || any(abs_mat < 0, na.rm = TRUE))
-
-    if ("total" %in% names(absorption)) stop("'total' is a reserved name and cannot be used for absorption layers", call. = FALSE)
-    colnames(abs_mat) <- names(absorption)
-
-    abs_total <- rowSums(abs_mat)
-    if (any(abs_total > 1, na.rm = TRUE) || any(abs_total < 0, na.rm = TRUE)) {
+    if (any(abs_vec > 1, na.rm = TRUE) || any(abs_vec < 0, na.rm = TRUE)) {
       stop("Sum of absorption values must be in range of 0-1", call. = FALSE)
     }
 
-    if (sum(abs_total, na.rm = TRUE) == 0) {
+    if (sum(abs_vec, na.rm = TRUE) == 0) {
       stop("At least one cell must have a total absorption value > 0", call. = FALSE)
     }
 
@@ -218,7 +201,7 @@ setMethod(
 
     # Old approach
     tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
-    tr_mat@x <- (1 - abs_total[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
+    tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
 
     # New approach that causes crash during one of the dispersal() tests
 #    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
@@ -226,14 +209,13 @@ setMethod(
 
     # Calculate fidelity values rather than assigning directly.
     # This approach ensures that P(abs) + P(fid) = 1 for isolated cells.
-    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - abs_total
+    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - abs_vec
 
     # Remove rows/cols for NA cells
     excl <- which(is.na(abs_vec))
     if (length(excl) > 0) {
       tr_mat = tr_mat[-excl, -excl]
-      abs_mat <- abs_mat[-excl, , drop = FALSE]
-      abs_total <- abs_total[-excl]
+      abs_vec <- abs_vec[-excl]
     }
 
     tr_mat <- methods::as(tr_mat, "dgCMatrix")
@@ -247,15 +229,13 @@ setMethod(
     if (any(duplicated(colnames(tr_mat))))
       stop("Column names must be unique")
 
-    rownames(abs_mat) <- rownames(tr_mat)
-    names(abs_total) <- rownames(tr_mat)
+    names(abs_vec) <- rownames(tr_mat)
 
     # Assemble final
     samc_mat <- methods::new("samc",
                              data = methods::new("samc_data",
                                                  q = tr_mat,
-                                                 r = abs_mat,
-                                                 t_abs = abs_total),
+                                                 t_abs = abs_vec),
                              source = "map",
                              map = m,
                              clumps = clumps,
@@ -271,18 +251,7 @@ setMethod(
 setMethod(
   "samc",
   signature(data = "RasterLayer",
-            absorption = "Raster",
-            fidelity = "RasterLayer",
-            tr_args = "list"),
-  function(data, absorption, fidelity, tr_args) {
-    return(samc(data, absorption, fidelity, tr_args))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "RasterLayer",
-            absorption = "Raster",
+            absorption = "RasterLayer",
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {
@@ -297,56 +266,37 @@ setMethod(
 setMethod(
   "samc",
   signature(data = "matrix",
-            absorption = "list",
+            absorption = "matrix",
             fidelity = "matrix",
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
 
     data <- .rasterize(data)
-    absorption <- lapply(absorption, .rasterize)
+    absorption <- .rasterize(absorption)
     fidelity <- .rasterize(fidelity)
 
     #fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(data, raster::stack(absorption), fidelity, tr_args))
+    return(samc(data, absorption, fidelity, tr_args))
   })
+
+
 
 #' @rdname samc
 setMethod(
   "samc",
   signature(data = "matrix",
             absorption = "matrix",
-            fidelity = "matrix",
-            tr_args = "list"),
-  function(data, absorption, fidelity, tr_args) {
-    return(samc(data, list(absorption), fidelity, tr_args))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "matrix",
-            absorption = "list",
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {
 
     data <- .rasterize(data)
-    absorption <- lapply(absorption, .rasterize)
+    absorption <- .rasterize(absorption)
 
-    return(samc(data, raster::stack(absorption), tr_args = tr_args))
+    return(samc(data, absorption, tr_args = tr_args))
   })
 
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "matrix",
-            absorption = "matrix",
-            fidelity = "missing",
-            tr_args = "list"),
-  function(data, absorption, tr_args) {
-    return(samc(data, list(absorption), tr_args = tr_args))
-  })
 
 #
 # P matrix ----
@@ -370,48 +320,25 @@ setMethod(
     if (c != r) stop("Matrix is not square", call. = FALSE)
     if (data[r, c] != 1) stop("The last element must be 1", call. = FALSE)
     if (sum(data[r,]) != 1) stop("Last row must be all zeros with a 1 in the last element", call. = FALSE)
+    if (!isTRUE(all.equal(Matrix::rowSums(data), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
-    # Figure out number of absorbing states
-    p_diag <- Matrix::diag(data)
-    r_dim <- 0
-    for (i in 1:r) {
-      if (p_diag[i] == 1) {
-        r_dim <- r_dim + 1
-      } else {
-        if (r_dim > 0) stop(paste("An absorbing was state detected mixed in with non-absorbing states.",
-                                  "All absorbing states should be located in a single group on",
-                                  "the right-hand side of the matrix."), call. = FALSE)
-      }
-    }
 
-    if (r_dim == 0) stop("No absorbing states found.", call. = FALSE) # Probably redundant with above check
-    if (r_dim == r) stop("Matrix consists entirely of absorbing states.", call. = FALSE)
 
-    r_start <- r - (r_dim - 1)
-
-    q_mat <- methods::as(data[-(r_start:r), -(r_start:r)], "dgCMatrix")
-    r_mat <- as.matrix(data[-(r_start:r), r_start:r])
-    abs_total <- rowSums(r_mat)
+    q_mat <- methods::as(data[-r, -c], "dgCMatrix")
+    abs_total <- data[-r, c]
 
     if (!isTRUE(all.equal(Matrix::rowSums(q_mat) + abs_total, rep(1, length(abs_total)), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
     if (is.null(rownames(q_mat))) rownames(q_mat) <- 1:nrow(q_mat)
     if (is.null(colnames(q_mat))) colnames(q_mat) <- 1:ncol(q_mat)
 
-    if (is.null(rownames(r_mat))) rownames(r_mat) <- 1:nrow(r_mat)
-    if (is.null(colnames(r_mat))) colnames(r_mat) <- 1:ncol(r_mat)
+    names(abs_total) <- rownames(q_mat)
 
-    rn <- rownames(q_mat)
-    cn <- colnames(q_mat)
-
-    if (!isTRUE(all.equal(rn, cn)))
+    if (!isTRUE(all.equal(rownames(q_mat), colnames(q_mat))))
       stop("The row and col names of the Q matrix must be identical", call. = FALSE)
 
-    if (any(duplicated(rn)))
+    if (any(duplicated(rownames(q_mat))))
       stop("The row and col names of the Q matrix must be unique", call. = FALSE)
-
-    if (any(duplicated(colnames(r_mat))))
-      stop("The col names of the R matrix must be unique", call. = FALSE)
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
@@ -420,7 +347,6 @@ setMethod(
     samc_obj <- methods::new("samc",
                              data = methods::new("samc_data",
                                                  q = q_mat,
-                                                 r = r_mat,
                                                  t_abs = abs_total),
                              source = "matrix",
                              map = raster::raster(matrix()),
