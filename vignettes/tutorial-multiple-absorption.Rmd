@@ -30,7 +30,7 @@ Starting in v1.4.0, the samc package included support for multiple sources of ab
 
 ## Setup
 
-For this example, we will use the example data included in the package, but will sem-randomly divide the absorption matrix into two separate layers. These layers are used for illustrative purposes and do not represent anything meaningful.
+For this example, we will use the example data included in the package, but will semi-randomly divide/decompose the absorption matrix into two separate layers. These layers are used for illustrative purposes and do not represent anything meaningful.
 
 ```{r, message = FALSE, fig.show='hold'}
 # First step is to load the libraries. Not all of these libraries are stricly
@@ -60,64 +60,55 @@ all.equal(abs_data_a + abs_data_b, abs_data)
 ```
 
 
-## Create the `samc` Object
+## Total (Single) Absorption
 
-We're going to create two samc objects. The first will be using just the original absorption layer. The second will be using our subdivided layers. Since our data is a matrix object, we will provide the absorption layers in a list object. When using raster data, it would be provided as either a RasterStack or a RasterBrick. The layers in the list/RasterStack/RasterBrick can be named, which will carryover into the results, which can help with code readability when accessing different parts of the results (we'll see this later).
+The use of multiple absorption layers is mainly of interest for the mortality() metric, which calculates the probability of absorption at different transient states or locations. By providing multiple absorption layers, we can tease apart the role that different sources of absorption might have in a model. To start, we will work with the total absorption.
 
-It's important to note that the absorption probabilities from multiple layers are summed together, and the total must be in the range of 0 to 1 for each transient state or location.
-
-```{r}
+```{r, fig.width = 6.5, out.width = '100%', fig.height= 3, fig.align = "center"}
 # Setup the details for our transition function
 tr <- list(fun = function(x) 1/mean(x), # Function for calculating transition probabilities
            dir = 8, # Directions of the transitions. Either 4 or 8.
            sym = TRUE) # Is the function symmetric?
 
-# Create the first samc object using the original absorption layer
-samc_single <- samc(res_data, abs_data, tr_args = tr)
+# Create the samc object using the original "total" absorption layer
+samc_obj <- samc(res_data, abs_data, tr_args = tr)
 
-# Create the second samc object using the subdivided layers in a named list
-samc_multiple <- samc(res_data,
-                 list(abs1 = abs_data_a,
-                      abs2 = abs_data_b),
-                 tr_args = tr)
-
-```
-
-
-## Analysis
-
-The use of multiple absorption layers is mainly of interest for the mortality() metric, which calculates the probability of absorption at different transient states or locations. By providing multiple absorption layers, we can tease apart the role that different sources of absorption might have in a model.
-
-
-
-```{r, fig.width = 6.5, out.width = '100%', fig.height= 3, fig.align = "center"}
 # Let's say we're interested in where absorption is expected to occur throughout
 # the model if starting from a single location
-mort_single <- mortality(samc_single, origin = 1)
-mort_multiple <- mortality(samc_multiple, origin = 1)
+mort <- mortality(samc_obj, origin = 1)
 
-# Let's note the different objects that have been returned
+# When only working with total absorption, this version of mortality() returns
+# a named vector
+str(mort)
 
-# First, for the single absorption input, we have a named vector
-str(mort_single)
-
-# Second, for the multiple absorption input, we have a list of named vectors. The
-# first two are the results for original subdivided absorption inputs. The third
-# is for the total absorption
-str(mort_multiple)
-
-# Let's see what everything looks like
-single_map <- map(samc_single, mort_single)
-multiple_map <- map(samc_multiple, mort_multiple)
-
-# Let's convert the list of maps to a RasterStack for plotting
-multiple_map <- raster::stack(multiple_map)
-
-plot(single_map, xlab = "x", ylab = "y", col = viridis(256))
+# Let's visualize it
+mort_map <- map(samc_obj, mort)
+plot(mort_map, xlab = "x", ylab = "y", col = viridis(256))
 ```
 
-```{r, fig.width = 6.5, out.width = '100%', fig.height= 9, fig.align = "center"}
+
+## Multiple Absorption
+
+Since our data is a matrix object, we will provide the decomposed absorption layers in a list object. When using raster data, it would be provided as either a RasterStack or a RasterBrick. The layers in the list/RasterStack/RasterBrick can be named, which will carryover into the results, which can help with code readability when accessing different parts of the results.
+
+```{r, fig.width = 6.5, out.width = '100%', fig.height= 3, fig.align = "center"}
+# Let's attach absorption layers to our samc object
+samc_obj$abs_states <- list(abs1 = abs_data_a,
+                            abs2 = abs_data_b)
+
+# Now rerun the analysis
+mort_multiple <- mortality(samc_obj, origin = 1)
+
+# Let's note the differences from what was returned before. Here, we have a list
+# of named vectors. The first is for the total absorption. The last two are for
+# the subdivided or decomposed absorption inputs
+str(mort_multiple)
+
+# Let's visualize it
+multiple_map <- map(samc_obj, mort_multiple)
+multiple_map <- raster::stack(multiple_map) # Convert the list to a RasterStack for plotting
 plot(multiple_map, xlab = "x", ylab = "y", col = viridis(256), nc = 1, nr = 3)
+
 
 # Let's check some things.
 
@@ -128,6 +119,10 @@ all.equal(multiple_map$total, multiple_map$abs1 + multiple_map$abs2)
 
 # Second, notice in the plots above that the result for the single input and the total
 # result for the multiple input look very similar? That's because they are identical
-all.equal(single_map, multiple_map$total)
+all.equal(mort, mort_multiple$total)
 
+
+# To remove the additional layers
+samc_obj$abs_states <- NA
 ```
+
