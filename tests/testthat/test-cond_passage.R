@@ -10,7 +10,7 @@ br_function <- function(samc, col) {
 
   I <- diag(nrow(Qj))
 
-  r <- rowSums(samc$r_matrix)
+  r <- samc@data@t_abs
   r <- r[-col]
 
   R <- cbind(r, qj)

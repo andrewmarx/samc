@@ -13,7 +13,7 @@ for(test in testlist) {
   R <- diag(nrow(Q))
   diag(R) <- samc_obj@data@t_abs
 
-  R_list <- lapply(split(samc_obj$r_matrix, col(samc_obj$r_matrix)),
+  R_list <- lapply(split(samc_obj@data@c_abs, col(samc_obj@data@c_abs)),
                    function(x){
                      mat <- diag(length(x))
                      diag(mat) <- x

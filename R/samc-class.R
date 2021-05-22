@@ -48,14 +48,20 @@ NULL
 #'   \code{samc_obj$q_matrix}. The Q matrix inside of the samc-class cannot be
 #'   modified.
 #'
-#'   \item \strong{r_matrix}
-#'
-#'   \code{samc_obj$r_matrix} can be used to get the R matrix component of the P
-#'   matrix. This matrix contains the absorption probabilities.
-#'
 #'   \item \strong{p_matrix}
 #'
 #'   \code{samc_obj$p_matrix} can be used to get the P matrix.
+#'
+#'   \item \strong{abs_states}
+#'
+#'   Used to attach additional absorbing states to an samc object. This does not
+#'   cause P/Q matrices to be updated. Instead, it is intended to provide decomposed
+#'   results from the mortality() and absorption() metrics for different sources
+#'   of absorption that might be contributing to the total absorption values that
+#'   were used to create the samc object.
+#'
+#'   The input must be in the same form as the inputs used in samc(). Using NA as
+#'   the input will reset it.
 #' }
 #'
 #' @slot data Data associated with different components of the P matrix

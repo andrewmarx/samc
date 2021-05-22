@@ -158,3 +158,63 @@ setMethod(
     stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
   }
 }
+
+
+#' Process absorption inputs
+#'
+#' Process absorption inputs
+#'
+#' @param samc A samc-class object
+#' @param x Absorption inputs
+#' @noRd
+setGeneric(
+  ".process_abs_states",
+  function(samc, x) {
+    standardGeneric(".process_abs_states")
+  })
+
+#' @noRd
+setMethod(
+  ".process_abs_states",
+  signature(samc = "samc", x = "Raster"),
+  function(samc, x) {
+    check(samc, x)
+
+    if (raster::nlayers(x) == 0) {
+     stop("Missing absorption data", call. = FALSE)
+    }
+
+    abs_vec <- as.vector(x[[1]])
+
+    if (raster::nlayers(x) > 1) {
+      abs_mat <- raster::as.matrix(x)
+    } else {
+      abs_mat <- matrix(abs_vec, ncol = 1)
+    }
+
+    if(any(abs_mat > 1, na.rm = TRUE) || any(abs_mat < 0, na.rm = TRUE)) stop("", call. = FALSE)
+
+    excl <- which(is.na(abs_vec))
+    if (length(excl) > 0) {
+      abs_mat <- abs_mat[-excl, , drop = FALSE]
+    }
+
+    if (is.null(names(x))) colnames(abs_mat) <- 1:ncol(abs_mat)
+
+    if ("" %in% names(x)) stop("Mix of named and unnamed maps/layers", call. = FALSE)
+    if (any(duplicated(names(x)))) stop("Duplicate names", call. = FALSE)
+
+    colnames(abs_mat) <- names(x)
+
+    return(abs_mat)
+  })
+
+setMethod(
+  ".process_abs_states",
+  signature(samc = "samc", x = "list"),
+  function(samc, x) {
+
+    x <- lapply(x, .rasterize)
+
+    return(.process_abs_states(samc, raster::stack(x)))
+  })

@@ -64,6 +64,7 @@ setMethod(
   "absorption",
   signature(samc = "samc", occ = "missing", origin = "missing"),
   function(samc) {
+    if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
     q <- samc$q_matrix
 
@@ -71,11 +72,11 @@ setMethod(
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
     # TODO: possibly optimize using C++
-    abs_mat <- Matrix::solve(q, samc$r_matrix)
+    abs_mat <- Matrix::solve(q, samc@data@c_abs)
 
     abs_mat <- as.matrix(abs_mat)
 
-    colnames(abs_mat) <- colnames(samc$r_matrix)
+    colnames(abs_mat) <- colnames(samc@data@c_abs)
 
     return(abs_mat)
   })
@@ -86,11 +87,13 @@ setMethod(
   "absorption",
   signature(samc = "samc", occ = "missing", origin = "location"),
   function(samc, origin) {
+    if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
+
     vis <- visitation(samc, origin = origin)
 
-    result <- as.vector(vis %*% samc$r_matrix)
+    result <- as.vector(vis %*% samc@data@c_abs)
 
-    names(result) <- colnames(samc$r_matrix)
+    names(result) <- colnames(samc@data@c_abs)
 
     return(result)
   })
@@ -101,6 +104,8 @@ setMethod(
   "absorption",
   signature(samc = "samc", occ = "RasterLayer", origin = "missing"),
   function(samc, occ) {
+    if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
+
     check(samc, occ)
 
     pv <- as.vector(occ)
@@ -113,8 +118,8 @@ setMethod(
 
     pf <- samc:::.psif(q, pv)
 
-    result <- as.vector(pf %*% samc$r_matrix)
-    names(result) <- colnames(samc$r_matrix)
+    result <- as.vector(pf %*% samc@data@c_abs)
+    names(result) <- colnames(samc@data@c_abs)
 
     return(result)
   })
@@ -124,6 +129,8 @@ setMethod(
   "absorption",
   signature(samc = "samc", occ = "matrix", origin = "missing"),
   function(samc, occ) {
+    if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
+
     occ <- samc:::.rasterize(occ)
 
     return(absorption(samc, occ))
