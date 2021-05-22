@@ -118,6 +118,29 @@ setGeneric(
 #' @rdname samc
 setMethod(
   "samc",
+  signature(data = "TransitionLayer",
+            absorption = "numeric",
+            fidelity = "numeric",
+            tr_args = "missing"),
+  function(data, absorption, fidelity) {
+
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "TransitionLayer",
+            absorption = "numeric",
+            fidelity = "missing",
+            tr_args = "missing"),
+  function(data, absorption) {
+
+
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
   signature(data = "RasterLayer",
             absorption = "RasterLayer",
             fidelity = "RasterLayer",
