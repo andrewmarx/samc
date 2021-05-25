@@ -123,7 +123,87 @@ setMethod(
             fidelity = "numeric",
             tr_args = "missing"),
   function(data, absorption, fidelity) {
+    if (any(fidelity < 0, na.rm = TRUE) || any(fidelity > 1, na.rm = TRUE)) {
+      stop("Fidelity values must be in range of 0-1", call. = FALSE)
+    }
 
+    if (any(absorption > 1, na.rm = TRUE) || any(absorption < 0, na.rm = TRUE)) {
+      stop("Absorption values must be in range of 0-1", call. = FALSE)
+    }
+
+    if (sum(absorption, na.rm = TRUE) == 0) {
+      stop("At least one cell must have a total absorption value > 0", call. = FALSE)
+    }
+
+    if (any((fidelity + absorption) > 1, na.rm = TRUE)) {
+      stop("No cells can have fidelity + absoprtion > 1", call. = FALSE)
+    }
+
+    tr_mat <- gdistance::transitionMatrix(data)
+
+    if (length(absorption) != nrow(tr_mat)) {
+      stop("Absorption length does not match number of rows in TransitionLayer", call. = FALSE)
+    }
+
+    if (length(absorption) != length(fidelity)) {
+      stop("Absorption length does not match Fidelity length", call. = FALSE)
+    }
+
+    if (!all.equal(is.na(absorption), is.na(fidelity))) {
+      stop("NA's in absorption and fidelity do not match", call. = FALSE)
+    }
+
+    # Normalize the transition Matrix
+
+    Matrix::diag(tr_mat) <- 0
+
+    # Old approach
+    tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
+    tr_mat@x <- (1 - absorption[tr_mat@i + 1] - fidelity[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
+
+    # New approach that causes crash during one of the dispersal() tests
+    #    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
+
+
+    # Calculate fidelity values rather than assigning directly.
+    # This approach ensures that P(abs) + P(fid) = 1 for isolated cells.
+    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - absorption
+
+    # Remove rows/cols for NA cells
+    excl <- which(is.na(absorption))
+    assign("raw", excl, globalenv())
+    if (length(excl) > 0) {
+      tr_mat = tr_mat[-excl, -excl]
+      absorption <- absorption[-excl]
+    }
+
+    tr_mat <- methods::as(tr_mat, "dgCMatrix")
+
+    # Check dimnames
+    if (is.null(rownames(tr_mat))) rownames(tr_mat) <- 1:nrow(tr_mat)
+    if (is.null(colnames(tr_mat))) colnames(tr_mat) <- 1:ncol(tr_mat)
+
+    if (any(duplicated(rownames(tr_mat))))
+      stop("Row names must be unique")
+    if (any(duplicated(colnames(tr_mat))))
+      stop("Column names must be unique")
+
+    names(absorption) <- rownames(tr_mat)
+
+    # Assemble final
+    samc_mat <- methods::new("samc",
+                             data = methods::new("samc_data",
+                                                 q = tr_mat,
+                                                 t_abs = absorption),
+                             source = "matrix",
+                             map = raster::raster(matrix()),
+                             clumps = 1,
+                             override = FALSE,
+                             .cache = new.env())
+    samc_mat@.cache$dgf = numeric(nrow(tr_mat))
+    samc_mat@.cache$dgf_exists = FALSE
+
+    return(samc_mat)
   })
 
 #' @rdname samc
@@ -134,8 +214,10 @@ setMethod(
             fidelity = "missing",
             tr_args = "missing"),
   function(data, absorption) {
+    fidelity <- absorption
+    fidelity[is.finite(fidelity)] <- 0
 
-
+    return(samc(data, absorption, fidelity))
   })
 
 #' @rdname samc
@@ -159,12 +241,8 @@ setMethod(
       stop("The data must not have values <= 0", call. = FALSE)
     }
 
-    if (any(fidelity[] < 0, na.rm = TRUE)) {
-      stop("The fidelity data must not have values < 0", call. = FALSE)
-    }
-
-    if (any(fidelity[] > 1, na.rm = TRUE)) {
-      stop("The fidelity data must not have values > 1", call. = FALSE)
+    if (any(fidelity[] < 0, na.rm = TRUE) || any(fidelity[] > 1, na.rm = TRUE)) {
+      stop("Fidelity values must be in range of 0-1", call. = FALSE)
     }
 
     if (any((fidelity[] + absorption[]) > 1, na.rm = TRUE)) {
@@ -193,12 +271,11 @@ setMethod(
       if (!all(1:clumps %in% unique(temp_abs[]))) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
     }
 
-
     abs_vec <- as.vector(absorption)
     fid_vec <- as.vector(fidelity)
 
     if (any(abs_vec > 1, na.rm = TRUE) || any(abs_vec < 0, na.rm = TRUE)) {
-      stop("Sum of absorption values must be in range of 0-1", call. = FALSE)
+      stop("Absorption values must be in range of 0-1", call. = FALSE)
     }
 
     if (sum(abs_vec, na.rm = TRUE) == 0) {
@@ -215,59 +292,13 @@ setMethod(
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 
-    tr_mat <- gdistance::transitionMatrix(tr)
+    samc_obj <- samc(tr, abs_vec, fid_vec)
 
+    samc_obj@source = "map"
+    samc_obj@map <- m
+    samc_obj@clumps <- clumps
 
-    # Normalize the transition Matrix
-
-    Matrix::diag(tr_mat) <- 0
-
-    # Old approach
-    tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
-    tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
-
-    # New approach that causes crash during one of the dispersal() tests
-#    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
-
-
-    # Calculate fidelity values rather than assigning directly.
-    # This approach ensures that P(abs) + P(fid) = 1 for isolated cells.
-    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - abs_vec
-
-    # Remove rows/cols for NA cells
-    excl <- which(is.na(abs_vec))
-    if (length(excl) > 0) {
-      tr_mat = tr_mat[-excl, -excl]
-      abs_vec <- abs_vec[-excl]
-    }
-
-    tr_mat <- methods::as(tr_mat, "dgCMatrix")
-
-    # Check dimnames
-    if (is.null(rownames(tr_mat))) rownames(tr_mat) <- 1:nrow(tr_mat)
-    if (is.null(colnames(tr_mat))) colnames(tr_mat) <- 1:ncol(tr_mat)
-
-    if (any(duplicated(rownames(tr_mat))))
-      stop("Row names must be unique")
-    if (any(duplicated(colnames(tr_mat))))
-      stop("Column names must be unique")
-
-    names(abs_vec) <- rownames(tr_mat)
-
-    # Assemble final
-    samc_mat <- methods::new("samc",
-                             data = methods::new("samc_data",
-                                                 q = tr_mat,
-                                                 t_abs = abs_vec),
-                             source = "map",
-                             map = m,
-                             clumps = clumps,
-                             override = FALSE,
-                             .cache = new.env())
-    samc_mat@.cache$dgf = numeric(nrow(tr_mat))
-    samc_mat@.cache$dgf_exists = FALSE
-
-    return(samc_mat)
+    return(samc_obj)
   })
 
 #' @rdname samc
