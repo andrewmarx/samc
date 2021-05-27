@@ -149,13 +149,20 @@ setMethod(
       stop("Absorption length does not match Fidelity length", call. = FALSE)
     }
 
-    if (!all.equal(is.na(absorption), is.na(fidelity))) {
+    if (!isTRUE(all.equal(is.na(absorption), is.na(fidelity)))) {
       stop("NA's in absorption and fidelity do not match", call. = FALSE)
     }
 
     # Normalize the transition Matrix
 
     Matrix::diag(tr_mat) <- 0
+
+    tr_vec_check <- numeric(length(absorption))
+    tr_vec_check[unique(tr_mat@i) + 1] <- NA
+
+    if (isTRUE(all.equal(is.na(absorption), is.na(tr_vec_check)))) {
+      stop("NA's in absorption do not match with TransitionLayer", call. = FALSE)
+    }
 
     # Old approach
     tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
