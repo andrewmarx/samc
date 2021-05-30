@@ -10,7 +10,7 @@ NULL
 #' Create an samc object that contains the absorbing Markov chain data
 #'
 #' This function is used to create a \code{\link{samc-class}} object. There are
-#' two options for creating this object.
+#' multiple options for creating this object.
 #'
 #' \strong{Option 1: Raster and Matrix Inputs}
 #'
@@ -32,7 +32,24 @@ NULL
 #' and if the transition function is symmetric (TRUE or FALSE). Here is the template:
 #' \code{list(fun = `function`, dir = `numeric`, sym = `logical`)}
 #'
-#' \strong{Option 2: P Matrix Input}
+#' \strong{Option 2: TransitionLayer Input}
+#'
+#' The \code{data} parameter can be a \code{\link[gdistance]{TransitionLayer}} object.
+#' In this case the \code{absorption} parameter is mandatory and should be a RasterLayer
+#' that has identical properties to the RasterLayer used to create the TransitionLayer
+#' object. The \code{fidelity} parameter is optional and has the same requirements as
+#' the \code{absorption} parameter. The \code{\link{check}} function can be used to
+#' verify these requirements.
+#'
+#' The advantage of this approach is that it offers slightly more flexibility than
+#' the first option. Namely, it's useful if the TransitionLayer needs additional
+#' modifications before it is normalized with the absorption and fidelity inputs.
+#' The disadvantage compared to the first option is that samc() cannot detect certain
+#' issues when the TransitionLayer is manually created and modified. So if users
+#' do not need to manually modify the TransitionLayer, then the first option for
+#' creating a samc object is recommended.
+#'
+#' \strong{Option 3: P Matrix Input}
 #'
 #' The \code{data} parameter can be used alone to create a \code{\link{samc-class}} object
 #' directly from a preconstructed P matrix. This matrix must be either a base R
@@ -119,54 +136,74 @@ setGeneric(
 setMethod(
   "samc",
   signature(data = "TransitionLayer",
-            absorption = "numeric",
-            fidelity = "numeric",
+            absorption = "RasterLayer",
+            fidelity = "RasterLayer",
             tr_args = "missing"),
   function(data, absorption, fidelity) {
-    if (any(fidelity < 0, na.rm = TRUE) || any(fidelity > 1, na.rm = TRUE)) {
+    check(absorption, fidelity)
+
+    abs_vec <- as.vector(absorption)
+    fid_vec <- as.vector(fidelity)
+
+    if (any(fid_vec < 0, na.rm = TRUE) || any(fid_vec > 1, na.rm = TRUE)) {
       stop("Fidelity values must be in range of 0-1", call. = FALSE)
     }
 
-    if (any(absorption > 1, na.rm = TRUE) || any(absorption < 0, na.rm = TRUE)) {
+    if (any(abs_vec > 1, na.rm = TRUE) || any(abs_vec < 0, na.rm = TRUE)) {
       stop("Absorption values must be in range of 0-1", call. = FALSE)
     }
 
-    if (sum(absorption, na.rm = TRUE) == 0) {
+    if (sum(abs_vec, na.rm = TRUE) == 0) {
       stop("At least one cell must have a total absorption value > 0", call. = FALSE)
     }
 
-    if (any((fidelity + absorption) > 1, na.rm = TRUE)) {
+    if (any((fid_vec + abs_vec) > 1, na.rm = TRUE)) {
       stop("No cells can have fidelity + absoprtion > 1", call. = FALSE)
     }
 
+    # Create map template
+    m <- absorption
+    m[] <- is.finite(m[])
+
+    # Get raster
+    rs <- gdistance::raster(data)
+    rs[] <- is.finite(rs[])
+
+    if (!identical(dim(m)[1:2], dim(rs)[1:2])) {
+      stop("Dimensions of absorption raster does not match dimensions of raster used to create TransitionLayer")
+    }
+
+    if (!identical(raster::extent(m), raster::extent(rs))) {
+      stop("Extent of absorption raster does not match extent of raster used to create TransitionLayer")
+    }
+
+    if (!identical(raster::crs(m), raster::crs(rs))) {
+      stop("Extent of absorption raster does not match extent of raster used to create TransitionLayer")
+    }
+
+
     tr_mat <- gdistance::transitionMatrix(data)
 
-    if (length(absorption) != nrow(tr_mat)) {
+    if (length(abs_vec) != nrow(tr_mat)) {
       stop("Absorption length does not match number of rows in TransitionLayer", call. = FALSE)
     }
 
-    if (length(absorption) != length(fidelity)) {
-      stop("Absorption length does not match Fidelity length", call. = FALSE)
-    }
-
-    if (!isTRUE(all.equal(is.na(absorption), is.na(fidelity)))) {
-      stop("NA's in absorption and fidelity do not match", call. = FALSE)
-    }
 
     # Normalize the transition Matrix
 
     Matrix::diag(tr_mat) <- 0
 
-    tr_vec_check <- numeric(length(absorption))
-    tr_vec_check[unique(tr_mat@i) + 1] <- NA
+    if (sum(Matrix::rowSums(tr_mat)[which(!m[])]) != 0) {
+       stop("NA cells in absorption raster correspond to non-zero probabilities in the TransitionLayer", call. = FALSE)
+    }
 
-    if (isTRUE(all.equal(is.na(absorption), is.na(tr_vec_check)))) {
-      stop("NA's in absorption do not match with TransitionLayer", call. = FALSE)
+    if (any(!m[which(Matrix::rowSums(tr_mat) != 0)])) {
+      stop("Non-zero probabilities in the TransitionLayer correspond to NA cells in absorption raster correspond to ", call. = FALSE)
     }
 
     # Old approach
     tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
-    tr_mat@x <- (1 - absorption[tr_mat@i + 1] - fidelity[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
+    tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
 
     # New approach that causes crash during one of the dispersal() tests
     #    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
@@ -174,14 +211,14 @@ setMethod(
 
     # Calculate fidelity values rather than assigning directly.
     # This approach ensures that P(abs) + P(fid) = 1 for isolated cells.
-    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - absorption
+    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - abs_vec
 
     # Remove rows/cols for NA cells
-    excl <- which(is.na(absorption))
+    excl <- which(is.na(abs_vec))
     assign("raw", excl, globalenv())
     if (length(excl) > 0) {
       tr_mat = tr_mat[-excl, -excl]
-      absorption <- absorption[-excl]
+      abs_vec <- abs_vec[-excl]
     }
 
     tr_mat <- methods::as(tr_mat, "dgCMatrix")
@@ -195,16 +232,16 @@ setMethod(
     if (any(duplicated(colnames(tr_mat))))
       stop("Column names must be unique")
 
-    names(absorption) <- rownames(tr_mat)
+    names(abs_vec) <- rownames(tr_mat)
 
     # Assemble final
     samc_mat <- methods::new("samc",
                              data = methods::new("samc_data",
                                                  q = tr_mat,
-                                                 t_abs = absorption),
+                                                 t_abs = abs_vec),
                              source = "matrix",
                              map = raster::raster(matrix()),
-                             clumps = 1,
+                             clumps = -1,
                              override = FALSE,
                              .cache = new.env())
     samc_mat@.cache$dgf = numeric(nrow(tr_mat))
@@ -217,7 +254,7 @@ setMethod(
 setMethod(
   "samc",
   signature(data = "TransitionLayer",
-            absorption = "numeric",
+            absorption = "RasterLayer",
             fidelity = "missing",
             tr_args = "missing"),
   function(data, absorption) {
@@ -299,7 +336,7 @@ setMethod(
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 
-    samc_obj <- samc(tr, abs_vec, fid_vec)
+    samc_obj <- samc(tr, absorption, fidelity)
 
     samc_obj@source = "map"
     samc_obj@map <- m
@@ -411,7 +448,7 @@ setMethod(
                                                  t_abs = abs_total),
                              source = "matrix",
                              map = raster::raster(matrix()),
-                             clumps = 1,
+                             clumps = -1,
                              override = FALSE)
 
     return(samc_obj)

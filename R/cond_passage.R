@@ -55,6 +55,9 @@ setMethod(
   "cond_passage",
   signature(samc = "samc", origin = "missing", dest = "location"),
   function(samc, dest) {
+    if (samc@clumps == -1)
+      warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
+
     if (samc@clumps > 1)
       stop("This function cannot be used with discontinuous data", call. = FALSE)
 
