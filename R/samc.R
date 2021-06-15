@@ -12,7 +12,11 @@ NULL
 #' This function is used to create a \code{\link{samc-class}} object. There are
 #' multiple options for creating this object.
 #'
-#' \strong{Option 1: Raster and Matrix Inputs}
+#' \strong{Option 1: Raster or Matrix Maps}
+#'
+#' \emph{\code{samc(data = matrix, absorption = matrix, fidelity = matrix, tr_args = list())}}
+#'
+#' \emph{\code{samc(data = RasterLayer, absorption = RasterLayer, fidelity = RasterLayer, tr_args = list())}}
 #'
 #' The \code{\link{samc-class}} object can be created from a combination of
 #' resistance (or conductance), absorption, and fidelity data. These different landscape data
@@ -32,9 +36,11 @@ NULL
 #' and if the transition function is symmetric (TRUE or FALSE). Here is the template:
 #' \code{list(fun = `function`, dir = `numeric`, sym = `logical`)}
 #'
-#' \strong{Option 2: TransitionLayer Input}
+#' \strong{Option 2: TransitionLayer}
 #'
-#' The \code{data} parameter can be a \code{\link[gdistance]{TransitionLayer}} object.
+#' \emph{\code{samc(data = TransitionLayer, absorption = RasterLayer, fidelity = RasterLayer)}}
+#'
+#' The \code{data} parameter can be a \code{TransitionLayer} object created using the gdistance package.
 #' In this case the \code{absorption} parameter is mandatory and should be a RasterLayer
 #' that has identical properties to the RasterLayer used to create the TransitionLayer
 #' object. The \code{fidelity} parameter is optional and has the same requirements as
@@ -49,7 +55,11 @@ NULL
 #' do not need to manually modify the TransitionLayer, then the first option for
 #' creating a samc object is recommended.
 #'
-#' \strong{Option 3: P Matrix Input}
+#' \strong{Option 3: P Matrix}
+#'
+#' \emph{\code{samc(data = matrix)}}
+#'
+#' \emph{\code{samc(data = dgCMatrix)}}
 #'
 #' The \code{data} parameter can be used alone to create a \code{\link{samc-class}} object
 #' directly from a preconstructed P matrix. This matrix must be either a base R
@@ -77,7 +87,7 @@ NULL
 #' column and the very last row of the P matrix. Since these are not part of the
 #' pairwise transition matrix, they may have whatever names the user prefers.
 #'
-#' \strong{Other Parameters}
+#' \strong{Other Parameters} \emph{Deprecated}
 #'
 #' The \code{directions} parameter is optional. When constructing the P matrix from
 #' matrix or raster data, the \code{samc()} function must decide how adjacent cells are
