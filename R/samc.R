@@ -249,8 +249,8 @@ setMethod(
                              data = methods::new("samc_data",
                                                  q = tr_mat,
                                                  t_abs = abs_vec),
-                             source = "matrix",
-                             map = raster::raster(matrix()),
+                             source = "map",
+                             map = m,
                              clumps = -1,
                              override = FALSE,
                              .cache = new.env())
