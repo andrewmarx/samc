@@ -225,7 +225,7 @@ setMethod(
 
     # Remove rows/cols for NA cells
     excl <- which(is.na(abs_vec))
-    assign("raw", excl, globalenv())
+
     if (length(excl) > 0) {
       tr_mat = tr_mat[-excl, -excl]
       abs_vec <- abs_vec[-excl]
