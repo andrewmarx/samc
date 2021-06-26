@@ -218,3 +218,51 @@ setMethod(
 
     return(.process_abs_states(samc, raster::stack(x)))
   })
+
+
+#' Process occupancy input
+#'
+#' Process occupancy input
+#'
+#' @param samc A samc-class object
+#' @param x occupancy input
+#' @noRd
+setGeneric(
+  ".process_occ",
+  function(samc, x) {
+    standardGeneric(".process_occ")
+  })
+
+# TODO: find a way to check the input type for `occ` to the input type to samc()
+
+#' @noRd
+setMethod(
+  ".process_occ",
+  signature(samc = "samc", x = "numeric"),
+  function(samc, x) {
+    if (any(!is.finite(x)) || any(x < 0)) stop("`occ` input must only contain positive numeric values")
+
+    if (length(x) != nrow(samc$q_matrix)) stop("`occ` input length does not match number of transient states")
+
+    return(x)
+  })
+
+#' @noRd
+setMethod(
+  ".process_occ",
+  signature(samc = "samc", x = "Raster"),
+  function(samc, x) {
+    check(samc, x)
+
+    pv <- as.vector(x)
+    pv <- pv[is.finite(pv)]
+
+    return(.process_occ(samc, pv))
+  })
+
+setMethod(
+  ".process_occ",
+  signature(samc = "samc", x = "matrix"),
+  function(samc, x) {
+    return(.process_occ(samc, .rasterize(x)))
+  })

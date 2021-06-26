@@ -154,19 +154,17 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "location", time = "numeric"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location", time = "numeric"),
   function(samc, occ, dest, time) {
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
     dest <- .process_locations(samc, dest)
 
-    check(samc, occ)
+    pv <- .process_occ(samc, occ)
 
     d <- dispersal(samc, dest = dest, time = time)
 
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
     pv <- pv[-dest]
 
     if (is.list(d)) {
@@ -176,15 +174,6 @@ setMethod(
     }
   })
 
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "location", time = "numeric"),
-  function(samc, occ, dest, time) {
-    occ <- .rasterize(occ)
-
-    return(dispersal(samc, occ, dest = dest, time = time))
-  })
 
 # dispersal(samc) ----
 #' @rdname dispersal
@@ -282,9 +271,9 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "missing"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-    check(samc, occ)
+    pv <- .process_occ(samc, occ)
 
     q <- samc$q_matrix
     q@x <- -q@x
@@ -296,45 +285,21 @@ setMethod(
       samc@.cache$dgf_exists <- TRUE
     }
 
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
     disp <- .psid_long(q, pv, samc@.cache$dgf)
 
     return(as.vector(disp))
   })
 
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "missing"),
-  function(samc, occ) {
-    occ <- .rasterize(occ)
-
-    return(dispersal(samc, occ))
-  })
 
 # dispersal(samc, occ, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "location", time = "missing"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, occ, dest) {
-    check(samc, occ)
-
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    pv <- .process_occ(samc, occ)
 
     dj <- dispersal(samc, dest = dest)
 
     return(as.numeric(pv %*% dj))
-  })
-
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "location", time = "missing"),
-  function(samc, occ, dest) {
-    occ <- .rasterize(occ)
-
-    return(dispersal(samc, occ, dest = dest))
   })

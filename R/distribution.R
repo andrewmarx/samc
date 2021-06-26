@@ -194,16 +194,13 @@ setMethod(
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-    check(samc, occ)
+    pv <- .process_occ(samc, occ)
 
     .validate_time_steps(time)
 
     q <- samc$q_matrix
-
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
 
     time <- c(0, time)
 
@@ -216,14 +213,4 @@ setMethod(
     } else {
       return(res)
     }
-  })
-
-#' @rdname distribution
-setMethod(
-  "distribution",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "numeric"),
-  function(samc, occ, time) {
-    occ <- .rasterize(occ)
-
-    return(distribution(samc, occ = occ, time = time))
   })

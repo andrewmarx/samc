@@ -257,14 +257,11 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
     .validate_time_steps(time)
 
-    check(samc, occ)
-
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    pv <- .process_occ(samc, occ)
 
     q <- samc$q_matrix
     Rdiag <- samc@data@t_abs
@@ -279,16 +276,6 @@ setMethod(
     } else {
       return(mort)
     }
-  })
-
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "numeric"),
-  function(samc, occ, time) {
-    occ <- .rasterize(occ)
-
-    return(mortality(samc, occ, time = time))
   })
 
 # mortality(samc) ----
@@ -410,12 +397,9 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "missing"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-    check(samc, occ)
-
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    pv <- .process_occ(samc, occ)
 
     q <- samc$q_matrix
 
@@ -435,14 +419,4 @@ setMethod(
     }
 
     return(mort)
-  })
-
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "missing"),
-  function(samc, occ) {
-    occ <- .rasterize(occ)
-
-    return(mortality(samc, occ))
   })

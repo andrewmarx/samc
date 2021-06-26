@@ -65,26 +65,13 @@ setMethod(
 #' @rdname survival
 setMethod(
   "survival",
-  signature(samc = "samc", occ = "RasterLayer"),
+  signature(samc = "samc", occ = "ANY"),
   function(samc, occ) {
-    check(samc, occ)
-
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    pv <- .process_occ(samc, occ)
 
     sv <- survival(samc)
 
     surv <- pv %*% sv
 
     return(as.numeric(surv))
-  })
-
-#' @rdname survival
-setMethod(
-  "survival",
-  signature(samc = "samc", occ = "matrix"),
-  function(samc, occ) {
-    occ <- .rasterize(occ)
-
-    return(survival(samc, occ))
   })
