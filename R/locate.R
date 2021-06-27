@@ -37,7 +37,7 @@ NULL
 #' @param samc A \code{\link{samc-class}} object
 #' @param xy Any valid input to the y argument of the \code{\link[raster]{extract}} function in the raster package.
 #
-#' @return A rasterlayer or a vector
+#' @return A RasterLayer or a vector
 #'
 #' @example inst/examples/locate.R
 #'

@@ -8,7 +8,7 @@ NULL
 #'
 #' @slot q Q matrix
 #' @slot t_abs Total absorption
-#' @slot c_abs Component absorptions
+#' @slot c_abs Component absorption states
 #'
 #' @name samc_data-class
 #' @keywords internal

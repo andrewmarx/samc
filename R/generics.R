@@ -42,7 +42,7 @@ setMethod("$", signature(x = "samc"), function(x, name) {
 
 #' Modify samc-class components
 #'
-#' Allows users to modifu a subset of the samc-class components
+#' Allows users to modify a subset of the samc-class components
 #'
 #' @param x samc-class object
 #' @param name Component of the samc-class to modify
