@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
       </span>
     </div>
 
@@ -80,6 +80,9 @@
     <li>
       <a href="../articles/tutorial-animations.html">Animations</a>
     </li>
+    <li>
+      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -112,7 +115,7 @@
       <h1 data-toc-skip>Locations</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2021-04-03</h4>
+            <h4 class="date">2021-06-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-locations.Rmd"><code>vignettes/tutorial-locations.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-locations.Rmd</code></div>
@@ -151,11 +154,15 @@
 <span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>
 
 
+<span class="co"># Setup the details for our transition function</span>
+<span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="co"># Function for calculating transition probabilities</span>
+           dir <span class="op">=</span> <span class="fl">8</span>, <span class="co"># Directions of the transitions. Either 4 or 8.</span>
+           sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Is the function symmetric?</span>
+
 <span class="co"># Create a samc object using the resistance and absorption data. We use the</span>
 <span class="co"># recipricol of the arithmetic mean for calculating the transition matrix. Note,</span>
-<span class="co"># the input data here are matrices, not RasterLayers. If using RasterLayers, the</span>
-<span class="co"># `latlon` parameter must be set.</span>
-<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></pre></div>
+<span class="co"># the input data here are matrices, not RasterLayers.</span>
+<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span></pre></div>
 </div>
 <div id="basic-location-usage" class="section level2">
 <h2 class="hasAnchor">
@@ -164,26 +171,29 @@
 <span class="co"># A couple examples of using numeric locations</span>
 <span class="va">mort_origin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">mort_origin</span><span class="op">)</span> <span class="co"># The result is a vector. Let's see the first few elements</span>
-<span class="co">#&gt; [1] 0.0004454945 0.0005970254 0.0006268049 0.0006652296 0.0007168680</span>
-<span class="co">#&gt; [6] 0.0007962162</span>
+<span class="co">#&gt;            1            2            3            4            5            6 </span>
+<span class="co">#&gt; 0.0004454945 0.0005970254 0.0006268049 0.0006652296 0.0007168680 0.0007962162</span>
 
 <span class="va">mort_dest</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, dest <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">mort_dest</span><span class="op">)</span> <span class="co"># The result is a vector. Let's see the first few elements</span>
-<span class="co">#&gt; [1] 0.0004952858 0.0005096278 0.0005283281 0.0005495412 0.0005727323</span>
-<span class="co">#&gt; [6] 0.0005978134</span>
+<span class="co">#&gt;            1            2            3            4            5            6 </span>
+<span class="co">#&gt; 0.0004952858 0.0005096278 0.0005283281 0.0005495412 0.0005727323 0.0005978134</span>
 
 <span class="va">mort_both</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">7</span>, dest <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>
 <span class="va">mort_both</span> <span class="co"># The result is a single value</span>
-<span class="co">#&gt; [1] 0.0006250264</span>
+<span class="co">#&gt;           13 </span>
+<span class="co">#&gt; 0.0006250264</span>
 
 <span class="co"># The single value of mort_both simply is just extracted from one of the vector</span>
 <span class="co"># results. So using both the origin and dest parameters is largely for convenience,</span>
 <span class="co"># and helps to prevent accidental mistakes from trying to manually extract values</span>
 <span class="co"># from the vectors</span>
 <span class="va">mort_origin</span><span class="op">[</span><span class="fl">13</span><span class="op">]</span>
-<span class="co">#&gt; [1] 0.0006250264</span>
+<span class="co">#&gt;           13 </span>
+<span class="co">#&gt; 0.0006250264</span>
 <span class="va">mort_dest</span><span class="op">[</span><span class="fl">7</span><span class="op">]</span>
-<span class="co">#&gt; [1] 0.0006250264</span></pre></div>
+<span class="co">#&gt;            7 </span>
+<span class="co">#&gt; 0.0006250264</span></pre></div>
 </div>
 <div id="viewing-location-values" class="section level2">
 <h2 class="hasAnchor">
@@ -222,13 +232,13 @@
 <span class="co"># Use the locations in a function</span>
 <span class="va">mort_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="va">locations</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">mort_1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 0.0004313355 0.0005695849 0.0005833685 0.0005963590 0.0006070493</span>
-<span class="co">#&gt; [6] 0.0006144510</span>
+<span class="co">#&gt;            1            2            3            4            5            6 </span>
+<span class="co">#&gt; 0.0004313355 0.0005695849 0.0005833685 0.0005963590 0.0006070493 0.0006144510</span>
 
 <span class="va">mort_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="va">locations</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">mort_2</span><span class="op">)</span>
-<span class="co">#&gt; [1] 0.0001651789 0.0002113811 0.0002086714 0.0002057462 0.0002027257</span>
-<span class="co">#&gt; [6] 0.0001996758</span></pre></div>
+<span class="co">#&gt;            1            2            3            4            5            6 </span>
+<span class="co">#&gt; 0.0001651789 0.0002113811 0.0002086714 0.0002057462 0.0002027257 0.0001996758</span></pre></div>
 <p><img src="tutorial-locations_files/figure-html/unnamed-chunk-4-1.png" width="700"><img src="tutorial-locations_files/figure-html/unnamed-chunk-4-2.png" width="700"></p>
 </div>
 <div id="multiple-locations" class="section level2">

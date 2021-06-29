@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
       </span>
     </div>
 
@@ -120,6 +120,9 @@
     </li>
     <li>
       <a href="../articles/tutorial-animations.html">Animations</a>
+    </li>
+    <li>
+      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
     </li>
   </ul>
 </li>
@@ -222,7 +225,8 @@ matrix or 'wide' format data.frame using tools like the reshape2 or tidyr packag
 
 
 <span class='co'># Create samc-class object</span>
-<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>, tr_fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>,
+                 tr_args <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>, dir <span class='op'>=</span> <span class='fl'>8</span>, sym <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='co'># pairwise() example</span>
 <span class='va'>pw</span> <span class='op'>&lt;-</span> <span class='fu'>pairwise</span><span class='op'>(</span><span class='va'>cond_passage</span>, <span class='va'>samc_obj</span>, origin <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, dest <span class='op'>=</span> <span class='fl'>5</span><span class='op'>)</span>

@@ -7,92 +7,118 @@ NULL
 
 #' Calculate mortality metrics
 #'
-#' Calculates the probability of experiencing mortality at specific locations.
+#' Calculates the probability of absorption at individual transient states.
 #'
 #' \eqn{\tilde{B}_t = (\sum_{n=0}^{t-1} Q^n) \tilde{R}}
 #' \itemize{
 #'   \item \strong{mortality(samc, time)}
 #'
-#' The result is a matrix where element (i,j) is the probability of experiencing
-#' mortality at location j within t or fewer steps if starting at location i.
+#' The result is a matrix \eqn{M} where \eqn{M_{i,j}} is the
+#' probability of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}}
+#' or fewer steps if starting at transient state \eqn{\mathit{i}}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
-#' override to use.
+#' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{mortality(samc, origin, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element j is the probability of experiencing
-#' mortality at location j within t or fewer steps if starting at a given origin.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}} or
+#' fewer steps if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{mortality(samc, dest, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element i is the probability of experiencing
-#' mortality at a given destination within t or fewer steps if starting at
-#' location i.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability
+#' of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}} or
+#' fewer steps if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{mortality(samc, origin, dest, time)}
 #'
-#' The result is a numeric value (single time step) or a list of numeric
-#' values (multiple time steps) that is the probability of experiencing
-#' mortality at a given destination within t or fewer steps if starting at a
-#' given origin.
+#' The result is a numeric value that is the probability of absorption at transient
+#' state \eqn{\mathit{j}} within \eqn{\mathit{t}} or fewer time steps if starting
+#' at transient state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a numeric value for each time step.
 #' }
 #'
 #' \eqn{\psi^T \tilde{B}_t}
 #' \itemize{
 #'   \item \strong{mortality(samc, occ, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element j is the unconditional probability of
-#' experiencing mortality at location j within t or fewer time steps.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
+#' probability of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}}
+#' or fewer steps given an initial state \eqn{\psi}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
+#'
 #' }
 #'
 #' \eqn{B = F \tilde{R}}
 #' \itemize{
 #'   \item \strong{mortality(samc)}
 #'
-#' The result is a matrix where element (i,j) is the probability of experiencing
-#' mortality at location j if starting at location i.
+#' The result is a matrix \eqn{M} where \eqn{M_{i,j}} is the
+#' probability of absorption at transient state \eqn{\mathit{j}} if starting at
+#' transient state \eqn{\mathit{i}}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
-#' override to use.
+#' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{mortality(samc, origin)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element j is the probability of experiencing
-#' mortality at location j if starting at a given origin.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability of absorption
+#' at transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{mortality(samc, dest)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element i is the probability of experiencing
-#' mortality at a given destination if starting at location i.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability of absorption
+#' at transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{mortality(samc, origin, dest)}
 #'
-#' The result is a numeric value that is the probability of experiencing
-#' mortality at a given destination if starting at a given origin
+#' The result is a numeric value that is the probability of absorption
+#' at transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
 #' }
 #'
 #' \eqn{\psi^T B}
 #' \itemize{
 #'   \item \strong{mortality(samc, occ)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element j is the unconditional probability of
-#' experiencing mortality at location j, regardless of the initial state.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
+#' probability of absorption at transient state \eqn{\mathit{j}} given an initial
+#' state \eqn{\psi}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #' }
 #'
 #' @template section-perf
@@ -103,7 +129,7 @@ NULL
 #' @template param-dest
 #' @template param-time
 #'
-#' @return A matrix, vector, or numeric
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'
@@ -122,16 +148,16 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
     if (!samc@override)
-      stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
+      stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
       stop("The time argument must be a single positive integer", call. = FALSE)
 
     # TODO: remove as.matrix call, which is needed to convert from a sparse to
     # dense matrix for the %^% operator, which means removing expm as a dependency
-    q <- as.matrix(samc@p[-nrow(samc@p), -nrow(samc@p)])
+    q <- as.matrix(samc$q_matrix)
     r <- matrix(0, nrow = nrow(q), ncol = nrow(q))
-    diag(r) <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    diag(r) <- samc@data@t_abs
     qi <- diag(dim(q)[2])
 
     # Sum of geometric series
@@ -160,9 +186,9 @@ setMethod(
     origin <- .process_locations(samc, origin)
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
+    q <- samc$q_matrix
 
-    rdg <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
+    rdg <- samc@data@t_abs
 
     time <- c(1, time)
 
@@ -189,9 +215,9 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -ncol(samc@p)]
+    q <- samc$q_matrix
 
-    rdg <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
+    rdg <- samc@data@t_abs
 
     rdg[-dest] <- 0
 
@@ -231,17 +257,14 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
     .validate_time_steps(time)
 
-    check(samc, occ)
+    pv <- .process_occ(samc, occ)
 
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
-
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
-    Rdiag <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
+    q <- samc$q_matrix
+    Rdiag <- samc@data@t_abs
 
     time <- c(1, time)
     mort <- .sum_psiqpow(q, pv, time)
@@ -255,16 +278,6 @@ setMethod(
     }
   })
 
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "numeric"),
-  function(samc, occ, time) {
-    occ <- .rasterize(occ)
-
-    return(mortality(samc, occ, time = time))
-  })
-
 # mortality(samc) ----
 #' @rdname mortality
 setMethod(
@@ -272,20 +285,35 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
     if (!samc@override)
-      stop("This version of the mortality() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
+      stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
     f <- visitation(samc)
     gc()
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    dimnames(f) <- dimnames(samc$q_matrix) # Not sure why dimnames aren't carrying through later calculations
+
+    rdg <- samc@data@t_abs
     r <- Matrix::sparseMatrix(i = 1:length(rdg),
                               j = 1:length(rdg),
                               x = rdg,
                               index1 = TRUE)
 
     # TODO f %*% r can be simplified to an elementwise multiplication of the matrix columns by the corresponding elements in the rdg vector. This might be helpful for memory allocations and performance.
-    b <- f %*% r
-    gc()
-    return(b)
+    mort <- f %*% r
+    dimnames(mort) <- dimnames(samc$q_matrix) # See above dimnames comment
+
+    if (ncol(samc@data@c_abs) > 0) {
+      mort <- list(total = mort)
+
+      for (n in colnames(samc@data@c_abs)) {
+        Matrix::diag(r) <- samc@data@c_abs[, n]
+        # TODO f %*% r can be simplified to an elementwise multiplication of the matrix columns by the corresponding elements in the rdg vector. This might be helpful for memory allocations and performance.
+        mort[[n]] <- f %*% r
+        dimnames(mort[[n]]) <- dimnames(samc$q_matrix) # See above dimnames comment
+        gc()
+      }
+    }
+
+    return(mort)
   })
 
 # mortality(samc, origin) ----
@@ -295,12 +323,18 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
     vis <- visitation(samc, origin = origin)
+    names(vis) <- rownames(samc$q_matrix)
 
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    mort <- vis * samc@data@t_abs
 
-    mort <- vis * rdg
+    if (ncol(samc@data@c_abs) > 0) {
+      mort <- list(total = mort)
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] <- vis * samc@data@c_abs[, n]
+      }
+    }
 
-    return(as.vector(mort))
+    return(mort)
   })
 
 # mortality(samc, dest) ----
@@ -309,13 +343,21 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
+    dest <- .process_locations(samc, dest)
+
     vis <- visitation(samc, dest = dest)
+    names(vis) <- rownames(samc$q_matrix)
 
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
+    mort <- vis * samc@data@t_abs[dest]
 
-    mort <- vis * rdg[dest]
+    if (ncol(samc@data@c_abs) > 0) {
+      mort <- list(total = mort)
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] <- vis * samc@data@c_abs[dest, n]
+      }
+    }
 
-    return(as.vector(mort))
+    return(mort)
   })
 
 # mortality(samc, origin, dest) ----
@@ -330,46 +372,51 @@ setMethod(
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
 
-    rdg <- samc@p[-nrow(samc@p), ncol(samc@p)]
-
-    result <- vector(mode = "numeric", length = length(origin))
+    results <- vector(mode = "numeric", length = length(origin))
 
     for (d in unique(dest)) {
       vis <- visitation(samc, dest = d)
-      result[dest == d] <- vis[origin[dest == d]] * rdg[d]
+      results[dest == d] <- vis[origin[dest == d]]
+    }
+    names(results) <- rownames(samc$q_matrix)[dest]
+
+
+    mort <- results * samc@data@t_abs[dest]
+
+    if (ncol(samc@data@c_abs) > 0) {
+      mort <- list(total = mort)
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] <- results * samc@data@c_abs[dest, n]
+      }
     }
 
-    return(result)
+    return(mort)
   })
 
 # mortality(samc, occ) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "missing"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-    check(samc, occ)
+    pv <- .process_occ(samc, occ)
 
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
-
-    q = samc@p[-nrow(samc@p),-nrow(samc@p)]
-    rdg <- as.vector(samc@p[-nrow(samc@p), ncol(samc@p)])
+    q <- samc$q_matrix
 
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
     pf <- .psif(q, pv)
+    names(pf) <- rownames(samc$q_matrix)
 
-    return(pf * rdg)
-  })
+    mort <- pf * samc@data@t_abs
 
-#' @rdname mortality
-setMethod(
-  "mortality",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "missing"),
-  function(samc, occ) {
-    occ <- .rasterize(occ)
+    if (ncol(samc@data@c_abs) > 0) {
+      mort <- list(total = mort)
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] <- pf * samc@data@c_abs[, n]
+      }
+    }
 
-    return(mortality(samc, occ))
+    return(mort)
   })

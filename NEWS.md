@@ -1,3 +1,23 @@
+# samc 1.4.0
+
+- Due to a ballooning parameter count, the samc() function parameters are being adjusted. The new version is samc(data, absorption, fidelity, tr_args). Code using the previous syntax should continue to work (with one rare edge-case as an exception), but backwards compatibility will be remove in version 1.5.0, so old code should be updated. See the samc() function documentation and website tutorials for full details and examples. Package startup output has been added to detail the changes as well.
+  - Updated long/lat handling in samc() to use projection info built into the raster. Deprecated latlon parameter (no longer needed). Added warning for when rasters have non-square cells and are missing projection information.
+  - The data parameter should be used to pass in the data related to transition probabilities (essentially replaces the resistance and p_mat parameters)
+  - The tr_fun and directions parameters have been deprecated. This information is now passed as list to the tr_args.
+  - Deprecated override parameter in the samc() function. See samc-class documentation for details on how to set this.
+- Added support for specifying if transition functions are symmetrical or not through the tr_args parameter list.
+- Added the ability to directly input a custom TransitionLayer to the samc() function. This allows more flexibility than RasterLayer/matrix maps, but is a little safer than directly inputting a P matrix. See samc() documentation and *Overview* vignette for full details.
+- Added the ability to use the $ operator for accessing and modifying components of samc-class objects. See samc-class documentation for details.
+- Updated check() so that multiple rasters can be inputted in the first argument as a RasterStack. This eliminates the need to manually run check() for multiple pairs of rasters.
+- Added initial support for caching intermediate results of some calculations. This currently only benefits dispersal(samc, occ), which now caches the diag(F) calculation. This means that while the first run of this method will still be slow, subsequent runs will be substantially faster. With this feature, dispersal(samc, origin) has been enabled, and will share the same cached information with dispersal(samc, occ). Future versions will expand the cache options to additional metrics.
+- Added support for multiple absorption. The `absorption` parameter in samc() is treated as the total absorption (consistent with previous behavior). After creation of the samc-class object, additional absorbing states can be attached to the samc-class object. See the samc-class documentation and the new *Multiple Absorption* tutorial for more details. 
+- Added a new absorption() metric. This metric is closely related to the mortality() metric. The absorption() metric can be used to determine the overall probability that a particular absorbing state will be reached (the mortality() metric calculates it for individual transient states rather than overall).
+- Fix missing value short-term dispersal
+- Overhauled the *Overview* vignette, including adding more details about the construction of the P matrix.
+- Performance vignette update
+- Updated documentation for various analytical functions, including more formal/consistent terminology.
+- Vector outputs from metric should now all have named cells. These names correspond to the row/column names of the P matrix.
+
 # samc 1.3.0
 
 - Fixed an issue with the check() function when data contains NA's.

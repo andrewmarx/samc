@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
       </span>
     </div>
 
@@ -120,6 +120,9 @@
     </li>
     <li>
       <a href="../articles/tutorial-animations.html">Animations</a>
+    </li>
+    <li>
+      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
     </li>
   </ul>
 </li>
@@ -182,7 +185,7 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A rasterlayer or a vector</p>
+    <p>A RasterLayer or a vector</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function is used to get cell numbers from raster data. The numbers used
@@ -218,7 +221,8 @@ is valid here.</p>
 
 
 <span class='co'># Create samc-class object</span>
-<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>, tr_fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>,
+                 tr_args <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>, dir <span class='op'>=</span> <span class='fl'>8</span>, sym <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span>
 
 
 <span class='co'># We can use locate() to return a raster with the cell numbers encoded as data</span>

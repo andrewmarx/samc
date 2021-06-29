@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
       </span>
     </div>
 
@@ -121,6 +121,9 @@
     <li>
       <a href="../articles/tutorial-animations.html">Animations</a>
     </li>
+    <li>
+      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -164,10 +167,7 @@
 <span class='co'># S4 method for samc,missing,missing,location,numeric</span>
 <span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>dest</span>, <span class='va'>time</span><span class='op'>)</span>
 
-<span class='co'># S4 method for samc,RasterLayer,missing,location,numeric</span>
-<span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span>, <span class='va'>dest</span>, <span class='va'>time</span><span class='op'>)</span>
-
-<span class='co'># S4 method for samc,matrix,missing,location,numeric</span>
+<span class='co'># S4 method for samc,ANY,missing,location,numeric</span>
 <span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span>, <span class='va'>dest</span>, <span class='va'>time</span><span class='op'>)</span>
 
 <span class='co'># S4 method for samc,missing,missing,missing,missing</span>
@@ -182,16 +182,10 @@
 <span class='co'># S4 method for samc,missing,location,location,missing</span>
 <span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>origin</span>, <span class='va'>dest</span><span class='op'>)</span>
 
-<span class='co'># S4 method for samc,RasterLayer,missing,missing,missing</span>
+<span class='co'># S4 method for samc,ANY,missing,missing,missing</span>
 <span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span><span class='op'>)</span>
 
-<span class='co'># S4 method for samc,matrix,missing,missing,missing</span>
-<span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span><span class='op'>)</span>
-
-<span class='co'># S4 method for samc,RasterLayer,missing,location,missing</span>
-<span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span>, <span class='va'>dest</span><span class='op'>)</span>
-
-<span class='co'># S4 method for samc,matrix,missing,location,missing</span>
+<span class='co'># S4 method for samc,ANY,missing,location,missing</span>
 <span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span>, <span class='va'>dest</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -199,90 +193,99 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>samc</th>
-      <td><p>A <code><a href='samc-class.html'>samc-class</a></code> object. This should be output from
-the <code><a href='samc.html'>samc</a></code> function.</p></td>
+      <td><p>A <code><a href='samc-class.html'>samc-class</a></code> object created using the <code><a href='samc.html'>samc</a></code> function.</p></td>
     </tr>
     <tr>
       <th>occ</th>
-      <td><p>A <code><a href='https://rdrr.io/pkg/raster/man/Raster-classes.html'>RasterLayer-class</a></code> or <code><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></code>.
-The input type must match the input type used to create the
-<code><a href='samc-class.html'>samc-class</a></code> object, and must have the same properties as the
-rest of the landscape data. See the <code><a href='check.html'>check</a></code> function for more
-details.</p></td>
+      <td><p>The initial state \(\psi\) of the Markov chain. If the <code><a href='samc-class.html'>samc-class</a></code>
+objects was constructed using map inputs, then occ must be the same type of input
+(either <code><a href='https://rdrr.io/pkg/raster/man/Raster-classes.html'>RasterLayer-class</a></code> or <code><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></code>),
+and must have the same properties as initial map inputs (see the <code><a href='check.html'>check</a></code>
+function).</p></td>
     </tr>
     <tr>
       <th>origin</th>
-      <td><p>A positive integer or named location representing a cell in the
-landscape. Corresponds to row <em>i</em> of matrix <em>P</em> in the <code><a href='samc-class.html'>samc-class</a></code>
-object. When paired with the dest parameter, multiple values may be provided
-as a vector.</p></td>
+      <td><p>A positive integer or character name representing transient state
+\(\mathit{i}\). Corresponds to row \(\mathit{i}\) of matrix \(\mathbf{P}\)
+in the <code><a href='samc-class.html'>samc-class</a></code> object. When paired with the <code>dest</code>
+parameter, multiple values may be provided as a vector.</p></td>
     </tr>
     <tr>
       <th>dest</th>
-      <td><p>A positive integer or named location representing a cell in the
-landscape. Corresponds to column <em>j</em> of matrix <em>P</em> in the <code><a href='samc-class.html'>samc-class</a></code>
-object. When paired with the origin parameter, multiple values may be provided
-as a vector.</p></td>
+      <td><p>A positive integer or character name representing transient state
+\(\mathit{j}\). Corresponds to column \(\mathit{j}\) of matrix \(\mathbf{P}\)
+in the <code><a href='samc-class.html'>samc-class</a></code> object. When paired with the <code>origin</code> parameter,
+multiple values may be provided as a vector.</p></td>
     </tr>
     <tr>
       <th>time</th>
       <td><p>A positive integer or a vector of positive integers representing
-time steps. Vectors must be ordered and contain no duplicates. Vectors may
-not be used for metrics that return dense matrices. The maximum time step
-value is capped at 10,000.</p></td>
+\(\mathit{t}\) time steps. Vectors must be ordered and contain no duplicates.
+Vectors may not be used for metrics that return dense matrices. The maximum time
+step value is capped at 10,000 due to numerical precision issues.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A matrix, a vector, a list of vectors, or a numeric</p>
+    <p>See Details</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>\(\tilde{D}_{jt}=(\sum_{n=0}^{t-1}\tilde{Q}^n)\tilde{q}_j\)</p><ul>
 <li><p><strong>dispersal(samc, dest, time)</strong></p>
-<p>The result is a vector (single time step) or a list of vectors (multiple
-time steps) where each element corresponds to a cell in the landscape,
-and can be mapped back to the landscape using the <code><a href='map.html'>map</a></code> function.
-Element <em>k</em> is the probability of ever visiting a given destination,
-if starting at any other location, within <em>t</em> or fewer time steps.</p></li>
+<p>The result is a vector \(\mathbf{v}\) where \(\mathbf{v}_i\) is the probability
+of visiting transient state \(\mathit{j}\) within \(\mathit{t}\) or fewer
+time steps if starting at transient state \(\mathit{i}\).</p>
+<p>Note: Given the current derivation, when \(\mathit{i=j}\), then \(\mathbf{v}_i\)
+is unknown and has been set to <code>NA</code>.</p>
+<p>If multiple time steps were provided as a vector, then the result will be an
+ordered named list containing a vector for each time step.</p>
+<p>If the samc-class object was created using matrix or RasterLayer maps, then
+vector \(\mathbf{v}\) can be mapped to a RasterLayer using the
+<code><a href='map.html'>map</a></code> function.</p></li>
 </ul>
 
 <p>\(\psi^T\tilde{D}_{jt}\)</p><ul>
 <li><p><strong>dispersal(samc, occ, dest, time)</strong></p>
-<p>The result is a numeric (single time step) or a list of numerics (multiple
-time steps) that is the unconditional probability of visiting a
-given destination within <em>t</em> or fewer time steps.</p></li>
+<p>The result is a numeric that is the probability of visiting transient state \(\mathit{j}\)
+within \(\mathit{t}\) or fewer time steps given an initial state \(\psi\)</p>
+<p>If multiple time steps were provided as a vector, then the result will be an
+ordered named list containing a vector for each time step.</p></li>
 </ul>
 
 <p>\(D=(F-I)diag(F)^{-1}\)</p><ul>
 <li><p><strong>dispersal(samc)</strong></p>
-<p>The result is a matrix where element (<em>i</em>,<em>j</em>) is the probability
-that location <em>j</em> is visited when starting in location <em>i</em>.</p>
+<p>The result is a matrix \(M\) where \(M_{i,j}\) is the probability of visiting
+transient state \(\mathit{j}\) if starting at transient state \(\mathit{i}\).</p>
 <p>The returned matrix will always be dense and cannot be optimized. Must enable
-override to use.</p></li>
+override to use (see <code><a href='samc-class.html'>samc-class</a></code>).</p></li>
 <li><p><strong>dispersal(samc, origin)</strong></p>
-<p>This function has not been optimized yet, and will not run.</p></li>
+<p>The result is a vector \(\mathbf{v}\) where \(\mathbf{v}_j\) is the probability
+of visiting transient state \(\mathit{j}\) if starting at transient state \(\mathit{i}\).</p>
+<p>If the samc-class object was created using matrix or RasterLayer maps, then
+vector \(\mathbf{v}\) can be mapped to a RasterLayer using the
+<code><a href='map.html'>map</a></code> function.</p></li>
 <li><p><strong>dispersal(samc, dest)</strong></p>
-<p>The result is a vector where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. Element <em>i</em> is the probability that the
-destination is visited when starting in location <em>i</em>.</p></li>
+<p>The result is a vector \(\mathbf{v}\) where \(\mathbf{v}_i\) is the probability
+of visiting transient state \(\mathit{j}\) if starting at transient state \(\mathit{i}\).</p>
+<p>If the samc-class object was created using matrix or RasterLayer maps, then
+vector \(\mathbf{v}\) can be mapped to a RasterLayer using the
+<code><a href='map.html'>map</a></code> function.</p></li>
 <li><p><strong>dispersal(samc, origin, dest)</strong></p>
-<p>The result is a numeric value that is the probability that an individual
-starting at the origin visits the destination.</p></li>
+<p>The result is a numeric value that is the probability of visiting transient
+state \(\mathit{j}\) if starting at transient state \(\mathit{i}\).</p></li>
 </ul>
 
 <p>\(\psi^TD\)</p><ul>
 <li><p><strong>dispersal(samc, occ)</strong></p>
-<p>The result is a vector where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. Element <em>j</em> is the unconditional
-probability distribution of ever visiting location <em>j</em>, regardless of
-the initial location.</p></li>
+<p>The result is a vector \(\mathbf{v}\) where \(\mathbf{v}_j\) is the probability
+of visiting transient state \(\mathit{j}\) given an initial state \(\psi\).</p>
+<p>If the samc-class object was created using matrix or RasterLayer maps, then
+vector \(\mathbf{v}\) can be mapped to a RasterLayer using the
+<code><a href='map.html'>map</a></code> function.</p></li>
 <li><p><strong>dispersal(samc, occ, dest)</strong></p>
-<p>The result is a numeric value that is the unconditional probability
-distribution of ever visiting a given destination, regardless of the initial
-location.</p></li>
+<p>The result is a numeric value that is the probability of visiting transient
+state \(\mathit{j}\) given an initial state \(\psi\).</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="performance"><a class="anchor" href="#performance"></a>Performance</h2>
@@ -307,12 +310,17 @@ performance vignette: <a href='../doc/performance.html'><code><a href='../articl
 <span class='fu'><a href='check.html'>check</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'><a href='check.html'>check</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>occ_data</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='co'># Setup the details for our transition function</span>
+<span class='va'>tr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>, <span class='co'># Function for calculating transition probabilities</span>
+           dir <span class='op'>=</span> <span class='fl'>8</span>, <span class='co'># Directions of the transitions. Either 4 or 8.</span>
+           sym <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='co'># Is the function symmetric?</span>
+
 
 <span class='co'># Create a `samc-class` object with the resistance and absorption data using</span>
 <span class='co'># the samc() function. We use the recipricol of the arithmetic mean for</span>
 <span class='co'># calculating the transition matrix. Note, the input data here are matrices,</span>
-<span class='co'># not RasterLayers. If using RasterLayers, the latlon parameter must be set.</span>
-<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>, tr_fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
+<span class='co'># not RasterLayers.</span>
+<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>, tr_args <span class='op'>=</span> <span class='va'>tr</span><span class='op'>)</span>
 
 
 <span class='co'># Convert the occupancy data to probability of occurrence</span>
@@ -323,9 +331,11 @@ performance vignette: <a href='../doc/performance.html'><code><a href='../articl
 <span class='va'>short_mort</span> <span class='op'>&lt;-</span> <span class='fu'><a href='mortality.html'>mortality</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>occ_prob_data</span>, time <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span>
 <span class='va'>short_dist</span> <span class='op'>&lt;-</span> <span class='fu'><a href='distribution.html'>distribution</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, origin <span class='op'>=</span> <span class='fl'>3</span>, time <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span>
 <span class='va'>long_disp</span> <span class='op'>&lt;-</span> <span class='fu'>dispersal</span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>occ_prob_data</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Performing setup. This can take several minutes... Complete.
+</div><div class='output co'>#&gt; 
+#&gt; Cached diagonal not found.
+#&gt; Performing setup. This can take several minutes... Complete.
 #&gt; Calculating matrix inverse diagonal...Calculating matrix inverse diagonal... Complete                                           
-#&gt; Performing final calculations. This may take a few minutes... Complete.</div><div class='input'><span class='va'>visit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, dest <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
+#&gt; Diagonal has been cached. Continuing with metric calculation...</div><div class='input'><span class='va'>visit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, dest <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
 <span class='va'>surv</span> <span class='op'>&lt;-</span> <span class='fu'><a href='survival.html'>survival</a></span><span class='op'>(</span><span class='va'>samc_obj</span><span class='op'>)</span>
 
 

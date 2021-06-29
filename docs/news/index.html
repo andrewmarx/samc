@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
       </span>
     </div>
 
@@ -120,6 +120,9 @@
     <li>
       <a href="../articles/tutorial-animations.html">Animations</a>
     </li>
+    <li>
+      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -153,6 +156,33 @@
       <small>Source: <a href='https://github.com/andrewmarx/samc/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="samc-140" class="section level1">
+<h1 class="page-header" data-toc-text="1.4.0">
+<a href="#samc-140" class="anchor"></a>samc 1.4.0<small> 2021-06-27 </small>
+</h1>
+<ul>
+<li>Due to a ballooning parameter count, the samc() function parameters are being adjusted. The new version is samc(data, absorption, fidelity, tr_args). Code using the previous syntax should continue to work (with one rare edge-case as an exception), but backwards compatibility will be remove in version 1.5.0, so old code should be updated. See the samc() function documentation and website tutorials for full details and examples. Package startup output has been added to detail the changes as well.
+<ul>
+<li>Updated long/lat handling in samc() to use projection info built into the raster. Deprecated latlon parameter (no longer needed). Added warning for when rasters have non-square cells and are missing projection information.</li>
+<li>The data parameter should be used to pass in the data related to transition probabilities (essentially replaces the resistance and p_mat parameters)</li>
+<li>The tr_fun and directions parameters have been deprecated. This information is now passed as list to the tr_args.</li>
+<li>Deprecated override parameter in the samc() function. See samc-class documentation for details on how to set this.</li>
+</ul>
+</li>
+<li>Added support for specifying if transition functions are symmetrical or not through the tr_args parameter list.</li>
+<li>Added the ability to directly input a custom TransitionLayer to the samc() function. This allows more flexibility than RasterLayer/matrix maps, but is a little safer than directly inputting a P matrix. See samc() documentation and <em>Overview</em> vignette for full details.</li>
+<li>Added the ability to use the $ operator for accessing and modifying components of samc-class objects. See samc-class documentation for details.</li>
+<li>Updated check() so that multiple rasters can be inputted in the first argument as a RasterStack. This eliminates the need to manually run check() for multiple pairs of rasters.</li>
+<li>Added initial support for caching intermediate results of some calculations. This currently only benefits dispersal(samc, occ), which now caches the diag(F) calculation. This means that while the first run of this method will still be slow, subsequent runs will be substantially faster. With this feature, dispersal(samc, origin) has been enabled, and will share the same cached information with dispersal(samc, occ). Future versions will expand the cache options to additional metrics.</li>
+<li>Added support for multiple absorption. The <code>absorption</code> parameter in samc() is treated as the total absorption (consistent with previous behavior). After creation of the samc-class object, additional absorbing states can be attached to the samc-class object. See the samc-class documentation and the new <em>Multiple Absorption</em> tutorial for more details.</li>
+<li>Added a new absorption() metric. This metric is closely related to the mortality() metric. The absorption() metric can be used to determine the overall probability that a particular absorbing state will be reached (the mortality() metric calculates it for individual transient states rather than overall).</li>
+<li>Fix missing value short-term dispersal</li>
+<li>Overhauled the <em>Overview</em> vignette, including adding more details about the construction of the P matrix.</li>
+<li>Performance vignette update</li>
+<li>Updated documentation for various analytical functions, including more formal/consistent terminology.</li>
+<li>Vector outputs from metric should now all have named cells. These names correspond to the row/column names of the P matrix.</li>
+</ul>
+</div>
     <div id="samc-130" class="section level1">
 <h1 class="page-header" data-toc-text="1.3.0">
 <a href="#samc-130" class="anchor"></a>samc 1.3.0<small> 2021-04-01 </small>

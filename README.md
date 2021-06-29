@@ -12,7 +12,7 @@ This is an R package that implements functions for working with absorbing Markov
 For more information, and recommended installation instructions, most users should visit the main home page at https://andrewmarx.github.io/samc. The remainder of this document is dedicated to installing the package from source (not recommended).
 
 
-## Installing From Github
+## Installing From GitHub
 
 #### Pre v1.0.0
 
@@ -26,7 +26,7 @@ devtools::install_github("andrewmarx/samc", ref = "0.1.0")
 
 Version 1.0.0 and newer requires C++ development tools in order to install from source. The steps required to install the appropriate development tools varies by operating system and is beyond the scope of this document. Users will have to locate and follow appropriate external documentation to setup the devtools if they wish to install the newest version of the samc package from source.
 
-If the devtools are installed and setup correctly, then the latest version of the package can be installed directly from github using the following command:
+If the devtools are installed and setup correctly, then the latest version of the package can be installed directly from GitHub using the following command:
 
 ```R
 devtools::install_github("andrewmarx/samc")

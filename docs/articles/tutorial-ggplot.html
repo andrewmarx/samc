@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
       </span>
     </div>
 
@@ -80,6 +80,9 @@
     <li>
       <a href="../articles/tutorial-animations.html">Animations</a>
     </li>
+    <li>
+      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -112,7 +115,7 @@
       <h1 data-toc-skip>ggplot Visualization</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2021-04-03</h4>
+            <h4 class="date">2021-06-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-ggplot.Rmd"><code>vignettes/tutorial-ggplot.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-ggplot.Rmd</code></div>
@@ -145,11 +148,15 @@
 <span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>
 
 
+<span class="co"># Setup the details for our transition function</span>
+<span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="co"># Function for calculating transition probabilities</span>
+           dir <span class="op">=</span> <span class="fl">8</span>, <span class="co"># Directions of the transitions. Either 4 or 8.</span>
+           sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Is the function symmetric?</span>
+
 <span class="co"># Create a samc object using the resistance and absorption data. We use the</span>
 <span class="co"># recipricol of the arithmetic mean for calculating the transition matrix. Note,</span>
-<span class="co"># the input data here are matrices, not RasterLayers. If using RasterLayers, the</span>
-<span class="co"># `latlon` parameter must be set.</span>
-<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>
+<span class="co"># the input data here are matrices, not RasterLayers.</span>
+<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span>
 
 
 <span class="co"># Convert the occupancy data to probability of occurrence</span>

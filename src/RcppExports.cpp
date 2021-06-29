@@ -32,15 +32,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// diagf
+Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> >& M);
+RcppExport SEXP _samc_diagf(SEXP MSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    rcpp_result_gen = Rcpp::wrap(diagf(M));
+    return rcpp_result_gen;
+END_RCPP
+}
 // psid_long
-Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& psi);
-RcppExport SEXP _samc_psid_long(SEXP MSEXP, SEXP psiSEXP) {
+Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& psi, const Eigen::VectorXd& dg);
+RcppExport SEXP _samc_psid_long(SEXP MSEXP, SEXP psiSEXP, SEXP dgSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type psi(psiSEXP);
-    rcpp_result_gen = Rcpp::wrap(psid_long(M, psi));
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type dg(dgSEXP);
+    rcpp_result_gen = Rcpp::wrap(psid_long(M, psi, dg));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -173,7 +185,8 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_samc_cond_t", (DL_FUNC) &_samc_cond_t, 2},
     {"_samc_sum_qn_q", (DL_FUNC) &_samc_sum_qn_q, 4},
-    {"_samc_psid_long", (DL_FUNC) &_samc_psid_long, 2},
+    {"_samc_diagf", (DL_FUNC) &_samc_diagf, 1},
+    {"_samc_psid_long", (DL_FUNC) &_samc_psid_long, 3},
     {"_samc_qpow_row", (DL_FUNC) &_samc_qpow_row, 3},
     {"_samc_qpow_col", (DL_FUNC) &_samc_qpow_col, 3},
     {"_samc_psiq", (DL_FUNC) &_samc_psiq, 3},

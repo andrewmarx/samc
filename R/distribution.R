@@ -7,47 +7,69 @@ NULL
 
 #' Calculate distribution metrics
 #'
-#' Calculate the probability of finding an individual at a given location at a
-#' specific time.
+#' Calculate the probability of being at a transient state at a specific time.
 #'
 #' \eqn{Q^t}
 #' \itemize{
 #'   \item \strong{distribution(samc, time)}
 #'
-#' The result is a matrix where element (i,j) is the probability of being
-#' at location j after t time steps if starting at location i.
+#' The result is a matrix \eqn{M} where \eqn{M_{i,j}} is the probability of being
+#' at transient state \eqn{\mathit{j}} after \eqn{\mathit{t}} time steps if starting
+#' at transient state \eqn{\mathit{i}}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
-#' override to use.
+#' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{distribution(samc, origin, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple time steps)
-#' where element j is the probability of being at location j after t time steps if
-#' starting at a given origin.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of being at transient state \eqn{\mathit{j}} after \eqn{\mathit{t}} time steps
+#' if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{distribution(samc, dest, time)}
 #'
-#' The result is a vector where element i is the probability of being
-#' at a given destination after t time steps if starting at location i.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability
+#' of being at transient state \eqn{\mathit{j}} after \eqn{\mathit{t}} time steps
+#' if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{distribution(samc, origin, dest, time)}
 #'
-#' The result is a numeric value (single time step) or a list of numeric values
-#' (multiple time steps) that is the probability of being at a given
-#' destination after t time steps when beginning at a given origin.
+#' The result is a numeric value that is the probability of being at a transient
+#' state \eqn{\mathit{j}} after \eqn{\mathit{t}} time steps if starting at transient
+#' state \eqn{\mathit{i}}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
 #' }
 #'
 #' \eqn{\psi^TQ^t}
 #' \itemize{
 #'   \item \strong{distribution(samc, occ, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{i} is the unconditional
-#' probability of finding an individual (or expected number of individuals) in
-#' location \emph{i} after \emph{t} time steps.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of being at transient state \eqn{\mathit{i}} after \eqn{\mathit{t}} time steps
+#' given an initial state \eqn{\psi}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #' }
 #'
 #' @template section-perf
@@ -58,7 +80,7 @@ NULL
 #' @template param-dest
 #' @template param-time
 #'
-#' @return A \code{vector}
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'
@@ -78,12 +100,12 @@ setMethod(
   function(samc, time) {
 
     if (!samc@override)
-      stop("This version of the distribution() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
+      stop("This version of the distribution() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
       stop("The time argument must be a single positive integer", call. = FALSE)
 
-    q <- as.matrix(samc@p[-nrow(samc@p), -nrow(samc@p)])
+    q <- as.matrix(samc$q_matrix)
 
     res <- base::diag(nrow(q))
 
@@ -107,7 +129,7 @@ setMethod(
 
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
 
     time <- c(1, time)
 
@@ -132,7 +154,7 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
 
     time <- c(1, time)
 
@@ -172,16 +194,13 @@ setMethod(
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "numeric"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-    check(samc, occ)
+    pv <- .process_occ(samc, occ)
 
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
-
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    q <- samc$q_matrix
 
     time <- c(0, time)
 
@@ -194,14 +213,4 @@ setMethod(
     } else {
       return(res)
     }
-  })
-
-#' @rdname distribution
-setMethod(
-  "distribution",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "numeric"),
-  function(samc, occ, time) {
-    occ <- .rasterize(occ)
-
-    return(distribution(samc, occ = occ, time = time))
   })

@@ -63,22 +63,21 @@ The SAMC package makes use of R's S4 method dispatch system to enforce how the d
 
 ```{r, error = TRUE}
 # Example: Skipping optional arguments. In this case, the `fidelity` argument is
-# optional and the `latlon` argument doesn't apply because our input data are
-# matrices, so we skip them. The tr_fun argument, however, is always required, 
-# so we pass `function(x) 1/mean(x)` to it. But because we don't specify which
+# optional, so we skip it. The tr_args argument, however, is always required, 
+# so we pass the relevant to it. But because we don't specify which
 # argument it is, R is trying to find a version of the function that expects it
 # as the third argument, but this version does not exist.
-samc_obj <- samc(res_data, abs_data, function(x) 1/mean(x))
+samc_obj <- samc(res_data, abs_data, list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 # Solution
-samc_obj <- samc(res_data, abs_data, tr_fun = function(x) 1/mean(x))
+samc_obj <- samc(res_data, abs_data, tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 
 # Example: Incorrect input types. In this case, we are attempting to pass a
 # single numeric value as absorption data. However, the absorption data must 
 # always be in a matrix or RasterLayer object
-samc_obj <- samc(res_data, 0.01, tr_fun = function(x) 1/mean(x))
+samc_obj <- samc(res_data, 0.01, tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 # Solution
-samc_obj <- samc(res_data, abs_data, tr_fun = function(x) 1/mean(x))
+samc_obj <- samc(res_data, abs_data, tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 ```

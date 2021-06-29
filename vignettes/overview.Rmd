@@ -25,30 +25,111 @@ library("samc")
 library("viridisLite")
 ```
 
-## Data
+## Background
 
-### Required Data
+This package provides a series of functions for working with absorbing Markov chains. A Markov chain is a model consisting of multiple states and describes how transitions occur between these states. An absorbing Markov chain is a special kind of Markov chain where every state is a *transient state* that can eventually reach one or more *absorbing states*. Absorbing states are a special type of state that cannot be left. Absorbing Markov chains can be represented using a $P$ matrix with the following structure:
 
-In order to use this package, two different sets of landscape data are required: *resistance* and *absorption*. There are certain requirements for these:
+$$
+P =
+\begin{bmatrix}
+Q & R \\
+0 & I
+\end{bmatrix}
+$$
+Where:
+
+* $Q$ is a matrix that describes the probability of transition between different transient states. $Q_{i,j}$ is the probability of transitioning from transient state $i$ to transient state $j$. When $i=j$, the transition probability is describing the probability that a transient state stays the same, or doesn't transition to a different transient state.
+* $R$ is a matrix that describes the probability of transitioning from a transient state to an absorbing state. $R_{i,k}$ is the probability of transitioning from transient state $i$ to absorbing state $k$.
+* $0$ is a matrix filled with zeros. The rows correspond to absorbing state $k$, and the columns correspond to transient states $j$. This represents that an absorbing state has a 0% probability of transitioning to a transient state
+* $I$ is an identity matrix where each row and column corresponds to the different absorbing states. The main diagonal is filled with ones, and everything else is set to zero. This matrix represents that absorbing state $k$ has a 100% probability of transitioning to itself (i.e., the state will never change).
+* When combined together, $\begin{bmatrix}0 & I\end{bmatrix}$ represents that once an absorbing state has been entered, it cannot be left for a transient state or a different absorbing state.
+
+
+## The `samc-class`
+
+The `samc-class` is used to manage the $P$ matrix and other information to help ensure that the calculations used by the rest of the package are used correctly. Creating an `samc-class` object is the mandatory first step in the package, and is created using the `samc()` utility function. When creating the $P$ matrix, `samc()` only treats the $R$ matrix portion as a single column containing the total absorption probability for each transient state. The `samc()` function has several parameters that provide a number of different options for constructing the $P$ matrix that is at the core of the `samc-class`.
+
+#### Option 1: Maps
+
+The first option is using a map of resistance (or conductance) and a map of total absorption with a list of transition arguments to calculate the transition probabilities between cells in the maps. There are certain requirements for these maps:
 
 * They must be 2-dimensional matrices or `RasterLayer` objects. They have to be the same type.
 * They must have the same dimensions (number of rows and columns).
-* `NA` data is allowed in the cells, but must match between the sets of data. I.e., if cell `[3, 6]` of the *resistance* data has a `NA` value, then cell `[3, 6]` of the *absorption* data must also have a `NA` value, and vice versa.
+* `NA`s are allowed in the cells, but must match between the sets of data. I.e., if cell `[3, 6]` of the *resistance* data has a `NA` value, then cell `[3, 6]` of the *absorption* data must also have a `NA` value, and vice versa.
 
 If using `RasterLayer` objects, then additional conditions must be met:
 
 * Both sets of data must have the same coordinate extents.
 * Both sets of data must use the same coordinate reference system (CRS).
 
+An optional fidelity map may be provided. This map would represent the probability of no transition between timesteps (e.g., no movement). By default, the package treats all cells in the maps the same and uses a value of `0` for fidelity. If used, the fidelity map must meet all of the same requirements listed above for the other map inputs.
 
-### Optional Data
+#### Option 2: TransitionLayer
 
-The use of landscape fidelity data is optional. By default, the package treats all cells in the landscape data the same and uses a value of `0` for fidelity. If custom data is desired, then it must meet all of the same requirements listed above for the *resistance* and *absorption* landscape data.
+A `TransitionLayer` object can be manually created using the gdistance package and can be further modified before being supplied as an input to `samc()`, allowing for additional flexibility in constructing the $P$ matrix. While the package is able to check for some potential issues in the `TranstionLayer`, it is still possible to accidentally modify the `TransitionLayer` in a way that causes issues that cannot be detected by the package, so extra care must be taken by the user. 
+
+This option requires a `RasterLayer` map of total absorption. This map must match the `RasterLayer` that was used to create the `TransitionLayer` using the same conditions as *Option 1* (above).
+
+This option also allows the input of a `RasterLayer` fidelity map with the same requirements as *Option 1* (above).
+
+#### Option 3: P Matrix
+
+The Third option for using this package is to directly supply a $P$ matrix. The $P$ matrix can be provided either as a regular matrix or a `dgCmatrix`, which is a sparse matrix object available through the Matrix package. The $R$ portion of the $P$ matrix must be a single column which represents the total absorption probability for each transient state.
+
+The advantage of this approach is total flexibility. The disadvantage is that the $P$ matrix can be created with certain properties that would lead to crashes, and the package is unable to detect all of them at this time. The other disadvantage is that the package cannot map the results back to anything for visualization purposes.
+
+#### Option 4: igraph
+
+A future version of the package will incorporate igraph support for graph based inputs. This will provide the flexibility of a custom $P$ matrix, but will generally be more user-friendly to construct, be able to perform more thorough data checking to avoid issues in the $P$ matrix, and allow for mapping the results back to a graph for visualization purposes.
 
 
-### Built-in Example Data
+## Utility Functions
 
-The package includes built-in example data. Some of this data was used to create the figures in the SAMC paper, and is used in this tutorial. They are:
+In addition to the `samc()` function, the package has other utility functions that users might find helpful:
+
+- The `check()` function is used to check that input map data meets the data requirements outlined above. It can be used to compare two `RasterLayer` objects, two `matrix` objects, or check either a `RasterLayer` or a `matrix` against an already created `samc-class` object. It can also be used with a `RasterStack` to check all the layers in the stack against one another.
+- The `map()` function is used to simplify mapping vector results based on input maps and returns a `RasterLayer`. This is provided because R handles matrices and raster layers somewhat differently when reading and writing vector data, which can cause users to map the data incorrectly if they aren't careful. It also handles mapping with NA values, another potential source of error.
+- The `locate()` function is used to get cell numbers for use as `origin` and `dest` values in various analytical function arguments. This function should be used instead of `cellFromXY()` in the raster package because `cellFromXY()` cell numbers do not necessarily correspond to cell numbers in the samc package (the samc package does not assign cell numbers to `NA` cells, whereas the raster package does). The `locate()` function can be used to return a `RasterLayer` with the cell numbers encoded as cell values by simply excluding the `xy` argument.
+- The `pairwise()` function is provided to easily and efficiently run specific metrics for all the pairwise combinations of start and end locations.
+
+
+## Analytical Functions
+
+The package implements functions for the formulas provided in Table 1 of Fletcher et al. ([2019](https://onlinelibrary.wiley.com/doi/full/10.1111/ele.13333)), as well as other new ones since that publication. Many of the formulas are related conceptually, and are grouped together into single functions with multiple parameter signatures to reduce the number of unique function names needed. Note that the descriptions assume $\psi$ contains probabilities (see above). The following descriptions were written in an ecological context; the function reference pages provide mathematically formal descriptions.
+
+
+| Function | Equation | Description |
+|:---------|:---------|:------------|
+| `absorption()` | $A = F R$ | Probability of an individual experiencing a specific type of mortality |
+| | $\psi^T A$ | Probability of an individual experiencing a specific type of mortality, regardless of initial location |
+| `cond_passage()` | $\tilde{t} = \tilde{B}_j^{-1}\tilde{F}\tilde{B}_j{\cdot}1$ | Mean first conditional passage time |
+| `dispersal()` | $\tilde{D}_{jt}=({\sum}_{n=0}^{t-1}\tilde{Q}^n)\tilde{q}_j$ | Probability of an individual visiting a location, if starting at any other location, before or at time *t* |
+| | $\psi^T\tilde{D}_{jt}$ | Probability of an individual visiting a location, before or at time *t*, regardless of initial location |
+| | $D=(F-I)diag(F)^{-1}$ | Probability of an individual visiting a location |
+| | $\psi^TD$ | Probability of an individual visiting a location, regardless of initial location |
+| `distribution()` | $Q^t$   | Probability of an individual being at a location at time *t* |
+| | $\psi^TQ^t$ | Probability of an individual being at a location at time *t*, regardless of initial location |
+| `mortality()` | $\tilde{B}_t = (\sum_{n=0}^{t-1} Q^n) \tilde{R}$ | Probability of an individual experiencing mortality at a location before or at time *t* |
+| | $\psi^T \tilde{B}_t$ | Probability of an individual experiencing mortality at a location, before or at time *t*, regardless of initial location |
+| | $B = F \tilde{R}$ | Probability of an individual experiencing mortality at a location |
+| | $\psi^T B$ | Probability of an individual experiencing mortality at a location, regardless of initial location |
+| `survival()` | $z=(I-Q)^{-1}{\cdot}1=F{\cdot}1$ | Expected life expectancy of an individual |
+| | ${\psi}^Tz$ | Overall life expectancy, regardless of initial location |
+| `visitation()` | $F = (I-Q)^{-1}$ | Expected number of times an individual visits a location |
+
+
+Depending on the combination of inputs used, a function might return a single value, a vector, a matrix, or a list. In some cases, the calculations will be impractical with sufficiently large landscape datasets due to memory and other performance constraints. To work around this, many equations have multiple associated function signatures that allow users to calculate individual portions of the result rather than the entire result. This opens up multiple optimizations that makes calculating many of the metrics more practical. More specific details about performance considerations can be found in the [Performance](performance.html) vignette.
+
+#### Initial State Data
+
+Several of the analytical functions allow the input of an initial state $\psi$ for the Markov chain via the `occ` parameter. The descriptions for these analytical functions assume that values in $\psi$ sum to one. When this is the case, $\psi_i$ represents the probability that the Markov chain starts in transient state $i$. 
+
+When the values in $\psi$ sum to a value other than one, care must be taken in the interpretation of the results. For example, $\psi$ could be used to represent a population of individuals where $\psi_i$ represents the number of individuals that start in transient state $i$. In this case, the results of the functions using $\psi$ aren't probabilities, but rather the expected number of individuals.
+
+
+## Built-in Example Data
+
+The package includes built-in example map data. Some of this data was used to create the figures in the SAMC paper, and is used in numerous package tutorials. They are:
 
 * `ex_res_data`: A matrix with landscape resistance data.
 * `ex_abs_data`: A matrix with landscape absorption (mortality) data.
@@ -69,61 +150,3 @@ plot(raster(samc::ex_abs_data, xmn = 1, xmx = ncol(samc::ex_abs_data), ymn = 1, 
 plot(raster(samc::ex_occ_data, xmn = 1, xmx = ncol(samc::ex_occ_data), ymn = 1, ymx = nrow(samc::ex_occ_data)),
      main = "Example Occupancy Data", xlab = "x", ylab = "y", col = viridis(256))
 ```
-
-
-## The `samc-class`
-
-The `samc-class` is used to manage the transition matrix and information about your landscape data to help ensure that the calculations used by the rest of the package are used correctly. Creating an `samc-class` object is the mandatory first step in the package, and is created using the `samc()` utility function. The `samc()` function has several parameters. Some of these are mandatory, some are only mandatory in certain situations, and some are optional. The overall function signature is as follows:
-```r
-samc(resistance, absorption, fidelity, latlon, tr_fun, p_mat, ...)
-```
-
-An explanation of the arguments:
-
-* `resistance` and `absorption` are always mandatory, and must meet the data requirements in the Data section above.
-* `fidelity` is optional. If included, it must meet the data requirements outlined in the Data section above.
-* `latlon` is mandatory when the input data is in a `RasterLayer` object. It should be set to either `TRUE` or `FALSE`.
-* `tr_fun` is always mandatory. It is used to create the transition matrix.
-* `directions` is an optional parameter. It can be used to set how adjacent cells are connected.
-* `override` is an optional parameter. It is used to control whether or not memory intensive functions can be run on the data. By default it is set to `FALSE` to prevent users from accidentally running these functions, which can potentially crash R if the computer does not have enough memory. The function documentation provides specific details for which calculations need the override, but in general it will rarely be useful for users and should be left off.
-
-The `p_mat` parameter provides an alternative method for creating a `samc-class` directly from a preconstructed P matrix. See the `samc()` documentation for more details.
-
-
-## Utility Functions
-
-In addition to the extremely important `samc()` function, the package has other utility functions that users might find helpful:
-
-- The `check()` function is used to check that input landscape data meets the data requirements outlined above. It can be used to compare two `RasterLayer` objects, two `matrix` objects, or check either a `RasterLayer` or a `matrix` against an already created `samc-class` object.
-- The `map()` function is used to simplify mapping vector data back into the landscape and return it as a `RasterLayer`. This is provided because R handles matrices and raster layers somewhat differently when reading and writing vector data, which can cause users to map the data incorrectly if they aren't careful. It also handles mapping to landscapes with NA values, another potential source of error.
-- The `locate()` function is used to get cell numbers for use as origin and dest values in various analytical function arguments. This function should be used instead of `cellFromXY()` in the raster package because `cellFromXY()` cell numbers do not necessarily correspond to cell numbers in the samc package (the samc package does not assign cell numbers to `NA` cells, whereas the raster package does). The `locate()` function can be used to return a `RasterLayer` with the cell numbers encoded as cell values by simply excluding the `xy` argument.
-- The `pairwise()` function is provided to easily and efficiently run specific metrics for all the pairwise combinations of start and end locations.
-
-
-## Analytical Functions
-
-The package implements functions for the formulas provided in Table 1 of Fletcher et al. ([2019](https://onlinelibrary.wiley.com/doi/full/10.1111/ele.13333)). Many of the formulas are related conceptually, and are grouped together into single functions with multiple parameter signatures to reduce the number of unique function names needed. Note that the descriptions assume $\psi$ contains probability of occurrence. If $\psi$ instead contains the number of individuals, then the metrics with $\psi$ will return the number of expected individuals rather than a probability.
-
-```{r table1, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
-tabl <- "
-| Function | Equation | Description |
-|:---------|:---------|:------------|
-| `cond_passage()` | $\\tilde{t} = \\tilde{B}_j^{-1}\\tilde{F}\\tilde{B}_j{\\cdot}1$ | Mean first conditional passage time |
-| `dispersal()` | $\\tilde{D}_{jt}=({\\sum}_{n=0}^{t-1}\\tilde{Q}^n)\\tilde{q}_j$ | Probability of an individual visiting a location, if starting at any other location, before or at time *t* |
-| | $\\psi^T\\tilde{D}_{jt}$ | Probability of an individual visiting a location, before or at time *t*, regardless of initial location |
-| | $D=(F-I)diag(F)^{-1}$ | Probability of an individual visiting a location |
-| | $\\psi^TD$ | Probability of an individual visiting a location, regardless of initial location |
-| `distribution()` | $Q^t$   | Probability of an individual being at a location at time *t* |
-| | $\\psi^TQ^t$ | Probability of an individual being at a location at time *t*, regardless of initial location |
-| `mortality()` | $\\tilde{B}_t = (\\sum_{n=0}^{t-1} Q^n) \\tilde{R}$ | Probability of an individual experiencing mortality at a location before or at time *t* |
-| | $\\psi^T \\tilde{B}_t$ | Probability of an individual experiencing mortality at a location, before or at time *t*, regardless of initial location |
-| | $B = F \\tilde{R}$ | Probability of an individual experiencing mortality at a location |
-| | $\\psi^T B$ | Probability of an individual experiencing mortality at a location, regardless of initial location |
-| `survival()` | $z=(I-Q)^{-1}{\\cdot}1=F{\\cdot}1$ | Expected life expectancy of an individual |
-| | ${\\psi}^Tz$ | Overall life expectancy, regardless of initial location |
-| `visitation()` | $F = (I-Q)^{-1}$ | Expected number of times an individual visits a location |
-"
-cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
-```
-
-Depending on the combination of inputs used, a function might return a single value, a vector, or a matrix. In some cases, the calculations will not be practical with sufficiently large landscape datasets due to memory and other performance constraints. To work around this, many equations have multiple associated function signatures that allow users to calculate individual portions of the result rather than the entire result. This opens up multiple optimizations that makes calculating many of the metrics more practical. More specific details about performance considerations can be found in the [Performance](performance.html) vignette.

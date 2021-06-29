@@ -64,7 +64,7 @@
   if (any(x < 1))
     stop("All location values must be positive (greater than 0)", call. = FALSE)
 
-  if (any(x > (nrow(samc@p) - 1)))
+  if (any(x > nrow(samc$q_matrix)))
     stop("Location values cannot exceed the number of nodes in the landscape", call. = FALSE)
 }
 
@@ -91,7 +91,7 @@
 #' @param x A matrix
 #' @noRd
 .rasterize <- function(x) {
-  return(raster::raster(x, xmn = 0.5, xmx = ncol(x) + 0.5, ymn = 0.5, ymx = nrow(x) + 0.5))
+  return(raster::raster(x, xmn = 0.5, xmx = ncol(x) + 0.5, ymn = 0.5, ymx = nrow(x) + 0.5, crs = NA))
 }
 
 
@@ -121,8 +121,148 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "character"),
   function(samc, x) {
-    row_names <- rownames(samc@p)
-    .validate_names(row_names[-length(row_names)], x)
+    row_names <- rownames(samc$q_matrix)
+    .validate_names(row_names, x)
 
     return(match(x, row_names))
+  })
+
+
+#' Validate transition args
+#'
+#' Validates the transition args for the samc() function
+#'
+#' @param x A list
+#' @noRd
+.validate_tr_args <- function(x) {
+  args <- c("fun", "dir", "sym")
+  names <- names(x)
+
+  missing_args <- args[!(args %in% names)]
+  if (length(missing_args) > 0)
+    stop(paste("Missing argument in tr_args:", missing_args), call. = FALSE)
+
+  unknown_args <- names[!(names %in% args)]
+  if (length(unknown_args) > 0)
+    stop(paste("Unknown argument in tr_args:", unknown_args), call. = FALSE)
+
+  dup_args <- names[duplicated(names)]
+  if (length(dup_args) > 0)
+    stop(paste("Duplicate argument in tr_args:", dup_args), call. = FALSE)
+
+  if (!is.function(x$fun)) {
+    stop("`fun`` must be a function.", call. = FALSE)
+  } else if (!(x$dir %in% c(4,8))) {
+    stop("`dir` must be set to either 4 or 8", call. = FALSE)
+  } else if (!is.logical(x$sym)) {
+    stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
+  }
+}
+
+
+#' Process absorption inputs
+#'
+#' Process absorption inputs
+#'
+#' @param samc A samc-class object
+#' @param x Absorption inputs
+#' @noRd
+setGeneric(
+  ".process_abs_states",
+  function(samc, x) {
+    standardGeneric(".process_abs_states")
+  })
+
+#' @noRd
+setMethod(
+  ".process_abs_states",
+  signature(samc = "samc", x = "Raster"),
+  function(samc, x) {
+    check(samc, x)
+
+    if (raster::nlayers(x) == 0) {
+     stop("Missing absorption data", call. = FALSE)
+    }
+
+    abs_vec <- as.vector(x[[1]])
+
+    if (raster::nlayers(x) > 1) {
+      abs_mat <- raster::as.matrix(x)
+    } else {
+      abs_mat <- matrix(abs_vec, ncol = 1)
+    }
+
+    if(any(abs_mat > 1, na.rm = TRUE) || any(abs_mat < 0, na.rm = TRUE)) stop("", call. = FALSE)
+
+    excl <- which(is.na(abs_vec))
+    if (length(excl) > 0) {
+      abs_mat <- abs_mat[-excl, , drop = FALSE]
+    }
+
+    if (is.null(names(x))) colnames(abs_mat) <- 1:ncol(abs_mat)
+
+    if ("" %in% names(x)) stop("Mix of named and unnamed maps/layers", call. = FALSE)
+    if (any(duplicated(names(x)))) stop("Duplicate names", call. = FALSE)
+
+    colnames(abs_mat) <- names(x)
+
+    return(abs_mat)
+  })
+
+setMethod(
+  ".process_abs_states",
+  signature(samc = "samc", x = "list"),
+  function(samc, x) {
+
+    x <- lapply(x, .rasterize)
+
+    return(.process_abs_states(samc, raster::stack(x)))
+  })
+
+
+#' Process occupancy input
+#'
+#' Process occupancy input
+#'
+#' @param samc A samc-class object
+#' @param x occupancy input
+#' @noRd
+setGeneric(
+  ".process_occ",
+  function(samc, x) {
+    standardGeneric(".process_occ")
+  })
+
+# TODO: find a way to check the input type for `occ` to the input type to samc()
+
+#' @noRd
+setMethod(
+  ".process_occ",
+  signature(samc = "samc", x = "numeric"),
+  function(samc, x) {
+    if (any(!is.finite(x)) || any(x < 0)) stop("`occ` input must only contain positive numeric values")
+
+    if (length(x) != nrow(samc$q_matrix)) stop("`occ` input length does not match number of transient states")
+
+    return(x)
+  })
+
+#' @noRd
+setMethod(
+  ".process_occ",
+  signature(samc = "samc", x = "Raster"),
+  function(samc, x) {
+    check(samc, x)
+
+    pv <- as.vector(x)
+    pv <- pv[is.finite(pv)]
+
+    return(.process_occ(samc, pv))
+  })
+
+setMethod(
+  ".process_occ",
+  signature(samc = "samc", x = "matrix"),
+  function(samc, x) {
+    return(.process_occ(samc, .rasterize(x)))
   })

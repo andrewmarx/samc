@@ -43,13 +43,51 @@ setGeneric(
 #' @rdname check
 setMethod(
   "check",
-  signature(a = "RasterLayer", b = "missing"),
+  signature(a = "Raster", b = "missing"),
   function(a){
 
-    if (sum(is.infinite(a[]), na.rm = TRUE) > 0) {
+    n <- raster::nlayers(a)
+
+    if (n == 0) {
+      stop("No raster layers found", call. = FALSE)
+    }
+
+    r1 <- a[[1]]
+
+    if (sum(is.infinite(r1[]), na.rm = TRUE) > 0) {
       stop("Data contains Inf or -Inf element", call. = FALSE)
-    } else if (sum(is.nan(a[]), na.rm = TRUE) > 0) {
+    } else if (sum(is.nan(r1[]), na.rm = TRUE) > 0) {
       stop("Data contains NaN elements", call. = FALSE)
+    }
+
+    if (n > 1) {
+      r1[] <- is.finite(r1[])
+
+      for (i in 2:n) {
+        r2 <- a[[i]]
+
+        if (sum(is.infinite(r2[]), na.rm = TRUE) > 0) {
+          stop("Data contains Inf or -Inf element", call. = FALSE)
+        } else if (sum(is.nan(r2[]), na.rm = TRUE) > 0) {
+          stop("Data contains NaN elements", call. = FALSE)
+        }
+
+        r2[] <- is.finite(r2[])
+
+        tryCatch(
+          {
+            raster::compareRaster(r1, r2, values = TRUE)
+          },
+          error = function(e) {
+            if(grepl("not all objects have the same values", e$message)) {
+              msg = "NA mismatch"
+            } else {
+              msg = e$message
+            }
+            stop(msg, " in input data", call. = FALSE)
+          }
+        )
+      }
     }
 
     return(TRUE)
@@ -68,27 +106,9 @@ setMethod(
 #' @rdname check
 setMethod(
   "check",
-  signature(a = "RasterLayer", b = "RasterLayer"),
+  signature(a = "Raster", b = "Raster"),
   function(a, b){
-    check(a)
-    check(b)
-
-    a[] <- is.finite(a[])
-    b[] <- is.finite(b[])
-
-    tryCatch(
-      {
-        raster::compareRaster(a, b, values = TRUE)
-      },
-      error = function(e) {
-        if(grepl("not all objects have the same values", e$message)) {
-          msg = "NA mismatch"
-        } else {
-          msg = e$message
-        }
-        stop(msg, " in input data", call. = FALSE)
-      }
-    )
+    check(raster::stack(a, b))
   })
 
 #' @rdname check
@@ -105,7 +125,7 @@ setMethod(
 #' @rdname check
 setMethod(
   "check",
-  signature(a = "samc", b = "RasterLayer"),
+  signature(a = "samc", b = "Raster"),
   function(a, b){
     if (a@source != "map") stop("Parameters do not apply to a samc-class object created from a ", a@source, call. = FALSE)
 

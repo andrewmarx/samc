@@ -5,12 +5,12 @@ for(test in testlist) {
   samc_obj <- test$samc
 
   # Extract Q
-  Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
+  Q <- samc_obj$q_matrix
   Q <- as.matrix(Q)
 
   # Extract R
   R <- diag(nrow(Q))
-  diag(R) <- samc_obj@p[-nrow(samc_obj@p), ncol(samc_obj@p)]
+  diag(R) <- samc_obj@data@t_abs
 
   # Create an indentity matrix
   I <- diag(nrow(Q))
@@ -46,7 +46,7 @@ for(test in testlist) {
 
     base_result <- base_result %*% qj
 
-    expect_equal(as.vector(result), as.vector(base_result))
+    expect_equal(as.vector(result)[-col_vec[1]], as.vector(base_result))
   })
 
   test_that("Testing dispersal(samc, dest, time_vec)", {
@@ -68,7 +68,7 @@ for(test in testlist) {
 
       base_result <- base_result %*% qj
 
-      expect_equal((result[[i]]), as.vector(base_result))
+      expect_equal((result[[i]])[-col_vec[1]], as.vector(base_result))
     }
   })
 
@@ -119,7 +119,9 @@ for(test in testlist) {
   })
 
   test_that("Testing dispersal(samc)", {
+    samc_obj$override <- TRUE
     result <- dispersal(samc_obj)
+    samc_obj$override <- FALSE
 
     base_result <- (f - I) %*% fdg
 
@@ -127,12 +129,10 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result))
   })
 
-  # TODO Remove the skip once dispersal(samc, origin) is implemented
   test_that("Testing dispersal(samc, origin)", {
-
-    skip("dispersal(samc, origin) is not implemented")
-
     result <- dispersal(samc_obj, origin = row_vec[1])
+    result_char <- dispersal(samc_obj, origin = as.character(row_vec[1]))
+    expect_equal(result, result_char)
 
     base_result <- (f - I) %*% fdg
 

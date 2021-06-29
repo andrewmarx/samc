@@ -6,7 +6,7 @@ for(test in testlist) {
   samc_obj <- test$samc
 
   # Extract Q
-  Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
+  Q <- samc_obj$q_matrix
   Q <- as.matrix(Q)
 
   # Create an indentity matrix
@@ -16,7 +16,9 @@ for(test in testlist) {
 
   # Run the tests
   test_that("Testing visitation(samc)", {
+    samc_obj$override <- TRUE
     r <- visitation(samc_obj)
+    samc_obj$override <- FALSE
 
     expect_equal(dim(r), dim(base_result))
     expect_equal(as.vector(r), as.vector(base_result))

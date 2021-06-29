@@ -6,7 +6,7 @@ for(test in testlist) {
   samc_obj <- test$samc
 
   # Extract Q
-  Q <- samc_obj@p[-nrow(samc_obj@p), -ncol(samc_obj@p)]
+  Q <- samc_obj$q_matrix
   Q <- as.matrix(Q)
 
   # Prepare the occupancy data
@@ -23,7 +23,10 @@ for(test in testlist) {
 
   # Run the tests
   test_that("Testing distribution(samc, time)", {
+    samc_obj$override <- TRUE
     result <- distribution(samc_obj, time = time)
+    samc_obj$override <- FALSE
+
     base_result <- Pt
 
     expect_equal(dim(result), dim(base_result))

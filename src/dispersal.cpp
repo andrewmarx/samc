@@ -37,10 +37,14 @@ Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
 }
 
 
-// [[Rcpp::export(".psid_long")]]
-Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::VectorXd &psi)
+// [[Rcpp::export(".diagf")]]
+Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> > &M)
 {
+  Rcpp::Rcout << "\nCached diagonal not found.\n";
+
   Rcpp::Rcout << "Performing setup. This can take several minutes...";
+
+  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
   int sz = M.rows();
 
@@ -54,8 +58,6 @@ Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M, const
 
   int ut = std::max(sz/10, 1000);
   int utm = (int)std::max(10.0, std::pow(10, (7.0 - std::log10((double)sz))));
-
-  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
   solver.compute(M);
 
@@ -94,14 +96,20 @@ Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M, const
   }
 
   Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";
+  Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";
 
-  Rcpp::Rcout << "Performing final calculations. This may take a few minutes...";
+  return Rcpp::wrap(dg);
+}
+
+
+// [[Rcpp::export(".psid_long")]]
+Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::VectorXd &psi, const Eigen::VectorXd &dg)
+{
+  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
   solver.compute(M.transpose());
 
   Eigen::VectorXd psiF = solver.solve(psi) - psi;
-
-  Rcpp::Rcout << " Complete.\n";
 
   return Rcpp::wrap(psiF.cwiseQuotient(dg));
 }

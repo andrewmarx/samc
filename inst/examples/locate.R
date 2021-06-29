@@ -9,7 +9,8 @@ occ_data <- samc::ex_occ_data
 
 
 # Create samc-class object
-samc_obj <- samc(res_data, abs_data, tr_fun = function(x) 1/mean(x))
+samc_obj <- samc(res_data, abs_data,
+                 tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 
 # We can use locate() to return a raster with the cell numbers encoded as data

@@ -14,64 +14,81 @@ NULL
 #' \itemize{
 #'   \item \strong{dispersal(samc, dest, time)}
 #'
-#' The result is a vector (single time step) or a list of vectors (multiple
-#' time steps) where each element corresponds to a cell in the landscape,
-#' and can be mapped back to the landscape using the \code{\link{map}} function.
-#' Element \emph{k} is the probability of ever visiting a given destination,
-#' if starting at any other location, within \emph{t} or fewer time steps.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability
+#' of visiting transient state \eqn{\mathit{j}} within \eqn{\mathit{t}} or fewer
+#' time steps if starting at transient state \eqn{\mathit{i}}.
+#'
+#' Note: Given the current derivation, when \eqn{\mathit{i=j}}, then \eqn{\mathbf{v}_i}
+#' is unknown and has been set to \code{NA}.
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #' }
 #'
 #' \eqn{\psi^T\tilde{D}_{jt}}
 #' \itemize{
 #'   \item \strong{dispersal(samc, occ, dest, time)}
 #'
-#' The result is a numeric (single time step) or a list of numerics (multiple
-#' time steps) that is the unconditional probability of visiting a
-#' given destination within \emph{t} or fewer time steps.
+#' The result is a numeric that is the probability of visiting transient state \eqn{\mathit{j}}
+#' within \eqn{\mathit{t}} or fewer time steps given an initial state \eqn{\psi}
+#'
+#' If multiple time steps were provided as a vector, then the result will be an
+#' ordered named list containing a vector for each time step.
 #' }
 #'
 #' \eqn{D=(F-I)diag(F)^{-1}}
 #' \itemize{
 #'   \item \strong{dispersal(samc)}
 #'
-#' The result is a matrix where element (\emph{i},\emph{j}) is the probability
-#' that location \emph{j} is visited when starting in location \emph{i}.
+#' The result is a matrix \eqn{M} where \eqn{M_{i,j}} is the probability of visiting
+#' transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
 #'
 #' The returned matrix will always be dense and cannot be optimized. Must enable
-#' override to use.
+#' override to use (see \code{\link{samc-class}}).
 #'
 #'   \item \strong{dispersal(samc, origin)}
 #'
-#' This function has not been optimized yet, and will not run.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of visiting transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{dispersal(samc, dest)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{i} is the probability that the
-#' destination is visited when starting in location \emph{i}.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_i} is the probability
+#' of visiting transient state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{dispersal(samc, origin, dest)}
 #'
-#' The result is a numeric value that is the probability that an individual
-#' starting at the origin visits the destination.
+#' The result is a numeric value that is the probability of visiting transient
+#' state \eqn{\mathit{j}} if starting at transient state \eqn{\mathit{i}}.
 #' }
 #'
 #' \eqn{\psi^TD}
 #' \itemize{
 #'   \item \strong{dispersal(samc, occ)}
 #'
-#' The result is a vector where each element corresponds to a cell in the
-#' landscape, and can be mapped back to the landscape using the
-#' \code{\link{map}} function. Element \emph{j} is the unconditional
-#' probability distribution of ever visiting location \emph{j}, regardless of
-#' the initial location.
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
+#' of visiting transient state \eqn{\mathit{j}} given an initial state \eqn{\psi}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
 #'
 #'   \item \strong{dispersal(samc, occ, dest)}
 #'
-#' The result is a numeric value that is the unconditional probability
-#' distribution of ever visiting a given destination, regardless of the initial
-#' location.
+#' The result is a numeric value that is the probability of visiting transient
+#' state \eqn{\mathit{j}} given an initial state \eqn{\psi}.
 #' }
 #'
 #' @template section-perf
@@ -82,7 +99,7 @@ NULL
 #' @template param-dest
 #' @template param-time
 #'
-#' @return A matrix, a vector, a list of vectors, or a numeric
+#' @return See Details
 #'
 #' @example inst/examples/example.R
 #'
@@ -106,7 +123,7 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
     qv <- q[, dest]
     qv <- qv[-dest]
     q <- q[-dest, -dest]
@@ -120,6 +137,12 @@ setMethod(
 
     res <- lapply(res, as.vector)
 
+    # Element for i=j is missing, so fill in with NA
+    res <- lapply(res, function(x) {
+      lx <- length(x)
+      y <- c(x[0:(dest-1)], NA, x[dest:(lx + 1)])
+      return(y[1:(lx + 1)])})
+
     if (length(res) == 1) {
       return(res[[1]])
     } else {
@@ -131,37 +154,26 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "location", time = "numeric"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location", time = "numeric"),
   function(samc, occ, dest, time) {
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
     dest <- .process_locations(samc, dest)
 
-    check(samc, occ)
+    pv <- .process_occ(samc, occ)
 
     d <- dispersal(samc, dest = dest, time = time)
 
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
     pv <- pv[-dest]
 
     if (is.list(d)) {
-      return(lapply(d, function(x){as.numeric(pv %*% x)}))
+      return(lapply(d, function(x){as.numeric(pv %*% x[-dest])}))
     } else {
-      return(as.numeric(pv %*% d))
+      return(as.numeric(pv %*% d[-dest]))
     }
   })
 
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "location", time = "numeric"),
-  function(samc, occ, dest, time) {
-    occ <- .rasterize(occ)
-
-    return(dispersal(samc, occ, dest = dest, time = time))
-  })
 
 # dispersal(samc) ----
 #' @rdname dispersal
@@ -170,7 +182,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
     if (!samc@override)
-      stop("This version of the dispersal() method produces a large dense matrix.\nIn order to run it, create the samc object with the override parameter set to TRUE.", call. = FALSE)
+      stop("This version of the dispersal() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
     f <- visitation(samc)
     gc()
@@ -193,8 +205,25 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
-    stop("A suitably optimized version of this function has not been identified (yet). As a workaround, consider calculating destination columns instead", call. = FALSE)
-    # TODO fix origin signature if this function gets implemented
+    origin <- .process_locations(samc, origin)
+
+    if (!samc@.cache$dgf_exists) {
+      q <- samc$q_matrix
+      q@x <- -q@x
+      Matrix::diag(q) <- Matrix::diag(q) + 1
+
+      dg <- samc:::.diagf(q)
+      samc@.cache$dgf <- dg
+      samc@.cache$dgf_exists <- TRUE
+    }
+
+    f_row <- visitation(samc, origin = origin)
+    f_row[origin] <- f_row[origin] - 1
+
+    result <- as.vector(f_row/samc@.cache$dgf)
+    names(result) <- colnames(samc$q_matrix)
+
+    return(result)
   })
 
 # dispersal(samc, dest) ----
@@ -209,9 +238,10 @@ setMethod(
     fjj <- f_col[dest]
     f_col[dest] <- f_col[dest] - 1
 
-    d_vec <- f_col/fjj
+    result <- as.vector(f_col/fjj)
+    names(result) <- rownames(samc$q_matrix)
 
-    return(d_vec)
+    return(result)
   })
 
 # dispersal(samc, origin, dest) ----
@@ -241,54 +271,35 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "missing", time = "missing"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
-    check(samc, occ)
+    pv <- .process_occ(samc, occ)
 
-    q <- samc@p[-nrow(samc@p), -nrow(samc@p)]
+    q <- samc$q_matrix
     q@x <- -q@x
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    if (!samc@.cache$dgf_exists) {
+      dg <- .diagf(q)
+      samc@.cache$dgf <- dg
+      samc@.cache$dgf_exists <- TRUE
+    }
 
-    disp <- .psid_long(q, pv)
+    disp <- .psid_long(q, pv, samc@.cache$dgf)
 
     return(as.vector(disp))
   })
 
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "missing", time = "missing"),
-  function(samc, occ) {
-    occ <- .rasterize(occ)
-
-    return(dispersal(samc, occ))
-  })
 
 # dispersal(samc, occ, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing", dest = "location", time = "missing"),
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, occ, dest) {
-    check(samc, occ)
-
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    pv <- .process_occ(samc, occ)
 
     dj <- dispersal(samc, dest = dest)
 
     return(as.numeric(pv %*% dj))
-  })
-
-#' @rdname dispersal
-setMethod(
-  "dispersal",
-  signature(samc = "samc", occ = "matrix", origin = "missing", dest = "location", time = "missing"),
-  function(samc, occ, dest) {
-    occ <- .rasterize(occ)
-
-    return(dispersal(samc, occ, dest = dest))
   })

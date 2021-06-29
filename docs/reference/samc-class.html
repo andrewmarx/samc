@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
       </span>
     </div>
 
@@ -120,6 +120,9 @@
     </li>
     <li>
       <a href="../articles/tutorial-animations.html">Animations</a>
+    </li>
+    <li>
+      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
     </li>
   </ul>
 </li>
@@ -169,28 +172,58 @@ results that may not be obviously incorrect. This class contains the p matrix
 necessary for all the calculations in the package, and enforces its type so
 that users are less likely to inadvertently alter it in a way that will cause
 issues in calculations.</p>
-<p>The class also contains a RasterLayer object derived from the input data.
-This object is used for checking inputs and mapping vector data in other
-functions.</p>
-<p>Finally, an override flag is used to help ensure that users do not
-accidentally run memory intensive versions of functions that can cause their
-systems to become non-responsive or for software to crash.</p>
-<p>The <code><a href='samc.html'>samc</a></code> function is used to create <code>samc-class</code>
+<p>The <code><a href='samc.html'>samc</a>()</code> function is used to create <code>samc-class</code>
 objects.</p>
+<p>The samc-class slots are subject to change, so users should not be using the
+<code><a href='https://rdrr.io/r/base/slotOp.html'>@</a></code> operator to access or change them. Doing so leads to the risk of broken
+code in the future. Instead, where relevant, the <code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code> operator can be used
+to get and set components of the class safely. This is a current list of what can
+be accessed and modified in the class:</p>
+<ul>
+<li><p><strong>override</strong></p>
+<p>Some analyses are memory intensive and have the potential to make a user's
+  system non-responsive or crash. By default, a samc-class object cannot be used
+  in these analyses to prevent unintentional loss of work. In some cases, users
+  may wish to use these particular analyses, in which case this behavior can
+  be overridden. To get the current state of the override, use <code>samc_obj$override</code>.
+  To enable the use of the analyses, the override can be set to <code>TRUE</code> using
+  <code>samc_obj$override &lt;- TRUE</code>. Before enabling the override, users should
+  familiarize themselves with the Performance vignette.</p></li>
+<li><p><strong>q_matrix</strong></p>
+<p>Advanced users may wish to have direct access to the Q matrix for developing
+  custom calculations/analyses. Assumptions should not be made about the internal
+  storage and management of the P and Q matrices in the samc-class; these things
+  are subject to change in the future. To safely access the Q matrix, use
+  <code>samc_obj$q_matrix</code>. The Q matrix inside of the samc-class cannot be
+  modified.</p></li>
+<li><p><strong>p_matrix</strong></p>
+<p><code>samc_obj$p_matrix</code> can be used to get a copy of the P matrix.</p></li>
+<li><p><strong>abs_states</strong></p>
+<p>Used to attach additional absorbing states to an samc object. This does not
+  cause P/Q matrices to be updated. Instead, it is intended to provide decomposed
+  results from the <code><a href='mortality.html'>mortality</a>()</code> and <code><a href='absorption.html'>absorption</a>()</code> metrics for different sources
+  of absorption that might be contributing to the total absorption values that
+  were used to create the samc object.</p>
+<p>The input must be in the same form as the absorption inputs used in <code><a href='samc.html'>samc</a>()</code>.
+  Using <code>NA</code> as the input will reset it.</p></li>
+</ul>
+
     <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
 
     
 
 <dl>
-<dt><code>p</code></dt><dd><p>The transition probability matrix <em>P</em>.</p></dd>
+<dt><code>data</code></dt><dd><p>Data associated with different components of the P matrix</p></dd>
 
 <dt><code>source</code></dt><dd><p>Information about the data source for the P matrix</p></dd>
 
-<dt><code>map</code></dt><dd><p>Used to verify landscape inputs and mapping of vector data.</p></dd>
+<dt><code>map</code></dt><dd><p>Used to verify landscape inputs and mapping of vector data</p></dd>
 
 <dt><code>clumps</code></dt><dd><p>Number of discontinuous regions in data</p></dd>
 
-<dt><code>override</code></dt><dd><p>Used to prevent accidental use of memory intensive functions.</p></dd>
+<dt><code>override</code></dt><dd><p>Used to prevent accidental use of memory intensive functions</p></dd>
+
+<dt><code>.cache</code></dt><dd><p>Cached data for performance boosts</p></dd>
 
 </dl>
 

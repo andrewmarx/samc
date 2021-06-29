@@ -40,8 +40,7 @@
 
 
 <meta property="og:title" content="Calculate survival metrics — survival" />
-<meta property="og:description" content="Calculates the expected amount of time that individuals survive
-in the landscape." />
+<meta property="og:description" content="Calculates the expected time to absorption" />
 
 
 
@@ -73,7 +72,7 @@ in the landscape." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
       </span>
     </div>
 
@@ -122,6 +121,9 @@ in the landscape." />
     <li>
       <a href="../articles/tutorial-animations.html">Animations</a>
     </li>
+    <li>
+      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -157,8 +159,7 @@ in the landscape." />
     </div>
 
     <div class="ref-description">
-    <p>Calculates the expected amount of time that individuals survive
-in the landscape.</p>
+    <p>Calculates the expected time to absorption</p>
     </div>
 
     <pre class="usage"><span class='fu'>survival</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span><span class='op'>)</span>
@@ -166,10 +167,7 @@ in the landscape.</p>
 <span class='co'># S4 method for samc,missing</span>
 <span class='fu'>survival</span><span class='op'>(</span><span class='va'>samc</span><span class='op'>)</span>
 
-<span class='co'># S4 method for samc,RasterLayer</span>
-<span class='fu'>survival</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span><span class='op'>)</span>
-
-<span class='co'># S4 method for samc,matrix</span>
+<span class='co'># S4 method for samc,ANY</span>
 <span class='fu'>survival</span><span class='op'>(</span><span class='va'>samc</span>, <span class='va'>occ</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -177,36 +175,36 @@ in the landscape.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>samc</th>
-      <td><p>A <code><a href='samc-class.html'>samc-class</a></code> object. This should be output from
-the <code><a href='samc.html'>samc</a></code> function.</p></td>
+      <td><p>A <code><a href='samc-class.html'>samc-class</a></code> object created using the <code><a href='samc.html'>samc</a></code> function.</p></td>
     </tr>
     <tr>
       <th>occ</th>
-      <td><p>A <code><a href='https://rdrr.io/pkg/raster/man/Raster-classes.html'>RasterLayer-class</a></code> or <code><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></code>.
-The input type must match the input type used to create the
-<code><a href='samc-class.html'>samc-class</a></code> object, and must have the same properties as the
-rest of the landscape data. See the <code><a href='check.html'>check</a></code> function for more
-details.</p></td>
+      <td><p>The initial state \(\psi\) of the Markov chain. If the <code><a href='samc-class.html'>samc-class</a></code>
+objects was constructed using map inputs, then occ must be the same type of input
+(either <code><a href='https://rdrr.io/pkg/raster/man/Raster-classes.html'>RasterLayer-class</a></code> or <code><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></code>),
+and must have the same properties as initial map inputs (see the <code><a href='check.html'>check</a></code>
+function).</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>vector</code> or a <code>numeric</code></p>
+    <p>See Details</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>\(z=(I-Q)^{-1}{\cdot}1=F{\cdot}1\)</p><ul>
 <li><p><strong>survival(samc)</strong></p>
-<p>The result is a vector where each element corresponds to a cell in the
-landscape, and can be mapped back to the landscape using the
-<code><a href='map.html'>map</a></code> function. The value of element <em>i</em> is the expected
-amount of time that individuals survive when starting at location <em>j</em>.</p></li>
+<p>The result is a vector \(\mathbf{v}\) where \(\mathbf{v}_i\) is the expected
+time to absorption if starting at transient state \(\mathit{i}\).</p>
+<p>If the samc-class object was created using matrix or RasterLayer maps, then
+vector \(\mathbf{v}\) can be mapped to a RasterLayer using the
+<code><a href='map.html'>map</a></code> function.</p></li>
 </ul>
 
 <p>\(\psi^Tz\)</p><ul>
 <li><p><strong>survival(samc, occ)</strong></p>
-<p>The result is a numeric that represents the expected time that any individual
-stays in the landscape before death, regardless of the initial location.</p></li>
+<p>The result is a numeric that is the expected time to absorption given an initial
+state \(\psi\).</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="performance"><a class="anchor" href="#performance"></a>Performance</h2>
@@ -231,12 +229,17 @@ performance vignette: <a href='../doc/performance.html'><code><a href='../articl
 <span class='fu'><a href='check.html'>check</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'><a href='check.html'>check</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>occ_data</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='co'># Setup the details for our transition function</span>
+<span class='va'>tr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>, <span class='co'># Function for calculating transition probabilities</span>
+           dir <span class='op'>=</span> <span class='fl'>8</span>, <span class='co'># Directions of the transitions. Either 4 or 8.</span>
+           sym <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='co'># Is the function symmetric?</span>
+
 
 <span class='co'># Create a `samc-class` object with the resistance and absorption data using</span>
 <span class='co'># the samc() function. We use the recipricol of the arithmetic mean for</span>
 <span class='co'># calculating the transition matrix. Note, the input data here are matrices,</span>
-<span class='co'># not RasterLayers. If using RasterLayers, the latlon parameter must be set.</span>
-<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>, tr_fun <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
+<span class='co'># not RasterLayers.</span>
+<span class='va'>samc_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='samc.html'>samc</a></span><span class='op'>(</span><span class='va'>res_data</span>, <span class='va'>abs_data</span>, tr_args <span class='op'>=</span> <span class='va'>tr</span><span class='op'>)</span>
 
 
 <span class='co'># Convert the occupancy data to probability of occurrence</span>
@@ -247,9 +250,11 @@ performance vignette: <a href='../doc/performance.html'><code><a href='../articl
 <span class='va'>short_mort</span> <span class='op'>&lt;-</span> <span class='fu'><a href='mortality.html'>mortality</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>occ_prob_data</span>, time <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span>
 <span class='va'>short_dist</span> <span class='op'>&lt;-</span> <span class='fu'><a href='distribution.html'>distribution</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, origin <span class='op'>=</span> <span class='fl'>3</span>, time <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span>
 <span class='va'>long_disp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='dispersal.html'>dispersal</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, <span class='va'>occ_prob_data</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Performing setup. This can take several minutes... Complete.
+</div><div class='output co'>#&gt; 
+#&gt; Cached diagonal not found.
+#&gt; Performing setup. This can take several minutes... Complete.
 #&gt; Calculating matrix inverse diagonal...Calculating matrix inverse diagonal... Complete                                           
-#&gt; Performing final calculations. This may take a few minutes... Complete.</div><div class='input'><span class='va'>visit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, dest <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
+#&gt; Diagonal has been cached. Continuing with metric calculation...</div><div class='input'><span class='va'>visit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, dest <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
 <span class='va'>surv</span> <span class='op'>&lt;-</span> <span class='fu'>survival</span><span class='op'>(</span><span class='va'>samc_obj</span><span class='op'>)</span>
 
 

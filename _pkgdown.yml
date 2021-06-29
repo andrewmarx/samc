@@ -24,6 +24,8 @@ navbar:
         href: articles/tutorial-temporal.html
       - text: "Animations"
         href: articles/tutorial-animations.html
+      - text: "Multiple Absorption"
+        href: articles/tutorial-multiple-absorption.html
     - text: "Reference"
       href: reference/index.html
     - text: News
@@ -46,6 +48,7 @@ reference:
       - samc
   - title: "Analytical Functions"
     contents:
+      - absorption
       - cond_passage
       - dispersal
       - distribution
