@@ -89,3 +89,7 @@ See the [Disconnected Data](data-disconnected.html) vignette.
 ## Warning: Input contains disconnected regions. This does not work with the cond_passage() metric
 
 See the [Disconnected Data](data-disconnected.html) vignette.
+
+## Error in <...> : function 'Rcpp_precious_remove' not provided by package 'Rcpp'
+
+Update the Rcpp package. Then make sure to unload all of your packages and reload them again. You do not need to load the Rcpp package (i.e, do not `library(Rcpp)`).
