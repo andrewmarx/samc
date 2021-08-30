@@ -1,3 +1,10 @@
+# samc 1.4.1
+
+- Added an input check for multiple absorption that throws a more informative error when a list contains anything other than matrices
+- Updated the crs check in `samc()`. CRS objects have a hidden field that can vary depending on system and software versions, and previous versions of the check would not account for this. This would to lead to false positives where perfectly compatible rasters were reported as incompatible. The corresponding error message was also fixed to report the correct issue; the code was initially copied and modified from another input check, but the error message wasn't updated in the process.
+- Added an initial vignette discussing *Disconnected Data*. The current contents are only slightly modified from an email discussion; they will be rewritten and expanded upon in the future. The *Troubleshooting* vignette has had an error message and a warning message related to the topic added to it.
+- Added a Rcpp related error to the *Troubleshooting* vignette
+
 # samc 1.4.0
 
 - Due to a ballooning parameter count, the samc() function parameters are being adjusted. The new version is samc(data, absorption, fidelity, tr_args). Code using the previous syntax should continue to work (with one rare edge-case as an exception), but backwards compatibility will be remove in version 1.5.0, so old code should be updated. See the samc() function documentation and website tutorials for full details and examples. Package startup output has been added to detail the changes as well.
