@@ -3,7 +3,8 @@
 - Added an input check for multiple absorption that throws a more informative error when a list contains anything other than matrices
 - Updated the crs check in `samc()`. CRS objects have a hidden field that can vary depending on system and software versions, and previous versions of the check would not account for this. This would to lead to false positives where perfectly compatible rasters were reported as incompatible. The corresponding error message was also fixed to report the correct issue; the code was initially copied and modified from another input check, but the error message wasn't updated in the process.
 - Added an initial vignette discussing *Disconnected Data*. The current contents are only slightly modified from an email discussion; they will be rewritten and expanded upon in the future. The *Troubleshooting* vignette has had an error message and a warning message related to the topic added to it.
-- Added a Rcpp related error to the *Troubleshooting* vignette
+- Added a Rcpp related error to the *Troubleshooting* vignette.
+- Bumped version requirements for R to 3.6.0, Rcpp to 1.0.5, RcppEigen to 0.3.3.9.1, and set C++14 as the standard to use in Makevars.
 
 # samc 1.4.0
 
