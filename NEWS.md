@@ -5,6 +5,7 @@
 - Added an initial vignette discussing *Disconnected Data*. The current contents are only slightly modified from an email discussion; they will be rewritten and expanded upon in the future. The *Troubleshooting* vignette has had an error message and a warning message related to the topic added to it.
 - Added a Rcpp related error to the *Troubleshooting* vignette.
 - Bumped version requirements for R to 3.6.0, Rcpp to 1.0.5, RcppEigen to 0.3.3.9.1, and set C++14 as the standard to use in Makevars.
+- Enabled the Github discussions page as a replacement for Gitter: https://github.com/andrewmarx/samc/discussions
 
 # samc 1.4.0
 

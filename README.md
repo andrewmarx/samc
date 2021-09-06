@@ -31,3 +31,7 @@ If the devtools are installed and setup correctly, then the latest version of th
 ```R
 devtools::install_github("andrewmarx/samc")
 ```
+
+## Support
+
+We have a Github discussions page for anything and everything related to the package here: [Github Discussions](https://github.com/andrewmarx/samc/discussions)
