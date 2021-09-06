@@ -2,7 +2,6 @@
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/samc)](https://cran.r-project.org/package=samc)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/samc)](https://cran.r-project.org/package=samc)
-[![Gitter](https://badges.gitter.im/samc-package/community.svg)](https://gitter.im/samc-package/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 
 ### **Introduction**
@@ -28,10 +27,10 @@ Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020)
 
 Please note that this section is for package specific queries. If you have questions or comments about the related published articles, contact the authors.
 
-#### Not sure how to do something? Have an error and can't fix it?
+#### Have an error and can't fix it?
 
-If you have an error, make sure you are using the newest version of the package. Then, check the site's [Troubleshooting](articles/troubleshooting.html) page, which is periodically updated with common errors that users encounter. If you still cannot solve your issue, or just have a question about the package, then check out our [Gitter community](https://gitter.im/samc-package/community) (also accessible via the Gitter badges in the README and home pages).
+If you have an error, make sure you are using the newest version of the package. Then, check the site's [Troubleshooting](articles/troubleshooting.html) page, which is periodically updated with common errors that users encounter.
 
-#### Found a bug? Have a feature request?
+#### Not sure how to do something? Found a bug? Have a feature request? Still can't solve your error? Want to show off your project?
 
-If you're getting an error or incorrect output, and are sure it is a bug, then report it as an issue in the GitHub repo (after making sure that it hasn't already been posted). Make sure to include all possible relevant info (operating system, R version, samc version) and a fully reproducible example. Likewise, if you have a feature you'd like to see, submit it to the issue tracker. Keep in mind that my time is limited, so while I do have plans to add new features, I also have other obligations.
+We have a Github discussions page for anything and everything related to the package here: [Github Discussions](https://github.com/andrewmarx/samc/discussions)

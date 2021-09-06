@@ -1,7 +1,7 @@
 Package: samc
 Type: Package
 Title: Spatial Absorbing Markov Chains
-Version: 1.4.0
+Version: 1.4.1
 Authors@R: c(
     person("Andrew", "Marx", , "andrewjmarx@ufl.edu", role = c("aut", "cre", "cph"), 
       comment = c(ORCID = "0000-0002-7456-1631")
@@ -33,7 +33,7 @@ URL: https://andrewmarx.github.io/samc/
 BugReports: https://github.com/andrewmarx/samc/issues/
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.3.0)
+Depends: R (>= 3.6.0)
 Imports:
     methods,
     gdistance,
@@ -66,4 +66,4 @@ Collate:
     'samc.R'
     'survival.R'
     'zzz.R'
-LinkingTo: Rcpp (>= 1.0.1), RcppEigen (>= 0.3.3.5.0)
+LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1)

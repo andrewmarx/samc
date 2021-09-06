@@ -12,6 +12,10 @@ navbar:
         href: articles/troubleshooting.html
       - text: "Code Snippets"
         href: articles/code-snippets.html
+    - text: "Data"
+      menu:
+      - text: "Disconnected Data"
+        href: articles/data-disconnected.html
     - text: "Tutorials"
       menu:
       - text: "Basic Tutorial"

@@ -81,3 +81,15 @@ samc_obj <- samc(res_data, 0.01, tr_args = list(fun = function(x) 1/mean(x), dir
 # Solution
 samc_obj <- samc(res_data, abs_data, tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 ```
+
+## Error: All disconnected regions must have at least one non-zero absorption value
+
+See the [Disconnected Data](data-disconnected.html) vignette.
+
+## Warning: Input contains disconnected regions. This does not work with the cond_passage() metric
+
+See the [Disconnected Data](data-disconnected.html) vignette.
+
+## Error in <...> : function 'Rcpp_precious_remove' not provided by package 'Rcpp'
+
+Update the Rcpp package. Then make sure to unload all of your packages and reload them again. You do not need to load the Rcpp package (i.e, do not `library(Rcpp)`).

@@ -187,8 +187,8 @@ setMethod(
       stop("Extent of absorption raster does not match extent of raster used to create TransitionLayer")
     }
 
-    if (!identical(raster::crs(m), raster::crs(rs))) {
-      stop("Extent of absorption raster does not match extent of raster used to create TransitionLayer")
+    if (!raster::compareCRS(m, rs)) {
+      stop("crs of absorption raster does not match crs of raster used to create TransitionLayer")
     }
 
 

@@ -214,6 +214,8 @@ setMethod(
   signature(samc = "samc", x = "list"),
   function(samc, x) {
 
+    if (!all(sapply(x, is.matrix))) stop("List can only contain matrices. If using rasters, use raster::stack() instead.", call. = FALSE)
+
     x <- lapply(x, .rasterize)
 
     return(.process_abs_states(samc, raster::stack(x)))
