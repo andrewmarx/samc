@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
       </span>
     </div>
 
@@ -95,6 +95,18 @@
     </li>
     <li>
       <a href="../articles/code-snippets.html">Code Snippets</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Data
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/data-disconnected.html">Disconnected Data</a>
     </li>
   </ul>
 </li>
@@ -156,6 +168,20 @@
       <small>Source: <a href='https://github.com/andrewmarx/samc/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="samc-141" class="section level1">
+<h1 class="page-header" data-toc-text="1.4.1">
+<a href="#samc-141" class="anchor"></a>samc 1.4.1<small> 2021-09-02 </small>
+</h1>
+<ul>
+<li>Added an input check for multiple absorption that throws a more informative error when a list contains anything other than matrices</li>
+<li>Updated the crs check in <code><a href="../reference/samc.html">samc()</a></code>. CRS objects have a hidden field that can vary depending on system and software versions, and previous versions of the check would not account for this. This would to lead to false positives where perfectly compatible rasters were reported as incompatible. The corresponding error message was also fixed to report the correct issue; the code was initially copied and modified from another input check, but the error message wasn’t updated in the process.</li>
+<li>Added an initial vignette discussing <em>Disconnected Data</em>. The current contents are only slightly modified from an email discussion; they will be rewritten and expanded upon in the future. The <em>Troubleshooting</em> vignette has had an error message and a warning message related to the topic added to it.</li>
+<li>Added a Rcpp related error to the <em>Troubleshooting</em> vignette.</li>
+<li>Bumped version requirements for R to 3.6.0, Rcpp to 1.0.5, RcppEigen to 0.3.3.9.1, and set C++14 as the standard to use in Makevars.</li>
+<li>Enabled the Github discussions page as a replacement for Gitter: <a href="https://github.com/andrewmarx/samc/discussions" class="uri">https://github.com/andrewmarx/samc/discussions</a>
+</li>
+</ul>
+</div>
     <div id="samc-140" class="section level1">
 <h1 class="page-header" data-toc-text="1.4.0">
 <a href="#samc-140" class="anchor"></a>samc 1.4.0<small> 2021-06-27 </small>

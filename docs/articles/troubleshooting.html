@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
       </span>
     </div>
 
@@ -55,6 +55,18 @@
     </li>
     <li>
       <a href="../articles/code-snippets.html">Code Snippets</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Data
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/data-disconnected.html">Disconnected Data</a>
     </li>
   </ul>
 </li>
@@ -115,7 +127,7 @@
       <h1 data-toc-skip>Troubleshooting</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2021-06-29</h4>
+            <h4 class="date">2021-09-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/troubleshooting.Rmd"><code>vignettes/troubleshooting.Rmd</code></a></small>
       <div class="hidden name"><code>troubleshooting.Rmd</code></div>
@@ -133,8 +145,8 @@
 <h2 class="hasAnchor">
 <a href="#error-in-rastercompareraster" class="anchor"></a>Error in raster::compareRaster</h2>
 <p>This will occur if the <code><a href="../reference/check.html">check()</a></code> function detects that different sources of landscape data have mismatched properties. This could be for a variety of reasons, including differing coordinate reference systems (CRS) if using RasterLayers, differing dimensions, and differing locations of NA data. An important thing to be aware of is that the package does not support mixing landscape data in different types of objects; all landscape data used in an analysis must either be in matrices or RasterLayers. This includes occupancy data that is not part of the creation of the <code>samc-class</code> object.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="co"># Working example</span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Working example</span>
 <span class="va">r1</span> <span class="op">&lt;-</span> <span class="va">ex_res_data</span>
 <span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">ex_res_data</span>
 <span class="fu"><a href="../reference/check.html">check</a></span><span class="op">(</span><span class="va">r1</span>, <span class="va">r2</span><span class="op">)</span>
@@ -157,14 +169,14 @@
 <span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">ex_res_data</span>
 <span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">r2</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
 <span class="fu"><a href="../reference/check.html">check</a></span><span class="op">(</span><span class="va">r1</span>, <span class="va">r2</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'a' in selecting a method for function 'check': different extent</span></pre></div>
+<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'a' in selecting a method for function 'check': different extent</span></code></pre></div>
 </div>
 <div id="unable-to-find-an-inherited-method" class="section level2">
 <h2 class="hasAnchor">
 <a href="#unable-to-find-an-inherited-method" class="anchor"></a>Unable to find an inherited method</h2>
 <p>The SAMC package makes use of R’s S4 method dispatch system to enforce how the different versions of each function can be used. Hopefully, this will ensure that users are not unintentionally misusing functions by producing an error rather than letting the code run and returning a result that may not be obviously incorrect. If this error appears, it means that the combination of arguments provided to the function are not valid. This could be for a couple different reasons. The first is that an optional parameter is skipped without specifying argument names for the subsequent arguments. The second is that a user is passing the wrong type of data to an argument (e.g., passing a <code>numeric</code> when the function expects a <code>RasterLayer</code> or a <code>matrix</code>).</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="co"># Example: Skipping optional arguments. In this case, the `fidelity` argument is</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Example: Skipping optional arguments. In this case, the `fidelity` argument is</span>
 <span class="co"># optional, so we skip it. The tr_args argument, however, is always required, </span>
 <span class="co"># so we pass the relevant to it. But because we don't specify which</span>
 <span class="co"># argument it is, R is trying to find a version of the function that expects it</span>
@@ -183,7 +195,22 @@
 <span class="co">#&gt; Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'samc' for signature '"matrix", "numeric", "missing", "list"'</span>
 
 <span class="co"># Solution</span>
-<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></pre></div>
+<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="error-all-disconnected-regions-must-have-at-least-one-non-zero-absorption-value" class="section level2">
+<h2 class="hasAnchor">
+<a href="#error-all-disconnected-regions-must-have-at-least-one-non-zero-absorption-value" class="anchor"></a>Error: All disconnected regions must have at least one non-zero absorption value</h2>
+<p>See the <a href="data-disconnected.html">Disconnected Data</a> vignette.</p>
+</div>
+<div id="warning-input-contains-disconnected-regions--this-does-not-work-with-the-cond_passage-metric" class="section level2">
+<h2 class="hasAnchor">
+<a href="#warning-input-contains-disconnected-regions--this-does-not-work-with-the-cond_passage-metric" class="anchor"></a>Warning: Input contains disconnected regions. This does not work with the cond_passage() metric</h2>
+<p>See the <a href="data-disconnected.html">Disconnected Data</a> vignette.</p>
+</div>
+<div id="error-in-function-rcpp_precious_remove-not-provided-by-package-rcpp" class="section level2">
+<h2 class="hasAnchor">
+<a href="#error-in-function-rcpp_precious_remove-not-provided-by-package-rcpp" class="anchor"></a>Error in &lt;…&gt; : function ‘Rcpp_precious_remove’ not provided by package ‘Rcpp’</h2>
+<p>Update the Rcpp package. Then make sure to unload all of your packages and reload them again. You do not need to load the Rcpp package (i.e, do not <code><a href="http://www.rcpp.org">library(Rcpp)</a></code>).</p>
 </div>
   </div>
 
