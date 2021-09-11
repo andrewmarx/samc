@@ -3,7 +3,14 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+
+// [[Rcpp::depends(RcppParallel)]]
+#include <RcppParallel.h>
+
 #include <Rcpp/Benchmark/Timer.h>
+
+using namespace RcppParallel;
+
 
 
 // [[Rcpp::export(".sum_qn_q")]]
@@ -94,6 +101,80 @@ Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> > &M)
     dg(i) = col(i);
     ident(i) = 0;
   }
+
+  Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";
+  Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";
+
+  return Rcpp::wrap(dg);
+}
+
+
+struct DiagWorker : public Worker
+{
+  // Source matrix
+  const Eigen::SparseMatrix<double> input;
+
+  // Output vector
+  RVector<double> output;
+
+  // initialize with source and destination
+  DiagWorker(const Eigen::SparseMatrix<double> input, Rcpp::NumericVector output)
+    : input(input), output(output) {}
+
+  // take the square root of the range of elements requested
+  void operator()(std::size_t begin, std::size_t end) {
+
+    Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
+
+    solver.compute(input);
+
+    Eigen::VectorXd ident = Eigen::VectorXd::Zero(output.length());
+    Eigen::VectorXd col(output.length());
+
+    for(int i = begin; i < end; i++) {
+      ident(i) = 1;
+      col = solver.solve(ident);
+
+      output[i] = col(i);
+      ident(i) = 0;
+    }
+  }
+};
+
+
+// [[Rcpp::export(".diagf_par")]]
+Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M)
+{
+  Rcpp::Rcout << "\nCached diagonal not found.\n";
+
+  //Rcpp::Rcout << "Performing setup. This can take several minutes...";
+
+  //Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
+
+  int sz = M.rows();
+
+  Rcpp::NumericVector dg(sz);
+
+  /*Rcpp::Timer timer;
+  double t = 0.0;
+  Rcpp::String units("unit");
+
+  int ut = std::max(sz/10, 1000);
+  int utm = (int)std::max(10.0, std::pow(10, (7.0 - std::log10((double)sz))));
+*/
+  //solver.compute(M);
+
+  //Rcpp::Rcout << " Complete.\n";
+
+  Rcpp::Rcout << "Calculating matrix inverse diagonal...";
+
+  // Create the worker
+  //DiagWorker diagWorker(solver, dg);
+  DiagWorker diagWorker(M, dg);
+
+  // Parallel run
+  parallelFor(0, sz, diagWorker);
+
 
   Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";
   Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";
