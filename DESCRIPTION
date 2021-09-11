@@ -38,7 +38,8 @@ Imports:
     methods,
     gdistance,
     Matrix,
-    raster
+    raster,
+    RcppParallel
 RoxygenNote: 7.1.1
 Suggests: knitr,
     rmarkdown,
@@ -66,4 +67,5 @@ Collate:
     'samc.R'
     'survival.R'
     'zzz.R'
-LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1)
+LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1), RcppParallel
+SystemRequirements: GNU make
