@@ -67,6 +67,7 @@ NULL
 #' @slot map Used to verify landscape inputs and mapping of vector data
 #' @slot clumps Number of discontinuous regions in data
 #' @slot override Used to prevent accidental use of memory intensive functions
+#' @slot threads Used for multi-threading
 #' @slot .cache Cached data for performance boosts
 
 setClass(
@@ -79,6 +80,7 @@ setClass(
                map = "RasterLayer",
                clumps = "numeric",
                override = "logical",
+               threads = "numeric",
                .cache = "environment")
 
   # set default values

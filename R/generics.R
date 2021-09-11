@@ -33,6 +33,8 @@ setMethod("$", signature(x = "samc"), function(x, name) {
     rownames(p) <- colnames(p)
 
     return(p)
+  } else if (name == "threads"){
+    return(x@threads)
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
@@ -69,6 +71,13 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
     warning("Cannot modify the Q matrix this way.", call. = FALSE)
   } else if (name == "p_matrix"){
     warning("Cannot modify the P matrix this way.", call. = FALSE)
+  } else if (name == "threads"){
+    if (is.numeric(value) && length(value) == 1 && x%%1==0) {
+      x@threads <- value
+      warning("Make sure you're specifying a reasonable number of threads. Using all of your cores can make your computer unusable for other tasks while the analysis runs. Specifying more threads than your computer has cores may hurt performance.", call. = FALSE)
+    } else {
+      warning("Input must be a single positive integer.", call. = FALSE)
+    }
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }

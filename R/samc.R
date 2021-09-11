@@ -253,6 +253,7 @@ setMethod(
                              map = m,
                              clumps = -1,
                              override = FALSE,
+                             threads = 1,
                              .cache = new.env())
     samc_mat@.cache$dgf = numeric(nrow(tr_mat))
     samc_mat@.cache$dgf_exists = FALSE
@@ -459,6 +460,7 @@ setMethod(
                              source = "matrix",
                              map = raster::raster(matrix()),
                              clumps = -1,
+                             threads = 1,
                              override = FALSE)
 
     return(samc_obj)
