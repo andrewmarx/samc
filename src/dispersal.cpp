@@ -111,22 +111,18 @@ Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> > &M)
 
 struct DiagWorker : public Worker
 {
-  // Source matrix
-  const Eigen::SparseMatrix<double> input;
+
+  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
   // Output vector
   RVector<double> output;
 
   // initialize with source and destination
-  DiagWorker(const Eigen::SparseMatrix<double> input, Rcpp::NumericVector output)
-    : input(input), output(output) {}
+  DiagWorker(Rcpp::NumericVector output)
+    : output(output) {}
 
   // take the square root of the range of elements requested
   void operator()(std::size_t begin, std::size_t end) {
-
-    Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
-
-    solver.compute(input);
 
     Eigen::VectorXd ident = Eigen::VectorXd::Zero(output.length());
     Eigen::VectorXd col(output.length());
@@ -143,7 +139,7 @@ struct DiagWorker : public Worker
 
 
 // [[Rcpp::export(".diagf_par")]]
-Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M)
+Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int grain)
 {
   Rcpp::Rcout << "\nCached diagonal not found.\n";
 
@@ -170,10 +166,12 @@ Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M)
 
   // Create the worker
   //DiagWorker diagWorker(solver, dg);
-  DiagWorker diagWorker(M, dg);
+  //DiagWorker::solver.compute(M);
+  DiagWorker diagWorker(dg);
+  diagWorker.solver.compute(M);
 
   // Parallel run
-  parallelFor(0, sz, diagWorker);
+  parallelFor(0, sz, diagWorker, grain);
 
 
   Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";

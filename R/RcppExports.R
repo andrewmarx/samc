@@ -13,8 +13,8 @@
     .Call('_samc_diagf', PACKAGE = 'samc', M)
 }
 
-.diagf_par <- function(M) {
-    .Call('_samc_diagf_par', PACKAGE = 'samc', M)
+.diagf_par <- function(M, grain) {
+    .Call('_samc_diagf_par', PACKAGE = 'samc', M, grain)
 }
 
 .psid_long <- function(M, psi, dg) {
