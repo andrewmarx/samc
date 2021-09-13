@@ -67,5 +67,5 @@ Collate:
     'samc.R'
     'survival.R'
     'zzz.R'
-LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1), RcppParallel
+LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1), RcppParallel, RcppThread
 SystemRequirements: GNU make

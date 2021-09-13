@@ -7,6 +7,9 @@
 // [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
 
+// [[Rcpp::depends(RcppThread)]]
+#include <RcppThread.h>
+
 #include <Rcpp/Benchmark/Timer.h>
 
 using namespace RcppParallel;
@@ -127,7 +130,15 @@ struct DiagWorker : public Worker
     Eigen::VectorXd ident = Eigen::VectorXd::Zero(output.length());
     Eigen::VectorXd col(output.length());
 
+    float total_time = float(end-begin);
+
     for(int i = begin; i < end; i++) {
+      // begin == 0 ensures only one thread does the interrupt check and progress output
+      if(i % 10 == 0 && begin == 0) {
+        RcppThread::checkUserInterrupt();
+        RcppThread::Rcout << "\rCalculating matrix inverse diagonal... " << (float)(i - begin) / total_time * 100.0f << "%                            ";
+      }
+
       ident(i) = 1;
       col = solver.solve(ident);
 
