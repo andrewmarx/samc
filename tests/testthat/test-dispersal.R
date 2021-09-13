@@ -131,6 +131,12 @@ for(test in testlist) {
 
   test_that("Testing dispersal(samc, origin)", {
     result <- dispersal(samc_obj, origin = row_vec[1])
+    samc_obj@.cache$dgf_exists <- FALSE
+    samc_obj$threads <- 2
+    result_par <- dispersal(samc_obj, origin = row_vec[1])
+    samc_obj@.cache$dgf_exists <- FALSE
+    samc_obj$threads <- 1
+    expect_equal(result, result_par)
     result_char <- dispersal(samc_obj, origin = as.character(row_vec[1]))
     expect_equal(result, result_char)
 
@@ -167,6 +173,13 @@ for(test in testlist) {
 
   test_that("Testing dispersal(samc, occ)", {
     result <- dispersal(samc_obj, occ = test$occ)
+    samc_obj@.cache$dgf_exists <- FALSE
+    samc_obj$threads <- 2
+    result_par <- dispersal(samc_obj, occ = test$occ)
+    samc_obj@.cache$dgf_exists <- FALSE
+    samc_obj$threads <- 1
+
+    expect_equal(result, result_par)
 
     base_result <- pv %*% (f - I) %*% fdg
 
