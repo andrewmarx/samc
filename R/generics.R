@@ -74,7 +74,7 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
   } else if (name == "p_matrix"){
     warning("Cannot modify the P matrix this way.", call. = FALSE)
   } else if (name == "threads"){
-    if (is.numeric(value) && length(value) == 1 && value%%1 == 0) {
+    if (is.numeric(value) && length(value) == 1 && value%%1 == 0 && value > 0) {
       if (value <= RcppParallel::defaultNumThreads()) {
         x@threads <- value
       } else {
