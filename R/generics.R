@@ -34,8 +34,8 @@ setMethod("$", signature(x = "samc"), function(x, name) {
 
     return(p)
   } else if (name == "threads"){
-    warning(paste0("Max threads supported by this device:", RcppParallel::defaultNumThreads()), call. = FALSE)
-    warning("Using all of your cores can make your computer unusable for other tasks while an analysis runs.", call. = FALSE)
+    warning(paste("Max threads supported by this device:", RcppParallel::defaultNumThreads(), "\n"), call. = FALSE)
+    warning("Using all of your cores can make your computer unusable for other tasks while an analysis runs.\n", call. = FALSE)
     return(x@threads)
   } else {
     warning("Invalid object specified.", call. = FALSE)
