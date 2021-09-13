@@ -60,6 +60,12 @@ NULL
 #'   The input must be in the same form as the absorption inputs used in \code{\link{samc}()}.
 #'   Matrices are passed in as a \code{list}, and rasters are passed in as a \code{RasterStack}.
 #'   Using \code{NA} as the input will reset it.
+#'
+#'   \item \strong{threads}
+#'
+#'   \code{samc_obj$threads} can be used to get or set the number of threads used
+#'   for parallel computations. Details can be found in the Parallel Computing
+#'   vignette.
 #' }
 #'
 #' @slot data Data associated with different components of the P matrix
