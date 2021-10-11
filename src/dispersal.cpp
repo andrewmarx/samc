@@ -169,7 +169,7 @@ Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M, const
   Rcpp::Rcout << "Calculating matrix inverse diagonal...";
 
   // Parallel run
-  parallelFor(0, sz, diagWorker, grain);
+  parallelFor(0, sz, diagWorker /*,grain*/);
 
   Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";
   Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";
