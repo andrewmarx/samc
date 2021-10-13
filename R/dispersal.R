@@ -215,8 +215,7 @@ setMethod(
       if (samc@threads == 1) {
         dg <- samc:::.diagf(q)
       } else if (samc@threads > 1) {
-        RcppParallel::setThreadOptions(numThreads = samc@threads)
-        dg <- samc:::.diagf_par(q)
+        dg <- samc:::.diagf_par(q, samc@threads)
       } else {
         stop("Invalid number of threads set in samc object", call. = FALSE)
       }
@@ -291,8 +290,7 @@ setMethod(
       if (samc@threads == 1) {
         dg <- samc:::.diagf(q)
       } else if (samc@threads > 1) {
-        RcppParallel::setThreadOptions(numThreads = samc@threads)
-        dg <- samc:::.diagf_par(q)
+        dg <- samc:::.diagf_par(q, samc@threads)
       } else {
         stop("Invalid number of threads set in samc object", call. = FALSE)
       }

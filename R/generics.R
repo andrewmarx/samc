@@ -34,8 +34,6 @@ setMethod("$", signature(x = "samc"), function(x, name) {
 
     return(p)
   } else if (name == "threads"){
-    warning(paste("Max threads supported by this device:", RcppParallel::defaultNumThreads(), "\n"), call. = FALSE)
-    warning("Using all of your cores can make your computer unusable for other tasks while an analysis runs.\n", call. = FALSE)
     return(x@threads)
   } else {
     warning("Invalid object specified.", call. = FALSE)
@@ -75,11 +73,10 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
     warning("Cannot modify the P matrix this way.", call. = FALSE)
   } else if (name == "threads"){
     if (is.numeric(value) && length(value) == 1 && value%%1 == 0 && value > 0) {
-      if (value <= RcppParallel::defaultNumThreads()) {
-        x@threads <- value
-      } else {
-        warning(paste0("Max threads supported by this device:", RcppParallel::defaultNumThreads()), call. = FALSE)
-      }
+      x@threads <- value
+      warning("Important: When setting the number of threads, make sure to use a reasonable number for the machine the code will run on.", call. = FALSE)
+      warning("Using the maximum number of threads supported by your hardware can make other programs non-responsive. Only do this if nothing else needs to run during the analysis.", call. = FALSE)
+      warning("Specifying more threads than a machine supports in hardware will likely lead to lost performance.", call. = FALSE)
     } else {
       warning("Input must be a single positive integer.", call. = FALSE)
     }

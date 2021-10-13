@@ -6,11 +6,6 @@
 
 using namespace Rcpp;
 
-#ifdef RCPP_USE_GLOBAL_ROSTREAM
-Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
-Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
-#endif
-
 // cond_t
 Rcpp::NumericVector cond_t(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
 RcppExport SEXP _samc_cond_t(SEXP IQSEXP, SEXP qjSEXP) {
@@ -49,14 +44,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // diagf_par
-Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int grain);
-RcppExport SEXP _samc_diagf_par(SEXP MSEXP, SEXP grainSEXP) {
+Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int threads);
+RcppExport SEXP _samc_diagf_par(SEXP MSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const int >::type grain(grainSEXP);
-    rcpp_result_gen = Rcpp::wrap(diagf_par(M, grain));
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(diagf_par(M, threads));
     return rcpp_result_gen;
 END_RCPP
 }
