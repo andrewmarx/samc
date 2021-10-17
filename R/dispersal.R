@@ -212,7 +212,14 @@ setMethod(
       q@x <- -q@x
       Matrix::diag(q) <- Matrix::diag(q) + 1
 
-      dg <- samc:::.diagf(q)
+      if (samc@threads == 1) {
+        dg <- samc:::.diagf(q)
+      } else if (samc@threads > 1) {
+        dg <- samc:::.diagf_par(q, samc@threads)
+      } else {
+        stop("Invalid number of threads set in samc object", call. = FALSE)
+      }
+
       samc@.cache$dgf <- dg
       samc@.cache$dgf_exists <- TRUE
     }
@@ -280,7 +287,13 @@ setMethod(
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
     if (!samc@.cache$dgf_exists) {
-      dg <- .diagf(q)
+      if (samc@threads == 1) {
+        dg <- samc:::.diagf(q)
+      } else if (samc@threads > 1) {
+        dg <- samc:::.diagf_par(q, samc@threads)
+      } else {
+        stop("Invalid number of threads set in samc object", call. = FALSE)
+      }
       samc@.cache$dgf <- dg
       samc@.cache$dgf_exists <- TRUE
     }

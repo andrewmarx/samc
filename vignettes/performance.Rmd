@@ -87,6 +87,8 @@ These metrics have been optimized for memory usage, but due to the requirement o
 
 Given how slow calculating $diag(F)$ can be, progress updates are provided during different stages of the calculation. The first stage involves a matrix decomposition that generally will take less than a few minutes, but could take several minutes with large datasets. The second stage is by far the most time consuming part of the calculation, and a time estimate will be periodically updated to give users a rough estimate of how long it will take to complete. The first few time estimates tend to be inflated due to the low sampling time, but will improve with each update. During the calculation, other software running on the computer can affect how fast the calculation runs, and in turn, lead to changes in time predictions. Once $diag(F)$ is calculated, obtaining the final result for these metrics will take an amount of time comparable to other metrics.
 
+As of v1.5.0, these functions support parallel computing to reduce the time required for calculating $diag(F)$. See the [Parallel Computing](parallel.html) vignette for details.
+
 
 ## Benchmarks
 

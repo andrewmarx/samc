@@ -3,7 +3,29 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+
+// [[Rcpp::depends(RcppThread)]]
+#include <RcppThread.h>
+
 #include <Rcpp/Benchmark/Timer.h>
+
+#include <chrono>
+#include <string>
+
+
+// C++ 11 compliant stopwatch that should be thread safe
+class timer {
+public:
+  std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
+  timer() : lastTime(std::chrono::high_resolution_clock::now()) {}
+  inline double elapsed() {
+    std::chrono::time_point<std::chrono::high_resolution_clock> thisTime=std::chrono::high_resolution_clock::now();
+    double deltaTime = std::chrono::duration<double>(thisTime - lastTime).count();
+    //lastTime = thisTime;
+    return deltaTime;
+  }
+};
+
 
 
 // [[Rcpp::export(".sum_qn_q")]]
@@ -56,7 +78,10 @@ Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> > &M)
   double t = 0.0;
   Rcpp::String units("unit");
 
+  // Limit how freq the time updates
   int ut = std::max(sz/10, 1000);
+
+  // Used to given plenty of time for the first time update to be reasonable
   int utm = (int)std::max(10.0, std::pow(10, (7.0 - std::log10((double)sz))));
 
   solver.compute(M);
@@ -94,6 +119,57 @@ Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> > &M)
     dg(i) = col(i);
     ident(i) = 0;
   }
+
+  Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";
+  Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";
+
+  return Rcpp::wrap(dg);
+}
+
+
+// [[Rcpp::export(".diagf_par")]]
+Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int threads)
+{
+  Rcpp::Rcout << "\nCached diagonal not found.\n";
+
+  Rcpp::Rcout << "Performing setup. This can take several minutes...";
+
+  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
+
+  int sz = M.rows();
+
+  Eigen::VectorXd dg(sz);
+
+  solver.compute(M);
+
+  Rcpp::Rcout << " Complete.\n";
+
+  Rcpp::Rcout << "Calculating matrix inverse diagonal...";
+
+  // Parallel run
+  std::atomic<int> progress{0};
+
+  std::vector<Eigen::VectorXd> xs(threads);
+  for (auto &x : xs)
+    x = Eigen::VectorXd::Zero(sz);
+
+  auto fun = [&] (unsigned int i){
+    RcppThread::checkUserInterrupt();
+
+    Eigen::VectorXd& ident = xs[(i * threads) / sz];
+
+    ident(i) = 1;
+    Eigen::VectorXd col = solver.solve(ident);
+    dg(i) = col(i);
+    ident(i) = 0;
+
+    progress++;
+    if(progress % 100 == 0){
+      RcppThread::Rcout << "\rCalculating matrix inverse diagonal... " <<  progress << "/" << sz << " calculated                 ";
+    }
+  };
+
+  RcppThread::parallelFor(0, sz, fun, threads, threads);
 
   Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";
   Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";

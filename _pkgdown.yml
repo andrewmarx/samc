@@ -8,6 +8,8 @@ navbar:
         href: articles/overview.html
       - text: "Performance"
         href: articles/performance.html
+      - text: "Parallel Computing"
+        href: articles/parallel.html
       - text: "Troubleshooting"
         href: articles/troubleshooting.html
       - text: "Code Snippets"

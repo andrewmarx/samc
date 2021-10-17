@@ -60,6 +60,12 @@ NULL
 #'   The input must be in the same form as the absorption inputs used in \code{\link{samc}()}.
 #'   Matrices are passed in as a \code{list}, and rasters are passed in as a \code{RasterStack}.
 #'   Using \code{NA} as the input will reset it.
+#'
+#'   \item \strong{threads}
+#'
+#'   \code{samc_obj$threads} can be used to get or set the number of threads used
+#'   for parallel computations. Details can be found in the Parallel Computing
+#'   vignette.
 #' }
 #'
 #' @slot data Data associated with different components of the P matrix
@@ -67,6 +73,7 @@ NULL
 #' @slot map Used to verify landscape inputs and mapping of vector data
 #' @slot clumps Number of discontinuous regions in data
 #' @slot override Used to prevent accidental use of memory intensive functions
+#' @slot threads Used for multi-threading
 #' @slot .cache Cached data for performance boosts
 
 setClass(
@@ -79,6 +86,7 @@ setClass(
                map = "RasterLayer",
                clumps = "numeric",
                override = "logical",
+               threads = "numeric",
                .cache = "environment")
 
   # set default values
