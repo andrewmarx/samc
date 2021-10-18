@@ -74,9 +74,9 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
   } else if (name == "threads"){
     if (is.numeric(value) && length(value) == 1 && value%%1 == 0 && value > 0) {
       x@threads <- value
-      warning("Important: When setting the number of threads, make sure to use a reasonable number for the machine the code will run on.", call. = FALSE)
-      warning("Using the maximum number of threads supported by your hardware can make other programs non-responsive. Only do this if nothing else needs to run during the analysis.", call. = FALSE)
-      warning("Specifying more threads than a machine supports in hardware will likely lead to lost performance.", call. = FALSE)
+      message("Important: When setting the number of threads, make sure to use a reasonable number for the machine the code will run on.\n",
+              "Using the maximum number of threads supported by your hardware can make other programs non-responsive. Only do this if nothing else needs to run during the analysis.\n",
+              "Specifying more threads than a machine supports in hardware will likely lead to lost performance.\n")
     } else {
       warning("Input must be a single positive integer.", call. = FALSE)
     }
