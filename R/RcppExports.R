@@ -9,10 +9,6 @@
     .Call('_samc_sum_qn_q', PACKAGE = 'samc', M, M2, q, t)
 }
 
-.diagf <- function(M) {
-    .Call('_samc_diagf', PACKAGE = 'samc', M)
-}
-
 .diagf_par <- function(M, threads) {
     .Call('_samc_diagf_par', PACKAGE = 'samc', M, threads)
 }
