@@ -1,0 +1,192 @@
+---
+title: "Maze Example"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Maze Example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+required <- c("viridisLite")
+if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
+```
+
+## Introduction
+
+This tutorial shows the basics of how to use the package to calculate and visualize several metrics using map based inputs. It utilizes the package's built-in data, which is the same example data used in Fletcher et al. (2019).
+
+
+## Libraries
+
+```{r, message = FALSE}
+library(samc)
+library(raster)
+library(gdistance)
+library(viridisLite)
+```
+
+
+## Setup
+
+First, let's setup up a resistance map for our maze.
+
+```{r, fig.show='hold'}
+maze = matrix(
+  c(1,1,1,1,0,1,0,1,0,1,0,1,0,0,1,1,1,0,0,1,
+    0,1,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,
+    0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,
+    0,1,1,0,1,1,0,1,1,1,1,0,1,0,1,0,1,1,1,1,
+    0,0,0,0,1,0,0,1,0,0,1,1,1,1,1,0,0,0,0,1,
+    1,1,1,1,1,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,
+    1,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,
+    1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,
+    1,0,1,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,
+    1,0,0,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,
+    1,1,1,0,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,
+    0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,1,1,
+    1,1,1,1,0,1,1,0,0,0,0,1,0,0,1,0,1,0,1,0,
+    0,0,0,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,
+    0,1,0,0,0,1,1,0,1,0,0,0,0,1,0,0,0,0,0,1,
+    0,1,1,1,1,1,0,0,0,0,1,1,1,1,0,1,1,1,0,1,
+    0,0,0,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,
+    1,1,0,1,0,1,1,1,0,0,0,0,0,0,1,0,1,1,1,1,
+    0,1,1,1,0,0,0,1,1,1,0,1,0,1,1,1,1,0,1,0,
+    1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1),
+  nrow = 20
+)
+
+maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(maze) + 0.5)
+maze[maze==0] <- NA
+
+#
+# Get info about the shortest path through the maze
+#
+points <- xyFromCell(maze, c(1, 400))
+
+lcd <- (function() {
+  tr <- transition(maze, function(x) 1/mean(x), 4)
+  tr <- geoCorrection(tr)
+
+  list(dist = costDistance(tr, points),
+       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
+})()
+
+# Setup a simple color palette
+vir_col <- viridis(3)
+
+# Basic maze layout
+plot(maze,col = vir_col[2], axes=F, box=F, asp=1)
+plot(rasterToPolygons(maze), border='black', lwd=1, add=T)
+lines(lcd$path, col = vir_col[3], lw=3)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+
+```
+
+Now, create an absorption map where the finish point is our only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left.
+
+```{r, fig.show='hold'}
+# End of maze
+maze_end <- maze * 0
+maze_end[20,20] <- 1
+
+plot(maze_end, col = vir_col[c(2,3)], axes=F, box=F, asp=1)
+plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+## Create the `samc` Object
+
+```{r}
+tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
+
+samc_obj <- samc(maze, maze_end, tr_args = tr)
+
+start <- locate(samc_obj, data.frame(x = 1, y = 20))
+finish <- locate(samc_obj, data.frame(x = 20, y = 1))
+```
+
+The data has been setup to assume a simple random walk. There is no "memory" of the past to stop the individual from going back to dead ends, there is no ability to "look ahead" and see dead ends, and the individual will always move to a different cell every timestep.
+
+Note the use of only four directions. This prevents diagonal movements in the maze, which in turn will have important consequences for short-term metrics (shown later).
+
+We also get the start and finish locations from the samc object. It's important to remember that the results from `xyFromCell()` (used above) do *NOT* work for samc objects; we must use the `locate()` function.
+
+
+## Basic Analyses
+
+#### Time to finish
+
+First, we simply want to know how long we expect it to take for someone to finish the maze. The `survival()` function calculates the expected time to absorption. Since the maze has only one absorption point representing the finish point, this means that`survival()` can be interpreted as the expected time to finish the maze.
+
+```{r, fig.show='hold'}
+survive <- survival(samc_obj)
+
+plot(map(samc_obj, survive), col = viridis(256), main = "Expected time to finish", axes=F, box=F, asp=1)
+plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+The result actually shows us the expected time to finish for every point in the maze. If we're interested in just the start point, we can extract that information from the vector:
+```{r}
+survive[start]
+```
+
+When there is only a single point of total absorption, like this example, `survival()` and `cond_passage()` are nearly identical when the destination for `cond_passage()` is set to the finish point:
+```{r}
+cond_passage(samc_obj, origin = start, dest = finish)
+```
+
+It turns out that the cell in the map corresponding to our finish point is not actually an absorbing state; it's still a transient state. Absorption essentially occurs when the individual is removed from the map one timestep later since it can't go anywhere else in our example. So `cond_passage()` tells how long it takes to reach the final cell, and `survival()` tells us how long it takes us to reach the final cell and then be removed from it.
+
+Keep in mind, in more complicated scenarios with multiple points of absorption, then `survival()` will actually tell us something else about the maze.
+
+
+#### Visits per cell
+
+We can actually use the package to see how many times each cell in the maze is visited on average. This is done using the `visitation()` metric:
+```{r, fig.show='hold'}
+
+visit <- visitation(samc_obj, origin = start)
+
+plot(map(samc_obj, visit), col = viridis(256), main = "Visits Per Cell", axes=F, box=F, asp=1)
+plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+
+#### Expected location
+
+Using the `distribution()` function, we can predict where an individual might be in the maze at a given time:
+```{r, fig.show='hold'}
+dist <- distribution(samc_obj, origin = start, time = 20)
+
+plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=20", axes=F, box=F, asp=1)
+plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+Notice something odd? Let's increment time from 20 to 21:
+```{r, fig.show='hold'}
+dist <- distribution(samc_obj, origin = start, time = 21)
+
+plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=21", axes=F, box=F, asp=1)
+plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+Earlier it was mentioned that using only 4 directions for the transition function would have consequences. It turns out that without either diagonal transitions or some form of fidelity (the possibility of an individual not moving), there will be this alternating pattern where a cell can and then cannot be occupied. It's easiest to reason about the effect by running the same function for timesteps 1-5 and visualizing it, an exercise that will be left to those interested.
+
+#### Other metrics
+
+
+
