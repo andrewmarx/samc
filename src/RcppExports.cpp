@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // cond_t
 Rcpp::NumericVector cond_t(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
 RcppExport SEXP _samc_cond_t(SEXP IQSEXP, SEXP qjSEXP) {

@@ -11,19 +11,55 @@
 
 #include <chrono>
 #include <string>
+#include <iomanip>
 
 
-// C++ 11 compliant stopwatch that should be thread safe
-class timer {
+// C++ 11 compliant progress output that should be thread safe
+class progressCounter {
 public:
-  std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
-  timer() : lastTime(std::chrono::high_resolution_clock::now()) {}
-  inline double elapsed() {
-    std::chrono::time_point<std::chrono::high_resolution_clock> thisTime=std::chrono::high_resolution_clock::now();
-    double deltaTime = std::chrono::duration<double>(thisTime - lastTime).count();
-    //lastTime = thisTime;
-    return deltaTime;
+  progressCounter(size_t sz, double f) :
+    lastTime(std::chrono::steady_clock::now()),
+    startTime(std::chrono::steady_clock::now()),
+    size(sz),
+    freq(f) {}
+
+  void operator++(int) {
+    progress++;
+
+    auto currentTime = std::chrono::steady_clock::now();
+    double deltaTime = std::chrono::duration<double>(currentTime - lastTime).count();
+
+    std::lock_guard<std::mutex> lock(mutex);
+    if(deltaTime > 5.0) {
+      lastTime = currentTime;
+
+      double t = ((double)(std::chrono::duration<double>(currentTime - startTime).count() / progress) * (double)(size - progress));
+
+      std::string units = " seconds";
+
+      if (t > 86400) {
+        t = t / 86400;
+        units = " days";
+      } else if (t > 3600) {
+        t = t / 3600;
+        units = " hours";
+      } else if (t > 60) {
+        t = t / 60;
+        units = " minutes";
+      }
+
+      RcppThread::Rcout << "\r" << progress << "/" << size << " : " << t << units << " remaining                              ";
+    }
   }
+
+private:
+  std::mutex mutex;
+  std::atomic<size_t> progress{0};
+  std::size_t size;
+  double freq;
+
+  std::chrono::time_point<std::chrono::steady_clock> lastTime;
+  std::chrono::time_point<std::chrono::steady_clock> startTime;
 };
 
 
@@ -45,7 +81,7 @@ Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
   Rcpp::List res = Rcpp::List::create();
 
   for(int i = 1; i < n; i++) {
-    for (int j = t[i - 1]; j < t[i]; j++) {
+    for(int j = t[i - 1]; j < t[i]; j++) {
       if(j % 1000 == 0) Rcpp::checkUserInterrupt();
         q2 = M * q2;
       }
@@ -144,14 +180,14 @@ Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M, const
 
   Rcpp::Rcout << " Complete.\n";
 
-  Rcpp::Rcout << "Calculating matrix inverse diagonal...";
+  Rcpp::Rcout << "Calculating matrix inverse diagonal...\n";
 
   // Parallel run
-  std::atomic<int> progress{0};
-
   std::vector<Eigen::VectorXd> xs(threads);
   for (auto &x : xs)
     x = Eigen::VectorXd::Zero(sz);
+
+  progressCounter progress(sz, 10.0);
 
   auto fun = [&] (unsigned int i){
     RcppThread::checkUserInterrupt();
@@ -164,14 +200,11 @@ Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M, const
     ident(i) = 0;
 
     progress++;
-    if(progress % 100 == 0){
-      RcppThread::Rcout << "\rCalculating matrix inverse diagonal... " <<  progress << "/" << sz << " calculated                 ";
-    }
   };
 
   RcppThread::parallelFor(0, sz, fun, threads, threads);
 
-  Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";
+  Rcpp::Rcout << "\rComplete                                                      \n";
   Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";
 
   return Rcpp::wrap(dg);
