@@ -224,7 +224,71 @@ There are a couple metrics that have not been covered yet: `absorption()` and `m
 
 ## Occupancy
 
+Many of the metrics offer a more advanced and flexible option for setting an initial state in the absorbing Markov chain. Inputs to the `occ` parameter (short for occupancy) can essentially be used as an alternative to the origin parameter. Here is an example `occ` map that represents the scenario we have been testing so far:
+```{r, fig.show='hold'}
+# End of maze
+maze_occ <- maze * 0
+maze_occ[1, 1] <- 1
+
+plot(maze_occ, col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_occ), border = 'black', lwd = 1, add = TRUE)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+If we take this and run it in the `survival()` metric, we see that it produces the same result we got before:
+```{r, fig.show='hold'}
+survival(samc_obj, occ = maze_occ)
+
+survive[start]
+```
+
+But now, we can do test more interesting scenarios. Let's try putting 3 people at the start of the maze:
+```{r, fig.show='hold'}
+# Scenario 1: 3 people start in the maze
+maze_occ <- maze * 0
+maze_occ[1, 1] <- 3
+
+survival(samc_obj, occ = maze_occ)
+```
+
+The interpretation becomes a little trickier here. The `survival()` metric is essentially calculating the cumulative time spent in the maze for *all* the individuals. This means that with 3 people starting at the beginning, 3 times as much time is going to be spent in the maze, but that per person, it will still take the same number of time steps to finish as before:
+```{r}
+survival(samc_obj, occ = maze_occ) / 3
+```
+
+
+Here's another scenario where we have 3 people again, but now they start in different corners of the maze:
+```{r}
+# Scenario 2: A person starts in each corner of the maze
+maze_occ <- maze * 0
+maze_occ[1, 1] <- 1
+maze_occ[20, 1] <- 1
+maze_occ[1, 20] <- 1
+
+plot(maze_occ, col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_occ), border = 'black', lwd = 1, add = TRUE)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+
+survival(samc_obj, occ = maze_occ)
+```
+
+Again, we see that the cumulative time spent in the maze is larger than what we had in original 1 person scenario. However, this time the average time per person spent in the maze decreases:
+```{r, fig.show='hold'}
+survival(samc_obj, occ = maze_occ) / 3
+```
+
+This is because the additional people are now located in corners that are substantially closer to the finish point, so they would be expected to find it faster on average. Just looking at the maze, we might expect that the person starting in the bottom left has the biggest advantage. We can try to visualize this by playing with the time steps parameter in the `distrbution()` metric:
+```{r, fig.show='hold'}
+dist <- distribution(samc_obj, occ = maze_occ, time = 100)
+
+plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=100", axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+A good exercise for the reader might be to try and apply the concepts of the animations vignette to this figure.
+
 
 ## Advanced Examples
 
-Our maze can be modified in many interesting ways. For example, we could use a fidelity input to simulate scenarios where the individual pauses to think about their next decision. We can modify the resistance input so that it limits movement into deadends, which simulates an ability to look ahead. Finally, we can incorporate additional absorption inputs to simulate lethal things like hidden traps. These will all be illustrated in a separate vignette (*in progress*).
+Our maze can be modified in many interesting ways. For example, we could use a fidelity input to simulate scenarios where the individual pauses to think about their next decision. We can modify the resistance input so that it limits movement into dead ends, which simulates an ability to look ahead, and we can modify it to have multiple solutions. Finally, we can incorporate additional absorption inputs to simulate lethal things like hidden traps. These will all be illustrated in a separate vignette (*in progress*).
