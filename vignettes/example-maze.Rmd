@@ -21,6 +21,7 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
 }
 ```
 
+
 ## Introduction
 
 This tutorial shows the basics of how to use the package to calculate and visualize several metrics using map based inputs. It utilizes the package's built-in data, which is the same example data used in Fletcher et al. (2019).
@@ -69,7 +70,7 @@ maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(ma
 maze[maze==0] <- NA
 
 #
-# Get info about the shortest path through the maze
+# Get info about the shortest path through the maze using gdistance
 #
 points <- xyFromCell(maze, c(1, 400))
 
@@ -85,9 +86,9 @@ lcd <- (function() {
 vir_col <- viridis(3)
 
 # Basic maze layout
-plot(maze,col = vir_col[2], axes=F, box=F, asp=1)
-plot(rasterToPolygons(maze), border='black', lwd=1, add=T)
-lines(lcd$path, col = vir_col[3], lw=3)
+plot(maze,col = vir_col[2], axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze), border = 'black', lwd = 1, add = TRUE)
+lines(lcd$path, col = vir_col[3], lw = 3)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 
 ```
@@ -97,12 +98,13 @@ Now, create an absorption map where the finish point is our only source of absor
 ```{r, fig.show='hold'}
 # End of maze
 maze_end <- maze * 0
-maze_end[20,20] <- 1
+maze_end[20, 20] <- 1
 
-plot(maze_end, col = vir_col[c(2,3)], axes=F, box=F, asp=1)
-plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+plot(maze_end, col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
+
 
 ## Create the `samc` Object
 
@@ -131,8 +133,8 @@ First, we simply want to know how long we expect it to take for someone to finis
 ```{r, fig.show='hold'}
 survive <- survival(samc_obj)
 
-plot(map(samc_obj, survive), col = viridis(256), main = "Expected time to finish", axes=F, box=F, asp=1)
-plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+plot(map(samc_obj, survive), col = viridis(256), main = "Expected time to finish", axes = F, box = F, asp = 1)
+plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
@@ -158,8 +160,8 @@ We can actually use the package to see how many times each cell in the maze is v
 
 visit <- visitation(samc_obj, origin = start)
 
-plot(map(samc_obj, visit), col = viridis(256), main = "Visits Per Cell", axes=F, box=F, asp=1)
-plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+plot(map(samc_obj, visit), col = viridis(256), main = "Visits Per Cell", axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
@@ -170,8 +172,8 @@ Using the `distribution()` function, we can predict where an individual might be
 ```{r, fig.show='hold'}
 dist <- distribution(samc_obj, origin = start, time = 20)
 
-plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=20", axes=F, box=F, asp=1)
-plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=20", axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
@@ -179,8 +181,8 @@ Notice something odd? Let's increment time from 20 to 21:
 ```{r, fig.show='hold'}
 dist <- distribution(samc_obj, origin = start, time = 21)
 
-plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=21", axes=F, box=F, asp=1)
-plot(rasterToPolygons(maze_end), border='black', lwd=1, add=T)
+plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=21", axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
