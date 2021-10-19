@@ -161,7 +161,7 @@ plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
-In order to complete the maze, the individual has to visit every cell along the path to the exit, so all of those cells will have a probability of `1.0`. The farther away from this path a cell is located, the lower the probability it will be visited. Additionally, the closer the individual gets to the finish, the less likely they will spend time taking incorrect routes before stumbling upon the finish. There's also the possibility for things scenarios like the one where the individual is near the entrance and then manages to stumble all the way back to the start. These different aspects contribute to more time spent near the start point, on average, which in turn means that cells near the start have a higher probability of being visited at least once.
+In order to complete the maze, the individual has to visit every cell along the path to the exit, so all of those cells will have a probability of `1.0`. The farther away from this path a cell is located, the lower the probability it will be visited. Additionally, the closer the individual gets to the finish, the less likely they will spend time taking incorrect routes before stumbling upon the finish. There's also the possibility for scenarios like the one where the individual is near the finish and then manages to stumble all the way back to the start. These different aspects contribute to more time spent near the start point, on average, which in turn means that cells near the start have a higher probability of being visited.
 
 If you didn't catch it in the previous paragraph, we can use our results from the `dispersal()` function identify the route through the maze:
 ```{r}
@@ -193,6 +193,10 @@ plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
+It should go without saying, but the finish point will only be visited once:
+```{r}
+visit[finish]
+```
 
 ## Expected location
 
@@ -272,7 +276,7 @@ points(points, pch = c('S', 'F'), cex = 1, font = 2)
 survival(samc_obj, occ = maze_occ)
 ```
 
-Again, we see that the cumulative time spent in the maze is larger than what we had in original 1 person scenario. However, this time the average time per person spent in the maze decreases:
+Again, we see that the cumulative time spent in the maze is larger than what we had in the original 1 person scenario. However, this time the average time per person spent in the maze decreases:
 ```{r, fig.show='hold'}
 survival(samc_obj, occ = maze_occ) / 3
 ```
