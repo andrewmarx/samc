@@ -171,7 +171,7 @@ tolerance = .Machine$double.eps^0.5
 print(tolerance)
 disp_sol <- as.numeric(abs(disp - 1) < tolerance)
 
-plot(map(samc_obj, disp_sol), col = vir_col[c(2, 3)], main = "Dispersal Solution", axes = FALSE, box = FALSE, asp = 1)
+plot(map(samc_obj, disp_sol), col = vir_col[c(2, 3)], main = "Solution Using Dispersal()", axes = FALSE, box = FALSE, asp = 1)
 plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
