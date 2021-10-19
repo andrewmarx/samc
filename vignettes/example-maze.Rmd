@@ -90,7 +90,6 @@ plot(maze,col = vir_col[2], axes = FALSE, box = FALSE, asp = 1)
 plot(rasterToPolygons(maze), border = 'black', lwd = 1, add = TRUE)
 lines(lcd$path, col = vir_col[3], lw = 3)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
-
 ```
 
 Now, create an absorption map where the finish point is our only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left.
@@ -124,9 +123,7 @@ Note the use of only four directions. This prevents diagonal movements in the ma
 We also get the start and finish locations from the samc object. It's important to remember that the results from `xyFromCell()` (used above) do *NOT* work for samc objects; we must use the `locate()` function.
 
 
-## Basic Analyses
-
-#### Time to finish
+## Time to finish
 
 First, we simply want to know how long we expect it to take for someone to finish the maze. The `survival()` function calculates the expected time to absorption. Since the maze has only one absorption point representing the finish point, this means that`survival()` can be interpreted as the expected time to finish the maze.
 
@@ -143,21 +140,52 @@ The result actually shows us the expected time to finish for every point in the 
 survive[start]
 ```
 
-When there is only a single point of total absorption, like this example, `survival()` and `cond_passage()` are nearly identical when the destination for `cond_passage()` is set to the finish point:
+When there is only a single point of total absorption, like this example, `survival()` and `cond_passage()` are nearly identical when the destination for `cond_passage()` is set to the point of absorption (the finish point):
 ```{r}
 cond_passage(samc_obj, origin = start, dest = finish)
 ```
 
-It turns out that the cell in the map corresponding to our finish point is not actually an absorbing state; it's still a transient state. Absorption essentially occurs when the individual is removed from the map one timestep later since it can't go anywhere else in our example. So `cond_passage()` tells how long it takes to reach the final cell, and `survival()` tells us how long it takes us to reach the final cell and then be removed from it.
+It turns out that the cell in the map corresponding to our finish point is not actually an absorbing state; it's still a transient state. Absorption essentially occurs when the individual is removed from the map one timestep later since it can't go anywhere else in our example. So `cond_passage()` reports how long it takes to reach the final cell, and `survival()` tells us how long it takes us to reach the final cell and then be removed from it.
 
-Keep in mind, in more complicated scenarios with multiple points of absorption, then `survival()` will actually tell us something else about the maze.
+Keep in mind, in more complicated scenarios with multiple points of absorption, then `survival()` will have a slightly different interpretation for the maze.
 
 
-#### Visits per cell
+## Probability of visiting a cell
 
-We can actually use the package to see how many times each cell in the maze is visited on average. This is done using the `visitation()` metric:
+If we're interested in knowing the probability that a particular cell (or cells) is visited at least once, then we can use the `dispersal()` function:
 ```{r, fig.show='hold'}
+disp <- dispersal(samc_obj, origin = start)
 
+plot(map(samc_obj, disp), col = viridis(256), main = "Probability of Visit", axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+In order to complete the maze, the individual has to visit every cell along the path to the exit, so all of those cells will have a probability of `1.0`. The farther away from this path a cell is located, the lower the probability it will be visited. Additionally, the closer the individual gets to the finish, the less likely they will spend time taking incorrect routes before stumbling upon the finish. There's also the possibility for things scenarios like the one where the individual is near the entrance and then manages to stumble all the way back to the start. These different aspects contribute to more time spent near the start point, on average, which in turn means that cells near the start have a higher probability of being visited at least once.
+
+If you didn't catch it in the previous paragraph, we can use our results from the `dispersal()` function identify the route through the maze:
+```{r}
+# Ideally, we would just use `as.numeric(disp == 1)`, but float precision means that what we think is `1` isn't always `1`,
+# so it won't always work. We work around it by subtracting 1 and seeing if the result fits in a very small tolerance
+tolerance = .Machine$double.eps^0.5
+print(tolerance)
+disp_sol <- as.numeric(abs(disp - 1) < tolerance)
+
+plot(map(samc_obj, disp_sol), col = vir_col[c(2, 3)], main = "Dispersal Solution", axes = FALSE, box = FALSE, asp = 1)
+plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
+points(points, pch = c('S', 'F'), cex = 1, font = 2)
+```
+
+Like the `survival()` function, we see an important caveat. The visitation probabilities don't include time 0, so while in our first figure it looked like the starting cell had a probability of 1, it's actually slightly less and it just wasn't apparent with the color scale:
+```{r}
+disp[start]
+```
+
+
+## Visits per cell
+
+The package can be used to see how many times each cell in the maze is expected to be visited on average. This is done using the `visitation()` metric:
+```{r, fig.show='hold'}
 visit <- visitation(samc_obj, origin = start)
 
 plot(map(samc_obj, visit), col = viridis(256), main = "Visits Per Cell", axes = FALSE, box = FALSE, asp = 1)
@@ -166,7 +194,7 @@ points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
 
-#### Expected location
+## Expected location
 
 Using the `distribution()` function, we can predict where an individual might be in the maze at a given time:
 ```{r, fig.show='hold'}
@@ -188,7 +216,15 @@ points(points, pch = c('S', 'F'), cex = 1, font = 2)
 
 Earlier it was mentioned that using only 4 directions for the transition function would have consequences. It turns out that without either diagonal transitions or some form of fidelity (the possibility of an individual not moving), there will be this alternating pattern where a cell can and then cannot be occupied. It's easiest to reason about the effect by running the same function for timesteps 1-5 and visualizing it, an exercise that will be left to those interested.
 
-#### Other metrics
+
+## Other metrics
+
+There are a couple metrics that have not been covered yet: `absorption()` and `mortality()`. It turns out they don't do anything useful with the example maze provided thus far, but they will be useful later. `mortality()` only would tell us that we have a 100% probability of absorption at the finish point; it will be more useful when we have multiple locations with absorption probabilities. `absorption()` is a little more complicated to interpret, but is only useful when we have different *types* of absorption.
 
 
+## Occupancy
 
+
+## Advanced Examples
+
+Our maze can be modified in many interesting ways. For example, we could use a fidelity input to simulate scenarios where the individual pauses to think about their next decision. We can modify the resistance input so that it limits movement into deadends, which simulates an ability to look ahead. Finally, we can incorporate additional absorption inputs to simulate lethal things like hidden traps. These will all be illustrated in a separate vignette (*in progress*).
