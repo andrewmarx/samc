@@ -1,3 +1,10 @@
+# samc 1.5.0
+
+- Updated `cond_passage()` to return `0` for when *i==j* in the vectors. This fixes an issue associated with shifted indices in `cond_passage(samc, dest)`. It also technically breaks backwards compatibility for when `dest` equals `origin` in `cond_passage(samc, origin, dest)`. Previously, `cond_passage(samc, origin, dest)` would return `NA` when `origin` equaled `dest`, but this decision was arbitrary. The `cond_passage()` documentation explains why.
+- Added a new section for worked examples on the website.
+- Added a new example illustrating how to use various aspects of the package with a simple perfect maze and interpret the results. See the Maze Part 1 vignette.
+- Added multithreading for the `dispersal(samc, origin/occ)` function via the RcppThread package. See the Parallel Computing vignette for details.
+
 # samc 1.4.1
 
 - Added an input check for multiple absorption that throws a more informative error when a list contains anything other than matrices
