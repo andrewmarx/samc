@@ -18,11 +18,29 @@ NULL
 #' Element \emph{i} is the mean number of steps before absorption starting from
 #' location \emph{i} conditional on absorption into \emph{j}
 #'
+#' Note that mathematically, the formula actually does not return a value for when
+#' \emph{i} is equal to \emph{j}. This leads to a situation where the resultant vector
+#' is actually one element short and the index for some of the elements may be shifted.
+#' The \strong{cond_passage()} function fills inserts a \code{0} value for vector indices
+#' corresponding to \emph{i == j}. This corrects the final result so that vector indices
+#' work as expected, and allows the vector to be properly used in the \code{\link{map}} function.
+#'
 #'   \item \strong{cond_passage(samc, origin, dest)}
 #'
 #' The result is a numeric value representing the mean number of steps before
 #' absorption starting from a given origin conditional on absorption into \emph{j}.
+#'
+#' As described above, mathematically the formula does not return a result for when
+#' the \code{origin} and \code{dest} inputs are equal, so the function simply returns a \code{0}
+#' in this case.
 #' }
+#'
+#' \strong{WARNING}: This function is not compatible when used with data where there
+#' are states with total absorption present. When present, states representing
+#' total absorption leads to unsolvable linear equations. The only exception to this
+#' is when there is a single total absorption state that corresponds to input to
+#' the \code{dest} parameter. In this case, the total absorption is effectively
+#' ignored when the linear equations are solved.
 #'
 #' \strong{WARNING}: This function will crash when used with data representing
 #' a disconnected graph. This includes, for example, isolated pixels or islands
@@ -73,9 +91,23 @@ setMethod(
     Qj@x <- -Qj@x
     Matrix::diag(Qj) <- Matrix::diag(Qj) + 1
 
-    t <- .cond_t(Qj, qj)
+    t <- as.numeric(.cond_t(Qj, qj))
 
-    return(as.numeric(t))
+    # insert 0 element back into vector so output length is same original data
+    final <- 1:(length(t) + 1)
+    names(final) <- rownames(samc$q_matrix)
+
+    j <- 1
+    for (i in 1:length(final)) {
+      if (final[dest] == i) {
+        final[dest] <- 0
+        next
+      }
+      final[i] <- t[j]
+      j <- j + 1
+    }
+
+    return(final)
   })
 
 # cond_passage(samc, origin, dest) ----
@@ -96,12 +128,10 @@ setMethod(
 
     for (d in unique_dest) {
       t <- cond_passage(samc, dest = d)
-      adj_origin <- origin
-      adj_origin[origin > d] <- adj_origin[origin > d] - 1
-      result[dest == d] <- t[adj_origin[dest == d]]
+#      adj_origin <- origin
+#      adj_origin[origin > d] <- adj_origin[origin > d] - 1
+      result[dest == d] <- t[origin[dest == d]]
     }
-
-    result[dest == origin] <- NA
 
     return(result)
   })
