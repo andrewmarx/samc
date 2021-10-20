@@ -142,12 +142,15 @@ survive[start]
 
 When there is only a single point of total absorption, like this example, `survival()` and `cond_passage()` are nearly identical when the destination for `cond_passage()` is set to the point of absorption (the finish point):
 ```{r}
-cond_passage(samc_obj, origin = start, dest = finish)
+cond <- cond_passage(samc_obj, dest = finish)
+cond[start]
 ```
 
-It turns out that the cell in the map corresponding to our finish point is not actually an absorbing state; it's still a transient state. Absorption essentially occurs when the individual is removed from the map one timestep later since it can't go anywhere else in our example. So `cond_passage()` reports how long it takes to reach the final cell, and `survival()` tells us how long it takes us to reach the final cell and then be removed from it.
+It turns out that the cell in the map corresponding to our finish point is not actually an absorbing state; it's still a transient state. Absorption essentially occurs when the individual is removed from the map one time step later since it can't go anywhere else in our example. So `cond_passage()` reports how long it takes to reach the final cell, and `survival()` tells us how long it takes us to reach the final cell and then be removed from it.
 
-Keep in mind, in more complicated scenarios with multiple points of absorption, then `survival()` will have a slightly different interpretation for the maze.
+A couple things to keep in mind:
+- In more complicated scenarios with multiple points of absorption, then `survival()` will have different results and a different interpretation for the maze.
+- `cond_passage()` normally does not work when there are states that lead to total absorption. The only exception is when there is a single instance of a state leading to total absorption present and the `dest` parameter is set to it. In that case, the absorption state is actually effectively ignored. This is why `cond_passage()` works as shown, but if you were to attempt to change the `dest` parameter to a different location, it would fail. `cond_passage()` can still be used for other `dest` values, but first the absorption value would have to be changed to something other than `1`.
 
 
 ## Probability of visiting a cell
@@ -165,9 +168,11 @@ In order to complete the maze, the individual has to visit every cell along the 
 
 If you didn't catch it in the previous paragraph, we can use our results from the `dispersal()` function identify the route through the maze:
 ```{r}
-# Ideally, we would just use `as.numeric(disp == 1)`, but float precision means that what we think is `1` isn't always `1`,
-# so it won't always work. We work around it by subtracting 1 and seeing if the result fits in a very small tolerance
-tolerance = .Machine$double.eps^0.5
+# Ideally, we would just use `as.numeric(disp == 1)`, but float precision means
+# that what we think is `1` isn't always `1` with computers, so it won't always
+# work. We work around it by subtracting 1 and seeing if the result fits within
+# a very small tolerance
+tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
 print(tolerance)
 disp_sol <- as.numeric(abs(disp - 1) < tolerance)
 
@@ -197,6 +202,7 @@ It should go without saying, but the finish point will only be visited once:
 ```{r}
 visit[finish]
 ```
+
 
 ## Expected location
 
@@ -259,7 +265,6 @@ The interpretation becomes a little trickier here. The `survival()` metric is es
 ```{r}
 survival(samc_obj, occ = maze_occ) / 3
 ```
-
 
 Here's another scenario where we have 3 people again, but now they start in different corners of the maze:
 ```{r}
