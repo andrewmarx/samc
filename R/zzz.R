@@ -4,7 +4,7 @@
 # }
 
 .onAttach <- function(libname, pkgname) {
-  msg <-paste("The following parameters have officially been removed from the samc() function in v1.5.0:",
+  msg <-paste("The following parameters have officially been removed from the samc() function in version 2:",
               "\n1) `latlon`: Now handled automatically.",
               "\n2) `resistance`: `data` should be used in its place.",
               "\n3) `p_mat`: The P matrix is now provided via `data`.",

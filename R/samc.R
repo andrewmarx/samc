@@ -104,7 +104,7 @@ NULL
 #' samc-class object and handling them appropriately to prevent inadvertent
 #' crashes.
 #'
-#' \strong{v1.5.0 Changes}
+#' \strong{Version 2 Changes}
 #'
 #' Version 1.5.0 officially removed support for the deprecated \code{resistance}, \code{tr_fun},
 #' \code{directions}, \code{p_mat}, \code{latlon}, and \code{override} arguments. Old
