@@ -166,7 +166,7 @@ points(points, pch = c('S', 'F'), cex = 1, font = 2)
 
 In order to complete the maze, the individual has to visit every cell along the path to the exit, so all of those cells will have a probability of `1.0`. The farther away from this path a cell is located, the lower the probability it will be visited. Additionally, the closer the individual gets to the finish, the less likely they will spend time taking incorrect routes before stumbling upon the finish. There's also the possibility for scenarios like the one where the individual is near the finish and then manages to stumble all the way back to the start. These different aspects contribute to more time spent near the start point, on average, which in turn means that cells near the start have a higher probability of being visited.
 
-If you didn't catch it in the previous paragraph, we can use our results from the `dispersal()` function identify the route through the maze:
+If you didn't catch it in the previous paragraph, we can use our results from the `dispersal()` function to identify the route through the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # Ideally, we would just use `as.numeric(disp == 1)`, but float precision means
 # that what we think is `1` isn't always `1` with computers, so it won't always
