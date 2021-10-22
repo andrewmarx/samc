@@ -41,7 +41,7 @@ library(viridisLite)
 
 First, let's setup up a resistance map for our maze.
 
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 maze = matrix(
   c(1,1,1,1,0,1,0,1,0,1,0,1,0,0,1,1,1,0,0,1,
     0,1,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,
@@ -86,7 +86,7 @@ lcd <- (function() {
 vir_col <- viridis(3)
 
 # Basic maze layout
-plot(maze,col = vir_col[2], axes = FALSE, box = FALSE, asp = 1)
+plot(maze, main = "Resistance", col = vir_col[2], axes = FALSE, box = FALSE, asp = 1)
 plot(rasterToPolygons(maze), border = 'black', lwd = 1, add = TRUE)
 lines(lcd$path, col = vir_col[3], lw = 3)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
@@ -94,12 +94,12 @@ points(points, pch = c('S', 'F'), cex = 1, font = 2)
 
 Now, create an absorption map where the finish point is our only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left.
 
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # End of maze
 maze_end <- maze * 0
 maze_end[20, 20] <- 1
 
-plot(maze_end, col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
+plot(maze_end, main = "Absorption", col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
 plot(rasterToPolygons(maze_end), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
@@ -127,7 +127,7 @@ We also get the start and finish locations from the samc object. It's important 
 
 First, we simply want to know how long we expect it to take for someone to finish the maze. The `survival()` function calculates the expected time to absorption. Since the maze has only one absorption point representing the finish point, this means that`survival()` can be interpreted as the expected time to finish the maze.
 
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 survive <- survival(samc_obj)
 
 plot(map(samc_obj, survive), col = viridis(256), main = "Expected time to finish", axes = F, box = F, asp = 1)
@@ -156,7 +156,7 @@ A couple things to keep in mind:
 ## Probability of visiting a cell
 
 If we're interested in knowing the probability that a particular cell (or cells) is visited at least once, then we can use the `dispersal()` function:
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 disp <- dispersal(samc_obj, origin = start)
 
 plot(map(samc_obj, disp), col = viridis(256), main = "Probability of Visit", axes = FALSE, box = FALSE, asp = 1)
@@ -167,7 +167,7 @@ points(points, pch = c('S', 'F'), cex = 1, font = 2)
 In order to complete the maze, the individual has to visit every cell along the path to the exit, so all of those cells will have a probability of `1.0`. The farther away from this path a cell is located, the lower the probability it will be visited. Additionally, the closer the individual gets to the finish, the less likely they will spend time taking incorrect routes before stumbling upon the finish. There's also the possibility for scenarios like the one where the individual is near the finish and then manages to stumble all the way back to the start. These different aspects contribute to more time spent near the start point, on average, which in turn means that cells near the start have a higher probability of being visited.
 
 If you didn't catch it in the previous paragraph, we can use our results from the `dispersal()` function identify the route through the maze:
-```{r}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # Ideally, we would just use `as.numeric(disp == 1)`, but float precision means
 # that what we think is `1` isn't always `1` with computers, so it won't always
 # work. We work around it by subtracting 1 and seeing if the result fits within
@@ -190,7 +190,7 @@ disp[start]
 ## Visits per cell
 
 The package can be used to see how many times each cell in the maze is expected to be visited on average. This is done using the `visitation()` metric:
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 visit <- visitation(samc_obj, origin = start)
 
 plot(map(samc_obj, visit), col = viridis(256), main = "Visits Per Cell", axes = FALSE, box = FALSE, asp = 1)
@@ -207,7 +207,7 @@ visit[finish]
 ## Expected location
 
 Using the `distribution()` function, we can predict where an individual might be in the maze at a given time:
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 dist <- distribution(samc_obj, origin = start, time = 20)
 
 plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=20", axes = FALSE, box = FALSE, asp = 1)
@@ -216,7 +216,7 @@ points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
 Notice something odd? Let's increment time from 20 to 21:
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 dist <- distribution(samc_obj, origin = start, time = 21)
 
 plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=21", axes = FALSE, box = FALSE, asp = 1)
@@ -235,12 +235,12 @@ There are a couple metrics that have not been covered yet: `absorption()` and `m
 ## Occupancy
 
 Many of the metrics offer a more advanced and flexible option for setting an initial state in the absorbing Markov chain. Inputs to the `occ` parameter (short for occupancy) can essentially be used as an alternative to the origin parameter. Here is an example `occ` map that represents the scenario we have been testing so far:
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # End of maze
 maze_occ <- maze * 0
 maze_occ[1, 1] <- 1
 
-plot(maze_occ, col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
+plot(maze_occ, main = "Occupancy", col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
 plot(rasterToPolygons(maze_occ), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 ```
@@ -267,14 +267,14 @@ survival(samc_obj, occ = maze_occ) / 3
 ```
 
 Here's another scenario where we have 3 people again, but now they start in different corners of the maze:
-```{r}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # Scenario 2: A person starts in each corner of the maze
 maze_occ <- maze * 0
 maze_occ[1, 1] <- 1
 maze_occ[20, 1] <- 1
 maze_occ[1, 20] <- 1
 
-plot(maze_occ, col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
+plot(maze_occ, main = "Occupancy", col = vir_col[c(2, 3)], axes = FALSE, box = FALSE, asp = 1)
 plot(rasterToPolygons(maze_occ), border = 'black', lwd = 1, add = TRUE)
 points(points, pch = c('S', 'F'), cex = 1, font = 2)
 
@@ -287,7 +287,7 @@ survival(samc_obj, occ = maze_occ) / 3
 ```
 
 This is because the additional people are now located in corners that are substantially closer to the finish point, so they would be expected to find it faster on average. Just looking at the maze, we might expect that the person starting in the bottom left has the biggest advantage. We can try to visualize this by playing with the time steps parameter in the `distrbution()` metric:
-```{r, fig.show='hold'}
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 dist <- distribution(samc_obj, occ = maze_occ, time = 100)
 
 plot(map(samc_obj, dist), col = viridis(256), main = "Location at t=100", axes = FALSE, box = FALSE, asp = 1)
