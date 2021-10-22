@@ -18,10 +18,10 @@
 class progressCounter {
 public:
   progressCounter(size_t sz, double f) :
-    lastTime(std::chrono::steady_clock::now()),
-    startTime(std::chrono::steady_clock::now()),
     size(sz),
-    freq(f) {}
+    freq(f),
+    lastTime(std::chrono::steady_clock::now()),
+    startTime(std::chrono::steady_clock::now()) {}
 
   void operator++(int) {
     progress++;
