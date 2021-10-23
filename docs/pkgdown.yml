@@ -1,0 +1,19 @@
+pandoc: 2.14.0.3
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  code-snippets: code-snippets.html
+  data-disconnected: data-disconnected.html
+  example-maze-part1: example-maze-part1.html
+  overview: overview.html
+  parallel: parallel.html
+  performance: performance.html
+  troubleshooting: troubleshooting.html
+  tutorial-animations: tutorial-animations.html
+  tutorial-basic: tutorial-basic.html
+  tutorial-ggplot: tutorial-ggplot.html
+  tutorial-locations: tutorial-locations.html
+  tutorial-multiple-absorption: tutorial-multiple-absorption.html
+  tutorial-temporal: tutorial-temporal.html
+last_built: 2021-10-22T22:05Z
+
