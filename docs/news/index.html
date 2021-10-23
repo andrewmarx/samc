@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -89,6 +89,9 @@
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
+    </li>
+    <li>
+      <a href="../articles/parallel.html">Parallel Computing</a>
     </li>
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
@@ -137,6 +140,18 @@
     </li>
   </ul>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
+    </li>
+  </ul>
+</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -168,6 +183,18 @@
       <small>Source: <a href='https://github.com/andrewmarx/samc/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="samc-200" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.0">
+<a href="#samc-200" class="anchor"></a>samc 2.0.0<small> Unreleased </small>
+</h1>
+<ul>
+<li>Removed backwards compatibility for deprecated <code><a href="../reference/samc.html">samc()</a></code> function parameters. This is a breaking change that will make maintaining the package and adding new features a simpler process going forward, and that will hopefully only be a minor inconvenience for users. The warning message on package load introduced in v1.4.0 has been updated to reflect the new changes.</li>
+<li>Updated <code><a href="../reference/cond_passage.html">cond_passage()</a></code> to return <code>0</code> for when <em>i==j</em> in the vectors. This fixes an issue associated with shifted indices in <code><a href="../reference/cond_passage.html">cond_passage(samc, dest)</a></code>. It also technically breaks backwards compatibility for when <code>dest</code> equals <code>origin</code> in <code><a href="../reference/cond_passage.html">cond_passage(samc, origin, dest)</a></code>. Previously, <code><a href="../reference/cond_passage.html">cond_passage(samc, origin, dest)</a></code> would return <code>NA</code> when <code>origin</code> equaled <code>dest</code>, but this decision was arbitrary. The <code><a href="../reference/cond_passage.html">cond_passage()</a></code> documentation explains why.</li>
+<li>Added a new section for worked examples on the website.</li>
+<li>Added a new example illustrating how to use various aspects of the package with a simple perfect maze and interpret the results. See the Maze Part 1 vignette.</li>
+<li>Added multithreading for the <code><a href="../reference/dispersal.html">dispersal(samc, origin/occ)</a></code> function via the RcppThread package. See the Parallel Computing vignette for details.</li>
+</ul>
+</div>
     <div id="samc-141" class="section level1">
 <h1 class="page-header" data-toc-text="1.4.1">
 <a href="#samc-141" class="anchor"></a>samc 1.4.1<small> 2021-09-02 </small>

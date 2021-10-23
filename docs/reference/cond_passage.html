@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -90,6 +90,9 @@
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
+    </li>
+    <li>
+      <a href="../articles/parallel.html">Parallel Computing</a>
     </li>
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
@@ -135,6 +138,18 @@
     </li>
     <li>
       <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
     </li>
   </ul>
 </li>
@@ -215,12 +230,27 @@ multiple values may be provided as a vector.</p></td>
 <p>The result is a vector where each element corresponds to a cell in the landscape,
 and can be mapped back to the landscape using the <code><a href='map.html'>map</a></code> function.
 Element <em>i</em> is the mean number of steps before absorption starting from
-location <em>i</em> conditional on absorption into <em>j</em></p></li>
+location <em>i</em> conditional on absorption into <em>j</em></p>
+<p>Note that mathematically, the formula actually does not return a value for when
+<em>i</em> is equal to <em>j</em>. This leads to a situation where the resultant vector
+is actually one element short and the index for some of the elements may be shifted.
+The <strong>cond_passage()</strong> function fills inserts a <code>0</code> value for vector indices
+corresponding to <em>i == j</em>. This corrects the final result so that vector indices
+work as expected, and allows the vector to be properly used in the <code><a href='map.html'>map</a></code> function.</p></li>
 <li><p><strong>cond_passage(samc, origin, dest)</strong></p>
 <p>The result is a numeric value representing the mean number of steps before
-absorption starting from a given origin conditional on absorption into <em>j</em>.</p></li>
+absorption starting from a given origin conditional on absorption into <em>j</em>.</p>
+<p>As described above, mathematically the formula does not return a result for when
+the <code>origin</code> and <code>dest</code> inputs are equal, so the function simply returns a <code>0</code>
+in this case.</p></li>
 </ul>
 
+<p><strong>WARNING</strong>: This function is not compatible when used with data where there
+are states with total absorption present. When present, states representing
+total absorption leads to unsolvable linear equations. The only exception to this
+is when there is a single total absorption state that corresponds to input to
+the <code>dest</code> parameter. In this case, the total absorption is effectively
+ignored when the linear equations are solved.</p>
 <p><strong>WARNING</strong>: This function will crash when used with data representing
 a disconnected graph. This includes, for example, isolated pixels or islands
 in raster data. This is a result of the transition matrix for disconnected
@@ -273,7 +303,8 @@ performance vignette: <a href='../doc/performance.html'><code><a href='../articl
 </div><div class='output co'>#&gt; 
 #&gt; Cached diagonal not found.
 #&gt; Performing setup. This can take several minutes... Complete.
-#&gt; Calculating matrix inverse diagonal...Calculating matrix inverse diagonal... Complete                                           
+#&gt; Calculating matrix inverse diagonal...
+#&gt; Complete                                                      
 #&gt; Diagonal has been cached. Continuing with metric calculation...</div><div class='input'><span class='va'>visit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, dest <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
 <span class='va'>surv</span> <span class='op'>&lt;-</span> <span class='fu'><a href='survival.html'>survival</a></span><span class='op'>(</span><span class='va'>samc_obj</span><span class='op'>)</span>
 

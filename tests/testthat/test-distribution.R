@@ -1,4 +1,4 @@
-context("Visitation")
+context("Distribution")
 
 
 for(test in testlist) {

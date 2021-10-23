@@ -47,6 +47,9 @@ for(test in testlist) {
     r1 <- cond_passage(samc_p, dest = col_vec[1])
     r2 <- cond_passage(samc_p, dest = as.character(col_vec[1]))
 
+    r1 <- r1[-col_vec[1]]
+    r2 <- r2[-col_vec[1]]
+
     # Verify
     expect_equal(dim(r1), dim(base_result))
     expect_equal(as.vector(r1), as.vector(base_result))
@@ -61,20 +64,11 @@ for(test in testlist) {
     expect_equal(vector_result, vector_result_char)
 
     for (i in 1:length(row_vec)) {
-      base_result <- br_function(samc_obj, col_vec[i])
+      base_result <- cond_passage(samc_obj, dest = col_vec[i])
 
       r <- cond_passage(samc_p, origin = row_vec[i], dest = col_vec[i])
 
-      # Offset needed because a column is removed and sometimes the row # is greater than or equal to that col #
-      if (row_vec[i] > col_vec[i]) {
-        offset = -1
-      } else if (row_vec[i] == col_vec[i]) {
-        offset = length(base_result) # forces the vector lookup out of bounds to produce a NA
-      } else {
-        offset = 0
-      }
-
-      expect_equal(r, base_result[row_vec[!!i] + offset])
+      expect_equal(r, unname(base_result[row_vec[i]]))
       expect_equal(vector_result[i], r)
     }
   })

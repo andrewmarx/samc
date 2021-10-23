@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -49,6 +49,9 @@
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
+    </li>
+    <li>
+      <a href="../articles/parallel.html">Parallel Computing</a>
     </li>
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
@@ -97,6 +100,18 @@
     </li>
   </ul>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
+    </li>
+  </ul>
+</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -121,13 +136,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="tutorial-basic_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Basic Tutorial</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2021-09-07</h4>
+            <h4 class="date">2021-10-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-basic.Rmd"><code>vignettes/tutorial-basic.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-basic.Rmd</code></div>
@@ -201,7 +216,7 @@
 <span class="co"># cells in your data +1. In this case, our data has 2624 non-NA cells, so the</span>
 <span class="co"># matrix should be 2625 x 2625</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">samc_obj</span><span class="op">)</span>
-<span class="co">#&gt; Formal class 'samc' [package "samc"] with 6 slots</span>
+<span class="co">#&gt; Formal class 'samc' [package "samc"] with 7 slots</span>
 <span class="co">#&gt;   ..@ data    :Formal class 'samc_data' [package "samc"] with 3 slots</span>
 <span class="co">#&gt;   .. .. ..@ q    :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots</span>
 <span class="co">#&gt;   .. .. .. .. ..@ i       : int [1:19786] 1 115 116 117 0 1 2 116 117 118 ...</span>
@@ -269,25 +284,28 @@
 <span class="co">#&gt;   .. .. ..@ z       : list()</span>
 <span class="co">#&gt;   ..@ clumps  : int 1</span>
 <span class="co">#&gt;   ..@ override: logi FALSE</span>
-<span class="co">#&gt;   ..@ .cache  :&lt;environment: 0x56316b04b9b0&gt;</span></code></pre></div>
+<span class="co">#&gt;   ..@ threads : num 1</span>
+<span class="co">#&gt;   ..@ .cache  :&lt;environment: 0x55741c4ce468&gt;</span></code></pre></div>
 </div>
 <div id="basic-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#basic-analysis" class="anchor"></a>Basic Analysis</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co"># Convert the occupancy data to probability of occurrence</span></a>
-<a class="sourceLine" id="cb4-2" title="2">occ_prob_data &lt;-<span class="st"> </span>occ_data <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(occ_data, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb4-3" title="3"></a>
-<a class="sourceLine" id="cb4-4" title="4"></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="co"># Calculate short- and long-term mortality metrics and long-term dispersal</span></a>
-<a class="sourceLine" id="cb4-6" title="6">short_mort &lt;-<span class="st"> </span><span class="kw">mortality</span>(samc_obj, occ_prob_data, <span class="dt">time =</span> <span class="dv">4800</span>)</a>
-<a class="sourceLine" id="cb4-7" title="7">long_mort &lt;-<span class="st"> </span><span class="kw">mortality</span>(samc_obj, occ_prob_data)</a>
-<a class="sourceLine" id="cb4-8" title="8">long_disp &lt;-<span class="st"> </span><span class="kw">dispersal</span>(samc_obj, occ_prob_data)</a>
-<a class="sourceLine" id="cb4-9" title="9"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb4-10" title="10"><span class="co">#&gt; Cached diagonal not found.</span></a>
-<a class="sourceLine" id="cb4-11" title="11"><span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span></a>
-<a class="sourceLine" id="cb4-12" title="12"><span class="co">#&gt; Calculating matrix inverse diagonal...</span></a>
-<a class="sourceLine" id="cb4-13" title="13">Calculating matrix inverse diagonal... Complete                                           </a>
-<a class="sourceLine" id="cb4-14" title="14"><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Convert the occupancy data to probability of occurrence</span>
+<span class="va">occ_prob_data</span> <span class="op">&lt;-</span> <span class="va">occ_data</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">occ_data</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+
+
+<span class="co"># Calculate short- and long-term mortality metrics and long-term dispersal</span>
+<span class="va">short_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span>, time <span class="op">=</span> <span class="fl">4800</span><span class="op">)</span>
+<span class="va">long_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span><span class="op">)</span>
+<span class="va">long_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Cached diagonal not found.</span>
+<span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span>
+<span class="co">#&gt; Calculating matrix inverse diagonal...</span>
+<span class="co">#&gt; </span>
+<span class="va">Complete</span>                                                      
+<span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></code></pre></div>
 </div>
 <div id="visualization" class="section level2">
 <h2 class="hasAnchor">

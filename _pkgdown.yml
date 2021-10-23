@@ -8,6 +8,8 @@ navbar:
         href: articles/overview.html
       - text: "Performance"
         href: articles/performance.html
+      - text: "Parallel Computing"
+        href: articles/parallel.html
       - text: "Troubleshooting"
         href: articles/troubleshooting.html
       - text: "Code Snippets"
@@ -30,6 +32,10 @@ navbar:
         href: articles/tutorial-animations.html
       - text: "Multiple Absorption"
         href: articles/tutorial-multiple-absorption.html
+    - text: "Examples"
+      menu:
+      - text: "Maze (Part 1)"
+        href: articles/example-maze-part1.html
     - text: "Reference"
       href: reference/index.html
     - text: News

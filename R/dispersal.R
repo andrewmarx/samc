@@ -212,7 +212,8 @@ setMethod(
       q@x <- -q@x
       Matrix::diag(q) <- Matrix::diag(q) + 1
 
-      dg <- samc:::.diagf(q)
+      dg <- samc:::.diagf_par(q, samc@threads)
+
       samc@.cache$dgf <- dg
       samc@.cache$dgf_exists <- TRUE
     }
@@ -280,7 +281,8 @@ setMethod(
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
     if (!samc@.cache$dgf_exists) {
-      dg <- .diagf(q)
+      dg <- samc:::.diagf_par(q, samc@threads)
+
       samc@.cache$dgf <- dg
       samc@.cache$dgf_exists <- TRUE
     }

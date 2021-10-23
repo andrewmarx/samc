@@ -37,14 +37,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// diagf
-Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> >& M);
-RcppExport SEXP _samc_diagf(SEXP MSEXP) {
+// diagf_par
+Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int threads);
+RcppExport SEXP _samc_diagf_par(SEXP MSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    rcpp_result_gen = Rcpp::wrap(diagf(M));
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(diagf_par(M, threads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -190,7 +191,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_samc_cond_t", (DL_FUNC) &_samc_cond_t, 2},
     {"_samc_sum_qn_q", (DL_FUNC) &_samc_sum_qn_q, 4},
-    {"_samc_diagf", (DL_FUNC) &_samc_diagf, 1},
+    {"_samc_diagf_par", (DL_FUNC) &_samc_diagf_par, 2},
     {"_samc_psid_long", (DL_FUNC) &_samc_psid_long, 3},
     {"_samc_qpow_row", (DL_FUNC) &_samc_qpow_row, 3},
     {"_samc_qpow_col", (DL_FUNC) &_samc_qpow_col, 3},

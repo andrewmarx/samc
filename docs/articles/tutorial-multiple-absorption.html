@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -49,6 +49,9 @@
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
+    </li>
+    <li>
+      <a href="../articles/parallel.html">Parallel Computing</a>
     </li>
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
@@ -97,6 +100,18 @@
     </li>
   </ul>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
+    </li>
+  </ul>
+</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -121,13 +136,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="tutorial-multiple-absorption_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Multiple Absorption Tutorial</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2021-09-07</h4>
+            <h4 class="date">2021-10-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-multiple-absorption.Rmd"><code>vignettes/tutorial-multiple-absorption.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-multiple-absorption.Rmd</code></div>
@@ -220,9 +235,9 @@
 <span class="co">#&gt; List of 3</span>
 <span class="co">#&gt;  $ total: Named num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span>
 <span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span>
-<span class="co">#&gt;  $ abs1 : Named num [1:2624] 6.65e-05 4.27e-05 1.08e-04 8.12e-05 9.98e-05 ...</span>
+<span class="co">#&gt;  $ abs1 : Named num [1:2624] 2.16e-04 2.12e-04 1.48e-04 1.23e-05 1.14e-04 ...</span>
 <span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span>
-<span class="co">#&gt;  $ abs2 : Named num [1:2624] 0.000717 0.000745 0.000596 0.000574 0.000522 ...</span>
+<span class="co">#&gt;  $ abs2 : Named num [1:2624] 0.000568 0.000576 0.000556 0.000643 0.000507 ...</span>
 <span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span>
 
 <span class="co"># Let's visualize it</span>

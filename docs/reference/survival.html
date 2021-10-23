@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -90,6 +90,9 @@
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
+    </li>
+    <li>
+      <a href="../articles/parallel.html">Parallel Computing</a>
     </li>
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
@@ -135,6 +138,18 @@
     </li>
     <li>
       <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
     </li>
   </ul>
 </li>
@@ -265,7 +280,8 @@ performance vignette: <a href='../doc/performance.html'><code><a href='../articl
 </div><div class='output co'>#&gt; 
 #&gt; Cached diagonal not found.
 #&gt; Performing setup. This can take several minutes... Complete.
-#&gt; Calculating matrix inverse diagonal...Calculating matrix inverse diagonal... Complete                                           
+#&gt; Calculating matrix inverse diagonal...
+#&gt; Complete                                                      
 #&gt; Diagonal has been cached. Continuing with metric calculation...</div><div class='input'><span class='va'>visit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, dest <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
 <span class='va'>surv</span> <span class='op'>&lt;-</span> <span class='fu'>survival</span><span class='op'>(</span><span class='va'>samc_obj</span><span class='op'>)</span>
 

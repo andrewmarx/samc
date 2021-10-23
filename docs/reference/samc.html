@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -90,6 +90,9 @@
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
+    </li>
+    <li>
+      <a href="../articles/parallel.html">Parallel Computing</a>
     </li>
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
@@ -138,6 +141,18 @@
     </li>
   </ul>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
+    </li>
+  </ul>
+</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -174,7 +189,7 @@
     <p>Create an samc object that contains the absorbing Markov chain data</p>
     </div>
 
-    <pre class="usage"><span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span>, <span class='va'>tr_args</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span>, <span class='va'>tr_args</span><span class='op'>)</span>
 
 <span class='co'># S4 method for TransitionLayer,RasterLayer,RasterLayer,missing</span>
 <span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span><span class='op'>)</span>
@@ -195,45 +210,10 @@
 <span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>absorption</span>, <span class='va'>tr_args</span><span class='op'>)</span>
 
 <span class='co'># S4 method for dgCMatrix,missing,missing,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>override</span><span class='op'>)</span>
+<span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span>
 
 <span class='co'># S4 method for matrix,missing,missing,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>override</span><span class='op'>)</span>
-
-<span class='co'># S4 method for missing,missing,missing,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>p_mat</span>, <span class='va'>override</span><span class='op'>)</span>
-
-<span class='co'># S4 method for RasterLayer,RasterLayer,RasterLayer,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span>, <span class='va'>tr_fun</span>, <span class='va'>latlon</span>, <span class='va'>override</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span>
-
-<span class='co'># S4 method for matrix,matrix,matrix,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span>, <span class='va'>tr_fun</span>, <span class='va'>override</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span>
-
-<span class='co'># S4 method for missing,RasterLayer,RasterLayer,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span>
-  <span class='va'>resistance</span>,
-  <span class='va'>absorption</span>,
-  <span class='va'>fidelity</span>,
-  <span class='va'>latlon</span>,
-  <span class='va'>tr_fun</span>,
-  <span class='va'>override</span>,
-  directions <span class='op'>=</span> <span class='fl'>8</span>
-<span class='op'>)</span>
-
-<span class='co'># S4 method for missing,matrix,matrix,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>fidelity</span>, <span class='va'>tr_fun</span>, <span class='va'>override</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span>
-
-<span class='co'># S4 method for RasterLayer,RasterLayer,missing,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>absorption</span>, <span class='va'>latlon</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span>
-
-<span class='co'># S4 method for matrix,matrix,missing,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>absorption</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span>
-
-<span class='co'># S4 method for missing,RasterLayer,missing,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>latlon</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span>
-
-<span class='co'># S4 method for missing,matrix,missing,missing</span>
-<span class='fu'>samc</span><span class='op'>(</span><span class='va'>resistance</span>, <span class='va'>absorption</span>, <span class='va'>tr_fun</span>, override <span class='op'>=</span> <span class='cn'>FALSE</span>, directions <span class='op'>=</span> <span class='fl'>8</span><span class='op'>)</span></pre>
+<span class='fu'>samc</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -253,34 +233,6 @@
     <tr>
       <th>tr_args</th>
       <td><p>A list with args for constructing a transition matrix.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Placeholder</p></td>
-    </tr>
-    <tr>
-      <th>override</th>
-      <td><p>Deprecated. See <code><a href='samc-class.html'>samc-class</a></code> for the alternative.</p></td>
-    </tr>
-    <tr>
-      <th>p_mat</th>
-      <td><p>Deprecated. Use the <code>data</code> parameter.</p></td>
-    </tr>
-    <tr>
-      <th>tr_fun</th>
-      <td><p>Deprecated. Use <code>tr_args</code>.</p></td>
-    </tr>
-    <tr>
-      <th>latlon</th>
-      <td><p>Deprecated. No longer needed.</p></td>
-    </tr>
-    <tr>
-      <th>directions</th>
-      <td><p>Deprecated Use <code>tr_args</code>.</p></td>
-    </tr>
-    <tr>
-      <th>resistance</th>
-      <td><p>Deprecated. Use the <code>data</code> parameter.</p></td>
     </tr>
     </table>
 
@@ -351,17 +303,6 @@ represents a pairwise matrix, the row and column names must be the same. Second,
 there must be no duplicate names. The exception to these rules is the very last
 column and the very last row of the P matrix. Since these are not part of the
 pairwise transition matrix, they may have whatever names the user prefers.</p>
-<p><strong>Other Parameters</strong> <em>Deprecated</em></p>
-<p>The <code>directions</code> parameter is optional. When constructing the P matrix from
-matrix or raster data, the <code>samc()</code> function must decide how adjacent cells are
-connected. This value can be set to either 4 or 8. When set to 4, nodes are
-connected horizontally and vertically (similar to the directions of how a rook
-moves in chess). When set to 8, nodes are connected diagonally in addition to
-horizontally and vertically (queen movement in chess). When not specified,
-the <code>samc()</code> function defaults to a value of 8. When using large datasets to
-construct a P matrix, setting the directions to 4 may lead to significant
-improvements in computation time and the amount of memory needed to perform
-an analysis.</p>
 <p><strong>Additional Information</strong></p>
 <p>Depending on the data used to construct the samc-class object, some metrics
 may cause crashes. This is a result of the underlying P matrix having specific
@@ -376,6 +317,10 @@ metrics.</p>
 <p>Future work is planned towards identifying these issues during creation of the
 samc-class object and handling them appropriately to prevent inadvertent
 crashes.</p>
+<p><strong>Version 2 Changes</strong></p>
+<p>Version 1.5.0 officially removed support for the deprecated <code>resistance</code>, <code>tr_fun</code>,
+<code>directions</code>, <code>p_mat</code>, <code>latlon</code>, and <code>override</code> arguments. Old
+code will have to be updated to the new samc() function structure in order to work.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># "Load" the data. In this case we are using data built into the package.</span>
@@ -415,7 +360,8 @@ crashes.</p>
 </div><div class='output co'>#&gt; 
 #&gt; Cached diagonal not found.
 #&gt; Performing setup. This can take several minutes... Complete.
-#&gt; Calculating matrix inverse diagonal...Calculating matrix inverse diagonal... Complete                                           
+#&gt; Calculating matrix inverse diagonal...
+#&gt; Complete                                                      
 #&gt; Diagonal has been cached. Continuing with metric calculation...</div><div class='input'><span class='va'>visit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='visitation.html'>visitation</a></span><span class='op'>(</span><span class='va'>samc_obj</span>, dest <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
 <span class='va'>surv</span> <span class='op'>&lt;-</span> <span class='fu'><a href='survival.html'>survival</a></span><span class='op'>(</span><span class='va'>samc_obj</span><span class='op'>)</span>
 

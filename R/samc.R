@@ -87,19 +87,6 @@ NULL
 #' column and the very last row of the P matrix. Since these are not part of the
 #' pairwise transition matrix, they may have whatever names the user prefers.
 #'
-#' \strong{Other Parameters} \emph{Deprecated}
-#'
-#' The \code{directions} parameter is optional. When constructing the P matrix from
-#' matrix or raster data, the \code{samc()} function must decide how adjacent cells are
-#' connected. This value can be set to either 4 or 8. When set to 4, nodes are
-#' connected horizontally and vertically (similar to the directions of how a rook
-#' moves in chess). When set to 8, nodes are connected diagonally in addition to
-#' horizontally and vertically (queen movement in chess). When not specified,
-#' the \code{samc()} function defaults to a value of 8. When using large datasets to
-#' construct a P matrix, setting the directions to 4 may lead to significant
-#' improvements in computation time and the amount of memory needed to perform
-#' an analysis.
-#'
 #' \strong{Additional Information}
 #'
 #' Depending on the data used to construct the samc-class object, some metrics
@@ -117,18 +104,17 @@ NULL
 #' samc-class object and handling them appropriately to prevent inadvertent
 #' crashes.
 #'
+#' \strong{Version 2 Changes}
+#'
+#' Version 1.5.0 officially removed support for the deprecated \code{resistance}, \code{tr_fun},
+#' \code{directions}, \code{p_mat}, \code{latlon}, and \code{override} arguments. Old
+#' code will have to be updated to the new samc() function structure in order to work.
+#'
 #'
 #' @param data A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}} or Matrix package dgCMatrix sparse matrix.
 #' @param absorption A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param fidelity A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param tr_args A list with args for constructing a transition matrix.
-#' @param resistance Deprecated. Use the \code{data} parameter.
-#' @param tr_fun Deprecated. Use \code{tr_args}.
-#' @param directions Deprecated Use \code{tr_args}.
-#' @param p_mat Deprecated. Use the \code{data} parameter.
-#' @param latlon Deprecated. No longer needed.
-#' @param override Deprecated. See \code{\link{samc-class}} for the alternative.
-#' @param ... Placeholder
 #'
 #' @return A \code{\link{samc-class}} object
 #'
@@ -138,7 +124,7 @@ NULL
 
 setGeneric(
   "samc",
-  function(data, absorption, fidelity, tr_args, ...) {
+  function(data, absorption, fidelity, tr_args) {
     standardGeneric("samc")
   })
 
@@ -253,6 +239,7 @@ setMethod(
                              map = m,
                              clumps = -1,
                              override = FALSE,
+                             threads = 1,
                              .cache = new.env())
     samc_mat@.cache$dgf = numeric(nrow(tr_mat))
     samc_mat@.cache$dgf_exists = FALSE
@@ -417,10 +404,7 @@ setMethod(
             absorption = "missing",
             fidelity = "missing",
             tr_args = "missing"),
-  function(data, override) {
-
-    if (!missing(override))
-      warning("`override` is deprecated. See samc-class documentation.", call. = FALSE)
+  function(data) {
 
     r = nrow(data)
     c = ncol(data)
@@ -459,6 +443,7 @@ setMethod(
                              source = "matrix",
                              map = raster::raster(matrix()),
                              clumps = -1,
+                             threads = 1,
                              override = FALSE)
 
     return(samc_obj)
@@ -471,181 +456,8 @@ setMethod(
             absorption = "missing",
             fidelity = "missing",
             tr_args = "missing"),
-  function(data, override) {
+  function(data) {
     p <- methods::as(data, "dgCMatrix")
 
-    return(samc(data = p, override = override))
-  })
-
-
-
-#
-# TODO: Stop-gaps for parameter changes. Remove in future version.
-#
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "missing",
-            absorption = "missing",
-            fidelity = "missing",
-            tr_args = "missing"),
-  function(p_mat, override) {
-    if (!missing(p_mat)) {
-      warning("The p_mat parameter is deprecated. Use the data parameter instead. See samc() documentation for details.", call. = FALSE)
-      return(samc(data = p_mat, override = override))
-    } else {
-      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
-    }
-  })
-
-
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "RasterLayer",
-            absorption = "RasterLayer",
-            fidelity = "RasterLayer",
-            tr_args = "missing"),
-  function(data, absorption, fidelity, tr_fun, latlon, override, directions = 8) {
-
-    if (!missing(tr_fun)) {
-      warning("`tr_fun` is deprecated. See samc() function documentation.", call. = FALSE)
-    } else {
-      stop("Missing deprecated `tr_fun`. See samc() function documentation.", call. = FALSE)
-    }
-
-    if (!missing(latlon)) {
-      warning("`latlon` is deprecated and no longer needed; please remove it.", call. = FALSE)
-    }
-
-    if (!missing(directions)) {
-      warning("`directions` is deprecated. See samc() function documentation.", call. = FALSE)
-    }
-
-    if (!missing(override))
-      warning("`override` is deprecated. See samc-class documentation.", call. = FALSE)
-
-    return(samc(data, absorption, fidelity, list(fun = tr_fun, dir = directions, sym = TRUE)))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "matrix",
-            absorption = "matrix",
-            fidelity = "matrix",
-            tr_args = "missing"),
-  function(data, absorption, fidelity, tr_fun, override, directions = 8) {
-    data = .rasterize(data)
-    absorption = .rasterize(absorption)
-    fidelity = .rasterize(fidelity)
-
-    return(samc(data, absorption, fidelity, override = override, directions = directions))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "missing",
-            absorption = "RasterLayer",
-            fidelity = "RasterLayer",
-            tr_args = "missing"),
-  function(resistance, absorption, fidelity, latlon, tr_fun, override, directions = 8) {
-    if (!missing(resistance)) {
-      warning("`resistance` is depcrecated. Use `data` instead", call. = FALSE)
-      data <- resistance
-    } else {
-      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
-    }
-
-    return(samc(data = data, absorption, fidelity, latlon = latlon, override = override, directions = directions))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "missing",
-            absorption = "matrix",
-            fidelity = "matrix",
-            tr_args = "missing"),
-  function(resistance, absorption, fidelity, tr_fun, override, directions = 8) {
-    if (!missing(resistance)) {
-      warning("`resistance` is depcrecated. Use `data` instead", call. = FALSE)
-      data <- resistance
-    } else {
-      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
-    }
-
-    return(samc(data = data, absorption, fidelity, tr_fun, override = override, directions = directions))
-  })
-
-
-
-
-
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "RasterLayer",
-            absorption = "RasterLayer",
-            fidelity = "missing",
-            tr_args = "missing"),
-  function(data, absorption, latlon, tr_fun, override = FALSE, directions = 8) {
-    fidelity <- data
-    fidelity[is.finite(fidelity)] <- 0
-
-    return(samc(data = data, absorption = absorption, fidelity = fidelity, latlon = latlon, tr_fun = tr_fun, override = override, directions = directions))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "matrix",
-            absorption = "matrix",
-            fidelity = "missing",
-            tr_args = "missing"),
-  function(data, absorption, tr_fun, override = FALSE, directions = 8) {
-    data <- .rasterize(data)
-    absorption <- .rasterize(absorption)
-
-    return(samc(data = data, absorption = absorption, tr_fun = tr_fun, override = override, directions = directions))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "missing",
-            absorption = "RasterLayer",
-            fidelity = "missing",
-            tr_args = "missing"),
-  function(resistance, absorption, latlon, tr_fun, override = FALSE, directions = 8) {
-    if (!missing(resistance)) {
-      warning("`resistance` is depcrecated. Use `data` instead", call. = FALSE)
-      data <- resistance
-    } else {
-      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
-    }
-
-    return(samc(data = data, absorption = absorption, latlon = latlon, tr_fun = tr_fun, override = override, directions = directions))
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "missing",
-            absorption = "matrix",
-            fidelity = "missing",
-            tr_args = "missing"),
-  function(resistance, absorption, tr_fun, override = FALSE, directions = 8) {
-    if (!missing(resistance)) {
-      warning("`resistance` is depcrecated. Use `data` instead", call. = FALSE)
-      data <- resistance
-    } else {
-      stop("Invalid arguments. The data parameter must be specified.", call. = FALSE)
-    }
-
-    return(samc(data = data, absorption = absorption, tr_fun = tr_fun, override = override, directions = directions))
+    return(samc(data = p))
   })

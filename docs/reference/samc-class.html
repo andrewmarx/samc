@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -90,6 +90,9 @@
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
+    </li>
+    <li>
+      <a href="../articles/parallel.html">Parallel Computing</a>
     </li>
     <li>
       <a href="../articles/troubleshooting.html">Troubleshooting</a>
@@ -135,6 +138,18 @@
     </li>
     <li>
       <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
     </li>
   </ul>
 </li>
@@ -219,6 +234,10 @@ be accessed and modified in the class:</p>
 <p>The input must be in the same form as the absorption inputs used in <code><a href='samc.html'>samc</a>()</code>.
   Matrices are passed in as a <code>list</code>, and rasters are passed in as a <code>RasterStack</code>.
   Using <code>NA</code> as the input will reset it.</p></li>
+<li><p><strong>threads</strong></p>
+<p><code>samc_obj$threads</code> can be used to get or set the number of threads used
+  for parallel computations. Details can be found in the Parallel Computing
+  vignette.</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
@@ -235,6 +254,8 @@ be accessed and modified in the class:</p>
 <dt><code>clumps</code></dt><dd><p>Number of discontinuous regions in data</p></dd>
 
 <dt><code>override</code></dt><dd><p>Used to prevent accidental use of memory intensive functions</p></dd>
+
+<dt><code>threads</code></dt><dd><p>Used for multi-threading</p></dd>
 
 <dt><code>.cache</code></dt><dd><p>Cached data for performance boosts</p></dd>
 

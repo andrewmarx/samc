@@ -3,7 +3,65 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+
+// [[Rcpp::depends(RcppThread)]]
+#include <RcppThread.h>
+
 #include <Rcpp/Benchmark/Timer.h>
+
+#include <chrono>
+#include <string>
+#include <iomanip>
+
+
+// C++ 11 compliant progress output that should be thread safe
+class progressCounter {
+public:
+  progressCounter(size_t sz, double f) :
+    size(sz),
+    freq(f),
+    lastTime(std::chrono::steady_clock::now()),
+    startTime(std::chrono::steady_clock::now()) {}
+
+  void operator++(int) {
+    progress++;
+
+    auto currentTime = std::chrono::steady_clock::now();
+    double deltaTime = std::chrono::duration<double>(currentTime - lastTime).count();
+
+    std::lock_guard<std::mutex> lock(mutex);
+    if(deltaTime > 5.0) {
+      lastTime = currentTime;
+
+      double t = ((double)(std::chrono::duration<double>(currentTime - startTime).count() / progress) * (double)(size - progress));
+
+      std::string units = " seconds";
+
+      if (t > 86400) {
+        t = t / 86400;
+        units = " days";
+      } else if (t > 3600) {
+        t = t / 3600;
+        units = " hours";
+      } else if (t > 60) {
+        t = t / 60;
+        units = " minutes";
+      }
+
+      RcppThread::Rcout << "\r" << progress << "/" << size << " : " << t << units << " remaining                              ";
+    }
+  }
+
+private:
+  std::mutex mutex;
+  std::atomic<size_t> progress{0};
+  std::size_t size;
+  double freq;
+
+  std::chrono::time_point<std::chrono::steady_clock> lastTime;
+  std::chrono::time_point<std::chrono::steady_clock> startTime;
+};
+
 
 
 // [[Rcpp::export(".sum_qn_q")]]
@@ -23,7 +81,7 @@ Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
   Rcpp::List res = Rcpp::List::create();
 
   for(int i = 1; i < n; i++) {
-    for (int j = t[i - 1]; j < t[i]; j++) {
+    for(int j = t[i - 1]; j < t[i]; j++) {
       if(j % 1000 == 0) Rcpp::checkUserInterrupt();
         q2 = M * q2;
       }
@@ -37,8 +95,9 @@ Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
 }
 
 
-// [[Rcpp::export(".diagf")]]
-Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> > &M)
+
+// [[Rcpp::export(".diagf_par")]]
+Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int threads)
 {
   Rcpp::Rcout << "\nCached diagonal not found.\n";
 
@@ -48,54 +107,37 @@ Rcpp::NumericVector diagf(Eigen::Map<Eigen::SparseMatrix<double> > &M)
 
   int sz = M.rows();
 
-  Eigen::VectorXd ident = Eigen::VectorXd::Zero(sz);
   Eigen::VectorXd dg(sz);
-  Eigen::VectorXd col(sz);
-
-  Rcpp::Timer timer;
-  double t = 0.0;
-  Rcpp::String units("unit");
-
-  int ut = std::max(sz/10, 1000);
-  int utm = (int)std::max(10.0, std::pow(10, (7.0 - std::log10((double)sz))));
 
   solver.compute(M);
 
   Rcpp::Rcout << " Complete.\n";
 
-  Rcpp::Rcout << "Calculating matrix inverse diagonal...";
+  Rcpp::Rcout << "Calculating matrix inverse diagonal...\n";
 
-  for(int i = 0; i < sz; i++) {
-    if(i % 10 == 0) {
-      Rcpp::checkUserInterrupt();
-    }
+  // Parallel run
+  std::vector<Eigen::VectorXd> xs(threads);
+  for (auto &x : xs)
+    x = Eigen::VectorXd::Zero(sz);
 
-    if(i % ut == utm) {
-      t = ((double)((timer.now() - timer.origin()) / i) * (double)(sz - i)) / 1000000000.0;
+  progressCounter progress(sz, 10.0);
 
-      if (t > 86400) {
-        t = t / 86400;
-        units = " days";
-      } else if (t > 3600) {
-        t = t / 3600;
-        units = " hours";
-      } else if (t > 60) {
-        t = t / 60;
-        units = " minutes";
-      } else {
-        units = " seconds";
-      }
+  auto fun = [&] (unsigned int i){
+    RcppThread::checkUserInterrupt();
 
-      Rcpp::Rcout << "\rCalculating matrix inverse diagonal... " << t << units.get_cstring() << " remaining         ";
-    }
+    Eigen::VectorXd& ident = xs[(i * threads) / sz];
 
     ident(i) = 1;
-    col = solver.solve(ident);
+    Eigen::VectorXd col = solver.solve(ident);
     dg(i) = col(i);
     ident(i) = 0;
-  }
 
-  Rcpp::Rcout << "\rCalculating matrix inverse diagonal... Complete                                           \n";
+    progress++;
+  };
+
+  RcppThread::parallelFor(0, sz, fun, threads, threads);
+
+  Rcpp::Rcout << "\rComplete                                                      \n";
   Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";
 
   return Rcpp::wrap(dg);
