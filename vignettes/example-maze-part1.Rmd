@@ -1,5 +1,5 @@
 ---
-title: "Maze Example"
+title: "Maze Part 1"
 author: "Andrew Marx"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -24,7 +24,7 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
 
 ## Introduction
 
-This tutorial shows the basics of how to use the package to calculate and visualize several metrics using map based inputs. It utilizes the package's built-in data, which is the same example data used in Fletcher et al. (2019).
+This example shows how to use and interpret different absorbing Markov chain metrics with a perfect maze. A perfect maze is a maze that has no loops, every point is reachable, and there is only a single path between any two points. The advantage of an example like this is that it makes it easier to visually and numerically reason about what the package is doing.
 
 
 ## Libraries
