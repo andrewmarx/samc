@@ -1,0 +1,88 @@
+---
+title: "Maze Part 2"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Maze Example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+required <- c("viridisLite")
+if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
+
+library(samc)
+library(raster)
+library(gdistance)
+library(viridisLite)
+
+maze = matrix(
+  c(1,1,1,1,0,1,0,1,0,1,0,1,0,0,1,1,1,0,0,1,
+    0,1,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,
+    0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,
+    0,1,1,0,1,1,0,1,1,1,1,0,1,0,1,0,1,1,1,1,
+    0,0,0,0,1,0,0,1,0,0,1,1,1,1,1,0,0,0,0,1,
+    1,1,1,1,1,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,
+    1,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,
+    1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,
+    1,0,1,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,
+    1,0,0,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,
+    1,1,1,0,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,
+    0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,1,1,
+    1,1,1,1,0,1,1,0,0,0,0,1,0,0,1,0,1,0,1,0,
+    0,0,0,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,
+    0,1,0,0,0,1,1,0,1,0,0,0,0,1,0,0,0,0,0,1,
+    0,1,1,1,1,1,0,0,0,0,1,1,1,1,0,1,1,1,0,1,
+    0,0,0,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,
+    1,1,0,1,0,1,1,1,0,0,0,0,0,0,1,0,1,1,1,1,
+    0,1,1,1,0,0,0,1,1,1,0,1,0,1,1,1,1,0,1,0,
+    1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1),
+  nrow = 20
+)
+
+maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(maze) + 0.5)
+maze[maze==0] <- NA
+
+#
+# Get info about the shortest path through the maze using gdistance
+#
+points <- xyFromCell(maze, c(1, 400))
+
+lcd <- (function() {
+  tr <- transition(maze, function(x) 1/mean(x), 4)
+  tr <- geoCorrection(tr)
+
+  list(dist = costDistance(tr, points),
+       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
+})()
+
+# Setup a simple color palette
+vir_col <- viridis(3)
+
+# End of maze
+maze_end <- maze * 0
+maze_end[20, 20] <- 1
+
+tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
+
+samc_obj <- samc(maze, maze_end, tr_args = tr)
+
+start <- locate(samc_obj, data.frame(x = 1, y = 20))
+finish <- locate(samc_obj, data.frame(x = 20, y = 1))
+```
+
+
+## Introduction
+
+In [Part 1](example-maze-part1.html) of this series, we explored the applications of absorbing Markov chains in the context of a simple perfect maze. In Part 2, we will expand on our simple maze is various ways and explore how these changes affect our interpretations when using the different metrics offered in the samc package.
+
+## Setup
