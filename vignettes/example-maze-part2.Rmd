@@ -77,12 +77,12 @@ lcd <- (function() {
 vir_col <- viridis(3)[2:3]
 
 # End of maze
-maze_end <- maze * 0
-maze_end[20, 20] <- 1
+maze_finish <- maze * 0
+maze_finish[20, 20] <- 1
 
 tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
 
-samc_obj <- samc(maze, maze_end, tr_args = tr)
+samc_obj <- samc(maze, maze_finish, tr_args = tr)
 
 start <- locate(samc_obj, data.frame(x = 1, y = 20))
 finish <- locate(samc_obj, data.frame(x = 20, y = 1))
@@ -107,12 +107,12 @@ maze_ints <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, 
 maze_ints[is.na(maze)] <- NA
 maze_ints <- maze_ints * 0.1
 
-maze_plot(maze_ints, "Intersections", vir_col
+maze_plot(maze_ints, "Intersections", vir_col)
 ```
 
 Fidelity changes the $P$ matrix underlying the samc object, which means we have to create a new samc object:
 ```{r}
-samc_ints <- samc(maze, maze_end, maze_ints, tr_args = tr)
+samc_ints <- samc(maze, maze_finish, maze_ints, tr_args = tr)
 ```
 
 To start, let's see how the new fidelity input affects our expected time to finish:
@@ -157,7 +157,7 @@ With fidelity present, the intersections are seeing a significantly different nu
 tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
 print(tolerance)
 
-maze_plot(visit_diff > tolerance, "Visits With Non-Zero Difference", vir_col
+maze_plot(visit_diff > tolerance, "Visits With Non-Zero Difference", vir_col)
 
 # Second, let's see what the percent change is for our non-zero differences.
 visit_perc <- (visit_ints - visit_orig) / visit_orig
@@ -204,12 +204,12 @@ maze_ends[is.na(maze)] <- NA
 maze_ends <- maze_ends * 9 + 1
 maze_ends[20, 20] <- 1
 
-maze_plot(maze_ends, "Dead Ends", vir_col
+maze_plot(maze_ends, "Dead Ends", vir_col)
 ```
 
 We have given the dead ends a resistance value of 10, which is relatively high and means that dead ends will only rarely be entered. Since we've modified our resistance map, we need to update the samc object. We will not use our fidelity data from the previous section, which will allow us to compare directly against the model created in Part 1.
 ```{r}
-samc_ends <- samc(maze_ends, maze_end, tr_args = tr)
+samc_ends <- samc(maze_ends, maze_finish, tr_args = tr)
 ```
 
 Hypothetically, since an individual can now "look ahead", they should be able to get through the maze faster because they are spending less time in dead ends. We can see this easily:
@@ -250,12 +250,12 @@ maze_traps[17, 3] <- 0.2
 maze_traps[1, 6] <- 0.2
 maze_traps[6, 20] <- 0.2
 
-maze_plot(maze_traps, "Traps", vir_col
+maze_plot(maze_traps, "Traps", vir_col)
 ```
 
 In order to use this, we will have to create a new samc object:
 ```{r}
-abs_total <- maze_end + maze_traps
+abs_total <- maze_finish + maze_traps
 
 samc_traps <- samc(maze, abs_total, tr_args = tr)
 ```
@@ -298,7 +298,7 @@ tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.
 print(tolerance)
 disp_traps_route <- as.numeric(abs(disp_traps - 1) < tolerance)
 
-maze_plot(map(samc_traps, disp_traps_route), "dispersal() == 1", vir_col
+maze_plot(map(samc_traps, disp_traps_route), "dispersal() == 1", vir_col)
 ```
 
 It shows us part of the solution we saw before, but only up to the first maze intersection that leads to two or more possible sources of absorption.
@@ -322,10 +322,10 @@ There's only a 2.1% chance of our individual finishing the maze! This seems real
 The package allows us to break things down so that we can investigate the role of different types of mortality more easily. Remember, we started with two absorption layers that we summed together; now that the samc object has been created, we can provide it that information:
 ```{r}
 # Naming our rasters will make things easier and less error-prone later
-names(maze_end) <- "Finish"
+names(maze_finish) <- "Finish"
 names(maze_traps) <- "Traps"
 
-samc_traps$abs_states <- raster::stack(maze_end, maze_traps)
+samc_traps$abs_states <- raster::stack(maze_finish, maze_traps)
 ```
 
 By doing so, the `mortality()` metric now returns a list with information about not just the total absorption, but the individual components we specified. This allows us to individually access and visualize the role of different types of absorption:

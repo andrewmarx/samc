@@ -106,10 +106,10 @@ points(xyFromCell(maze, c(1, 400)), pch = c('S', 'F'), cex = 1, font = 2)
 Finally, create an absorption map where the finish point is our only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left.
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # End of maze
-maze_end <- maze * 0
-maze_end[20, 20] <- 1
+maze_finish <- maze * 0
+maze_finish[20, 20] <- 1
 
-maze_plot(maze_end, "Absorption", vir_col)
+maze_plot(maze_finish, "Absorption", vir_col)
 ```
 
 
@@ -118,7 +118,7 @@ maze_plot(maze_end, "Absorption", vir_col)
 ```{r}
 tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
 
-samc_obj <- samc(maze, maze_end, tr_args = tr)
+samc_obj <- samc(maze, maze_finish, tr_args = tr)
 
 start <- locate(samc_obj, data.frame(x = 1, y = 20))
 finish <- locate(samc_obj, data.frame(x = 20, y = 1))
