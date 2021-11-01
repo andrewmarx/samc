@@ -42,6 +42,7 @@ library(viridisLite)
 To start, we're going to create a function to reduce redundant plotting code in our examples:
 ```{r}
 maze_plot <- function(map, title, colors) {
+  # start = 1 (top left), finish = last element (bottom right)
   sf <- xyFromCell(map, c(1, length(map)))
 
   plot(map, main = title, col = colors, axes = FALSE, box = FALSE, asp = 1)
@@ -52,7 +53,7 @@ maze_plot <- function(map, title, colors) {
 
 Next, we'll create a quick color palette for when we only need one or two colors in our figures:
 ```{r}
-# Setup a simple color palette
+# A simple color palette with 2 colors
 vir_col <- viridis(3)[2:3]
 ```
 
@@ -83,7 +84,7 @@ maze = matrix(
 )
 
 maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(maze) + 0.5)
-maze[maze==0] <- NA
+maze[maze==0] <- NA # 0 makes the formatting cleaner above, but NA is needed for true barriers
 
 # Get info about the shortest path through the maze using gdistance
 lcd <- (function() {
@@ -97,13 +98,11 @@ lcd <- (function() {
 })()
 
 # Basic maze layout
-plot(maze, main = "Resistance", col = vir_col[1], axes = FALSE, box = FALSE, asp = 1)
-plot(rasterToPolygons(maze), border = 'black', lwd = 1, add = TRUE)
+maze_plot(maze, "Resistance", vir_col[1])
 lines(lcd$path, col = vir_col[2], lw = 3)
-points(xyFromCell(maze, c(1, 400)), pch = c('S', 'F'), cex = 1, font = 2)
 ```
 
-Finally, create an absorption map where the finish point is our only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left.
+Then, create an absorption map where the finish point is our only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left.
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # End of maze
 maze_finish <- maze * 0
@@ -112,6 +111,11 @@ maze_finish[20, 20] <- 1
 maze_plot(maze_finish, "Absorption", vir_col)
 ```
 
+Finally, given the nature of some of the calculations performed by the package, it's sometimes possible for floating point precision issues to arise where equality comparisons between two decimal values don't yield expected results. It's an unfortunate limitation of all computer hardware and is why functions like `all.equal()` exist in base R. Unfortunately, there isn't a base function available for some of the specific comparisons we want to perform, so we will manually have to do it. In order to do so, we will need a tolerance value and will use the default tolerance used by `all.equal()`:
+```{r}
+tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
+print(tolerance)
+```
 
 ## Create the `samc` Object
 
@@ -172,12 +176,7 @@ In order to complete the maze, the individual has to visit every cell along the 
 
 If you didn't catch it in the previous paragraph, we can use our results from the `dispersal()` function to identify the route through the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Ideally, we would just use `as.numeric(disp == 1)`, but float precision means
-# that what we think is `1` isn't always `1` with computers, so it won't always
-# work. We work around it by subtracting 1 and seeing if the result fits within
-# a very small tolerance
-tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
-print(tolerance)
+# Ideally, we would just use `as.numeric(disp == 1)`, but we have floating point precision issues here, so we will approximate it
 disp_sol <- as.numeric(abs(disp - 1) < tolerance)
 
 maze_plot(map(samc_obj, disp_sol), "Solution Using Dispersal()", vir_col)

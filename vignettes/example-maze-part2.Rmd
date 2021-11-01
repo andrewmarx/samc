@@ -86,6 +86,8 @@ samc_obj <- samc(maze, maze_finish, tr_args = tr)
 
 start <- locate(samc_obj, data.frame(x = 1, y = 20))
 finish <- locate(samc_obj, data.frame(x = 20, y = 1))
+
+tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
 ```
 
 
@@ -100,7 +102,7 @@ This example reuses the [libraries](example-maze-part1.html#libraries1), [setup]
 
 ## Fidelity
 
-We'll start by incorporating fidelity into the samc object. There are potentially many different ways that fidelity could be applied to the maze, but we'll keep things simple by using it to create a delay in movement at intersections. The goal will be to model hesitancy when the individual is presented with the choice of three or more paths. For simplicity, we'll only set the fidelity at all intersections to the same `0.1` value, which basically means that once an individual is at an intersection, there is a 10% probability that they will stay in the intersection from one time step to the next.
+We'll start by incorporating fidelity into the samc object. In Part 1, transitions always occurred from one cell to a different neighboring cell. With fidelity, we have the ability for transitions to occur from a cell to itself; essentially, there's no movement over the course of a time step. There are potentially many different ways that fidelity could be applied to the maze, but we'll keep things simple by using it to create a delay in movement at intersections. The goal will be to model hesitancy when the individual is presented with the choice of three or more paths. For simplicity, we'll only set the fidelity at all intersections to the same `0.1` value, which basically means that once an individual is at an intersection, there is a 10% probability that they will stay in the intersection from one time step to the next.
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # Intersections determined using a moving window function
 maze_ints <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) > 3}, pad = TRUE)
@@ -151,12 +153,7 @@ maze_plot(visit_diff, "Visits Per Cell (Difference)", viridis(256))
 With fidelity present, the intersections are seeing a significantly different number of visits. Basically, since a "visit" represents a transition to a cell from one time step to the next, the presence of fidelity means that the metric is counting transitions from a cell to itself as well. Interestingly, when compared to the figure in Part 1, the legend in this figure seems to indicate that the increase for the intersections might actually be 10%, or the same as the fidelity probabilities. It also seems like the non-intersections experienced no change. Let's check these ideas:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 # First, let's see which cells changed.
-# Unfortunately, this is another case where float precision is problematic.
-# We can't just compare to 0, so we assume that anything within a very small
-# tolerance is equivalent to 0
-tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
-print(tolerance)
-
+# Ideally, we would just use `visit_diff > 0`, but we have floating point precision issues here, so we will approximate it
 maze_plot(visit_diff > tolerance, "Visits With Non-Zero Difference", vir_col)
 
 # Second, let's see what the percent change is for our non-zero differences.
@@ -247,7 +244,7 @@ The choice really depends on the data available and the goals of the project. Fo
 # Traps absorption layer
 maze_traps <- maze * 0
 maze_traps[17, 3] <- 0.2
-maze_traps[1, 6] <- 0.2
+maze_traps[1, 9] <- 0.2
 maze_traps[6, 20] <- 0.2
 
 maze_plot(maze_traps, "Traps", vir_col)
@@ -290,12 +287,7 @@ maze_plot(map(samc_traps, visit_traps), "Visits Per Cell", viridis(256))
 
 Importantly, we can longer use the same technique as Part 1 where we used visitation probabilities of 1.0 to identify the route through the maze; it only works in very specialized cases. The reason is simple: since the individual can now be absorbed in other locations, there is a non-zero probability that they never reach the finish, which in turn means the probability of visiting the finish is now less than 1.0. However, we can still use the same technique to see something interesting:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Ideally, we would just use `as.numeric(disp == 1)`, but float precision means
-# that what we think is `1` isn't always `1` with computers, so it won't always
-# work. We work around it by subtracting 1 and seeing if the result fits within
-# a very small tolerance
-tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
-print(tolerance)
+# Ideally, we would just use `as.numeric(disp == 1)`, but we have floating point precision issues here, so we will approximate it
 disp_traps_route <- as.numeric(abs(disp_traps - 1) < tolerance)
 
 maze_plot(map(samc_traps, disp_traps_route), "dispersal() == 1", vir_col)
@@ -317,7 +309,7 @@ mort_traps[mort_traps > 0]
 mort_traps[finish]
 ```
 
-There's only a 2.1% chance of our individual finishing the maze! This seems really low given our traps are only lethal 20% of the time, but if we stop to think about it, it actually makes sense. Recall the "Probability of visiting a cell" and "Visits per cell" sections from Part 1; the individual spends most of their time in the early part of the maze. That means they have a lot more exposure to our first trap and, consequently, are more likely to be absorbed there. And if we look at the trap farthest from the start, reaching it requires barely missing the finish, so consequently it has only a 0.28% of being the source of absorption, or an order of magnitude lower probability than just finishing.
+There's only a 3.0% chance of our individual finishing the maze! This seems really low given our traps are only lethal 20% of the time, but if we stop to think about it, it actually makes sense. Recall the [Probability of visiting a cell](example-maze-part1.html#probability-of-visiting-a-cell-1) and [Visits per cell](example-maze-part1.html#visits-per-cell-1) sections from Part 1; the individual spends most of their time in the early part of the maze. That means they have a lot more exposure to our first trap and, consequently, are more likely to be absorbed there with a 85.2% probability. If we look at the trap farthest from the start, reaching it first requires passing by the finish, so consequently it has only a 0.39% of being the source of absorption, a substantially lower probability than just finishing the maze.
 
 The package allows us to break things down so that we can investigate the role of different types of mortality more easily. Remember, we started with two absorption layers that we summed together; now that the samc object has been created, we can provide it that information:
 ```{r}
@@ -343,7 +335,7 @@ We can also now make use of the `absorption()` metric:
 absorption(samc_traps, origin = start)
 ```
 
-The output from this is quite simple: it tells us the probability that the individual will experience a particular type of absorption. So as we saw before, there is a 2.1% chance of finishing the maze. But now we see that there is a 97.9% total probability that absorption will occur in one of the three traps. This is different from the `mortality()` metric, which tells us the absorption probabilities at each cell. There's clearly a relationship between the two metrics, and the advantage of this example is that it's easy to see it; in more complex examples, it's more difficult to see how the two metrics are related.
+The output from this is quite simple: it tells us the probability that the individual will experience a particular type of absorption. So as we saw before, there is a 3.0% chance of finishing the maze. But now we see that there is a 97.0% total probability that absorption will occur in one of the three traps. This is different from the `mortality()` metric, which tells us the absorption probabilities at each cell. There's clearly a relationship between the two metrics, and the advantage of this example is that it's easy to see it; in more complex examples, it's more difficult to see how the two metrics are related.
 
 
 ## Part 3
