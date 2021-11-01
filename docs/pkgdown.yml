@@ -5,6 +5,7 @@ articles:
   code-snippets: code-snippets.html
   data-disconnected: data-disconnected.html
   example-maze-part1: example-maze-part1.html
+  example-maze-part2: example-maze-part2.html
   overview: overview.html
   parallel: parallel.html
   performance: performance.html
@@ -15,5 +16,5 @@ articles:
   tutorial-locations: tutorial-locations.html
   tutorial-multiple-absorption: tutorial-multiple-absorption.html
   tutorial-temporal: tutorial-temporal.html
-last_built: 2021-10-22T22:05Z
+last_built: 2021-11-01T17:46Z
 

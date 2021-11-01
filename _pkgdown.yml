@@ -36,6 +36,8 @@ navbar:
       menu:
       - text: "Maze (Part 1)"
         href: articles/example-maze-part1.html
+      - text: "Maze (Part 2)"
+        href: articles/example-maze-part2.html
     - text: "Reference"
       href: reference/index.html
     - text: News
