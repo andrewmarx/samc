@@ -108,6 +108,7 @@ maze_traps[6, 20] <- 0.2
 
 abs_total <- maze_finish + maze_traps
 
+samc_traps <- samc(maze, abs_total, tr_args = tr)
 ```
 
 
@@ -208,6 +209,87 @@ maze_plot(map(samc_maze2, disp_maze2_sol), "Partial solution (Maze 2)", vir_col)
 
 In this case, we're getting the solution for the regions outside of the loop created by the shortcut.
 
+
+## Combined Example
+
+Here we will combine the various changes we've made throughout the series into one final example maze.
+
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+# Combine our previous resistance layers
+maze_all <- max(stack(maze2, maze_ints, maze_ends), na.rm = TRUE)
+
+# For absorption, all we need is an updated version of our traps raster
+maze_all_traps <- maze_traps
+maze_all_traps[16, 6] <- 0
+
+# Total absorption
+abs_all_total <- maze2_finish + maze_all_traps
+
+
+# If we had more variety in our resistance values we would want more colors
+maze_plot(maze_all, "Final Maze", vir_col)
+
+# Plot the traps raster
+maze_plot(maze_all_traps, "Final Maze Traps", vir_col)
+```
+
+There is an unusual artifact present in our new resistance raster: our shortcut leads into a former dead end, and the dead end resistance value will increase the probability of the individual turning around in the shortcut even though, from the perspective of the shortcut, it is not a dead end. However, when approaching from the bottom, the dead end still exists if we assume the shortcut is hidden. This is a case where having asymmetric transition probabilities would be a more ideal solution, but for simplicity, we will leave things as they are.
+
+Create the new samc object:
+```{r}
+samc_all <- samc(maze_all, abs_all_total, tr_args = tr)
+
+# We can actually reuse the maze2 locations in this case, but let's make new ones anyway
+start_maze_all <- locate(samc_all, data.frame(x = 1, y = 20))
+finish_maze_all <- locate(samc_all, data.frame(x = 20, y = 1))
+```
+
+As usual, we will start with looking at expected time to absorption:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+surv_all <- survival(samc_all)
+
+# Note the updated title from part 1
+maze_plot(map(samc_all, surv_all), "Expected Time to Absorption", viridis(256))
+```
+
+Similar to Part 2, the presence of additional absorbing states (the traps), drastically changes the result and interpretation of the `survival()` metric. The results are actually very similar to part 2, but the presence of a shortcut does increase access to both the bottom left trap and the finish point. The relative role of each isn't clear, but it does overall seem to do decrease the time to absorption. 
+
+Next is a complete overview of the difference results for `survival()` and `cond_passage()`:
+```{r}
+# Our original results from Part 1
+cat("Original\n")
+survival(samc_obj)[start]
+cond_passage(samc_obj, start, finish)
+
+# Our results with traps
+cat("\nTraps\n")
+survival(samc_traps)[start]
+cond_passage(samc_traps, start, finish)
+
+# Our results with a shortcut
+cat("\nShortcut\n")
+survival(samc_maze2)[start_maze2]
+cond_passage(samc_maze2, start_maze2, finish_maze2)
+
+# Results with everything
+cat("\nEverything\n")
+survival(samc_all)[start_maze_all]
+cond_passage(samc_all, start_maze_all, finish_maze_all)
+```
+
+The presence of both the traps and the shortcut have a cumulative effect on both metrics; the time to absorption decreases, as does the time to conditional first passage (the time to finish assuming the individual is not absorbed elsewhere).
+
+We can compare the traps-only version of the maze to our cumulative maze using the mortality() metric to see how introducing the shortcut affects the probability of finishing the maze vs being absorbed in the traps:
+```{r}
+mort_traps[mort_traps > 0]
+
+mort_all <- mortality(samc_all, origin = start_maze_all)
+mort_all[mort_all > 0]
+```
+
+With the introduction of the shortcut, we see that the probability of absorption into the two top traps is reduced because less time is spent in the top portion of the maze relative to the now more accessible bottom portion. We also see the probability of absorption into the bottom left trap has increased by more than an order of magnitude, accounting for most of the decrease in the top two traps. Finally, we see that the individual is somewhat more likely to survive and finish the maze. Note that the numeric index for the later two points are shifted by one; this is due to changing a `NA` cell to non-`NA` for the shortcut, and it is related to why we have to have to rerun `locate()` when the structure of the input to `samc()` changes.
+
+By now, the process of exploring the different metrics for these examples should be clear. For this example we highlighted a few key metrics leave it to the user to explore the remaining metrics if they are interested in doing so.
 
 ## Future Work
 
