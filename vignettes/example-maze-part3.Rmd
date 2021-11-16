@@ -88,6 +88,26 @@ start <- locate(samc_obj, data.frame(x = 1, y = 20))
 finish <- locate(samc_obj, data.frame(x = 20, y = 1))
 
 tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
+
+# Intersections determined using a moving window function
+maze_ints <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) > 3}, pad = TRUE)
+maze_ints[is.na(maze)] <- NA
+maze_ints <- maze_ints * 0.1
+
+# Dead ends
+maze_ends <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) == 2}, pad = TRUE)
+maze_ends[is.na(maze)] <- NA
+maze_ends <- maze_ends * 9 + 1
+maze_ends[20, 20] <- 1
+
+# Traps absorption layer
+maze_traps <- maze * 0
+maze_traps[17, 3] <- 0.2
+maze_traps[1, 9] <- 0.2
+maze_traps[6, 20] <- 0.2
+
+abs_total <- maze_finish + maze_traps
+
 ```
 
 
