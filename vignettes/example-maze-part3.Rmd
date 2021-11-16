@@ -121,6 +121,94 @@ In the third part of the series, we take our perfect maze with only a single sol
 This example reuses the [libraries](example-maze-part1.html#libraries1), [setup](example-maze-part1.html#setup1), and original [samc object](example-maze-part1.html#create-the-samc-object-1) code from Part 1. Later, we will reuse the various modifications introduced in [Part 2](example-maze-part2.html).
 
 
+## Shortcut
+
+We will start with modifying our maze so that it has a new cell bridging previously existing cells. The location was chosen so that it effectively acts as a shortcut to the previous solution. To make things interesting, we will model it as a secret passage by giving it a high resistance value so that it is only rarely utilized. This is effectively the same method used to model dead end avoidance in Part 2, but here the interpretation is different because of where the high resistance is located.
+
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+# Create a copy and add a shortcut
+maze2 <- maze
+maze2[16, 6] <- 10
+
+# Get info about the shortest path through the new maze using gdistance
+lcd2 <- (function() {
+  points <- xyFromCell(maze2, c(1, 400))
+
+  tr <- transition(maze2, function(x) 1/mean(x), 4)
+  tr <- geoCorrection(tr)
+
+  list(dist = costDistance(tr, points),
+       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
+})()
+
+maze_plot(maze2, "Maze 2", vir_col)
+lines(lcd2$path, col = vir_col[2], lw = 3)
+```
+
+Let's quickly verify the change in distance for the shortest solution:
+
+```{r}
+# Let's see what the difference in distance is
+lcd2$dist - lcd$dist
+```
+
+Create a new samc object:
+```{r}
+# Our old absorption layer does not quite match our new resistance layer, so make a new one
+maze2_finish <- maze2 * 0
+maze2_finish[20, 20] <- 1
+
+samc_maze2 <- samc(maze2, maze2_finish, tr_args = tr)
+
+# Important: we have to rerun locate()
+start_maze2 <- locate(samc_maze2, data.frame(x = 1, y = 20))
+finish_maze2 <- locate(samc_maze2, data.frame(x = 20, y = 1))
+```
+
+An important thing to keep in mind: we modified where `NA` and non-`NA` cells are located in the map. This means that previous results from `locate()` are no longer guaranteed to be valid. In this case, `start` is technically the same, but `finish` actually is not and will return incorrect results, or in special cases cause a crash.
+
+With that, we can begin exploring the different metric and compare them to the results from Part 1. Let's start with `survival()`:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+surv_maze2 <- survival(samc_maze2)
+
+maze_plot(map(samc_maze2, surv_maze2), "Expected time to finish (Maze 2)", viridis(256))
+```
+
+There are two noticeable changes. First, the expected time to finish is drastically decreased for our starting point:
+```{r}
+# Expected time to finish from the start
+surv_maze2[start]
+
+# The difference from our original maze
+surv_maze2[start] - survive[start]
+```
+
+The second change is the overall increase in expected time to finish when the individual is in the bottom left region of the maze because the shortcut can actually lead them away from the finish point when they are in this region. If the shortcut was asymmetric (i.e., one way), we would still see a drastic decrease in the time to finish for the starting point, but then the bottom left region would remain unchanged from our original example. This type of model setup is possible with the package, but not without directly providing the P matrix. Graph support in the future will make more complex scenarios like a one-way shortcut easier to setup.
+
+In Part 2, we saw that the inclusion of additional absorbing states changed the relationship between `survival()` and `cond_passage()`. Since we're back to a single absorbing state at the finish point, this relationship is restored:
+```{r}
+cond_maze2 <- cond_passage(samc_maze2, dest = finish_maze2)
+cond_maze2[start]
+```
+
+In Part 2, we also saw that including additional absorbing states affected the probability of cells being visited. Modifying the maze to have multiple routes also has significant ramifications:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+disp_maze2 <- dispersal(samc_maze2, origin = start_maze2)
+
+maze_plot(map(samc_maze2, disp_maze2), "Probability of Visit (Maze 2)", viridis(256))
+```
+
+Notably, we again can no longer easily discern the optimal route through the maze by looking for cells with a probability of 1. But we can still get a partial path like Part 2:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+# Ideally, we would just use `as.numeric(disp == 1)`, but we have floating point precision issues here, so we will approximate it
+disp_maze2_sol <- as.numeric(abs(disp_maze2 - 1) < tolerance)
+
+maze_plot(map(samc_maze2, disp_maze2_sol), "Partial solution (Maze 2)", vir_col)
+```
+
+In this case, we're getting the solution for the regions outside of the loop created by the shortcut.
+
+
 ## Future Work
 
-Parts of this series may be rewritten, further expanded on, and/or reorganized in the future. Additionally, when igraph support is added to the package, the series will be expanded with an example illustrating construction of the maze using a graph.
+Parts of this series may be rewritten, further expanded on, and/or reorganized in the future. Additionally, when igraph support is added to the package, the series will be expanded with an example illustrating construction of a maze using a graph.
