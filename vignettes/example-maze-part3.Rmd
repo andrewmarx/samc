@@ -1,0 +1,106 @@
+---
+title: "Maze Part 3"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Maze Part 3}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+required <- c("viridisLite")
+if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
+
+library(samc)
+library(raster)
+library(gdistance)
+library(viridisLite)
+
+maze_plot <- function(map, title, colors) {
+  sf <- xyFromCell(map, c(1, length(map)))
+
+  plot(map, main = title, col = colors, axes = FALSE, box = FALSE, asp = 1)
+  plot(rasterToPolygons(map), border = 'black', lwd = 1, add = TRUE)
+  points(sf, pch = c('S', 'F'), cex = 1, font = 2)
+}
+
+maze = matrix(
+  c(1,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,1,0,1,
+    1,1,1,1,0,1,0,1,0,0,1,1,1,0,1,1,0,1,1,1,
+    1,0,0,1,0,1,0,1,1,0,1,0,1,0,0,1,0,0,1,0,
+    1,1,0,0,0,1,0,0,0,0,0,0,1,1,0,1,0,1,1,1,
+    0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,
+    1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,
+    0,0,0,0,0,1,0,0,0,1,1,0,1,1,1,0,0,1,0,1,
+    1,1,0,1,1,1,1,1,0,0,1,0,0,1,0,0,1,1,1,1,
+    0,1,0,1,0,0,0,1,1,1,1,1,0,1,1,0,1,0,1,0,
+    1,1,0,1,0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,1,
+    0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,1,
+    1,1,0,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0,1,1,
+    0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0,1,
+    0,0,0,0,1,0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,
+    1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,0,0,1,1,0,
+    1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,
+    1,1,1,1,0,1,0,0,0,1,1,0,1,1,0,1,1,1,1,0,
+    0,1,0,1,0,1,1,1,0,0,0,0,0,1,0,1,0,1,0,0,
+    0,0,0,1,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,1,
+    1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,0,1),
+  nrow = 20, byrow = TRUE
+)
+
+maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(maze) + 0.5)
+maze[maze==0] <- NA
+
+#
+# Get info about the shortest path through the maze using gdistance
+#
+lcd <- (function() {
+  points <- xyFromCell(maze, c(1, 400))
+
+  tr <- transition(maze, function(x) 1/mean(x), 4)
+  tr <- geoCorrection(tr)
+
+  list(dist = costDistance(tr, points),
+       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
+})()
+
+# Setup a simple color palette
+vir_col <- viridis(3)[2:3]
+
+# End of maze
+maze_finish <- maze * 0
+maze_finish[20, 20] <- 1
+
+tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
+
+samc_obj <- samc(maze, maze_finish, tr_args = tr)
+
+start <- locate(samc_obj, data.frame(x = 1, y = 20))
+finish <- locate(samc_obj, data.frame(x = 20, y = 1))
+
+tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
+```
+
+
+## Introduction
+
+In the third part of the series, we take our perfect maze with only a single solution and modify it so that it now has more than one solution. We then take all of the changes introduced in the series and combine them into a single complex example.
+
+
+## Setup
+
+This example reuses the [libraries](example-maze-part1.html#libraries1), [setup](example-maze-part1.html#setup1), and original [samc object](example-maze-part1.html#create-the-samc-object-1) code from Part 1. Later, we will reuse the various modifications introduced in [Part 2](example-maze-part2.html).
+
+
+## Future Work
+
+Parts of this series may be rewritten, further expanded on, and/or reorganized in the future. Additionally, when igraph support is added to the package, the series will be expanded with an example illustrating construction of the maze using a graph.
