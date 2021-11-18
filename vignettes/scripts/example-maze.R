@@ -1,9 +1,14 @@
-# Copyright (c) 2020 Andrew Marx. All rights reserved.
+# Copyright (c) 2021 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
 # This script is the source of the code for maze example vignettes
-# The lines with `@knitr` are for processing by rmarkdown and can be ignored by users
+# The lines with `@knitr` are for processing by knitr
 
+
+## @knitr Part1
+#
+# Part 1 ----
+#
 
 ## @knitr library
 library(samc)
@@ -67,15 +72,23 @@ lcd <- (function() {
        path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
 })()
 
+# Basic maze layout
+maze_plot(maze, "Resistance", vir_col[1])
+lines(lcd$path, col = vir_col[2], lw = 3)
+
 
 ## @knitr abs_map
 # End of maze
 maze_finish <- maze * 0
 maze_finish[20, 20] <- 1
 
+maze_plot(maze_finish, "Absorption", vir_col)
+
 
 ## @knitr tolerance
 tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
+
+print(tolerance)
 
 
 ## @knitr samc_obj
@@ -90,41 +103,76 @@ finish <- locate(samc_obj, data.frame(x = 20, y = 1))
 ## @knitr survive
 survive <- survival(samc_obj)
 
+maze_plot(map(samc_obj, survive), "Expected time to finish", viridis(256))
+
+
+## @knitr survive_1
+survive[start]
+
 
 ## @knitr cond_pass
 cond <- cond_passage(samc_obj, dest = finish)
+
+cond[start]
 
 
 ## @knitr disp
 disp <- dispersal(samc_obj, origin = start)
 
+maze_plot(map(samc_obj, disp), "Probability of Visit", viridis(256))
+
 
 ## @knitr disp_sol
-# Ideally, we would just use `as.numeric(disp == 1)`, but we have floating point precision issues here, so we will approximate it
+# Ideally would use `as.numeric(disp == 1)`, but floating point precision issues force an approximation
 disp_sol <- as.numeric(abs(disp - 1) < tolerance)
+
+maze_plot(map(samc_obj, disp_sol), "Solution Using Dispersal()", vir_col)
+
+
+## @knitr disp_sol1
+disp[start]
 
 
 ## @knitr visit
 visit <- visitation(samc_obj, origin = start)
 
+maze_plot(map(samc_obj, visit), "Visits Per Cell", viridis(256))
+
+
+## @knitr visit1
+visit[finish]
+
 
 ## @knitr dist
 dist <- distribution(samc_obj, origin = start, time = 20)
 
+maze_plot(map(samc_obj, dist), "Location at t=20", col = viridis(256))
+
 
 ## @knitr dist2
 dist <- distribution(samc_obj, origin = start, time = 21)
+
+maze_plot(map(samc_obj, dist), "Location at t=21", viridis(256))
 
 
 ## @knitr occ
 maze_occ <- maze * 0
 maze_occ[1, 1] <- 1
 
+maze_plot(maze_occ, "Occupancy", vir_col)
+
 
 ## @knitr occ3_1
 # Scenario 1: 3 people start in the maze
 maze_occ3 <- maze * 0
 maze_occ3[1, 1] <- 3
+
+survival(samc_obj, occ = maze_occ3)
+
+
+## @knitr occ3_1_1
+survival(samc_obj, occ = maze_occ3) / 3
+
 
 
 ## @knitr occ3_2
@@ -134,8 +182,26 @@ maze_occ3[1, 1] <- 1
 maze_occ3[20, 1] <- 1
 maze_occ3[1, 20] <- 1
 
+maze_plot(maze_occ, "Occupancy", vir_col)
+
+survival(samc_obj, occ = maze_occ3)
 
 
+## @knitr occ3_2_1
+survival(samc_obj, occ = maze_occ3) / 3
+
+
+## @knitr p1_10
+dist <- distribution(samc_obj, occ = maze_occ3, time = 17)
+
+# This makes it easier to see how far along the individuals could be
+dist <- as.numeric(dist > 0)
+
+maze_plot(map(samc_obj, dist), "Location at t=17", viridis(256))
+
+
+
+## @knitr Part2
 #
 # Part 2 ----
 #
@@ -146,6 +212,7 @@ maze_ints <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, 
 maze_ints[is.na(maze)] <- NA
 maze_ints <- maze_ints * 0.1
 
+maze_plot(maze_ints, "Intersections", vir_col)
 
 ## @knitr samc_ints
 samc_ints <- samc(maze, maze_finish, maze_ints, tr_args = tr)
@@ -178,3 +245,10 @@ samc_traps <- samc(maze, abs_total, tr_args = tr)
 
 ## @knitr mort_traps
 mort_traps <- mortality(samc_traps, origin = start)
+
+
+
+## @knitr Part3
+#
+# Part 3 ----
+#
