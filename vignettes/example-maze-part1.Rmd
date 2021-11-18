@@ -19,6 +19,8 @@ required <- c("viridisLite")
 if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
   knitr::opts_chunk$set(eval = FALSE)
 }
+
+do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
 ```
 
 
@@ -30,10 +32,7 @@ This example shows how to use and interpret different absorbing Markov chain met
 ## Libraries
 
 ```{r, message = FALSE}
-library(samc)
-library(raster)
-library(gdistance)
-library(viridisLite)
+<<library>>
 ```
 
 
@@ -41,61 +40,17 @@ library(viridisLite)
 
 To start, we're going to create a function to reduce redundant plotting code in our examples:
 ```{r}
-maze_plot <- function(map, title, colors) {
-  # start = 1 (top left), finish = last element (bottom right)
-  sf <- xyFromCell(map, c(1, length(map)))
-
-  plot(map, main = title, col = colors, axes = FALSE, box = FALSE, asp = 1)
-  plot(rasterToPolygons(map), border = 'black', lwd = 1, add = TRUE)
-  points(sf, pch = c('S', 'F'), cex = 1, font = 2)
-}
+<<maze_plot>>
 ```
 
 Next, we'll create a quick color palette for when we only need one or two colors in our figures:
 ```{r}
-# A simple color palette with 2 colors
-vir_col <- viridis(3)[2:3]
+<<vir_col>>
 ```
 
 Next, let's setup up a resistance map for our maze and get some info about the solution:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-maze = matrix(
-  c(1,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,1,0,1,
-    1,1,1,1,0,1,0,1,0,0,1,1,1,0,1,1,0,1,1,1,
-    1,0,0,1,0,1,0,1,1,0,1,0,1,0,0,1,0,0,1,0,
-    1,1,0,0,0,1,0,0,0,0,0,0,1,1,0,1,0,1,1,1,
-    0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,
-    1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,
-    0,0,0,0,0,1,0,0,0,1,1,0,1,1,1,0,0,1,0,1,
-    1,1,0,1,1,1,1,1,0,0,1,0,0,1,0,0,1,1,1,1,
-    0,1,0,1,0,0,0,1,1,1,1,1,0,1,1,0,1,0,1,0,
-    1,1,0,1,0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,1,
-    0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,1,
-    1,1,0,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0,1,1,
-    0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0,1,
-    0,0,0,0,1,0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,
-    1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,0,0,1,1,0,
-    1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,
-    1,1,1,1,0,1,0,0,0,1,1,0,1,1,0,1,1,1,1,0,
-    0,1,0,1,0,1,1,1,0,0,0,0,0,1,0,1,0,1,0,0,
-    0,0,0,1,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,1,
-    1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,0,1),
-  nrow = 20, byrow = TRUE
-)
-
-maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(maze) + 0.5)
-maze[maze==0] <- NA # 0 makes the formatting cleaner above, but NA is needed for true barriers
-
-# Get info about the shortest path through the maze using gdistance
-lcd <- (function() {
-  points <- xyFromCell(maze, c(1, 400))
-
-  tr <- transition(maze, function(x) 1/mean(x), 4)
-  tr <- geoCorrection(tr)
-
-  list(dist = costDistance(tr, points),
-       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
-})()
+<<res_map>>
 
 # Basic maze layout
 maze_plot(maze, "Resistance", vir_col[1])
@@ -104,28 +59,22 @@ lines(lcd$path, col = vir_col[2], lw = 3)
 
 Then, create an absorption map where the finish point is our only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left.
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# End of maze
-maze_finish <- maze * 0
-maze_finish[20, 20] <- 1
+<<abs_map>>
 
 maze_plot(maze_finish, "Absorption", vir_col)
 ```
 
 Finally, given the nature of some of the calculations performed by the package, it's sometimes possible for floating point precision issues to arise where equality comparisons between two decimal values don't yield expected results. It's an unfortunate limitation of all computer hardware and is why functions like `all.equal()` exist in base R. Unfortunately, there isn't a base function available for some of the specific comparisons we want to perform, so we will manually have to do it. In order to do so, we will need a tolerance value and will use the default tolerance used by `all.equal()`:
 ```{r}
-tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
+<<tolerance>>
+
 print(tolerance)
 ```
 
 ## Create the `samc` Object
 
 ```{r}
-tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
-
-samc_obj <- samc(maze, maze_finish, tr_args = tr)
-
-start <- locate(samc_obj, data.frame(x = 1, y = 20))
-finish <- locate(samc_obj, data.frame(x = 20, y = 1))
+<<samc_obj>>
 ```
 
 The data has been setup to assume a simple random walk. There is no "memory" of the past to stop the individual from going back to dead ends, there is no ability to "look ahead" and see dead ends, and the individual will always move to a different cell every time step.
@@ -140,7 +89,7 @@ We also get the start and finish locations from the samc object. It's important 
 First, we simply want to know how long we expect it to take for someone to finish the maze. The `survival()` function calculates the expected time to absorption. Since the maze has only one absorption point representing the finish point, this means that`survival()` can be interpreted as the expected time to finish the maze.
 
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-survive <- survival(samc_obj)
+<<survive>>
 
 maze_plot(map(samc_obj, survive), "Expected time to finish", viridis(256))
 ```
@@ -152,7 +101,8 @@ survive[start]
 
 When there is only a single point of total absorption, like this example, `survival()` and `cond_passage()` are nearly identical when the destination for `cond_passage()` is set to the point of absorption (the finish point):
 ```{r}
-cond <- cond_passage(samc_obj, dest = finish)
+<<cond_pass>>
+
 cond[start]
 ```
 
@@ -167,7 +117,7 @@ A couple things to keep in mind:
 
 If we're interested in knowing the probability that a particular cell (or cells) is visited at least once, then we can use the `dispersal()` function:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-disp <- dispersal(samc_obj, origin = start)
+<<disp>>
 
 maze_plot(map(samc_obj, disp), "Probability of Visit", viridis(256))
 ```
@@ -176,8 +126,7 @@ In order to complete the maze, the individual has to visit every cell along the 
 
 If you didn't catch it in the previous paragraph, we can use our results from the `dispersal()` function to identify the route through the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Ideally, we would just use `as.numeric(disp == 1)`, but we have floating point precision issues here, so we will approximate it
-disp_sol <- as.numeric(abs(disp - 1) < tolerance)
+<<disp_sol>>
 
 maze_plot(map(samc_obj, disp_sol), "Solution Using Dispersal()", vir_col)
 ```
@@ -192,7 +141,7 @@ disp[start]
 
 The package can be used to see how many times each cell in the maze is expected to be visited on average. This is done using the `visitation()` metric:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-visit <- visitation(samc_obj, origin = start)
+<<visit>>
 
 maze_plot(map(samc_obj, visit), "Visits Per Cell", viridis(256))
 ```
@@ -207,14 +156,14 @@ visit[finish]
 
 Using the `distribution()` function, we can predict where an individual might be in the maze at a given time:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-dist <- distribution(samc_obj, origin = start, time = 20)
+<<dist>>
 
 maze_plot(map(samc_obj, dist), "Location at t=20", col = viridis(256))
 ```
 
 Notice something odd? Let's increment time from 20 to 21:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-dist <- distribution(samc_obj, origin = start, time = 21)
+<<dist2>>
 
 maze_plot(map(samc_obj, dist), "Location at t=21", viridis(256))
 ```
@@ -231,9 +180,7 @@ There are a couple metrics that have not been covered yet: `absorption()` and `m
 
 Many of the metrics offer a more advanced and flexible option for setting an initial state in the absorbing Markov chain. Inputs to the `occ` parameter (short for occupancy) can essentially be used as an alternative to the origin parameter. Here is an example `occ` map that represents the scenario we have been testing so far:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# End of maze
-maze_occ <- maze * 0
-maze_occ[1, 1] <- 1
+<<occ>>
 
 maze_plot(maze_occ, "Occupancy", vir_col)
 ```
@@ -247,34 +194,28 @@ survive[start]
 
 But now, we can do test more interesting scenarios. Let's try putting 3 people at the start of the maze:
 ```{r, fig.show='hold'}
-# Scenario 1: 3 people start in the maze
-maze_occ <- maze * 0
-maze_occ[1, 1] <- 3
+<<occ3_1>>
 
-survival(samc_obj, occ = maze_occ)
+survival(samc_obj, occ = maze_occ3)
 ```
 
 The interpretation becomes a little trickier here. The `survival()` metric is essentially calculating the cumulative time spent in the maze for *all* the individuals. This means that with 3 people starting at the beginning, 3 times as much time is going to be spent in the maze, but that per person, it will still take the same number of time steps to finish as before:
 ```{r}
-survival(samc_obj, occ = maze_occ) / 3
+survival(samc_obj, occ = maze_occ3) / 3
 ```
 
 Here's another scenario where we have 3 people again, but now they start in different corners of the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Scenario 2: A person starts in each corner of the maze
-maze_occ <- maze * 0
-maze_occ[1, 1] <- 1
-maze_occ[20, 1] <- 1
-maze_occ[1, 20] <- 1
+<<occ3_2>>
 
 maze_plot(maze_occ, "Occupancy", vir_col)
 
-survival(samc_obj, occ = maze_occ)
+survival(samc_obj, occ = maze_occ3)
 ```
 
 Again, we see that the cumulative time spent in the maze is larger than what we had in the original 1 person scenario. However, this time the average time per person spent in the maze decreases:
 ```{r, fig.show='hold'}
-survival(samc_obj, occ = maze_occ) / 3
+survival(samc_obj, occ = maze_occ3) / 3
 ```
 
 This is because the additional people are now located in corners that are substantially closer to the finish point, so they would be expected to find it faster on average. Just looking at the maze, we might expect that the person starting in the bottom left has the biggest advantage. We can try to visualize this by playing with the time steps parameter in the `distrbution()` metric:

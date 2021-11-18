@@ -20,95 +20,23 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
   knitr::opts_chunk$set(eval = FALSE)
 }
 
-library(samc)
-library(raster)
-library(gdistance)
-library(viridisLite)
+do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
+```
 
-maze_plot <- function(map, title, colors) {
-  sf <- xyFromCell(map, c(1, length(map)))
+```{r include = FALSE}
+<<library>>
+<<maze_plot>>
+<<vir_col>>
+<<res_map>>
+<<abs_map>>
+<<tolerance>>
+<<samc_obj>>
+<<survive>>
 
-  plot(map, main = title, col = colors, axes = FALSE, box = FALSE, asp = 1)
-  plot(rasterToPolygons(map), border = 'black', lwd = 1, add = TRUE)
-  points(sf, pch = c('S', 'F'), cex = 1, font = 2)
-}
-
-maze = matrix(
-  c(1,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,1,0,1,
-    1,1,1,1,0,1,0,1,0,0,1,1,1,0,1,1,0,1,1,1,
-    1,0,0,1,0,1,0,1,1,0,1,0,1,0,0,1,0,0,1,0,
-    1,1,0,0,0,1,0,0,0,0,0,0,1,1,0,1,0,1,1,1,
-    0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,
-    1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,
-    0,0,0,0,0,1,0,0,0,1,1,0,1,1,1,0,0,1,0,1,
-    1,1,0,1,1,1,1,1,0,0,1,0,0,1,0,0,1,1,1,1,
-    0,1,0,1,0,0,0,1,1,1,1,1,0,1,1,0,1,0,1,0,
-    1,1,0,1,0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,1,
-    0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,1,
-    1,1,0,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0,1,1,
-    0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0,1,
-    0,0,0,0,1,0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,
-    1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,0,0,1,1,0,
-    1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,
-    1,1,1,1,0,1,0,0,0,1,1,0,1,1,0,1,1,1,1,0,
-    0,1,0,1,0,1,1,1,0,0,0,0,0,1,0,1,0,1,0,0,
-    0,0,0,1,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,1,
-    1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,0,1),
-  nrow = 20, byrow = TRUE
-)
-
-maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(maze) + 0.5)
-maze[maze==0] <- NA
-
-#
-# Get info about the shortest path through the maze using gdistance
-#
-lcd <- (function() {
-  points <- xyFromCell(maze, c(1, 400))
-
-  tr <- transition(maze, function(x) 1/mean(x), 4)
-  tr <- geoCorrection(tr)
-
-  list(dist = costDistance(tr, points),
-       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
-})()
-
-# Setup a simple color palette
-vir_col <- viridis(3)[2:3]
-
-# End of maze
-maze_finish <- maze * 0
-maze_finish[20, 20] <- 1
-
-tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
-
-samc_obj <- samc(maze, maze_finish, tr_args = tr)
-
-start <- locate(samc_obj, data.frame(x = 1, y = 20))
-finish <- locate(samc_obj, data.frame(x = 20, y = 1))
-
-tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
-
-# Intersections determined using a moving window function
-maze_ints <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) > 3}, pad = TRUE)
-maze_ints[is.na(maze)] <- NA
-maze_ints <- maze_ints * 0.1
-
-# Dead ends
-maze_ends <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) == 2}, pad = TRUE)
-maze_ends[is.na(maze)] <- NA
-maze_ends <- maze_ends * 9 + 1
-maze_ends[20, 20] <- 1
-
-# Traps absorption layer
-maze_traps <- maze * 0
-maze_traps[17, 3] <- 0.2
-maze_traps[1, 9] <- 0.2
-maze_traps[6, 20] <- 0.2
-
-abs_total <- maze_finish + maze_traps
-
-samc_traps <- samc(maze, abs_total, tr_args = tr)
+<<maze_ints>>
+<<maze_ends>>
+<<maze_traps>>
+<<mort_traps>>
 ```
 
 
@@ -256,30 +184,26 @@ Similar to Part 2, the presence of additional absorbing states (the traps), dras
 
 Next is a complete overview of the difference results for `survival()` and `cond_passage()`:
 ```{r}
-# Our original results from Part 1
-cat("Original\n")
+# Original results (Part 1)
 survival(samc_obj)[start]
 cond_passage(samc_obj, start, finish)
 
-# Our results with traps
-cat("\nTraps\n")
+# Results with traps (Part 2)
 survival(samc_traps)[start]
 cond_passage(samc_traps, start, finish)
 
-# Our results with a shortcut
-cat("\nShortcut\n")
+# Results with a shortcut
 survival(samc_maze2)[start_maze2]
 cond_passage(samc_maze2, start_maze2, finish_maze2)
 
 # Results with everything
-cat("\nEverything\n")
 survival(samc_all)[start_maze_all]
 cond_passage(samc_all, start_maze_all, finish_maze_all)
 ```
 
 The presence of both the traps and the shortcut have a cumulative effect on both metrics; the time to absorption decreases, as does the time to conditional first passage (the time to finish assuming the individual is not absorbed elsewhere).
 
-We can compare the traps-only version of the maze to our cumulative maze using the mortality() metric to see how introducing the shortcut affects the probability of finishing the maze vs being absorbed in the traps:
+We can compare the traps-only version of the maze to our cumulative maze using the `mortality()` metric to see how introducing the shortcut affects the probability of finishing the maze vs being absorbed in the traps:
 ```{r}
 mort_traps[mort_traps > 0]
 

@@ -20,74 +20,18 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
   knitr::opts_chunk$set(eval = FALSE)
 }
 
-library(samc)
-library(raster)
-library(gdistance)
-library(viridisLite)
+do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
+```
 
-maze_plot <- function(map, title, colors) {
-  sf <- xyFromCell(map, c(1, length(map)))
-
-  plot(map, main = title, col = colors, axes = FALSE, box = FALSE, asp = 1)
-  plot(rasterToPolygons(map), border = 'black', lwd = 1, add = TRUE)
-  points(sf, pch = c('S', 'F'), cex = 1, font = 2)
-}
-
-maze = matrix(
-  c(1,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,1,0,1,
-    1,1,1,1,0,1,0,1,0,0,1,1,1,0,1,1,0,1,1,1,
-    1,0,0,1,0,1,0,1,1,0,1,0,1,0,0,1,0,0,1,0,
-    1,1,0,0,0,1,0,0,0,0,0,0,1,1,0,1,0,1,1,1,
-    0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,
-    1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,
-    0,0,0,0,0,1,0,0,0,1,1,0,1,1,1,0,0,1,0,1,
-    1,1,0,1,1,1,1,1,0,0,1,0,0,1,0,0,1,1,1,1,
-    0,1,0,1,0,0,0,1,1,1,1,1,0,1,1,0,1,0,1,0,
-    1,1,0,1,0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,1,
-    0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,1,
-    1,1,0,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0,1,1,
-    0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0,1,
-    0,0,0,0,1,0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,
-    1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,0,0,1,1,0,
-    1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,
-    1,1,1,1,0,1,0,0,0,1,1,0,1,1,0,1,1,1,1,0,
-    0,1,0,1,0,1,1,1,0,0,0,0,0,1,0,1,0,1,0,0,
-    0,0,0,1,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,1,
-    1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,0,1),
-  nrow = 20, byrow = TRUE
-)
-
-maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(maze) + 0.5)
-maze[maze==0] <- NA
-
-#
-# Get info about the shortest path through the maze using gdistance
-#
-lcd <- (function() {
-  points <- xyFromCell(maze, c(1, 400))
-
-  tr <- transition(maze, function(x) 1/mean(x), 4)
-  tr <- geoCorrection(tr)
-
-  list(dist = costDistance(tr, points),
-       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
-})()
-
-# Setup a simple color palette
-vir_col <- viridis(3)[2:3]
-
-# End of maze
-maze_finish <- maze * 0
-maze_finish[20, 20] <- 1
-
-tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
-
-samc_obj <- samc(maze, maze_finish, tr_args = tr)
-
-start <- locate(samc_obj, data.frame(x = 1, y = 20))
-finish <- locate(samc_obj, data.frame(x = 20, y = 1))
-
-tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
+```{r include = FALSE}
+<<library>>
+<<maze_plot>>
+<<vir_col>>
+<<res_map>>
+<<abs_map>>
+<<tolerance>>
+<<samc_obj>>
+<<survive>>
 ```
 
 
@@ -104,17 +48,14 @@ This example reuses the [libraries](example-maze-part1.html#libraries1), [setup]
 
 We'll start by incorporating fidelity into the samc object. In Part 1, transitions always occurred from one cell to a different neighboring cell. With fidelity, we have the ability for transitions to occur from a cell to itself; essentially, there's no movement over the course of a time step. There are potentially many different ways that fidelity could be applied to the maze, but we'll keep things simple by using it to create a delay in movement at intersections. The goal will be to model hesitancy when the individual is presented with the choice of three or more paths. For simplicity, we'll only set the fidelity at all intersections to the same `0.1` value, which basically means that once an individual is at an intersection, there is a 10% probability that they will stay in the intersection from one time step to the next.
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Intersections determined using a moving window function
-maze_ints <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) > 3}, pad = TRUE)
-maze_ints[is.na(maze)] <- NA
-maze_ints <- maze_ints * 0.1
+<<maze_ints>>
 
 maze_plot(maze_ints, "Intersections", vir_col)
 ```
 
 Fidelity changes the $P$ matrix underlying the samc object, which means we have to create a new samc object:
 ```{r}
-samc_ints <- samc(maze, maze_finish, maze_ints, tr_args = tr)
+<<samc_ints>>
 ```
 
 To start, let's see how the new fidelity input affects our expected time to finish:
@@ -195,18 +136,14 @@ maze_plot(map(samc_obj, dist), "Location at t=201", viridis(256))
 
 Technically, the package doesn't offer the ability to "look ahead" at future states to adjust the transition probabilities. In other words, if a route would eventually lead to a dead end, there's nothing in the `samc()` function or the metric functions to account for that or model the possibility that an individual in the maze can see down a hallway. We can, however, fake it somewhat by adjusting the resistance map so that the dead ends have a much higher resistance. This will reduce the probability of an individual entering a dead end, almost as if they looked ahead. We can use a sliding window function to create this new map:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Dead ends
-maze_ends <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) == 2}, pad = TRUE)
-maze_ends[is.na(maze)] <- NA
-maze_ends <- maze_ends * 9 + 1
-maze_ends[20, 20] <- 1
+<<maze_ends>>
 
 maze_plot(maze_ends, "Dead Ends", vir_col)
 ```
 
 We have given the dead ends a resistance value of 10, which is relatively high and means that dead ends will only rarely be entered. Since we've modified our resistance map, we need to update the samc object. We will not use our fidelity data from the previous section, which will allow us to compare directly against the model created in Part 1.
 ```{r}
-samc_ends <- samc(maze_ends, maze_finish, tr_args = tr)
+<<samc_ends>>
 ```
 
 Hypothetically, since an individual can now "look ahead", they should be able to get through the maze faster because they are spending less time in dead ends. We can see this easily:
@@ -241,20 +178,14 @@ It's fairly to trivial to add lethal traps to our maze; it just requires updatin
 
 The choice really depends on the data available and the goals of the project. For example, the former strategy is useful if we've somehow measured total absorption for a model and want to explore different hypotheses for how it breaks down into different types of absorption. The former is useful if we already have direct knowledge of different sources of absorption. For this example, we're going with the latter; we already have one absorption component for our finish point, and now we are going to create a second simple one that represents a few traps with a 0.2 or 20% absorption probability:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Traps absorption layer
-maze_traps <- maze * 0
-maze_traps[17, 3] <- 0.2
-maze_traps[1, 9] <- 0.2
-maze_traps[6, 20] <- 0.2
+<<maze_traps>>
 
 maze_plot(maze_traps, "Traps", vir_col)
 ```
 
 In order to use this, we will have to create a new samc object:
 ```{r}
-abs_total <- maze_finish + maze_traps
-
-samc_traps <- samc(maze, abs_total, tr_args = tr)
+<<samc_traps>>
 ```
 
 We're again only modifying the basic example from Part 1 for easy comparison. Like our other changes, let's see how long we now expect it to take for an individual to finish the maze:
@@ -297,7 +228,7 @@ It shows us part of the solution we saw before, but only up to the first maze in
 
 The inclusion of multiple absorption states now allows us to explore metrics that were not useful of Part 1. Starting with `mortality()`, we can visualize where we would expect the individual to be absorbed:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-mort_traps <- mortality(samc_traps, origin = start)
+<<mort_traps>>
 
 maze_plot(map(samc_traps, mort_traps), "Absorption Probability", viridis(256))
 ```
