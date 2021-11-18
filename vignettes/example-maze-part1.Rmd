@@ -26,7 +26,7 @@ do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
 
 ## Introduction
 
-This example shows how to use and interpret different absorbing Markov chain metrics with a perfect maze. A perfect maze is a maze that has no loops, every point is reachable, and there is only a single path between any two points. The advantage of an example like this is that it makes it easier to visually and numerically reason about what the package is doing.
+This example shows how to use and interpret different absorbing Markov chain metrics with a *perfect maze*. A perfect maze is a maze that has no loops, every point is reachable, and there is only a single path between any two points. The motivation for this type of example is that is fun and interesting while having very simple properties that make it easy to visually and numerically interpret the results of the different metrics available in the package.
 
 
 ## Libraries
@@ -38,17 +38,17 @@ This example shows how to use and interpret different absorbing Markov chain met
 
 ## Setup
 
-To start, we're going to create a function to reduce redundant plotting code in our examples:
+Create a function to reduce redundant plotting code and make the examples easier to read:
 ```{r}
 <<maze_plot>>
 ```
 
-Next, we'll create a quick color palette for when we only need one or two colors in our figures:
+Create a simple color palette for when only one or two colors are needed in a figure:
 ```{r}
 <<vir_col>>
 ```
 
-Next, let's setup up a resistance map for our maze and get some info about the solution:
+Setup up a resistance map representing the maze and use the `gdistance` package to get information about the solution (the shortest path). Assume the start is the top left and the finish is the bottom right:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<res_map>>
 
@@ -57,44 +57,45 @@ maze_plot(maze, "Resistance", vir_col[1])
 lines(lcd$path, col = vir_col[2], lw = 3)
 ```
 
-Then, create an absorption map where the finish point is our only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left.
+Create an absorption map where the finish point is the only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left for another cell in the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<abs_map>>
 
 maze_plot(maze_finish, "Absorption", vir_col)
 ```
 
-Finally, given the nature of some of the calculations performed by the package, it's sometimes possible for floating point precision issues to arise where equality comparisons between two decimal values don't yield expected results. It's an unfortunate limitation of all computer hardware and is why functions like `all.equal()` exist in base R. Unfortunately, there isn't a base function available for some of the specific comparisons we want to perform, so we will manually have to do it. In order to do so, we will need a tolerance value and will use the default tolerance used by `all.equal()`:
+Given the nature of some of the calculations performed by the package, it's sometimes possible for floating point precision issues to arise where equality comparisons between two decimal values don't yield expected results. It's an unfortunate limitation of all computer hardware and is why functions like `all.equal()` exist in base R. Unfortunately, there isn't a base function available for the specific comparisons we want to perform, so we will manually have to do it. In order to do so, we will need a tolerance value and will use the default tolerance used by `all.equal()`:
 ```{r}
 <<tolerance>>
 
 print(tolerance)
 ```
 
-## Create the `samc` Object
 
+## Create the `samc` object
+
+With the resistance and absorption maps prepared, a samc object can be created:
 ```{r}
 <<samc_obj>>
 ```
 
-The data has been setup to assume a simple random walk. There is no "memory" of the past to stop the individual from going back to dead ends, there is no ability to "look ahead" and see dead ends, and the individual will always move to a different cell every time step.
+The model represented by this samc object has been setup to assume a simple random walk. There is no "memory" of the past to stop the individual from going back to dead ends, there is no ability to "look ahead" and see dead ends, and the individual will always move to a different cell every time step.
 
-Note the use of only four directions. This prevents diagonal movements in the maze, which in turn will have important consequences for short-term metrics (shown later).
+Note the use of only four directions. This prevents diagonal movements in the maze, which in turn will have important consequences for short-term metrics (discussed later).
 
-We also get the start and finish locations from the samc object. It's important to remember that the results from `xyFromCell()` (used above) do *NOT* work for samc objects; we must use the `locate()` function.
+The start and finish locations are obtained from the samc object using the `locate()` function. It's important to remember that the results from `xyFromCell()` (used above for the RasterLayer object) do *NOT* work for samc objects. Although the results from both functions may be equivalent in certain cases, they generally will not be equivalent and cannot be used interchangeably.
 
 
 ## Time to finish
 
-First, we simply want to know how long we expect it to take for someone to finish the maze. The `survival()` function calculates the expected time to absorption. Since the maze has only one absorption point representing the finish point, this means that`survival()` can be interpreted as the expected time to finish the maze.
-
+We will start with determining how long, on average, it would be expected for a single individual to finish the maze. Formally, the `survival()` function calculates the expected time to absorption, but since the maze has only one absorption point representing the finish point, this means that, in this example, `survival()` can be interpreted as the expected time to finish the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<survive>>
 
 maze_plot(map(samc_obj, survive), "Expected time to finish", viridis(256))
 ```
 
-The result actually shows us the expected time to finish for every point in the maze. If we're interested in just the start point, we can extract that information from the vector:
+The result is a vector with the expected time to absorption, or finish, for every point in the maze, not just the top left start point. The start location can be used to extract that information from the vector:
 ```{r}
 survive[start]
 ```
@@ -146,7 +147,7 @@ The package can be used to see how many times each cell in the maze is expected 
 maze_plot(map(samc_obj, visit), "Visits Per Cell", viridis(256))
 ```
 
-It should go without saying, but the finish point will only be visited once:
+Since the maze ends at the finish point with a total absorbing state, the finish will only be visited once, after which, it will be absorbed:
 ```{r}
 visit[finish]
 ```
