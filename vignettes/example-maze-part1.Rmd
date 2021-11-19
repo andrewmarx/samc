@@ -28,6 +28,8 @@ do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
 
 This example shows how to use and interpret different absorbing Markov chain metrics with a *perfect maze*. A perfect maze is a maze that has no loops, every point is reachable, and there is only a single path between any two points. The motivation for this type of example is that is fun and interesting while having very simple properties that make it easy to visually and numerically interpret the results of the different metrics available in the package.
 
+The complete code for this series is available on [Github](https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-maze.R).
+
 
 ## Libraries
 

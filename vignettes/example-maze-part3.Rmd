@@ -47,6 +47,8 @@ do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
 
 The third part of the series takes the perfect maze with only a single solution and modifies it so that it now has more than one solution. Afterwards, all of the changes introduced in the series are combined into a single complex example.
 
+The complete code for this series is available on [Github](https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-maze.R).
+
 
 ## Setup
 

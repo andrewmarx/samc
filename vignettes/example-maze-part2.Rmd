@@ -40,6 +40,9 @@ do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
 
 [Part 1](example-maze-part1.html) of this series explored the applications of absorbing Markov chains in the context of a simple perfect maze. This part of the series will expand on the simple maze in various ways and explore how these changes affect interpretations of the different metrics offered in the samc package.
 
+The complete code for this series is available on [Github](https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-maze.R).
+
+
 ## Setup
 
 Part 2 reuses the code from [Part 1](example-maze-part2.html).
