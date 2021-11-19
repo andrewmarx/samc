@@ -113,6 +113,9 @@
     <li>
       <a href="../articles/example-maze-part2.html">Maze (Part 2)</a>
     </li>
+    <li>
+      <a href="../articles/example-maze-part3.html">Maze (Part 3)</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -139,13 +142,13 @@
 
       
 
-      </header><script src="overview_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><script src="overview_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Overview</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2021-11-01</h4>
+            <h4 class="date">2021-11-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/overview.Rmd"><code>vignettes/overview.Rmd</code></a></small>
       <div class="hidden name"><code>overview.Rmd</code></div>
@@ -352,11 +355,8 @@ Q &amp; R \\
 </ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span><span class="op">)</span>
-<span class="co">#&gt;  num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span><span class="op">)</span>
-<span class="co">#&gt;  num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span><span class="op">)</span>
-<span class="co">#&gt;  num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span>
 
 
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span>, xmn <span class="op">=</span> <span class="fl">1</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span><span class="op">)</span>, ymn <span class="op">=</span> <span class="fl">1</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span><span class="op">)</span><span class="op">)</span>,
@@ -367,7 +367,6 @@ Q &amp; R \\
 
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>, xmn <span class="op">=</span> <span class="fl">1</span>, xmx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">ncol</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span><span class="op">)</span>, ymn <span class="op">=</span> <span class="fl">1</span>, ymx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span><span class="op">)</span><span class="op">)</span>,
      main <span class="op">=</span> <span class="st">"Example Occupancy Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p><img src="overview_files/figure-html/unnamed-chunk-1-1.png" width="700"><img src="overview_files/figure-html/unnamed-chunk-1-2.png" width="700"><img src="overview_files/figure-html/unnamed-chunk-1-3.png" width="700"></p>
 </div>
   </div>
 

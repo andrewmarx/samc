@@ -1,0 +1,153 @@
+---
+title: "Maze Part 3"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Maze Part 3}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+required <- c("viridisLite")
+if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
+
+do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
+```
+
+```{r include = FALSE}
+<<1_library_1>>
+<<1_setup_1>>
+<<1_setup_2>>
+<<1_setup_3>>
+<<1_setup_4>>
+<<1_setup_5>>
+<<1_setup_6>>
+
+<<1_ttf_1>>
+
+<<2_fid_1>>
+<<2_fid_2>>
+<<2_end_1>>
+<<2_end_2>>
+<<2_traps_1>>
+<<2_traps_2>>
+<<2_add_1>>
+```
+
+
+## Introduction
+
+The third part of the series takes the perfect maze with only a single solution and modifies it so that it now has more than one solution. Afterwards, all of the changes introduced in the series are combined into a single complex example.
+
+The complete code for this series is available on [Github](https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-maze.R).
+
+
+## Setup
+
+Part 3 reuses the code from [Part 1](example-maze-part2.html) and [Part 2](example-maze-part2.html).
+
+
+## Shortcut
+
+To start, the original maze will be modified so that it has a new cell bridging previously existing cells. The location was chosen so that it effectively acts as a shortcut to the previous solution. To make things more interesting, it will be treated as a secret passage by giving it a high resistance value so that it is only rarely utilized. This is effectively the same method used to model dead end avoidance in Part 2, but here the interpretation is different because of where the high resistance is located.
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+<<3_short_1>>
+```
+
+Use `gdistance` to quickly verify the change in distance for the shortest solution:
+```{r}
+<<3_short_2>>
+```
+
+Since the structure of the resistance input has changed, the absorption input also has to be changed so that it has the same structure:
+```{r}
+<<3_short_3>>
+```
+
+With new resistance and absorption inputs, the samc object has to be recreated:
+```{r}
+<<3_short_4>>
+```
+
+An important thing to keep in mind: modifying where `NA` and non-`NA` cells are located in the map means that previous results from `locate()` are no longer guaranteed to be valid. In this case, `start` is technically the same, but `finish` is not and will return incorrect results, or in special cases even lead to a crash.
+
+With that, lets begin exploring the different metrics and compare them to the results from Part 1. Starting with `survival()`:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+<<3_short_5>>
+```
+
+There are two noticeable changes. First, the expected time to finish is drastically decreased for the starting point:
+```{r}
+<<3_short_6>>
+```
+
+The second change is the overall increase in expected time to finish when an individual is in the bottom left region of the maze because the shortcut can actually lead them away from the finish point when they are in this region. If the shortcut was asymmetric (i.e., one way), there would still be a drastic decrease in the time to finish for the starting point, but then the bottom left region would remain unchanged from the original maze. This type of model setup is possible with the package, but not without directly providing the P matrix. Graph support in the future will make more complex scenarios like a one-way shortcut easier to setup.
+
+Part 2 showed that the inclusion of additional absorbing states changes the relationship between `survival()` and `cond_passage()`. Since this example is back to a single absorbing state at the finish point, this relationship is restored:
+```{r}
+<<3_short_7>>
+```
+
+Part 2 also showed that including additional absorbing states affects the probability of cells being visited. Modifying the maze to have multiple routes also has significant ramifications:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+<<3_short_8>>
+```
+
+Notably, it is again no longer possible to discern the optimal route through the maze by looking for cells with a probability of `1.0`. But, like Part 2, a partial path can still be can still be identified:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+<<3_short_9>>
+```
+
+In this case, the result contains the solution for the regions before and after the loop created by the shortcut.
+
+
+## Combined Example
+
+So far, a variety of changes to the original maze have been independently explored. Now, many of them will be combined into a more complex model. First, the resistance and absorption inputs need to be updated:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+<<3_combine_1>>
+```
+
+There is an unusual artifact present in our new resistance raster: our shortcut leads into a former dead end, and the dead end resistance value will increase the probability of the individual turning around in the shortcut even though, from the perspective of the shortcut, it is not a dead end. However, when approaching from the bottom, the dead end still exists if we assume the shortcut is hidden. This is a case where having asymmetric transition probabilities would be a more ideal solution, but for simplicity, we will leave things as they are.
+
+Create the new samc object:
+```{r}
+<<3_combine_2>>
+```
+
+Following the previous model changes, start with looking at expected time to absorption:
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+<<3_combine_3>>
+```
+
+Similar to Part 2, the presence of additional absorbing states (the traps), drastically changes the result and interpretation of the `survival()` metric. The results are actually very similar to part 2, but the presence of a shortcut does increase access to both the bottom left trap and the finish point. The relative role of each isn't clear, but it does overall seem to do decrease the time to absorption. 
+
+Next is a complete overview of the different results for `survival()` and `cond_passage()`:
+```{r}
+<<3_combine_4>>
+```
+
+The presence of both the traps and the shortcut have a cumulative effect on both metrics; the time to absorption decreases, as does the time to conditional first passage (the time to finish assuming the individual is not absorbed elsewhere).
+
+Comparing the traps-only version of the maze to the cumulative maze using the `mortality()` metric shows how introducing the shortcut affects the probability of finishing the maze vs being absorbed in the traps:
+```{r}
+<<3_combine_5>>
+```
+
+With the introduction of the shortcut, the probability of absorption into the two top traps is reduced because less time is spent in the top portion of the maze relative to the now more accessible bottom portion. Also, the probability of absorption into the bottom left trap has increased by more than an order of magnitude, accounting for most of the decrease in the top two traps. Finally, an individual is somewhat more likely to survive and finish the maze. Note that the numeric index for the later two points are shifted by one; this is due to changing a `NA` cell to non-`NA` for the shortcut, and it is related to why the `locate()` should be rerun when the structure of the input(s) to `samc()` changes.
+
+By now, the process of exploring the different metrics for these examples should be clear. This example highlighted a few key metrics and it is left to the user to explore the remaining metrics if they are interested in doing so. Additionally, this combined example left out the occupancy and fidelity changes introduced in previous parts; this is another opportunity for readers to practice making and exploring further modifications to the model.
+
+
+## Future Work
+
+Parts of this series may be rewritten, further expanded on, and/or reorganized in the future. Additionally, when igraph support is added to the package, the series will be expanded with an example illustrating construction of a maze using a graph rather than a matrix/raster.
