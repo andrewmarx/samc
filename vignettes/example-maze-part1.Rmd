@@ -32,7 +32,7 @@ This example shows how to use and interpret different absorbing Markov chain met
 ## Libraries
 
 ```{r, message = FALSE}
-<<library>>
+<<1_library_1>>
 ```
 
 
@@ -40,27 +40,27 @@ This example shows how to use and interpret different absorbing Markov chain met
 
 Create a function to reduce redundant plotting code and make the examples easier to read:
 ```{r}
-<<maze_plot>>
+<<1_setup_1>>
 ```
 
 Create a simple color palette for when only one or two colors are needed in a figure:
 ```{r}
-<<vir_col>>
+<<1_setup_2>>
 ```
 
 Setup up a resistance map representing the maze and use the `gdistance` package to get information about the solution (the shortest path). Assume the start is the top left and the finish is the bottom right:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<res_map>>
+<<1_setup_3>>
 ```
 
 Create an absorption map where the finish point is the only source of absorption. It will have an absorption value of `1.0`, which means that once this point is entered, it cannot be left for another cell in the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<abs_map>>
+<<1_setup_4>>
 ```
 
 Given the nature of some of the calculations performed by the package, it's sometimes possible for floating point precision issues to arise where equality comparisons between two decimal values don't yield expected results. It's an unfortunate limitation of all computer hardware and is why functions like `all.equal()` exist in base R. Unfortunately, there isn't a base function available for the specific comparisons we want to perform, so we will manually have to do it. In order to do so, we will need a tolerance value and will use the default tolerance used by `all.equal()`:
 ```{r}
-<<tolerance>>
+<<1_setup_5>>
 ```
 
 
@@ -68,7 +68,7 @@ Given the nature of some of the calculations performed by the package, it's some
 
 With the resistance and absorption maps prepared, a samc object can be created:
 ```{r}
-<<samc_obj>>
+<<1_setup_6>>
 ```
 
 The model represented by this samc object has been setup to assume a simple random walk. There is no "memory" of the past to stop the individual from going back to dead ends, there is no ability to "look ahead" and see dead ends, and the individual will always move to a different cell every time step.
@@ -82,17 +82,17 @@ The start and finish locations are obtained from the samc object using the `loca
 
 We will start with determining how long, on average, it would be expected for a single individual to finish the maze. Formally, the `survival()` function calculates the expected time to absorption, but since the maze has only one absorption point representing the finish point, this means that, in this example, `survival()` can be interpreted as the expected time to finish the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<survive>>
+<<1_ttf_1>>
 ```
 
 The result is a vector with the expected time to absorption, or finish, for every point in the maze, not just the top left start point. The start location can be used to extract that information from the vector:
 ```{r}
-<<survive1>>
+<<1_ttf_2>>
 ```
 
 When there is only a single point of total absorption, like this example, `survival()` and `cond_passage()` are nearly identical when the destination for `cond_passage()` is set to the point of absorption (the finish point):
 ```{r}
-<<cond_pass>>
+<<1_ttf_3>>
 ```
 
 It turns out that the cell in the map corresponding to our finish point is not actually an absorbing state; it's still a transient state. Absorption occurs one time step later when the individual is removed from the maze since it can't go anywhere else in our example. So `cond_passage()` reports how long it takes to reach the final cell, and `survival()` tells us how long it takes us to reach the final cell and then be removed from it.
@@ -106,19 +106,19 @@ A couple things to keep in mind:
 
 If we're interested in knowing the probability that a particular cell (or cells) is visited at least once, then we can use the `dispersal()` function:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<disp>>
+<<1_pov_1>>
 ```
 
 In order to complete the maze, the individual has to visit every cell along the path to the exit, so all of those cells will have a probability of `1.0`. The farther away from this path a cell is located, the lower the probability it will be visited. Additionally, the closer the individual gets to the finish, the less likely they will spend time taking incorrect routes before stumbling upon the finish. There's also the possibility for scenarios like the one where the individual is near the finish and then manages to stumble all the way back to the start. These different aspects contribute to more time spent near the start point, on average, which in turn means that cells near the start have a higher probability of being visited.
 
 The previous paragraph hinted that the results from the `dispersal()` function can be used to identify the route through the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<disp_sol>>
+<<1_pov_2>>
 ```
 
 Like the `survival()` function, there is an important caveat: The visitation probabilities don't include time `0`. So while it looks like the starting cell might have a probability of `1` in the first figure, it's actually slightly less and it just wasn't apparent with the color scale:
 ```{r}
-<<disp_sol1>>
+<<1_pov_3>>
 ```
 
 
@@ -126,12 +126,12 @@ Like the `survival()` function, there is an important caveat: The visitation pro
 
 The package can be used to see how many times each cell in the maze is expected to be visited on average. This is done using the `visitation()` metric:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<visit>>
+<<1_visit_1>>
 ```
 
 Since the finish point leads to total absorption, it will only be visited once:
 ```{r}
-<<visit1>>
+<<1_visit_2>>
 ```
 
 
@@ -139,12 +139,12 @@ Since the finish point leads to total absorption, it will only be visited once:
 
 Using the `distribution()` function, the location of an individual in the maze can be predicted for a given time:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<dist>>
+<<1_loc_1>>
 ```
 
 There's an odd pattern here that can be emphasized by incrementing the time from 20 to 21:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<dist2>>
+<<1_loc_2>>
 ```
 
 Earlier it was mentioned that using only 4 directions for the transition function would have consequences. Without either diagonal transitions or some form of fidelity (the possibility of an individual not moving), there will be an alternating pattern where a cell can and then cannot be occupied. It's easiest to reason about the effect by running the same function for time steps 1-5 and visualizing it, an exercise that will be left to those interested.
@@ -159,7 +159,7 @@ There are a couple metrics that have not been covered yet: `absorption()` and `m
 
 Many of the metrics offer a more advanced and flexible option for setting an initial state in the absorbing Markov chain. Inputs to the `occ` parameter (short for occupancy) can essentially be used as an alternative to specifying a singular start point. Here is an example `occ` map that represents the scenario that has been presented so far:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<occ>>
+<<1_occ_1>>
 ```
 
 Using the `survival()` metric, it produces the same result as before:
@@ -171,27 +171,27 @@ survive[start]
 
 But now,more interesting scenarios can be tested. For example, let's start the maze with 3 individuals:
 ```{r, fig.show='hold'}
-<<occ3_1>>
+<<1_occ_2>>
 ```
 
 The interpretation becomes a little trickier here. The `survival()` metric is returning the cumulative time spent in the maze for *all* the individuals. This means that with 3 individuals starting at the beginning, 3 times as much time is going to be spent in the maze, but that per individual, it will still take the same number of time steps to finish as before:
 ```{r}
-<<occ3_1_1>>
+<<1_occ_3>>
 ```
 
 Here's a different scenario with 3 individuals again, but now they start in different corners of the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<occ3_2>>
+<<1_occ_4>>
 ```
 
 Again, the cumulative time spent in the maze is larger than reported in the original scenario with one individual. However, this time the average time per individual spent in the maze decreases:
 ```{r, fig.show='hold'}
-<<occ3_2_1>>
+<<1_occ_5>>
 ```
 
 This is because the additional individuals are now located in corners that are substantially closer to the finish point, so they would be expected to find it faster on average. Based on where each individual starts, it would be reasonable to expect that the individual starting in the bottom left has the biggest advantage. One way to try and visualize this is with the `distrbution()` metric:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<p1_10>>
+<<1_occ_6>>
 ```
 
 A good exercise for the reader is to apply the concepts of the animations vignette to this figure.

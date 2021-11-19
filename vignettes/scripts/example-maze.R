@@ -10,14 +10,14 @@
 # Part 1 ----
 #
 
-## @knitr library
+## @knitr 1_library_1
 library(samc)
 library(raster)
 library(gdistance)
 library(viridisLite)
 
 
-## @knitr maze_plot
+## @knitr 1_setup_1
 maze_plot <- function(map, title, colors) {
   # start = 1 (top left), finish = last element (bottom right)
   sf <- xyFromCell(map, c(1, length(map)))
@@ -28,12 +28,12 @@ maze_plot <- function(map, title, colors) {
 }
 
 
-## @knitr vir_col
+## @knitr 1_setup_2
 # A simple color palette with 2 colors
 vir_col <- viridis(3)[2:3]
 
 
-## @knitr res_map
+## @knitr 1_setup_3
 maze = matrix(
   c(1,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,1,0,1,
     1,1,1,1,0,1,0,1,0,0,1,1,1,0,1,1,0,1,1,1,
@@ -77,7 +77,7 @@ maze_plot(maze, "Resistance", vir_col[1])
 lines(lcd$path, col = vir_col[2], lw = 3)
 
 
-## @knitr abs_map
+## @knitr 1_setup_4
 # End of maze
 maze_finish <- maze * 0
 maze_finish[20, 20] <- 1
@@ -85,13 +85,13 @@ maze_finish[20, 20] <- 1
 maze_plot(maze_finish, "Absorption", vir_col)
 
 
-## @knitr tolerance
+## @knitr 1_setup_5
 tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
 
 print(tolerance)
 
 
-## @knitr samc_obj
+## @knitr 1_setup_6
 tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
 
 samc_obj <- samc(maze, maze_finish, tr_args = tr)
@@ -100,69 +100,69 @@ start <- locate(samc_obj, data.frame(x = 1, y = 20))
 finish <- locate(samc_obj, data.frame(x = 20, y = 1))
 
 
-## @knitr survive
+## @knitr 1_ttf_1
 survive <- survival(samc_obj)
 
 maze_plot(map(samc_obj, survive), "Expected time to finish", viridis(256))
 
 
-## @knitr survive_1
+## @knitr 1_ttf_2
 survive[start]
 
 
-## @knitr cond_pass
+## @knitr 1_ttf_3
 cond <- cond_passage(samc_obj, dest = finish)
 
 cond[start]
 
 
-## @knitr disp
+## @knitr 1_pov_1
 disp <- dispersal(samc_obj, origin = start)
 
 maze_plot(map(samc_obj, disp), "Probability of Visit", viridis(256))
 
 
-## @knitr disp_sol
+## @knitr 1_pov_2
 # Ideally would use `as.numeric(disp == 1)`, but floating point precision issues force an approximation
 disp_sol <- as.numeric(abs(disp - 1) < tolerance)
 
 maze_plot(map(samc_obj, disp_sol), "Solution Using Dispersal()", vir_col)
 
 
-## @knitr disp_sol1
+## @knitr 1_pov_3
 disp[start]
 
 
-## @knitr visit
+## @knitr 1_visit_1
 visit <- visitation(samc_obj, origin = start)
 
 maze_plot(map(samc_obj, visit), "Visits Per Cell", viridis(256))
 
 
-## @knitr visit1
+## @knitr 1_visit_2
 visit[finish]
 
 
-## @knitr dist
+## @knitr 1_loc_1
 dist <- distribution(samc_obj, origin = start, time = 20)
 
 maze_plot(map(samc_obj, dist), "Location at t=20", col = viridis(256))
 
 
-## @knitr dist2
+## @knitr 1_loc_2
 dist <- distribution(samc_obj, origin = start, time = 21)
 
 maze_plot(map(samc_obj, dist), "Location at t=21", viridis(256))
 
 
-## @knitr occ
+## @knitr 1_occ_1
 maze_occ <- maze * 0
 maze_occ[1, 1] <- 1
 
 maze_plot(maze_occ, "Occupancy", vir_col)
 
 
-## @knitr occ3_1
+## @knitr 1_occ_2
 # Scenario 1: 3 people start in the maze
 maze_occ3 <- maze * 0
 maze_occ3[1, 1] <- 3
@@ -170,12 +170,12 @@ maze_occ3[1, 1] <- 3
 survival(samc_obj, occ = maze_occ3)
 
 
-## @knitr occ3_1_1
+## @knitr 1_occ_3
 survival(samc_obj, occ = maze_occ3) / 3
 
 
 
-## @knitr occ3_2
+## @knitr 1_occ_4
 # Scenario 2: A person starts in each corner of the maze
 maze_occ3 <- maze * 0
 maze_occ3[1, 1] <- 1
@@ -187,11 +187,11 @@ maze_plot(maze_occ, "Occupancy", vir_col)
 survival(samc_obj, occ = maze_occ3)
 
 
-## @knitr occ3_2_1
+## @knitr 1_occ_5
 survival(samc_obj, occ = maze_occ3) / 3
 
 
-## @knitr p1_10
+## @knitr 1_occ_6
 dist <- distribution(samc_obj, occ = maze_occ3, time = 17)
 
 # This makes it easier to see how far along the individuals could be
