@@ -24,22 +24,23 @@ do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
 ```
 
 ```{r include = FALSE}
-<<library>>
-<<maze_plot>>
-<<vir_col>>
-<<res_map>>
-<<abs_map>>
-<<tolerance>>
-<<samc_obj>>
-<<survive>>
+<<1_library_1>>
+<<1_setup_1>>
+<<1_setup_2>>
+<<1_setup_3>>
+<<1_setup_4>>
+<<1_setup_5>>
+<<1_setup_6>>
 
-<<maze_ints>>
-<<samc_ints>>
-<<maze_ends>>
-<<samc_ends>>
-<<maze_traps>>
-<<samc_traps>>
-<<mort_traps>>
+<<1_ttf_1>>
+
+<<2_fid_1>>
+<<2_fid_2>>
+<<2_end_1>>
+<<2_end_2>>
+<<2_traps_1>>
+<<2_traps_2>>
+<<2_add_1>>
 ```
 
 
@@ -59,86 +60,51 @@ Part 3 reuses the code from [Part 1](example-maze-part2.html) and [Part 2](examp
 
 To start, the original maze will be modified so that it has a new cell bridging previously existing cells. The location was chosen so that it effectively acts as a shortcut to the previous solution. To make things more interesting, it will be treated as a secret passage by giving it a high resistance value so that it is only rarely utilized. This is effectively the same method used to model dead end avoidance in Part 2, but here the interpretation is different because of where the high resistance is located.
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Create a copy and add a shortcut
-maze2 <- maze
-maze2[16, 6] <- 10
-
-# Get info about the shortest path through the new maze using gdistance
-lcd2 <- (function() {
-  points <- xyFromCell(maze2, c(1, 400))
-
-  tr <- transition(maze2, function(x) 1/mean(x), 4)
-  tr <- geoCorrection(tr)
-
-  list(dist = costDistance(tr, points),
-       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
-})()
-
-maze_plot(maze2, "Maze 2", vir_col)
-lines(lcd2$path, col = vir_col[2], lw = 3)
+<<3_short_1>>
 ```
 
 Use `gdistance` to quickly verify the change in distance for the shortest solution:
 ```{r}
-# Let's see what the difference in distance is
-lcd2$dist - lcd$dist
+<<3_short_2>>
 ```
 
 Since the structure of the resistance input has changed, the absorption input also has to be changed so that it has the same structure:
 ```{r}
-# Our old absorption layer does not quite match our new resistance layer, so make a new one
-maze2_finish <- maze2 * 0
-maze2_finish[20, 20] <- 1
+<<3_short_3>>
 ```
 
 With new resistance and absorption inputs, the samc object has to be recreated:
 ```{r}
-samc_maze2 <- samc(maze2, maze2_finish, tr_args = tr)
-
-# Important: we have to rerun locate()
-start_maze2 <- locate(samc_maze2, data.frame(x = 1, y = 20))
-finish_maze2 <- locate(samc_maze2, data.frame(x = 20, y = 1))
+<<3_short_4>>
 ```
 
 An important thing to keep in mind: modifying where `NA` and non-`NA` cells are located in the map means that previous results from `locate()` are no longer guaranteed to be valid. In this case, `start` is technically the same, but `finish` is not and will return incorrect results, or in special cases even lead to a crash.
 
 With that, lets begin exploring the different metrics and compare them to the results from Part 1. Starting with `survival()`:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-surv_maze2 <- survival(samc_maze2)
-
-maze_plot(map(samc_maze2, surv_maze2), "Expected time to finish (Maze 2)", viridis(256))
+<<3_short_5>>
 ```
 
 There are two noticeable changes. First, the expected time to finish is drastically decreased for the starting point:
 ```{r}
-# Expected time to finish from the start
-surv_maze2[start]
-
-# The difference from our original maze
-surv_maze2[start] - survive[start]
+<<3_short_6>>
 ```
 
 The second change is the overall increase in expected time to finish when an individual is in the bottom left region of the maze because the shortcut can actually lead them away from the finish point when they are in this region. If the shortcut was asymmetric (i.e., one way), there would still be a drastic decrease in the time to finish for the starting point, but then the bottom left region would remain unchanged from the original maze. This type of model setup is possible with the package, but not without directly providing the P matrix. Graph support in the future will make more complex scenarios like a one-way shortcut easier to setup.
 
 Part 2 showed that the inclusion of additional absorbing states changes the relationship between `survival()` and `cond_passage()`. Since this example is back to a single absorbing state at the finish point, this relationship is restored:
 ```{r}
-cond_maze2 <- cond_passage(samc_maze2, dest = finish_maze2)
-cond_maze2[start]
+<<3_short_7>>
 ```
 
 Part 2 also showed that including additional absorbing states affects the probability of cells being visited. Modifying the maze to have multiple routes also has significant ramifications:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-disp_maze2 <- dispersal(samc_maze2, origin = start_maze2)
-
-maze_plot(map(samc_maze2, disp_maze2), "Probability of Visit (Maze 2)", viridis(256))
+<<3_short_8>>
 ```
 
 Notably, it is again no longer possible to discern the optimal route through the maze by looking for cells with a probability of `1.0`. But, like Part 2, a partial path can still be can still be identified:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Ideally, we would just use `as.numeric(disp == 1)`, but we have floating point precision issues here, so we will approximate it
-disp_maze2_sol <- as.numeric(abs(disp_maze2 - 1) < tolerance)
-
-maze_plot(map(samc_maze2, disp_maze2_sol), "Partial solution (Maze 2)", vir_col)
+<<3_short_9>>
 ```
 
 In this case, the result contains the solution for the regions before and after the loop created by the shortcut.
@@ -148,72 +114,33 @@ In this case, the result contains the solution for the regions before and after 
 
 So far, a variety of changes to the original maze have been independently explored. Now, many of them will be combined into a more complex model. First, the resistance and absorption inputs need to be updated:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Combine our previous resistance layers
-maze_all <- max(stack(maze2, maze_ints, maze_ends), na.rm = TRUE)
-
-# For absorption, all we need is an updated version of our traps raster
-maze_all_traps <- maze_traps
-maze_all_traps[16, 6] <- 0
-
-# Total absorption
-abs_all_total <- maze2_finish + maze_all_traps
-
-
-# If we had more variety in our resistance values we would want more colors
-maze_plot(maze_all, "Final Maze", vir_col)
-
-# Plot the traps raster
-maze_plot(maze_all_traps, "Final Maze Traps", vir_col)
+<<3_combine_1>>
 ```
 
 There is an unusual artifact present in our new resistance raster: our shortcut leads into a former dead end, and the dead end resistance value will increase the probability of the individual turning around in the shortcut even though, from the perspective of the shortcut, it is not a dead end. However, when approaching from the bottom, the dead end still exists if we assume the shortcut is hidden. This is a case where having asymmetric transition probabilities would be a more ideal solution, but for simplicity, we will leave things as they are.
 
 Create the new samc object:
 ```{r}
-samc_all <- samc(maze_all, abs_all_total, tr_args = tr)
-
-# We can actually reuse the maze2 locations in this case, but let's make new ones anyway
-start_maze_all <- locate(samc_all, data.frame(x = 1, y = 20))
-finish_maze_all <- locate(samc_all, data.frame(x = 20, y = 1))
+<<3_combine_2>>
 ```
 
 Following the previous model changes, start with looking at expected time to absorption:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-surv_all <- survival(samc_all)
-
-# Note the updated title from part 1
-maze_plot(map(samc_all, surv_all), "Expected Time to Absorption", viridis(256))
+<<3_combine_3>>
 ```
 
 Similar to Part 2, the presence of additional absorbing states (the traps), drastically changes the result and interpretation of the `survival()` metric. The results are actually very similar to part 2, but the presence of a shortcut does increase access to both the bottom left trap and the finish point. The relative role of each isn't clear, but it does overall seem to do decrease the time to absorption. 
 
-Next is a complete overview of the difference results for `survival()` and `cond_passage()`:
+Next is a complete overview of the different results for `survival()` and `cond_passage()`:
 ```{r}
-# Original results (Part 1)
-survival(samc_obj)[start]
-cond_passage(samc_obj, start, finish)
-
-# Results with traps (Part 2)
-survival(samc_traps)[start]
-cond_passage(samc_traps, start, finish)
-
-# Results with a shortcut
-survival(samc_maze2)[start_maze2]
-cond_passage(samc_maze2, start_maze2, finish_maze2)
-
-# Results with everything
-survival(samc_all)[start_maze_all]
-cond_passage(samc_all, start_maze_all, finish_maze_all)
+<<3_combine_4>>
 ```
 
 The presence of both the traps and the shortcut have a cumulative effect on both metrics; the time to absorption decreases, as does the time to conditional first passage (the time to finish assuming the individual is not absorbed elsewhere).
 
 Comparing the traps-only version of the maze to the cumulative maze using the `mortality()` metric shows how introducing the shortcut affects the probability of finishing the maze vs being absorbed in the traps:
 ```{r}
-mort_traps[mort_traps > 0]
-
-mort_all <- mortality(samc_all, origin = start_maze_all)
-mort_all[mort_all > 0]
+<<3_combine_5>>
 ```
 
 With the introduction of the shortcut, the probability of absorption into the two top traps is reduced because less time is spent in the top portion of the maze relative to the now more accessible bottom portion. Also, the probability of absorption into the bottom left trap has increased by more than an order of magnitude, accounting for most of the decrease in the top two traps. Finally, an individual is somewhat more likely to survive and finish the maze. Note that the numeric index for the later two points are shifted by one; this is due to changing a `NA` cell to non-`NA` for the shortcut, and it is related to why the `locate()` should be rerun when the structure of the input(s) to `samc()` changes.

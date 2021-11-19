@@ -405,3 +405,132 @@ absorption(samc_traps, origin = start)
 #
 # Part 3 ----
 #
+
+## @knitr 3_short_1
+# Create a copy and add a shortcut
+maze2 <- maze
+maze2[16, 6] <- 10
+
+# Get info about the shortest path through the new maze using gdistance
+lcd2 <- (function() {
+  points <- xyFromCell(maze2, c(1, 400))
+
+  tr <- transition(maze2, function(x) 1/mean(x), 4)
+  tr <- geoCorrection(tr)
+
+  list(dist = costDistance(tr, points),
+       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
+})()
+
+maze_plot(maze2, "Maze 2", vir_col)
+lines(lcd2$path, col = vir_col[2], lw = 3)
+
+
+## @knitr 3_short_2
+# Let's see what the difference in distance is
+lcd2$dist - lcd$dist
+
+
+## @knitr 3_short_3
+# Our old absorption layer does not quite match our new resistance layer, so make a new one
+maze2_finish <- maze2 * 0
+maze2_finish[20, 20] <- 1
+
+
+## @knitr 3_short_4
+samc_maze2 <- samc(maze2, maze2_finish, tr_args = tr)
+
+# Important: we have to rerun locate()
+start_maze2 <- locate(samc_maze2, data.frame(x = 1, y = 20))
+finish_maze2 <- locate(samc_maze2, data.frame(x = 20, y = 1))
+
+
+## @knitr 3_short_5
+surv_maze2 <- survival(samc_maze2)
+
+maze_plot(map(samc_maze2, surv_maze2), "Expected time to finish (Maze 2)", viridis(256))
+
+
+## @knitr 3_short_6
+# Expected time to finish from the start
+surv_maze2[start]
+
+# The difference from our original maze
+surv_maze2[start] - survive[start]
+
+
+## @knitr 3_short_7
+cond_maze2 <- cond_passage(samc_maze2, dest = finish_maze2)
+cond_maze2[start]
+
+
+## @knitr 3_short_8
+disp_maze2 <- dispersal(samc_maze2, origin = start_maze2)
+
+maze_plot(map(samc_maze2, disp_maze2), "Probability of Visit (Maze 2)", viridis(256))
+
+
+## @knitr 3_short_9
+# Ideally, we would just use `as.numeric(disp == 1)`, but we have floating point precision issues here, so we will approximate it
+disp_maze2_sol <- as.numeric(abs(disp_maze2 - 1) < tolerance)
+
+maze_plot(map(samc_maze2, disp_maze2_sol), "Partial solution (Maze 2)", vir_col)
+
+
+## @knitr 3_combine_1
+# Combine our previous resistance layers
+maze_all <- max(stack(maze2, maze_ints, maze_ends), na.rm = TRUE)
+
+# For absorption, all we need is an updated version of our traps raster
+maze_all_traps <- maze_traps
+maze_all_traps[16, 6] <- 0
+
+# Total absorption
+abs_all_total <- maze2_finish + maze_all_traps
+
+
+# If we had more variety in our resistance values we would want more colors
+maze_plot(maze_all, "Final Maze", vir_col)
+
+# Plot the traps raster
+maze_plot(maze_all_traps, "Final Maze Traps", vir_col)
+
+
+## @knitr 3_combine_2
+samc_all <- samc(maze_all, abs_all_total, tr_args = tr)
+
+# We can actually reuse the maze2 locations in this case, but let's make new ones anyway
+start_maze_all <- locate(samc_all, data.frame(x = 1, y = 20))
+finish_maze_all <- locate(samc_all, data.frame(x = 20, y = 1))
+
+
+## @knitr 3_combine_3
+surv_all <- survival(samc_all)
+
+# Note the updated title from part 1
+maze_plot(map(samc_all, surv_all), "Expected Time to Absorption", viridis(256))
+
+
+## @knitr 3_combine_4
+# Original results (Part 1)
+survival(samc_obj)[start]
+cond_passage(samc_obj, start, finish)
+
+# Results with traps (Part 2)
+survival(samc_traps)[start]
+cond_passage(samc_traps, start, finish)
+
+# Results with a shortcut
+survival(samc_maze2)[start_maze2]
+cond_passage(samc_maze2, start_maze2, finish_maze2)
+
+# Results with everything
+survival(samc_all)[start_maze_all]
+cond_passage(samc_all, start_maze_all, finish_maze_all)
+
+
+## @knitr 3_combine_5
+mort_traps[mort_traps > 0]
+
+mort_all <- mortality(samc_all, origin = start_maze_all)
+mort_all[mort_all > 0]
