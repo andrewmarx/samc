@@ -33,6 +33,10 @@ do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
 <<1_setup_6>>
 
 <<1_ttf_1>>
+
+<<1_pov_1>>
+
+<<1_visit_1>>
 ```
 
 
@@ -201,4 +205,4 @@ The output from this is quite simple: it is the probability that an individual w
 
 ## Part 3
 
-The next part of this example series we will take the maze with only a single solution and modify it with a "secret" shortcut. Wrapping up this example, Part 3 will then take all of the changes introduced in the series and combine them into a single final example.
+The next part of this example series will take the maze with only a single solution and modify it with a "secret" shortcut. Wrapping up this example, Part 3 will then take all of the changes introduced in the series and combine them into a single final example.

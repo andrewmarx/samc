@@ -166,34 +166,32 @@ Many of the metrics offer a more advanced and flexible option for setting an ini
 
 Using the `survival()` metric, it produces the same result as before:
 ```{r, fig.show='hold'}
-survival(samc_obj, occ = maze_occ)
-
-survive[start]
+<<1_occ_2>>
 ```
 
 But now,more interesting scenarios can be tested. For example, let's start the maze with 3 individuals:
 ```{r, fig.show='hold'}
-<<1_occ_2>>
+<<1_occ_3>>
 ```
 
 The interpretation becomes a little trickier here. The `survival()` metric is returning the cumulative time spent in the maze for *all* the individuals. This means that with 3 individuals starting at the beginning, 3 times as much time is going to be spent in the maze, but that per individual, it will still take the same number of time steps to finish as before:
 ```{r}
-<<1_occ_3>>
+<<1_occ_4>>
 ```
 
 Here's a different scenario with 3 individuals again, but now they start in different corners of the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<1_occ_4>>
+<<1_occ_5>>
 ```
 
 Again, the cumulative time spent in the maze is larger than reported in the original scenario with one individual. However, this time the average time per individual spent in the maze decreases:
 ```{r, fig.show='hold'}
-<<1_occ_5>>
+<<1_occ_6>>
 ```
 
 This is because the additional individuals are now located in corners that are substantially closer to the finish point, so they would be expected to find it faster on average. Based on where each individual starts, it would be reasonable to expect that the individual starting in the bottom left has the biggest advantage. One way to try and visualize this is with the `distrbution()` metric:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<1_occ_6>>
+<<1_occ_7>>
 ```
 
 A good exercise for the reader is to apply the concepts of the animations vignette to this figure.
