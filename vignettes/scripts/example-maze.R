@@ -4,6 +4,9 @@
 # This script is the source of the code for maze example vignettes
 # The lines with `@knitr` are for processing by knitr
 
+# TODO Incorporate more comments to make the script more useful on it's own
+# without the vignette
+
 
 ## @knitr Part1
 #
@@ -206,7 +209,7 @@ maze_plot(map(samc_obj, dist), "Location at t=17", viridis(256))
 # Part 2 ----
 #
 
-## @knitr maze_ints
+## @knitr 2_fid_1
 # Intersections determined using a moving window function
 maze_ints <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) > 3}, pad = TRUE)
 maze_ints[is.na(maze)] <- NA
@@ -214,38 +217,188 @@ maze_ints <- maze_ints * 0.1
 
 maze_plot(maze_ints, "Intersections", vir_col)
 
-## @knitr samc_ints
+## @knitr 2_fid_2
 samc_ints <- samc(maze, maze_finish, maze_ints, tr_args = tr)
 
 
-## @knitr maze_ends
+## @knitr 2_fid_3
+# Original results from Part 1
+survival(samc_obj)[start]
+cond_passage(samc_obj, start, finish)
+
+# Results with fidelity at intersections
+survival(samc_ints)[start]
+cond_passage(samc_ints, start, finish)
+
+
+## @knitr 2_fid_4
+disp <- dispersal(samc_obj, origin = start)
+disp_ints <- dispersal(samc_ints, origin = start)
+
+all.equal(disp, disp_ints)
+
+
+## @knitr 2_fid_5
+visit_orig <- visitation(samc_obj, origin = start)
+visit_ints <- visitation(samc_ints, origin = start)
+
+all.equal(visit_orig, visit_ints)
+
+# Let's plot the difference to see if there is a noticeable pattern
+visit_diff <- map(samc_obj, visit_ints) - map(samc_obj, visit_orig)
+maze_plot(visit_diff, "Visits Per Cell (Difference)", viridis(256))
+
+
+## @knitr 2_fid_6
+# First, let's see which cells changed.
+# Ideally would just use `visit_diff > 0`, but floating point precision issues force an approximation
+maze_plot(visit_diff > tolerance, "Visits With Non-Zero Difference", vir_col)
+
+# Second, let's see what the percent change is for our non-zero differences.
+visit_perc <- (visit_ints - visit_orig) / visit_orig
+visit_perc[visit_perc>tolerance]
+
+
+## @knitr 2_fid_7
+dist_ints <- distribution(samc_ints, origin = start, time = 20)
+maze_plot(map(samc_ints, dist_ints), "Location at t=20", viridis(256))
+
+dist_ints <- distribution(samc_ints, origin = start, time = 21)
+maze_plot(map(samc_ints, dist_ints), "Location at t=21", viridis(256))
+
+
+## @knitr 2_fid_8
+dist_ints <- distribution(samc_ints, origin = start, time = 200)
+maze_plot(map(samc_ints, dist_ints), "Location at t=200", viridis(256))
+
+dist_ints <- distribution(samc_ints, origin = start, time = 201)
+maze_plot(map(samc_ints, dist_ints), "Location at t=201", viridis(256))
+
+
+## @knitr 2_fid_9
+dist <- distribution(samc_obj, origin = start, time = 200)
+maze_plot(map(samc_obj, dist), "Location at t=200", viridis(256))
+
+dist <- distribution(samc_obj, origin = start, time = 201)
+maze_plot(map(samc_obj, dist), "Location at t=201", viridis(256))
+
+
+## @knitr 2_end_1
 # Dead ends
 maze_ends <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) == 2}, pad = TRUE)
 maze_ends[is.na(maze)] <- NA
 maze_ends <- maze_ends * 9 + 1
 maze_ends[20, 20] <- 1
 
+maze_plot(maze_ends, "Dead Ends", vir_col)
 
-## @knitr samc_ends
+
+## @knitr 2_end_2
 samc_ends <- samc(maze_ends, maze_finish, tr_args = tr)
 
 
-## @knitr maze_traps
+## @knitr 2_end_3
+# Original results from Part 1
+survival(samc_obj)[start]
+cond_passage(samc_obj, start, finish)
+
+# Results with dead ends
+survival(samc_ends)[start]
+cond_passage(samc_ends, start, finish)
+
+
+## @knitr 2_end_4
+disp_ends <- dispersal(samc_ends, origin = start)
+maze_plot(map(samc_obj, disp_ends), "Probability of Visit", viridis(256))
+
+visit_ends <- visitation(samc_ends, origin = start)
+maze_plot(map(samc_obj, visit_ends), "Visits Per Cell", viridis(256))
+
+
+
+
+
+## @knitr 2_traps_1
 # Traps absorption layer
 maze_traps <- maze * 0
 maze_traps[17, 3] <- 0.2
 maze_traps[1, 9] <- 0.2
 maze_traps[6, 20] <- 0.2
 
-## @knitr samc_traps
+maze_plot(maze_traps, "Traps", vir_col)
+
+
+## @knitr 2_traps_2
 abs_total <- maze_finish + maze_traps
 
 samc_traps <- samc(maze, abs_total, tr_args = tr)
 
 
-## @knitr mort_traps
+## @knitr 2_traps_3
+# Original results from Part 1
+survival(samc_obj)[start]
+cond_passage(samc_obj, start, finish)
+
+# Results with traps
+survival(samc_traps)[start]
+cond_passage(samc_traps, start, finish)
+
+
+## @knitr 2_traps_4
+survive_traps <- survival(samc_traps)
+
+# Note the updated title from part 1
+maze_plot(map(samc_obj, survive_traps), "Expected Time to Absorption", viridis(256))
+
+
+## @knitr 2_traps_5
+disp_traps <- dispersal(samc_traps, origin = start)
+maze_plot(map(samc_traps, disp_traps), "Probability of Visit", viridis(256))
+
+visit_traps <- visitation(samc_traps, origin = start)
+maze_plot(map(samc_traps, visit_traps), "Visits Per Cell", viridis(256))
+
+
+## @knitr 2_traps_6
+# Ideally, we would just use `as.numeric(disp == 1)`, but we have floating point precision issues here, so we will approximate it
+disp_traps_route <- as.numeric(abs(disp_traps - 1) < tolerance)
+
+maze_plot(map(samc_traps, disp_traps_route), "dispersal() == 1", vir_col)
+
+
+
+
+## @knitr 2_add_1
 mort_traps <- mortality(samc_traps, origin = start)
 
+maze_plot(map(samc_traps, mort_traps), "Absorption Probability", viridis(256))
+
+
+## @knitr 2_add_2
+mort_traps[mort_traps > 0]
+
+mort_traps[finish]
+
+
+## @knitr 2_add_3
+# Naming the rasters will make things easier and less prone to user error later
+names(maze_finish) <- "Finish"
+names(maze_traps) <- "Traps"
+
+samc_traps$abs_states <- raster::stack(maze_finish, maze_traps)
+
+
+## @knitr 2_add_4
+mort_traps <- mortality(samc_traps, origin = start)
+
+str(mort_traps)
+
+maze_plot(map(samc_traps, mort_traps$Finish), "Absorption Probability (Finish)", viridis(256))
+maze_plot(map(samc_traps, mort_traps$Traps), "Absorption Probability (Traps)", viridis(256))
+
+
+## @knitr 2_add_5
+absorption(samc_traps, origin = start)
 
 
 ## @knitr Part3
