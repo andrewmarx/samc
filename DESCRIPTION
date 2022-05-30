@@ -66,4 +66,4 @@ Collate:
     'samc.R'
     'survival.R'
     'zzz.R'
-LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1), RcppThread (>= 1.0.0)
+LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1), RcppThread (>= 2.1.3)
