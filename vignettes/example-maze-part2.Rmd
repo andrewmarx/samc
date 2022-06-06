@@ -20,332 +20,189 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
   knitr::opts_chunk$set(eval = FALSE)
 }
 
-library(samc)
-library(raster)
-library(gdistance)
-library(viridisLite)
+do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
+```
 
-maze_plot <- function(map, title, colors) {
-  sf <- xyFromCell(map, c(1, length(map)))
+```{r include = FALSE}
+<<1_library_1>>
+<<1_setup_1>>
+<<1_setup_2>>
+<<1_setup_3>>
+<<1_setup_4>>
+<<1_setup_5>>
+<<1_setup_6>>
 
-  plot(map, main = title, col = colors, axes = FALSE, box = FALSE, asp = 1)
-  plot(rasterToPolygons(map), border = 'black', lwd = 1, add = TRUE)
-  points(sf, pch = c('S', 'F'), cex = 1, font = 2)
-}
+<<1_ttf_1>>
 
-maze = matrix(
-  c(1,1,1,1,0,1,0,1,0,1,0,1,0,0,1,1,1,0,0,1,
-    0,1,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,
-    0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,
-    0,1,1,0,1,1,0,1,1,1,1,0,1,0,1,0,1,1,1,1,
-    0,0,0,0,1,0,0,1,0,0,1,1,1,1,1,0,0,0,0,1,
-    1,1,1,1,1,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,
-    1,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,
-    1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,
-    1,0,1,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,
-    1,0,0,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,
-    1,1,1,0,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,
-    0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,1,1,
-    1,1,1,1,0,1,1,0,0,0,0,1,0,0,1,0,1,0,1,0,
-    0,0,0,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,
-    0,1,0,0,0,1,1,0,1,0,0,0,0,1,0,0,0,0,0,1,
-    0,1,1,1,1,1,0,0,0,0,1,1,1,1,0,1,1,1,0,1,
-    0,0,0,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,
-    1,1,0,1,0,1,1,1,0,0,0,0,0,0,1,0,1,1,1,1,
-    0,1,1,1,0,0,0,1,1,1,0,1,0,1,1,1,1,0,1,0,
-    1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1),
-  nrow = 20
-)
+<<1_pov_1>>
 
-maze <- raster(maze, xmn = 0.5, xmx = ncol(maze) + 0.5, ymn = 0.5, ymx = nrow(maze) + 0.5)
-maze[maze==0] <- NA
-
-#
-# Get info about the shortest path through the maze using gdistance
-#
-lcd <- (function() {
-  points <- xyFromCell(maze, c(1, 400))
-
-  tr <- transition(maze, function(x) 1/mean(x), 4)
-  tr <- geoCorrection(tr)
-
-  list(dist = costDistance(tr, points),
-       path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
-})()
-
-# Setup a simple color palette
-vir_col <- viridis(3)[2:3]
-
-# End of maze
-maze_end <- maze * 0
-maze_end[20, 20] <- 1
-
-tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
-
-samc_obj <- samc(maze, maze_end, tr_args = tr)
-
-start <- locate(samc_obj, data.frame(x = 1, y = 20))
-finish <- locate(samc_obj, data.frame(x = 20, y = 1))
+<<1_visit_1>>
 ```
 
 
 ## Introduction
 
-In [Part 1](example-maze-part1.html) of this series, we explored the applications of absorbing Markov chains in the context of a simple perfect maze. In Part 2, we will expand on our simple maze in various ways and explore how these changes affect our interpretations when using the different metrics offered in the samc package.
+[Part 1](example-maze-part1.html) of this series explored the applications of absorbing Markov chains in the context of a simple perfect maze. This part of the series will expand on the simple maze in various ways and explore how these changes affect interpretations of the different metrics offered in the samc package.
+
+The complete code for this series is available on [Github](https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-maze.R).
+
 
 ## Setup
 
-This example reuses the [libraries](example-maze-part1.html#libraries1), [setup](example-maze-part1.html#setup1), and original [samc object](example-maze-part1.html#create-the-samc-object-1) code from Part 1.
+Part 2 reuses the code from [Part 1](example-maze-part2.html).
 
 
 ## Fidelity
 
-We'll start by incorporating fidelity into the samc object. There are potentially many different ways that fidelity could be applied to the maze, but we'll keep things simple by using it to create a delay in movement at intersections. The goal will be to model hesitancy when the individual is presented with the choice of three or more paths. For simplicity, we'll only set the fidelity at all intersections to the same `0.1` value, which basically means that once an individual is at an intersection, there is a 10% probability that they will stay in the intersection from one time step to the next.
+The first change explored in this part will be the incorporation of fidelity into the samc object. In Part 1, transitions always occurred from one cell to a different neighboring cell. With fidelity, transitions can occur from a cell to itself; essentially, there's no movement over the course of a time step. There are potentially many different ways that fidelity could be applied to the maze, but for simplicity, this example will keep things simple by using it to create a delay in movement at intersections. The goal is to model "hesitation" when an individual is presented with the choice of three or more paths. For additional simplicity, all intersections will be treated the same and assigned a fidelity probability of `0.1`, which means that once an individual is at an intersection, there is a 10% probability that they will stay in the intersection from one time step to the next.
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Intersections determined using a moving window function
-maze_ints <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) > 3}, pad = TRUE)
-maze_ints[is.na(maze)] <- NA
-maze_ints <- maze_ints * 0.1
-
-maze_plot(maze_ints, "Intersections", vir_col
+<<2_fid_1>>
 ```
 
-Fidelity changes the $P$ matrix underlying the samc object, which means we have to create a new samc object:
+Fidelity changes the $P$ matrix underlying the samc object, which means that the samc object has to be recreated:
 ```{r}
-samc_ints <- samc(maze, maze_end, maze_ints, tr_args = tr)
+<<2_fid_2>>
 ```
 
-To start, let's see how the new fidelity input affects our expected time to finish:
+To start, let's see how the new fidelity input affects the expected time to finish:
 ```{r}
-# Our original results from Part 1
-survival(samc_obj)[start]
-cond_passage(samc_obj, start, finish)
-
-# Our results with fidelity at intersections
-survival(samc_ints)[start]
-cond_passage(samc_ints, start, finish)
+<<2_fid_3>>
 ```
 
-Intuitively, since we've added "hesitation" to the movement, the expected time to finish increases. We also see that incorporating fidelity in this particular example does not affect the relationship between `survival()` and `cond_passage()`.
+Intuitively, with "hesitation" added to the movement, the expected time to finish increases. Also note that incorporating fidelity in this particular example does not affect the relationship between `survival()` and `cond_passage()`.
 
-Looking at the probability of visiting any particular cell, changing the fidelity does not change the results from part 1:
+In terms of the probability of visiting any particular cell, changing the fidelity does not change the results from Part 1:
 ```{r}
-disp <- dispersal(samc_obj, origin = start)
-disp_ints <- dispersal(samc_ints, origin = start)
-
-all.equal(disp, disp_ints)
+<<2_fid_4>>
 ```
 
 Fidelity does, however, change the number of times each cell is expected to be visited:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-visit_orig <- visitation(samc_obj, origin = start)
-visit_ints <- visitation(samc_ints, origin = start)
-
-all.equal(visit_orig, visit_ints)
-
-# Let's plot the difference to see if there is a noticeable pattern
-visit_diff <- map(samc_obj, visit_ints) - map(samc_obj, visit_orig)
-maze_plot(visit_diff, "Visits Per Cell (Difference)", viridis(256))
+<<2_fid_5>>
 ```
 
-With fidelity present, the intersections are seeing a significantly different number of visits. Basically, since a "visit" represents a transition to a cell from one time step to the next, the presence of fidelity means that the metric is counting transitions from a cell to itself as well. Interestingly, when compared to the figure in Part 1, the legend in this figure seems to indicate that the increase for the intersections might actually be 10%, or the same as the fidelity probabilities. It also seems like the non-intersections experienced no change. Let's check these ideas:
+With fidelity present, the intersections are seeing a significantly different number of visits. Since a "visit" effectively represents a transition to a cell from one time step to the next, the presence of fidelity means that the metric is counting transitions from a cell to itself as well. Interestingly, when compared to the figure in Part 1, the legend in this figure seems to indicate that the increase for the intersections might be 10%, or the same as the fidelity probabilities. It also seems like the non-intersections (cells with a fidelity probability of `0.0`) experienced no change. Let's check these ideas:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# First, let's see which cells changed.
-# Unfortunately, this is another case where float precision is problematic.
-# We can't just compare to 0, so we assume that anything within a very small
-# tolerance is equivalent to 0
-tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
-print(tolerance)
-
-maze_plot(visit_diff > tolerance, "Visits With Non-Zero Difference", vir_col
-
-# Second, let's see what the percent change is for our non-zero differences.
-visit_perc <- (visit_ints - visit_orig) / visit_orig
-visit_perc[visit_perc>tolerance]
+<<2_fid_6>>
 ```
 
 It turns out that there is no change in the number of expected visits for non-intersections. It also turns out that our hunch for the intersections was only partially true; the change is constant, but it's 1/9 instead of 0.1 or 10%.
 
-The most interesting change we might see from incorporating fidelity will be with the `distribution()` metric. Recall from Part 1 that there was an alternating pattern with the cells when changing the time steps. With fidelity, this effect still exists, but not to the same degree:
+The most interesting change from incorporating fidelity might be with the `distribution()` metric. Recall from Part 1 that there was an alternating pattern with the cells when changing the time steps. With fidelity, this effect still exists, but not to the same degree:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-dist_ints <- distribution(samc_ints, origin = start, time = 20)
-maze_plot(map(samc_ints, dist_ints), "Location at t=20", viridis(256))
-
-dist_ints <- distribution(samc_ints, origin = start, time = 21)
-maze_plot(map(samc_ints, dist_ints), "Location at t=21", viridis(256))
+<<2_fid_7>>
 ```
 
-Given a sufficient amount of time, the cumulative effect of having fidelity present will almost entirely eliminate the alternating pattern. Even from time steps 200-201, the alternating pattern is visually nearly gone:
+Given a sufficient amount of time, the cumulative effect of having fidelity present will almost entirely eliminate this pattern. Even from time steps 200-201, the alternating pattern is visually nearly gone:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-dist_ints <- distribution(samc_ints, origin = start, time = 200)
-maze_plot(map(samc_ints, dist_ints), "Location at t=200", viridis(256))
-
-dist_ints <- distribution(samc_ints, origin = start, time = 201)
-maze_plot(map(samc_ints, dist_ints), "Location at t=201", viridis(256))
+<<2_fid_8>>
 ```
 
 For comparison, here's the original samc object using the same time steps:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-dist <- distribution(samc_obj, origin = start, time = 200)
-maze_plot(map(samc_obj, dist), "Location at t=200", viridis(256))
-
-dist <- distribution(samc_obj, origin = start, time = 201)
-maze_plot(map(samc_obj, dist), "Location at t=201", viridis(256))
+<<2_fid_9>>
 ```
 
 
 ## Dead End Avoidance
 
-Technically, the package doesn't offer the ability to "look ahead" at future states to adjust the transition probabilities. In other words, if a route would eventually lead to a dead end, there's nothing in the `samc()` function or the metric functions to account for that or model the possibility that an individual in the maze can see down a hallway. We can, however, fake it somewhat by adjusting the resistance map so that the dead ends have a much higher resistance. This will reduce the probability of an individual entering a dead end, almost as if they looked ahead. We can use a sliding window function to create this new map:
+Technically, the package doesn't offer the ability to "look ahead" at future states to adjust the transition probabilities. In other words, if a route would eventually lead to a dead end, there's nothing in the `samc()` function or the metric functions to account for that or model the possibility that an individual in the maze can see down a hallway. It can, however, be faked somewhat by adjusting the resistance map so that the dead ends have a much higher resistance. This will reduce the probability of an individual entering a dead end, almost as if they looked ahead. A sliding window function can be used to create this new map:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Dead ends
-maze_ends <- focal(maze, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) == 2}, pad = TRUE)
-maze_ends[is.na(maze)] <- NA
-maze_ends <- maze_ends * 9 + 1
-maze_ends[20, 20] <- 1
-
-maze_plot(maze_ends, "Dead Ends", vir_col
+<<2_end_1>>
 ```
 
-We have given the dead ends a resistance value of 10, which is relatively high and means that dead ends will only rarely be entered. Since we've modified our resistance map, we need to update the samc object. We will not use our fidelity data from the previous section, which will allow us to compare directly against the model created in Part 1.
+The dead ends have been assigned a resistance value of `10`, which is relatively high and means that dead ends will only rarely be entered. Since the resistance map has been modified, the samc object will need to be recreated. The fidelity data from the previous section will not be used, which will allow direct comparisons against the model created in Part 1.
 ```{r}
-samc_ends <- samc(maze_ends, maze_end, tr_args = tr)
+<<2_end_2>>
 ```
 
-Hypothetically, since an individual can now "look ahead", they should be able to get through the maze faster because they are spending less time in dead ends. We can see this easily:
+Hypothetically, since an individual can now "look ahead", they should be able to get through the maze faster because they are spending less time in dead ends. This is easily verified:
 ```{r}
-# Our original results from Part 1
-survival(samc_obj)[start]
-cond_passage(samc_obj, start, finish)
-
-# Our results with dead ends
-survival(samc_ends)[start]
-cond_passage(samc_ends, start, finish)
+<<2_end_3>>
 ```
 
 Since the dead ends have a lower probability of being transitioned to, the `dispersal()` and `visitation()` metrics should obviously reflect that:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', message=FALSE}
-disp_ends <- dispersal(samc_ends, origin = start)
-maze_plot(map(samc_obj, disp_ends), "Probability of Visit", viridis(256))
-
-visit_ends <- visitation(samc_ends, origin = start)
-maze_plot(map(samc_obj, visit_ends), "Visits Per Cell", viridis(256))
+<<2_end_4>>
 ```
 
-The effect is more obvious with `visitation()` and the expected number of visits; the probability illustration is more subtle compared to the original results in Part 1. This could be explored similarly to how some of the differences in the fidelity section are illustrated, an exercise that will be left to interested readers.
+The effect is more obvious with the expected number of visits from `visitation()`; the probability illustration is more subtle compared to the original results in Part 1. This could be explored similarly to how some of the differences in the fidelity section are illustrated, an exercise that will be left to interested readers.
 
 
 ## Traps
 
-It's fairly to trivial to add lethal traps to our maze; it just requires updating our absorption input to the `samc()` function. The key thing to keep in mind is that `samc()` expects the total absorption, so we will only be giving it a single absorption input. However, our metrics do allow us to tease apart the role that different sources of absorption will have in the model. There are two different approaches to setting this up:
+It's fairly to trivial to add lethal traps to the maze by updating the absorption input to the `samc()` function. The key thing to keep in mind is that the `samc()` function expects the *total* absorption, so it will only be provided a single absorption input. However, the package can be used to tease apart the role that different sources of absorption will have in the model. There are two different approaches to setting this up:
 
-1. We start with a single total absorption input. Then we take that input and decompose it into multiple absorption components.
-1. We start with multiple absorption components. Then we take those inputs and combine them into a single total absorption input.
+1. Start with a single total absorption input. Then take that input and decompose it into multiple absorption components.
+1. Start with multiple absorption components. Then take those inputs and combine them into a single total absorption input.
 
-The choice really depends on the data available and the goals of the project. For example, the former strategy is useful if we've somehow measured total absorption for a model and want to explore different hypotheses for how it breaks down into different types of absorption. The former is useful if we already have direct knowledge of different sources of absorption. For this example, we're going with the latter; we already have one absorption component for our finish point, and now we are going to create a second simple one that represents a few traps with a 0.2 or 20% absorption probability:
+The choice really depends on the data available and the goals of the project. For example, the first strategy is useful if we've somehow measured total absorption for a model and want to explore different hypotheses for how it breaks down into different types of absorption. The second is useful if we already have direct knowledge of different sources of absorption.
+
+This example will take the second approach. One absorption component has already been created for finish point. A second simple absorption component will created that represents a few traps with a `0.2` or 20% absorption probability:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Traps absorption layer
-maze_traps <- maze * 0
-maze_traps[17, 3] <- 0.2
-maze_traps[1, 6] <- 0.2
-maze_traps[6, 20] <- 0.2
-
-maze_plot(maze_traps, "Traps", vir_col
+<<2_traps_1>>
 ```
 
-In order to use this, we will have to create a new samc object:
+Since the total absorption is the sum of these two components, the samc object will have to be recreated:
 ```{r}
-abs_total <- maze_end + maze_traps
-
-samc_traps <- samc(maze, abs_total, tr_args = tr)
+<<2_traps_2>>
 ```
 
-We're again only modifying the basic example from Part 1 for easy comparison. Like our other changes, let's see how long we now expect it to take for an individual to finish the maze:
+For easy comparison, everything else will be kept the same as the original example from Part 1. Continuing the previous strategy, let's start with determining how long it is expected for an individual to finish the maze:
 ```{r}
-# Our original results from Part 1
-survival(samc_obj)[start]
-cond_passage(samc_obj, start, finish)
-
-# Our results with traps
-survival(samc_traps)[start]
-cond_passage(samc_traps, start, finish)
+<<2_traps_3>>
 ```
 
-The results are drastically different from what we've seen before. First, we no longer have the clear relationship between `survival()` and `cond_passage()`. This is because`survival()` no longer gives us information on how long it will take to finish; instead it now tells us long it will take to either finish *or* die to one of our traps. This also drastically changes what we see when plotting the results of `survival()` (note the change in figure title from Part 1 to reflect the new interpretation):
+The results are drastically different from what has been seen before. First, the clear relationship between `survival()` and `cond_passage()` no longer exists. This is because `survival()` has a different interpretation in this context and no longer determines how long it will take to finish; instead it now calculates how long it will take an individual to either finish *or* be absorbed in one of the traps (i.e., die). This also drastically changes the plotting results of `survival()` (note the change in figure title from Part 1 to reflect the new interpretation):
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-survive_traps <- survival(samc_traps)
-
-# Note the updated title from part 1
-maze_plot(map(samc_obj, survive_traps), "Expected Time to Absorption", viridis(256))
+<<2_traps_4>>
 ```
 
-We also see drastically different results from Part 1 when looking at visitation probability and number of visits:
+The results are also drastically different from Part 1 when looking at visitation probability and number of visits:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-disp_traps <- dispersal(samc_traps, origin = start)
-maze_plot(map(samc_traps, disp_traps), "Probability of Visit", viridis(256))
-
-visit_traps <- visitation(samc_traps, origin = start)
-maze_plot(map(samc_traps, visit_traps), "Visits Per Cell", viridis(256))
+<<2_traps_5>>
 ```
 
-Importantly, we can longer use the same technique as Part 1 where we used visitation probabilities of 1.0 to identify the route through the maze; it only works in very specialized cases. The reason is simple: since the individual can now be absorbed in other locations, there is a non-zero probability that they never reach the finish, which in turn means the probability of visiting the finish is now less than 1.0. However, we can still use the same technique to see something interesting:
+Importantly, the technique in Part 1 of using visitation probabilities of `1.0` to identify the route through the maze will not work in this example; it only works in very specialized cases. The reason is simple: since an individual can now be absorbed in other locations, there is a non-zero probability that they never reach the finish, which in turn means the probability of visiting the finish is now less than 1.0. However, the same technique can be used to see something interesting:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-# Ideally, we would just use `as.numeric(disp == 1)`, but float precision means
-# that what we think is `1` isn't always `1` with computers, so it won't always
-# work. We work around it by subtracting 1 and seeing if the result fits within
-# a very small tolerance
-tolerance = sqrt(.Machine$double.eps) # Default tolerance in functions like all.equal()
-print(tolerance)
-disp_traps_route <- as.numeric(abs(disp_traps - 1) < tolerance)
-
-maze_plot(map(samc_traps, disp_traps_route), "dispersal() == 1", vir_col
+<<2_traps_6>>
 ```
 
-It shows us part of the solution we saw before, but only up to the first maze intersection that leads to two or more possible sources of absorption.
+It shows part of the solution observed before, but only up to the first maze intersection that leads to two or more possible sources of absorption.
 
-The inclusion of multiple absorption states now allows us to explore metrics that were not useful of Part 1. Starting with `mortality()`, we can visualize where we would expect the individual to be absorbed:
+
+## Addtional metrics
+
+The inclusion of multiple absorption states makes the metrics that were not useful of Part 1 more relevant. Starting with `mortality()`, it is possible to visualize where an individual is expected to be absorbed:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-mort_traps <- mortality(samc_traps, origin = start)
-
-maze_plot(map(samc_traps, mort_traps), "Absorption Probability", viridis(256))
+<<2_add_1>>
 ```
 
-That quite possibly is not what we would have expected. Why does the finish point look like it's 0? Let's look at the numbers and see if we can figure it out from there:
+This result is quite possibly unexpected. Why does the finish point look like it's `0`? Looking at the numbers might provide insight:
 ```{r}
-mort_traps[mort_traps > 0]
-
-mort_traps[finish]
+<<2_add_2>>
 ```
 
-There's only a 2.1% chance of our individual finishing the maze! This seems really low given our traps are only lethal 20% of the time, but if we stop to think about it, it actually makes sense. Recall the "Probability of visiting a cell" and "Visits per cell" sections from Part 1; the individual spends most of their time in the early part of the maze. That means they have a lot more exposure to our first trap and, consequently, are more likely to be absorbed there. And if we look at the trap farthest from the start, reaching it requires barely missing the finish, so consequently it has only a 0.28% of being the source of absorption, or an order of magnitude lower probability than just finishing.
+There's only a 3.0% chance of an individual finishing the maze! This might seem low given the traps are only lethal 20% of the time, but it actually makes sense. Recall the [Probability of visiting a cell](example-maze-part1.html#probability-of-visiting-a-cell-1) and [Visits per cell](example-maze-part1.html#visits-per-cell-1) sections from Part 1; an individual spends most of their time in the early part of the maze. That means they have a lot more exposure to the first trap and, consequently, are more likely to be absorbed there with a 85.2% probability. For the trap farthest from the start, reaching it first requires passing by the finish, so consequently it has only a 0.39% of being the source of absorption, a substantially lower probability than just finishing the maze.
 
-The package allows us to break things down so that we can investigate the role of different types of mortality more easily. Remember, we started with two absorption layers that we summed together; now that the samc object has been created, we can provide it that information:
+It is possible to break down the total absorption so that the role of different sources of absorption can be investigated more easily. Now that the samc object has been created, it can be provided the original absorption layers that were used to calculate the total absorption:
 ```{r}
-# Naming our rasters will make things easier and less error-prone later
-names(maze_end) <- "Finish"
-names(maze_traps) <- "Traps"
-
-samc_traps$abs_states <- raster::stack(maze_end, maze_traps)
+<<2_add_3>>
 ```
 
-By doing so, the `mortality()` metric now returns a list with information about not just the total absorption, but the individual components we specified. This allows us to individually access and visualize the role of different types of absorption:
+By doing so, the `mortality()` metric now returns a list with information about not just the total absorption, but the individual components as well. This allows the role of different types of absorption to be individually accessed and visualized:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-mort_traps <- mortality(samc_traps, origin = start)
-
-str(mort_traps)
-
-maze_plot(map(samc_traps, mort_traps$Finish), "Absorption Probability (Finish)", viridis(256))
-maze_plot(map(samc_traps, mort_traps$Traps), "Absorption Probability (Traps)", viridis(256))
+<<2_add_4>>
 ```
 
-We can also now make use of the `absorption()` metric:
+With multiple sources of absorption now specified in the samc object, the `absorption()` metric becomes relevant:
 ```{r}
-absorption(samc_traps, origin = start)
+<<2_add_5>>
 ```
 
-The output from this is quite simple: it tells us the probability that the individual will experience a particular type of absorption. So as we saw before, there is a 2.1% chance of finishing the maze. But now we see that there is a 97.9% total probability that absorption will occur in one of the three traps. This is different from the `mortality()` metric, which tells us the absorption probabilities at each cell. There's clearly a relationship between the two metrics, and the advantage of this example is that it's easy to see it; in more complex examples, it's more difficult to see how the two metrics are related.
+The output from this is quite simple: it is the probability that an individual will experience a particular type of absorption. As seen before, there is a 3.0% chance of finishing the maze. But `absorption()` also shows that there is a 97.0% total probability that absorption will occur in one of the three traps. This is different from the `mortality()` metric, which calculates the absorption probabilities at each cell. There is clearly a relationship between the two metrics, and the advantage of this example is that it's easy to see it; it is more difficult to see how the two metrics are related in more complex situations.
 
 
 ## Part 3
 
-In the next part of this example series we will take our maze with only a single solution and modify it with a "secret" shortcut. We will then take all of the changes we've introduced and combine them into a single final example.
+The next part of this example series will take the maze with only a single solution and modify it with a "secret" shortcut. Wrapping up this example, Part 3 will then take all of the changes introduced in the series and combine them into a single final example.
