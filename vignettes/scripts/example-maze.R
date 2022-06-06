@@ -190,7 +190,7 @@ maze_occ3[1, 1] <- 1
 maze_occ3[20, 1] <- 1
 maze_occ3[1, 20] <- 1
 
-plot_maze(maze_occ, "Occupancy", vir_col)
+plot_maze(maze_occ3, "Occupancy", vir_col)
 
 survival(maze_samc, occ = maze_occ3)
 
