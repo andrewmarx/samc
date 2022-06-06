@@ -89,7 +89,7 @@ For the original question, it's possible to collapse some of these states and si
 Could be simplified even further
 -->
 
-# Metrics
+## Metrics
 
 To answer the original question of how many coin flips it will take, on average, to see $HTH$, all we need to do is calculate the expected time to absorption. With the samc package, that is accomplished using the `survival()` function.
 ```{r}
