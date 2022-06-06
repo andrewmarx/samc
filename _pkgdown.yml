@@ -34,6 +34,8 @@ navbar:
         href: articles/tutorial-multiple-absorption.html
     - text: "Examples"
       menu:
+      - text: "Coin Flip"
+        href: articles/example-coinflip.html
       - text: "Maze (Part 1)"
         href: articles/example-maze-part1.html
       - text: "Maze (Part 2)"
