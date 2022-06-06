@@ -14,56 +14,6 @@
 #include <iomanip>
 
 
-// C++ 11 compliant progress output that should be thread safe
-class progressCounter {
-public:
-  progressCounter(size_t sz, double f) :
-    size(sz),
-    freq(f),
-    lastTime(std::chrono::steady_clock::now()),
-    startTime(std::chrono::steady_clock::now()) {}
-
-  void operator++(int) {
-    progress++;
-
-    auto currentTime = std::chrono::steady_clock::now();
-    double deltaTime = std::chrono::duration<double>(currentTime - lastTime).count();
-
-    std::lock_guard<std::mutex> lock(mutex);
-    if(deltaTime > 5.0) {
-      lastTime = currentTime;
-
-      double t = ((double)(std::chrono::duration<double>(currentTime - startTime).count() / progress) * (double)(size - progress));
-
-      std::string units = " seconds";
-
-      if (t > 86400) {
-        t = t / 86400;
-        units = " days";
-      } else if (t > 3600) {
-        t = t / 3600;
-        units = " hours";
-      } else if (t > 60) {
-        t = t / 60;
-        units = " minutes";
-      }
-
-      RcppThread::Rcout << "\r" << progress << "/" << size << " : " << t << units << " remaining                              ";
-    }
-  }
-
-private:
-  std::mutex mutex;
-  std::atomic<size_t> progress{0};
-  std::size_t size;
-  double freq;
-
-  std::chrono::time_point<std::chrono::steady_clock> lastTime;
-  std::chrono::time_point<std::chrono::steady_clock> startTime;
-};
-
-
-
 // [[Rcpp::export(".sum_qn_q")]]
 Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
                     const Eigen::Map<Eigen::SparseMatrix<double> > &M2,
@@ -120,7 +70,7 @@ Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> > &M, const
   for (auto &x : xs)
     x = Eigen::VectorXd::Zero(sz);
 
-  progressCounter progress(sz, 10.0);
+  RcppThread::ProgressCounter progress(sz, 10);
 
   auto fun = [&] (unsigned int i){
     RcppThread::checkUserInterrupt();
