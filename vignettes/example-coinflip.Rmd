@@ -34,6 +34,20 @@ It's possible to model this scenario using absorbing Markov chains. Metrics with
 
 The complete code for this example is available at [Github](https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-coinflip.R).
 
+<!--
+https://latex.codecogs.com/eqneditor/editor.php
+\bordermatrix{
+      & HHT & HHH & THT & THH & TTT & TTH & HTT & HTH \cr
+  HHT & 0   & 0   & 0   & 0   & 0   & 0   & 1-p & p   \cr
+  HHH & 1-p & p   & 0   & 0   & 0   & 0   & 0   & 0   \cr
+  THT & 0   & 0   & 0   & 0   & 0   & 0   & 1-p & p   \cr
+  THH & 1-p & p   & 0   & 0   & 0   & 0   & 0   & 0   \cr
+  TTT & 0   & 0   & 0   & 0   & 1-p & p   & 0   & 0   \cr
+  TTH & 0   & 0   & 1-p & p   & 0   & 0   & 0   & 0   \cr
+  HTT & 0   & 0   & 0   & 0   & 1-p & p   & 0   & 0   \cr
+  HTH & 0   & 0   & 0   & 0   & 0   & 0   & 0   & 1   
+}
+-->
 
 ## Libraries
 
@@ -44,19 +58,36 @@ The complete code for this example is available at [Github](https://github.com/a
 
 ## Setup
 
-The first step is to create a $P$ matrix representing the possible states. The key is to define $HTH$ as our absorbing state. In other words, once the model reaches that state, it is complete. 
+The first step is to create a $P$ matrix representing the possible states. The key is to define $HTH$ as our absorbing state. In other words, once the model reaches that state, it is complete.
+
+![](img/coinflipmatrix.svg)
+
 ```{r}
 <<setup_1>>
 ```
 
-First, we the coin flip probabilities are defined using variables, which allows us to easily change the matrix to simulate a biased coin.
+First, the coin flip probabilities are defined using variables, which allows us to easily change the matrix to simulate a biased coin if we want.
 
 The last row and column of the matrix represents $HTH$, or the absorbing state. Notice that the last row makes it so that $HTH$ can only transition to itself, and never to a different state. This construction is explained in the [Overview background](overview.html#background-1).
 
 The remaining rows/columns represent the remaining possible combinations of 3 coin flips. Technically, this model assumes our starting point includes a sequence of 3 previous flips. However, if we decide to use $TTT$ as our initial starting point, it will take at least 3 flips to get to the target sequence, which is no different than starting from an empty sequence of flips. Contrast this with the sequence of $HHT$, which only requires one more $H$ flip for the $HTH$ sequence to occur.
 
-In fact, for the original question, it's possible to collapse some of these states and simplify the matrix. For example, $HTT$ would also require a minimum of 3 flips to reach, so it could also be used as a starting point to answer the original question. However, the current construction allows different questions to be asked about the model. It could even be extended with more possible states (e.g., combinations of four coin flips).
+Finally, notice that the rows sum to `1`, which is required for the $P$ matrix. This makes sense because each row represents the transition probabilities for a state. Each state has a 100% probability of doing *something*, whether it's changing to a different transient state, an absorbing state, or back to the current state.
 
+For the original question, it's possible to collapse some of these states and simplify the matrix by only considering the last two coint flips instead of three. For example, $HTT$ would also require a minimum of 3 flips to reach (like $TTT$, which has the same last two flips), so it could also be used as a starting point to answer the original question. However, the current construction simplifies the interpretation a little and allows different questions to be asked about the model.
+
+<!--
+\bordermatrix{
+      & HT  & HH  & TT  & TH  & HTH \cr
+   HT & 0   & 0   & 1-p & 0^* & p   \cr   *TH and HTH same
+   HH & 1-p & p   & 0   & 0   & 0   \cr
+   TT & 0   & 0   & 1-p & p   & 0   \cr
+   TH & 1-p & p   & 0   & 0   & 0   \cr
+  HTH & 0   & 0   & 0   & 0   & 1
+}
+
+Could be simplified even further
+-->
 
 # Metrics
 
