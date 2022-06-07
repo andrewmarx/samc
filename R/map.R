@@ -63,7 +63,7 @@ setMethod(
     if (samc@source != "map") stop("This function cannot be used with a samc-class object created from a ", samc@source, call. = FALSE)
 
     lapply(vec, function(x){
-      if (class(x) != "numeric")
+      if (!inherits(x, "numeric"))
         stop("List contains invalid item(s); all entries must be numeric vectors.", call. = FALSE)
       if (length(x) != sum(samc@map[], na.rm = TRUE))
         stop("The length of one or more vectors in the list does not match the number of non-NA cells in the landscape data", call. = FALSE)
