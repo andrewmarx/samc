@@ -32,7 +32,7 @@ This example is a write up of an answer I gave to a [coin flip question on Stack
 
 It's possible to model this scenario using absorbing Markov chains. Metrics within the package can then be used to answer the posed question, as well as explore other questions that may be of interest. 
 
-The complete code for this example is available at [Github](https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-coinflip.R).
+The complete code for this example is available at [Github](https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-coinflip.R).
 
 <!--
 https://latex.codecogs.com/eqneditor/editor.php
