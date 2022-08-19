@@ -1,3 +1,10 @@
+# samc 2.0.1
+
+- Fix debian-clang build error
+- Replace built-in progress counter with RcppThread progress counter
+- Added/updated maze example vignettes
+- Added coin flip vignette
+
 # samc 2.0.0
 
 - Removed backwards compatibility for deprecated `samc()` function parameters. This is a breaking change that will make maintaining the package and adding new features a simpler process going forward, and that will hopefully only be a minor inconvenience for users. The warning message on package load introduced in v1.4.0 has been updated to reflect the new changes.

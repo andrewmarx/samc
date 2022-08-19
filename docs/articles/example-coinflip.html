@@ -31,14 +31,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -62,7 +62,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -74,7 +74,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -101,7 +101,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -145,13 +145,13 @@
 
       
 
-      </header><script src="example-coinflip_files/header-attrs-2.14/header-attrs.js"></script><div class="row">
+      </header><script src="example-coinflip_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Coin Flip</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2022-06-06</h4>
+            <h4 class="date">2022-08-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/example-coinflip.Rmd"><code>vignettes/example-coinflip.Rmd</code></a></small>
       <div class="hidden name"><code>example-coinflip.Rmd</code></div>
@@ -165,7 +165,7 @@
 <a href="#introduction" class="anchor"></a>Introduction</h2>
 <p>This example is a write up of an answer I gave to a <a href="https://stats.stackexchange.com/questions/553289/could-any-equation-have-predicted-the-results-of-this-simulation">coin flip question on StackExchange</a>. Essentially, the question was: given a series of coin flips, how many coin flips would it take (on average) to get the sequence <span class="math inline">\(Heads-Tails-Heads\)</span>.</p>
 <p>It’s possible to model this scenario using absorbing Markov chains. Metrics within the package can then be used to answer the posed question, as well as explore other questions that may be of interest.</p>
-<p>The complete code for this example is available at <a href="https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-coinflip.R">Github</a>.</p>
+<p>The complete code for this example is available at <a href="https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-coinflip.R">Github</a>.</p>
 <!--
 https://latex.codecogs.com/eqneditor/editor.php
 \bordermatrix{
@@ -233,9 +233,9 @@ https://latex.codecogs.com/eqneditor/editor.php
 Could be simplified even further
 -->
 </div>
-<div id="metrics" class="section level1">
-<h1 class="hasAnchor">
-<a href="#metrics" class="anchor"></a>Metrics</h1>
+<div id="metrics" class="section level2">
+<h2 class="hasAnchor">
+<a href="#metrics" class="anchor"></a>Metrics</h2>
 <p>To answer the original question of how many coin flips it will take, on average, to see <span class="math inline">\(HTH\)</span>, all we need to do is calculate the expected time to absorption. With the samc package, that is accomplished using the <code><a href="../reference/survival.html">survival()</a></code> function.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Given the last 3 flips, how many more flips until we hit HTH (absorption)?</span>

@@ -31,14 +31,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -62,7 +62,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -74,7 +74,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -101,7 +101,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -145,13 +145,13 @@
 
       
 
-      </header><script src="tutorial-basic_files/header-attrs-2.14/header-attrs.js"></script><div class="row">
+      </header><script src="tutorial-basic_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Basic Tutorial</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2022-06-06</h4>
+            <h4 class="date">2022-08-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-basic.Rmd"><code>vignettes/tutorial-basic.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-basic.Rmd</code></div>
@@ -294,27 +294,25 @@
 <span class="co">#&gt;   ..@ clumps  : int 1</span>
 <span class="co">#&gt;   ..@ override: logi FALSE</span>
 <span class="co">#&gt;   ..@ threads : num 1</span>
-<span class="co">#&gt;   ..@ .cache  :&lt;environment: 0x5563b61006c8&gt;</span></code></pre></div>
+<span class="co">#&gt;   ..@ .cache  :&lt;environment: 0x55bbf74397b0&gt;</span></code></pre></div>
 </div>
 <div id="basic-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#basic-analysis" class="anchor"></a>Basic Analysis</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Convert the occupancy data to probability of occurrence</span>
-<span class="va">occ_prob_data</span> <span class="op">&lt;-</span> <span class="va">occ_data</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">occ_data</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-
-<span class="co"># Calculate short- and long-term mortality metrics and long-term dispersal</span>
-<span class="va">short_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span>, time <span class="op">=</span> <span class="fl">4800</span><span class="op">)</span>
-<span class="va">long_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span><span class="op">)</span>
-<span class="va">long_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">occ_prob_data</span><span class="op">)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Cached diagonal not found.</span>
-<span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span>
-<span class="co">#&gt; Calculating matrix inverse diagonal...</span>
-<span class="co">#&gt; </span>
-<span class="va">Complete</span>                                                      
-<span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the occupancy data to probability of occurrence</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>occ_prob_data <span class="ot">&lt;-</span> occ_data <span class="sc">/</span> <span class="fu">sum</span>(occ_data, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate short- and long-term mortality metrics and long-term dispersal</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>short_mort <span class="ot">&lt;-</span> <span class="fu">mortality</span>(samc_obj, occ_prob_data, <span class="at">time =</span> <span class="dv">4800</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>long_mort <span class="ot">&lt;-</span> <span class="fu">mortality</span>(samc_obj, occ_prob_data)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>long_disp <span class="ot">&lt;-</span> <span class="fu">dispersal</span>(samc_obj, occ_prob_data)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Cached diagonal not found.</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Calculating matrix inverse diagonal...</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>Calculating matrix inverse diagonal... Complete                                           </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span></code></pre></div>
 </div>
 <div id="visualization" class="section level2">
 <h2 class="hasAnchor">

@@ -31,14 +31,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -62,7 +62,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -74,7 +74,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -101,7 +101,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -145,13 +145,13 @@
 
       
 
-      </header><script src="parallel_files/header-attrs-2.14/header-attrs.js"></script><div class="row">
+      </header><script src="parallel_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Parallel Computing</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2022-06-06</h4>
+            <h4 class="date">2022-08-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/parallel.Rmd"><code>vignettes/parallel.Rmd</code></a></small>
       <div class="hidden name"><code>parallel.Rmd</code></div>
@@ -175,9 +175,13 @@
 <code class="sourceCode R"><span class="co"># Assume samc_obj was created using samc()</span>
 
 <span class="va">samc_obj</span><span class="op">$</span><span class="va">threads</span> <span class="op">&lt;-</span> <span class="fl">4</span>
-<span class="co">#&gt; Important: When setting the number of threads, make sure to use a reasonable number for the machine the code will run on.</span>
-<span class="co">#&gt; Using the maximum number of threads supported by your hardware can make other programs non-responsive. Only do this if nothing else needs to run during the analysis.</span>
-<span class="co">#&gt; Specifying more threads than a machine supports in hardware will likely lead to lost performance.</span></code></pre></div>
+<span class="co">#&gt; Warning: Important: When setting the number of threads, make sure to use a</span>
+<span class="co">#&gt; reasonable number for the machine the code will run on.</span>
+<span class="co">#&gt; Warning: Using the maximum number of threads supported by your hardware can make</span>
+<span class="co">#&gt; other programs non-responsive. Only do this if nothing else needs to run during</span>
+<span class="co">#&gt; the analysis.</span>
+<span class="co">#&gt; Warning: Specifying more threads than a machine supports in hardware will likely</span>
+<span class="co">#&gt; lead to lost performance.</span></code></pre></div>
 <p>That’s it. If a function supports parallelization, it will now make use of multiple threads (4 in this example).</p>
 </div>
 <div id="limitations" class="section level2">

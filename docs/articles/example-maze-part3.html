@@ -31,14 +31,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -62,7 +62,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -74,7 +74,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -101,7 +101,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -145,13 +145,13 @@
 
       
 
-      </header><script src="example-maze-part3_files/header-attrs-2.14/header-attrs.js"></script><div class="row">
+      </header><script src="example-maze-part3_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Maze Part 3</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2022-06-06</h4>
+            <h4 class="date">2022-08-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/example-maze-part3.Rmd"><code>vignettes/example-maze-part3.Rmd</code></a></small>
       <div class="hidden name"><code>example-maze-part3.Rmd</code></div>
@@ -164,7 +164,7 @@
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
 <p>The third part of the series takes the perfect maze with only a single solution and modifies it so that it now has more than one solution. Afterwards, all of the changes introduced in the series are combined into a single complex example.</p>
-<p>The complete code for this series is available on <a href="https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-maze.R">Github</a>.</p>
+<p>The complete code for this series is available on <a href="https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-maze.R">Github</a>.</p>
 </div>
 <div id="setup" class="section level2">
 <h2 class="hasAnchor">
@@ -233,20 +233,17 @@
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">short_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">short_samc</span>, dest <span class="op">=</span> <span class="va">short_dest</span><span class="op">)</span>
 <span class="va">short_cond</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span>
-<span class="co">#&gt;        1 </span>
-<span class="co">#&gt; 9021.974</span></code></pre></div>
+<span class="co">#&gt; [1] 9021.974</span></code></pre></div>
 <p>Part 2 also showed that including additional absorbing states affects the probability of cells being visited. Modifying the maze to have multiple routes also has significant ramifications:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">short_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">short_samc</span>, origin <span class="op">=</span> <span class="va">short_origin</span><span class="op">)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Cached diagonal not found.</span>
-<span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span>
-<span class="co">#&gt; Calculating matrix inverse diagonal...</span>
-<span class="co">#&gt; </span>
-<span class="va">Complete</span>                                                      
-<span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span>
-
-<span class="fu">plot_maze</span><span class="op">(</span><span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">short_samc</span>, <span class="va">short_disp</span><span class="op">)</span>, <span class="st">"Probability of Visit (Shortcut Maze)"</span>, <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>short_disp <span class="ot">&lt;-</span> <span class="fu">dispersal</span>(short_samc, <span class="at">origin =</span> short_origin)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Cached diagonal not found.</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Calculating matrix inverse diagonal...</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>Calculating matrix inverse diagonal... Complete                                           </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_maze</span>(<span class="fu">map</span>(short_samc, short_disp), <span class="st">"Probability of Visit (Shortcut Maze)"</span>, <span class="fu">viridis</span>(<span class="dv">256</span>))</span></code></pre></div>
 <p><img src="example-maze-part3_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Notably, it is again no longer possible to discern the optimal route through the maze by looking for cells with a probability of <code>1.0</code>. But, like Part 2, a partial path can still be can still be identified:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">

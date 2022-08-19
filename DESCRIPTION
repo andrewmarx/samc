@@ -1,9 +1,9 @@
 Package: samc
 Type: Package
 Title: Spatial Absorbing Markov Chains
-Version: 2.0.0
+Version: 2.0.1
 Authors@R: c(
-    person("Andrew", "Marx", , "andrewjmarx@ufl.edu", role = c("aut", "cre", "cph"), 
+    person("Andrew", "Marx", , "ajm.rpackages@gmail.com", role = c("aut", "cre", "cph"), 
       comment = c(ORCID = "0000-0002-7456-1631")
     ),
     person("Robert", "Fletcher", , , role = c("ctb"),
@@ -66,4 +66,4 @@ Collate:
     'samc.R'
     'survival.R'
     'zzz.R'
-LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1), RcppThread (>= 1.0.0)
+LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1), RcppThread (>= 2.1.3)

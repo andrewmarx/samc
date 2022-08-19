@@ -31,14 +31,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -62,7 +62,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -74,7 +74,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -101,7 +101,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -145,13 +145,13 @@
 
       
 
-      </header><script src="example-maze-part2_files/header-attrs-2.14/header-attrs.js"></script><div class="row">
+      </header><script src="example-maze-part2_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Maze Part 2</h1>
                         <h4 class="author">Andrew Marx</h4>
             
-            <h4 class="date">2022-06-06</h4>
+            <h4 class="date">2022-08-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/example-maze-part2.Rmd"><code>vignettes/example-maze-part2.Rmd</code></a></small>
       <div class="hidden name"><code>example-maze-part2.Rmd</code></div>
@@ -164,7 +164,7 @@
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
 <p><a href="example-maze-part1.html">Part 1</a> of this series explored the applications of absorbing Markov chains in the context of a simple perfect maze. This part of the series will expand on the simple maze in various ways and explore how these changes affect interpretations of the different metrics offered in the samc package.</p>
-<p>The complete code for this series is available on <a href="https://github.com/andrewmarx/samc/tree/main/vignettes/scripts/example-maze.R">Github</a>.</p>
+<p>The complete code for this series is available on <a href="https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-maze.R">Github</a>.</p>
 </div>
 <div id="setup" class="section level2">
 <h2 class="hasAnchor">
@@ -201,18 +201,16 @@
 <span class="co">#&gt; [1] 14355</span></code></pre></div>
 <p>Intuitively, with “hesitation” added to the movement, the expected time to finish increases. Also note that incorporating fidelity in this particular example does not affect the relationship between <code><a href="../reference/survival.html">survival()</a></code> and <code><a href="../reference/cond_passage.html">cond_passage()</a></code>.</p>
 <p>In terms of the probability of visiting any particular cell, changing the fidelity does not change the results from Part 1:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ints_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">ints_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span><span class="op">)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Cached diagonal not found.</span>
-<span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span>
-<span class="co">#&gt; Calculating matrix inverse diagonal...</span>
-<span class="co">#&gt; </span>
-<span class="va">Complete</span>                                                      
-<span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span><span class="op">(</span><span class="va">maze_disp</span>, <span class="va">ints_disp</span><span class="op">)</span>
-<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ints_disp <span class="ot">&lt;-</span> <span class="fu">dispersal</span>(ints_samc, <span class="at">origin =</span> maze_origin)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Cached diagonal not found.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Calculating matrix inverse diagonal...</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>Calculating matrix inverse diagonal... Complete                                           </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(maze_disp, ints_disp)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>Fidelity does, however, change the number of times each cell is expected to be visited:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ints_visit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">ints_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span><span class="op">)</span>
@@ -297,19 +295,17 @@
 <span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">ends_samc</span>, <span class="va">maze_origin</span>, <span class="va">maze_dest</span><span class="op">)</span>
 <span class="co">#&gt; [1] 11312</span></code></pre></div>
 <p>Since the dead ends have a lower probability of being transitioned to, the <code><a href="../reference/dispersal.html">dispersal()</a></code> and <code><a href="../reference/visitation.html">visitation()</a></code> metrics should obviously reflect that:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ends_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">ends_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span><span class="op">)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Cached diagonal not found.</span>
-<span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span>
-<span class="co">#&gt; Calculating matrix inverse diagonal...</span>
-<span class="co">#&gt; </span>
-<span class="va">Complete</span>                                                      
-<span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span>
-<span class="fu">plot_maze</span><span class="op">(</span><span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">maze_samc</span>, <span class="va">ends_disp</span><span class="op">)</span>, <span class="st">"Probability of Visit"</span>, <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
-
-<span class="va">ends_visit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">ends_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span><span class="op">)</span>
-<span class="fu">plot_maze</span><span class="op">(</span><span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">maze_samc</span>, <span class="va">ends_visit</span><span class="op">)</span>, <span class="st">"Visits Per Cell"</span>, <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ends_disp <span class="ot">&lt;-</span> <span class="fu">dispersal</span>(ends_samc, <span class="at">origin =</span> maze_origin)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Cached diagonal not found.</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Calculating matrix inverse diagonal...</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>Calculating matrix inverse diagonal... Complete                                           </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_maze</span>(<span class="fu">map</span>(maze_samc, ends_disp), <span class="st">"Probability of Visit"</span>, <span class="fu">viridis</span>(<span class="dv">256</span>))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>ends_visit <span class="ot">&lt;-</span> <span class="fu">visitation</span>(ends_samc, <span class="at">origin =</span> maze_origin)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_maze</span>(<span class="fu">map</span>(maze_samc, ends_visit), <span class="st">"Visits Per Cell"</span>, <span class="fu">viridis</span>(<span class="dv">256</span>))</span></code></pre></div>
 <p><img src="example-maze-part2_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;"><img src="example-maze-part2_files/figure-html/unnamed-chunk-14-2.png" width="672" style="display: block; margin: auto;"></p>
 <p>The effect is more obvious with the expected number of visits from <code><a href="../reference/visitation.html">visitation()</a></code>; the probability illustration is more subtle compared to the original results in Part 1. This could be explored similarly to how some of the differences in the fidelity section are illustrated, an exercise that will be left to interested readers.</p>
 </div>
@@ -358,19 +354,17 @@
 <span class="fu">plot_maze</span><span class="op">(</span><span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">maze_samc</span>, <span class="va">traps_surv</span><span class="op">)</span>, <span class="st">"Expected Time to Absorption"</span>, <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="example-maze-part2_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>The results are also drastically different from Part 1 when looking at visitation probability and number of visits:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">traps_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">traps_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span><span class="op">)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Cached diagonal not found.</span>
-<span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span>
-<span class="co">#&gt; Calculating matrix inverse diagonal...</span>
-<span class="co">#&gt; </span>
-<span class="va">Complete</span>                                                      
-<span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span>
-<span class="fu">plot_maze</span><span class="op">(</span><span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">traps_samc</span>, <span class="va">traps_disp</span><span class="op">)</span>, <span class="st">"Probability of Visit"</span>, <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span>
-
-<span class="va">traps_visit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">traps_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span><span class="op">)</span>
-<span class="fu">plot_maze</span><span class="op">(</span><span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">traps_samc</span>, <span class="va">traps_visit</span><span class="op">)</span>, <span class="st">"Visits Per Cell"</span>, <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>traps_disp <span class="ot">&lt;-</span> <span class="fu">dispersal</span>(traps_samc, <span class="at">origin =</span> maze_origin)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Cached diagonal not found.</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Calculating matrix inverse diagonal...</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>Calculating matrix inverse diagonal... Complete                                           </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_maze</span>(<span class="fu">map</span>(traps_samc, traps_disp), <span class="st">"Probability of Visit"</span>, <span class="fu">viridis</span>(<span class="dv">256</span>))</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>traps_visit <span class="ot">&lt;-</span> <span class="fu">visitation</span>(traps_samc, <span class="at">origin =</span> maze_origin)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_maze</span>(<span class="fu">map</span>(traps_samc, traps_visit), <span class="st">"Visits Per Cell"</span>, <span class="fu">viridis</span>(<span class="dv">256</span>))</span></code></pre></div>
 <p><img src="example-maze-part2_files/figure-html/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;"><img src="example-maze-part2_files/figure-html/unnamed-chunk-19-2.png" width="672" style="display: block; margin: auto;"></p>
 <p>Importantly, the technique in Part 1 of using visitation probabilities of <code>1.0</code> to identify the route through the maze will not work in this example; it only works in very specialized cases. The reason is simple: since an individual can now be absorbed in other locations, there is a non-zero probability that they never reach the finish, which in turn means the probability of visiting the finish is now less than 1.0. However, the same technique can be used to see something interesting:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
