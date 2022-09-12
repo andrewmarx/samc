@@ -1,0 +1,123 @@
+---
+title: "Overview"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+required <- c("viridis")
+if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
+
+library("raster")
+library("gdistance")
+library("samc")
+library("viridisLite")
+library("igraph")
+```
+
+## Background
+
+This document describes the relationship between the samc package and circuit theory. The full derivation of this relationship was originally created for an article published in Methods in Ecology and Evolution, 2022; DOI: [10.1111/2041-210X.13975](https://doi.org/10.1111/2041-210X.13975). This material was also presented as part of a workshop during the 2021 International Association for Landscape Ecology - North American annual meeting: [IALE-NA 2021 Workshops](https://www.ialena.org/workshops-2021.html).
+
+Circuit theory (McRae, 2008) has become a widely used tool in ecology and conservation for modelling connectivity in landscapes. It can be used to calculate several different metrics: Commute time or effective distance (resistance), the net flow from one point to another (current), and the probability of reaching nodes (voltage).
+
+SAMC and circuit theory both use Markov chain theory to model movement based on variations in the landscape coded as resistance values. SAMC can be used to calculate the same measures as circuit theory, but by utilizing absorbing Markov chains, SAMC extends these capabilities to a variety of short- and long-term metrics. In effect, circuit theory is a special case of SAMC.
+
+
+## Commute Time (Resistance)
+
+
+### Definitions
+**Commute time**, or **commute distance**, is the expected length or time, or number of steps, it takes to go between two nodes in a graph using a random walk. This measure is bidirectional; it is the sum for going from one point to another and back. In circuit theory, commute time is calculated as a function of resistance in the network.
+
+**Hitting time**, or **first passage time** is the expected time, or number of steps, it takes to go from one point to another point using a random walk. This measure is unidirectional; it only accounts for going from one point to another, but *not* back. Depending on the situation, the hitting times may not be equal for different directions between two nodes. A means for calculating hitting times is not provided in circuit theory, but is possible using SAMC.
+
+
+### Decomposing Commute Time
+
+Let's refer to **commute time** as $C$ where $C_{ij}$ is the commute time from point $i$ to point $j$ and then back again to point $i$.
+
+Let's refer to **hitting time** using $H$, where $H_{ij}$ is the hitting time from point $i$ to point $j$, and $H_{ji}$ is the hitting time from point $j$ to point $i$. $H_{ij}$ and $H_{ij}$ may or may not be equal.
+
+Given these definitions, the sum of the two hitting times between two points is the same as the commute time. That is, $C_{ij}=H_{ij}+H_{ji}$.
+
+
+### Code
+
+```{r, message = FALSE}
+library("samc")
+library("raster")
+library("gdistance")
+
+res_data <- samc::ex_res_data
+abs_data <- samc::ex_abs_data
+occ_data <- samc::ex_occ_data
+
+plot(raster(res_data, xmn = 1, xmx = ncol(res_data), ymn = 1, ymx = nrow(res_data)),
+     main = "Example Resistance Data", xlab = "x", ylab = "y", col = viridis(256))
+
+plot(raster(abs_data, xmn = 1, xmx = ncol(abs_data), ymn = 1, ymx = nrow(abs_data)),
+     main = "Example Absorption Data", xlab = "x", ylab = "y", col = viridis(256))
+
+plot(raster(occ_data, xmn = 1, xmx = ncol(occ_data), ymn = 1, ymx = nrow(occ_data)),
+     main = "Example Occupancy Data", xlab = "x", ylab = "y", col = viridis(256))
+
+
+
+
+# Setup the details for our transition function
+tr <- list(fun = function(x) 1/mean(x), # Function for calculating transition probabilities
+           dir = 8, # Directions of the transitions. Either 4 or 8.
+           sym = TRUE) # Is the function symmetric?
+
+# Create a samc object using the resistance and absorption data. We use the
+# recipricol of the arithmetic mean for calculating the transition matrix. Note,
+# the input data here are matrices, not RasterLayers.
+samc_obj <- samc(res_data, abs_data, tr_args = tr)
+```
+
+
+## Net Flow (Current)
+
+
+## Visitation Probability (Voltage)
+
+
+
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
+#par(mar=c(0,0,0,0))
+
+lo = cbind((-2:2)/2, 0)
+g = graph(edges = c(1,2,2,3,3,4,4,5), n = 5, directed = FALSE)
+plot(g, vertex.label = c('i',NA,NA,NA,'j'), layout = lo, rescale = F)
+```
+
+
+
+$$
+P =
+\begin{bmatrix}
+Q & R \\
+0 & I
+\end{bmatrix}
+$$
+
+```{r, fig.show='hold'}
+str(samc::ex_res_data)
+str(samc::ex_abs_data)
+str(samc::ex_occ_data)
+
+
+```

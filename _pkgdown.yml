@@ -6,6 +6,8 @@ navbar:
       menu:
       - text: "Overview"
         href: articles/overview.html
+      - text: "Circuit Theory"
+        href: articles/article-circuit-theory.html
       - text: "Performance"
         href: articles/performance.html
       - text: "Parallel Computing"
