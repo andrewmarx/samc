@@ -31,30 +31,39 @@ library("igraph")
 
 This document describes the relationship between the samc package and circuit theory. The full derivation of this relationship was originally created for an article published in Methods in Ecology and Evolution, 2022; DOI: [10.1111/2041-210X.13975](https://doi.org/10.1111/2041-210X.13975). This material was also presented as part of a workshop during the 2021 International Association for Landscape Ecology - North American annual meeting: [IALE-NA 2021 Workshops](https://www.ialena.org/workshops-2021.html).
 
-Circuit theory (McRae, 2008) has become a widely used tool in ecology and conservation for modelling connectivity in landscapes. It can be used to calculate several different metrics: Commute time or effective distance (resistance), the net flow from one point to another (current), and the probability of reaching nodes (voltage).
+Circuit theory (McRae, 2008) has become a widely used tool in ecology and conservation for modelling connectivity in landscapes. It can be used to calculate several different metrics: Commute time or effective distance (resistance), the net flow from one node to another (current), and the probability of reaching nodes (voltage).
 
 SAMC and circuit theory both use Markov chain theory to model movement based on variations in the landscape coded as resistance values. SAMC can be used to calculate the same measures as circuit theory, but by utilizing absorbing Markov chains, SAMC extends these capabilities to a variety of short- and long-term metrics. In effect, circuit theory is a special case of SAMC.
 
 
 ## Commute Time (Resistance)
 
+**Commute time**, or **commute distance**, is the expected length or time, or number of steps, it takes to go between two nodes in a graph using a random walk. This measure is bidirectional; it is the sum for going from one node to another and back. In circuit theory, commute time is calculated as a function of resistance in the network. Let's refer to **commute time** as $C$ where $C_{ij}$ is the commute time from node $i$ to node $j$ and then back again to node $i$.
 
-### Definitions
-**Commute time**, or **commute distance**, is the expected length or time, or number of steps, it takes to go between two nodes in a graph using a random walk. This measure is bidirectional; it is the sum for going from one point to another and back. In circuit theory, commute time is calculated as a function of resistance in the network.
+**Hitting time**, or **first passage time** is the expected time, or number of steps, it takes to go from one node to another node using a random walk. This measure is unidirectional; it only accounts for going from one node to another, but *not* back. Depending on the situation, the hitting times may not be equal for different directions between two nodes. Let's refer to **hitting time** using $H$, where $H_{ij}$ is the hitting time from node $i$ to node $j$, and $H_{ji}$ is the hitting time from node $j$ to node $i$. $H_{ij}$ and $H_{ij}$ may or may not be equal.
 
-**Hitting time**, or **first passage time** is the expected time, or number of steps, it takes to go from one point to another point using a random walk. This measure is unidirectional; it only accounts for going from one point to another, but *not* back. Depending on the situation, the hitting times may not be equal for different directions between two nodes. A means for calculating hitting times is not provided in circuit theory, but is possible using SAMC.
+Given these definitions, the sum of the two hitting times between two nodes is the same as the commute time between the two nodes. That is, $C_{ij}=H_{ij}+H_{ji}$.
 
+Circuit theory can be used to calculate the commute time between two points via tools like Circuitscape or the gdistance R package, but commute time cannot be directly calculated using SAMC. A means for calculating hitting times is not provided in circuit theory, but is possible using SAMC. These two hitting times can then be summed to get the commute time. There are two ways in which hitting times can be calculated with SAMC.
 
-### Decomposing Commute Time
+The first approach to calculating hitting times via SAMC is with the `survival()` metric. This requires creating two `samc` objects (one for each direction between two nodes). One must not have absorption except total absorption at node $i$, and the other must not have absorption except total absorption at node $j$. As long as absorption only occurs at the destination node and has an absorption probability of `1`, the `survival()` function is effectively calculating the first passage time to that node. Graphs with absorption occurring outside of the destination nodes requires an alternative approach. 
 
-Let's refer to **commute time** as $C$ where $C_{ij}$ is the commute time from point $i$ to point $j$ and then back again to point $i$.
-
-Let's refer to **hitting time** using $H$, where $H_{ij}$ is the hitting time from point $i$ to point $j$, and $H_{ji}$ is the hitting time from point $j$ to point $i$. $H_{ij}$ and $H_{ij}$ may or may not be equal.
-
-Given these definitions, the sum of the two hitting times between two points is the same as the commute time. That is, $C_{ij}=H_{ij}+H_{ji}$.
+The second approach is `cond_passage()`, which was created to directly calculate the "conditional" first passage time in graphs where absorption can occur anywhere. It's "conditional" because it only calculates the mean for the possible paths through the graph where the destination node is reached. This is done because when there is absorption outside of the destination node, there will be scenarios or paths where the destination is never reached, which is effectively an infinite distance to the destination that would lead to an nonsensical mean. So these paths are excluded. `cond_passage()` can be used in the same way as was described for the `survival()` metric in the previous paragraph, in which case an equivalent result to commute distance from circuit theory will be obtained. But if the desire is to incorporate absorption more broadly, then only a single normal `samc` object is needed; no special consideration for absorption at destination nodes has to be given.
 
 
-### Code
+## Net Flow (Current)
+
+One application of circuit theory is the construction of current maps that describe the **net** movement from one node to another. There is an important distinction between **net** and **total** movement flow here; **net** movement is the difference between movement flows in opposite directions, whereas **total** movement is the sum of the movement flows in opposite directions.
+
+SAMC can calculate the **total** movement directly using the `visitation()` metric. This result and the $Q$ matrix from the samc object can then be used to calculate the **net** movement from one node to another.
+
+
+## Visitation Probability (Voltage)
+
+In circuit theory, when one or more nodes are designated as a source, and one or more nodes are designated as ground, the voltage measures in the remaining nodes are the probabilities that 
+
+
+## Code
 
 ```{r, message = FALSE}
 library("samc")
@@ -87,13 +96,6 @@ tr <- list(fun = function(x) 1/mean(x), # Function for calculating transition pr
 # the input data here are matrices, not RasterLayers.
 samc_obj <- samc(res_data, abs_data, tr_args = tr)
 ```
-
-
-## Net Flow (Current)
-
-
-## Visitation Probability (Voltage)
-
 
 
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
