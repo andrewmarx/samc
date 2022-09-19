@@ -86,13 +86,40 @@
 
 #' Rasterize matrices
 #'
-#' Convert a matrix to a RasterLayer. Ensures consistency of conversion throughout the package
+#' Convert a matrix to a SpatRaster. Ensures consistency of conversion throughout the package
 #'
 #' @param x A matrix
 #' @noRd
-.rasterize <- function(x) {
-  return(raster::raster(x, xmn = 0.5, xmx = ncol(x) + 0.5, ymn = 0.5, ymx = nrow(x) + 0.5, crs = NA))
-}
+setGeneric(
+  ".rasterize",
+  function(x) {
+    standardGeneric(".rasterize")
+  })
+
+#' @noRd
+setMethod(
+  ".rasterize",
+  signature(x = "matrix"),
+  function(x) {
+    terra::rast(x, extent = terra::ext(0.5, ncol(x) + 0.5, 0.5, nrow(x) + 0.5))
+  })
+
+#' @noRd
+setMethod(
+  ".rasterize",
+  signature(x = "RasterLayer"),
+  function(x) {
+    terra::rast(x)
+  })
+
+#' @noRd
+setMethod(
+  ".rasterize",
+  signature(x = "SpatRaster"),
+  function(x) {
+    x
+  })
+
 
 
 #' Process location inputs
