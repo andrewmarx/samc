@@ -25,7 +25,7 @@ NULL
 #'
 #' @param samc Spatial absorbing Markov chain object. This should be output from the samc() function.
 #' @param vec Vector data to fill into the map.
-#' @return A RasterLayer object
+#' @return A RasterLayer or SpatRaster object
 #'
 #' @example inst/examples/example.R
 #'
