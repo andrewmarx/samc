@@ -136,6 +136,10 @@ setMethod(
             fidelity = "samc_raster",
             tr_args = "missing"),
   function(data, absorption, fidelity) {
+
+    absorption = .rasterize(absorption)
+    fidelity = .rasterize(fidelity)
+
     check(absorption, fidelity)
 
     abs_vec <- as.vector(absorption)
@@ -255,6 +259,8 @@ setMethod(
             fidelity = "missing",
             tr_args = "missing"),
   function(data, absorption) {
+    absorption = .rasterize(absorption)
+
     fidelity <- absorption
     fidelity[is.finite(fidelity)] <- 0
 
@@ -271,12 +277,16 @@ setMethod(
   function(data, absorption, fidelity, tr_args) {
     .validate_tr_args(tr_args)
 
+    data = .rasterize(data)
+    absorption = .rasterize(absorption)
+    fidelity = .rasterize(fidelity)
+
     tr_fun <- tr_args$fun
     directions <-tr_args$dir
     symm <- tr_args$sym
 
     # Make sure the input data all aligns
-    check(raster::stack(data, fidelity, absorption))
+    check(c(data, fidelity, absorption))
 
     if (any(data[] <= 0, na.rm = TRUE)) {
       stop("The data must not have values <= 0", call. = FALSE)
@@ -350,6 +360,9 @@ setMethod(
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {
+
+    data = .rasterize(data)
+    absorption = .rasterize(absorption)
 
     fidelity <- data
     fidelity[is.finite(fidelity)] <- 0
