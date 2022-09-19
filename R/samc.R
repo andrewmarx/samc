@@ -132,8 +132,8 @@ setGeneric(
 setMethod(
   "samc",
   signature(data = "TransitionLayer",
-            absorption = "RasterLayer",
-            fidelity = "RasterLayer",
+            absorption = "samc_raster",
+            fidelity = "samc_raster",
             tr_args = "missing"),
   function(data, absorption, fidelity) {
     check(absorption, fidelity)
@@ -251,7 +251,7 @@ setMethod(
 setMethod(
   "samc",
   signature(data = "TransitionLayer",
-            absorption = "RasterLayer",
+            absorption = "samc_raster",
             fidelity = "missing",
             tr_args = "missing"),
   function(data, absorption) {
@@ -264,9 +264,9 @@ setMethod(
 #' @rdname samc
 setMethod(
   "samc",
-  signature(data = "RasterLayer",
-            absorption = "RasterLayer",
-            fidelity = "RasterLayer",
+  signature(data = "samc_raster",
+            absorption = "samc_raster",
+            fidelity = "samc_raster",
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
     .validate_tr_args(tr_args)
@@ -345,8 +345,8 @@ setMethod(
 #' @rdname samc
 setMethod(
   "samc",
-  signature(data = "RasterLayer",
-            absorption = "RasterLayer",
+  signature(data = "samc_raster",
+            absorption = "samc_raster",
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {

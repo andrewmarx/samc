@@ -31,3 +31,13 @@ setClass(
   #   return(TRUE)
   # }
 )
+
+
+#' samc raster class
+#'
+#' Class for grouping different raster types under one parameter
+#'
+#' @name samc_raster-class
+#' @keywords internal
+
+setClassUnion("samc_raster", c("RasterLayer", "SpatRaster"))
