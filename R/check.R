@@ -140,7 +140,7 @@ setMethod(
           }
         )
 
-        if (!all.equal(values(r1), is.finite(values(r2)))) {
+        if (!all.equal(terra::values(r1, mat = FALSE), terra::values(r2, mat = FALSE))) {
           stop("NA mismatch in input data", call. = FALSE)
         }
       }
