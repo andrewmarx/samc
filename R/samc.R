@@ -309,8 +309,8 @@ setMethod(
     m[] <- is.finite(m[])
 
     # Check for "clumps"
-    cl <- raster::clump(m, directions = directions, gaps = FALSE)
-    clumps <- sum(!is.na(unique(cl[])))
+    cl <- terra::patches(m, directions = directions, allowGaps = FALSE)
+    clumps <- sum(!is.na(terra::unique(cl)[, 1]))
 
     if (clumps > 1) {
       print("Warning: Input contains disconnected regions. This does not work with the cond_passage() metric.")
@@ -319,7 +319,7 @@ setMethod(
       temp_abs[temp_abs > 0] <- 1
       temp_abs <- temp_abs * cl
 
-      if (!all(1:clumps %in% unique(temp_abs[]))) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
+      if (!all(1:clumps %in% terra::unique(temp_abs)[, 1])) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
     }
 
     abs_vec <- as.vector(absorption)
