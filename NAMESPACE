@@ -1,6 +1,7 @@
 useDynLib(samc)
 importClassesFrom("Matrix", "dgCMatrix")
 importClassesFrom("raster", "RasterLayer")
+importClassesFrom("terra", "SpatRaster")
 importFrom("methods", "as")
 importFrom("gdistance", "transition")
 exportPattern("^[[:alpha:]]+")
