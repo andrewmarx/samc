@@ -40,6 +40,9 @@ setGeneric(
     standardGeneric("check")
   })
 
+
+
+# TODO merge
 #' @rdname check
 setMethod(
   "check",
@@ -96,11 +99,77 @@ setMethod(
 #' @rdname check
 setMethod(
   "check",
+  signature(a = "SpatRaster", b = "missing"),
+  function(a){
+
+    n <- terra::nlyr(a)
+
+    if (n == 0) {
+      stop("No raster layers found", call. = FALSE)
+    }
+
+    r1 <- a[[1]]
+
+    if (sum(is.infinite(r1[]), na.rm = TRUE) > 0) {
+      stop("Data contains Inf or -Inf element", call. = FALSE)
+    } else if (sum(is.nan(r1[]), na.rm = TRUE) > 0) {
+      stop("Data contains NaN elements", call. = FALSE)
+    }
+
+    if (n > 1) {
+      r1[] <- is.finite(r1[])
+
+      for (i in 2:n) {
+        r2 <- a[[i]]
+
+        if (sum(is.infinite(r2[]), na.rm = TRUE) > 0) {
+          stop("Data contains Inf or -Inf element", call. = FALSE)
+        } else if (sum(is.nan(r2[]), na.rm = TRUE) > 0) {
+          stop("Data contains NaN elements", call. = FALSE)
+        }
+
+        r2[] <- is.finite(r2[])
+
+        tryCatch(
+          {
+            terra::compareGeom(r1, r2)
+          },
+          error = function(e) {
+              msg = e$message
+            stop(msg, " in input data", call. = FALSE)
+          }
+        )
+
+        if (!all.equal(values(r1), is.finite(values(r2)))) {
+          stop("NA mismatch in input data", call. = FALSE)
+        }
+      }
+    }
+
+    return(TRUE)
+  })
+
+
+
+#' @rdname check
+setMethod(
+  "check",
   signature(a = "matrix", b = "missing"),
   function(a){
     a <- .rasterize(a)
 
     check(a)
+  })
+
+
+
+# TODO: merge
+#' @rdname check
+setMethod(
+  "check",
+  signature(a = "SpatRaster", b = "SpatRaster"),
+  function(a, b){
+    check(c(a, b))
   })
 
 #' @rdname check
@@ -110,6 +179,8 @@ setMethod(
   function(a, b){
     check(raster::stack(a, b))
   })
+
+
 
 #' @rdname check
 setMethod(
@@ -122,6 +193,9 @@ setMethod(
     check(a, b)
   })
 
+
+
+# TODO merge
 #' @rdname check
 setMethod(
   "check",
@@ -134,6 +208,22 @@ setMethod(
 
     check(a, b)
   })
+
+#' @rdname check
+setMethod(
+  "check",
+  signature(a = "samc", b = "SpatRaster"),
+  function(a, b){
+    if (a@source != "map") stop("Parameters do not apply to a samc-class object created from a ", a@source, call. = FALSE)
+
+    a <- a@map
+    a[!a[]] <- NA
+
+    check(a, b)
+  })
+
+
+
 
 #' @rdname check
 setMethod(
