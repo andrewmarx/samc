@@ -108,17 +108,6 @@ setMethod(
       stop("No raster layers found", call. = FALSE)
     }
 
-    if (n > 1) {
-      for (i in 2:n) {
-        tryCatch(
-          {
-            terra::compareGeom(a[[1]], a[[i]])
-          },
-          error = function(e) { stop(e$message, " in input data", call. = FALSE) }
-        )
-      }
-    }
-
     inf_counts = numeric(n)
     nan_counts = numeric(n)
 
@@ -169,7 +158,7 @@ setMethod(
   "check",
   signature(a = "SpatRaster", b = "SpatRaster"),
   function(a, b){
-    check(c(a, b))
+    check(c(a, b)) # TODO make CRS warning an error?
   })
 
 #' @rdname check
