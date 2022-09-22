@@ -108,42 +108,42 @@ setMethod(
       stop("No raster layers found", call. = FALSE)
     }
 
-    r1 <- a[[1]]
-
-    if (sum(is.infinite(r1[]), na.rm = TRUE) > 0) {
-      stop("Data contains Inf or -Inf element", call. = FALSE)
-    } else if (sum(is.nan(r1[]), na.rm = TRUE) > 0) {
-      stop("Data contains NaN elements", call. = FALSE)
-    }
-
     if (n > 1) {
-      r1[] <- is.finite(r1[])
-
       for (i in 2:n) {
-        r2 <- a[[i]]
-
-        if (sum(is.infinite(r2[]), na.rm = TRUE) > 0) {
-          stop("Data contains Inf or -Inf element", call. = FALSE)
-        } else if (sum(is.nan(r2[]), na.rm = TRUE) > 0) {
-          stop("Data contains NaN elements", call. = FALSE)
-        }
-
-        r2[] <- is.finite(r2[])
-
         tryCatch(
           {
-            terra::compareGeom(r1, r2)
+            terra::compareGeom(a[[1]], a[[i]])
           },
-          error = function(e) {
-              msg = e$message
-            stop(msg, " in input data", call. = FALSE)
-          }
+          error = function(e) { stop(e$message, " in input data", call. = FALSE) }
         )
-
-        if (!all.equal(terra::values(r1, mat = FALSE), terra::values(r2, mat = FALSE))) {
-          stop("NA mismatch in input data", call. = FALSE)
-        }
       }
+    }
+
+    inf_counts = numeric(n)
+    nan_counts = numeric(n)
+
+    for (r in terra::nrow(a)) {
+      data = terra::values(a, row = r, nrows = 1)
+      inf_counts = inf_counts + colSums(is.infinite(data))
+      nan_counts = nan_counts + colSums(is.nan(data))
+
+      data = is.finite(data)
+
+      if (length(unique(rowSums(data))) != 1) {
+        break
+      }
+    }
+
+    if (any(inf_counts > 0)) {
+      msg = paste(inf_counts, collapse=", ")
+      stop(paste("Data contains Inf or -Inf element in layers:", msg), call. = FALSE)
+    } else if (any(nan_counts > 0)) {
+      msg = paste(inf_counts, collapse=", ")
+      stop(paste("Data contains NaN elements in layers:", msg), call. = FALSE)
+    }
+
+    if (length(unique(rowSums(data))) != 1) {
+      stop("NA mismatch in input data", call. = FALSE)
     }
 
     return(TRUE)
