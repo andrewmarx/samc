@@ -83,7 +83,7 @@ setClass(
   # define the slots
   slots = list(data = "samc_data",
                source = "character",
-               map = "RasterLayer",
+               map = "samc_raster",
                clumps = "numeric",
                override = "logical",
                threads = "numeric",
