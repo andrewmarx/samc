@@ -142,8 +142,8 @@ setMethod(
 
     check(absorption, fidelity)
 
-    abs_vec <- as.vector(absorption)
-    fid_vec <- as.vector(fidelity)
+    abs_vec <- as.vector(terra::values(absorption))
+    fid_vec <- as.vector(terra::values(fidelity))
 
     if (any(fid_vec < 0, na.rm = TRUE) || any(fid_vec > 1, na.rm = TRUE)) {
       stop("Fidelity values must be in range of 0-1", call. = FALSE)
@@ -167,19 +167,21 @@ setMethod(
 
     # Get raster
     rs <- gdistance::raster(data)
+    rs = terra::rast(rs)
     rs[] <- is.finite(rs[])
 
     if (!identical(dim(m)[1:2], dim(rs)[1:2])) {
       stop("Dimensions of absorption raster does not match dimensions of raster used to create TransitionLayer")
     }
 
-    if (!identical(raster::extent(m), raster::extent(rs))) {
+    if (!identical(terra::ext(m)[], terra::ext(rs)[])) {
       stop("Extent of absorption raster does not match extent of raster used to create TransitionLayer")
     }
 
-    if (!raster::compareCRS(m, rs)) {
-      stop("crs of absorption raster does not match crs of raster used to create TransitionLayer")
-    }
+    # TODO reimpliment for terra
+    #if (!raster::compareCRS(m, rs)) {
+    #  stop("crs of absorption raster does not match crs of raster used to create TransitionLayer")
+    #}
 
 
     tr_mat <- gdistance::transitionMatrix(data)
