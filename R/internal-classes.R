@@ -18,7 +18,7 @@ setClass(
   "samc_data",
 
   # define the slots
-  slots = list(q = "dgCMatrix",
+  slots = list(q = "CsparseMatrix",
                t_abs = "numeric",
                c_abs = "matrix")
 
