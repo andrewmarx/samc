@@ -5,6 +5,54 @@
 # be used by users.
 #
 
+#' Transition function
+#'
+#' An internal function for creating transition matrices
+#'
+#' @param data A SpatRaster
+#' @noRd
+.transition <- function(data, fun, dir, sym = TRUE) {
+  if (class(fun) == "character" || !(dir %in% c(4, 8))) {
+    stop("gdistance's named funtion options not supported")
+    #return(gdistance::transition(data, fun, dir, sym))
+  }
+
+  data_crs = terra::crs(data)
+  data_cells = terra::ncell(data)
+  data_rows = terra::nrow(data)
+  data_cols = terra::ncol(data)
+
+  Cells = terra::cells(data)
+  adj = terra::adjacent(data, cells=Cells, pairs=TRUE, directions=dir)
+
+  if(sym) adj = adj[adj[,1] < adj[,2],]
+
+  data = as.vector(terra::values(data))
+
+  transition.values = numeric(nrow(adj))
+
+  for (i in 1:nrow(adj)) {
+    transition.values[i] = fun(data[as.vector(adj[i, ])])
+  }
+
+  rm(data)
+  gc()
+
+  if(!all(transition.values>=0)){
+    warning("transition function gives negative values")
+  }
+
+  i = adj[,1]
+  j = adj[,2]
+  rm(adj)
+  gc()
+
+  transitionMatrix = Matrix::sparseMatrix(i = i, j = j, x = transition.values, symmetric = sym)
+
+  return(transitionMatrix)
+}
+
+
 #' Validate time steps
 #'
 #' Performs several checks to make sure a vector of time steps is valid
