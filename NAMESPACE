@@ -1,4 +1,5 @@
 useDynLib(samc)
+importClassesFrom("Matrix", "CsparseMatrix")
 importClassesFrom("Matrix", "dgCMatrix")
 importClassesFrom("raster", "RasterLayer")
 importClassesFrom("terra", "SpatRaster")
