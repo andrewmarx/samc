@@ -290,15 +290,18 @@ setMethod(
     # Make sure the input data all aligns
     check(c(data, fidelity, absorption))
 
-    if (any(data[] <= 0, na.rm = TRUE)) {
+    data_minmax = terra::minmax(data)
+    if (data_minmax["min", 1] < 0) {
       stop("The data must not have values <= 0", call. = FALSE)
     }
 
-    if (any(fidelity[] < 0, na.rm = TRUE) || any(fidelity[] > 1, na.rm = TRUE)) {
+    fid_minmax = terra::minmax(fidelity)
+    if (fid_minmax["min", 1] < 0 || fid_minmax["max", 1] > 1) {
       stop("Fidelity values must be in range of 0-1", call. = FALSE)
     }
 
-    if (any((fidelity[] + absorption[]) > 1, na.rm = TRUE)) {
+    fidabs_minmax = terra::minmax(fidelity + absorption)
+    if (fidabs_minmax["max", 1] > 1) {
       stop("No cells can have fidelity + absoprtion > 1", call. = FALSE)
     }
 
@@ -306,50 +309,75 @@ setMethod(
       stop("directions must be set to either 4 or 8", call. = FALSE)
     }
 
-    # Create map template
-    m <- data
-    m[] <- is.finite(m[])
+
+
+    #abs_vec <- as.vector(absorption)
+    #fid_vec <- as.vector(fidelity)
+
+    abs_minmax = terra::minmax(absorption)
+
+    if (abs_minmax["min", 1] < 0 || abs_minmax["max", 1] > 1) {
+      stop("Absorption values must be in range of 0-1", call. = FALSE)
+    } else if (abs_minmax["min", 1] == 0) {
+      stop("At least one cell must have an absorption value > 0", call. = FALSE)
+    }
+
+
+
+    samc_obj <- methods::new("samc",
+                             data = methods::new("samc_data",
+                                                 q = new("dgCMatrix"),
+                                                 t_abs = numeric(0)),
+                             source = "map",
+                             map = is.finite(data),
+                             clumps = -1,
+                             override = FALSE,
+                             threads = 1,
+                             .cache = new.env())
+
+
 
     # Check for "clumps"
-    cl <- terra::patches(m, directions = directions, allowGaps = FALSE)
-    clumps <- sum(!is.na(terra::unique(cl)[, 1]))
+    cl = terra::patches(samc_obj@map, directions = directions, allowGaps = FALSE)
+    samc_obj@clumps = sum(!is.na(terra::unique(cl)[, 1]))
 
-    if (clumps > 1) {
+    if (samc_obj@clumps > 1) {
       print("Warning: Input contains disconnected regions. This does not work with the cond_passage() metric.")
 
-      temp_abs <- absorption[[1]]
-      temp_abs[temp_abs > 0] <- 1
-      temp_abs <- temp_abs * cl
+      temp_abs = absorption[[1]]
+      temp_abs[temp_abs > 0] = 1
+      temp_abs = temp_abs * cl
 
-      if (!all(1:clumps %in% terra::unique(temp_abs)[, 1])) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
+      if (!all(1:samc_obj@clumps %in% terra::unique(temp_abs)[, 1])) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
+
+      rm(temp_abs)
     }
+    rm(cl)
+    gc()
 
-    abs_vec <- as.vector(absorption)
-    fid_vec <- as.vector(fidelity)
 
-    if (any(abs_vec > 1, na.rm = TRUE) || any(abs_vec < 0, na.rm = TRUE)) {
-      stop("Absorption values must be in range of 0-1", call. = FALSE)
-    }
-
-    if (sum(abs_vec, na.rm = TRUE) == 0) {
-      stop("At least one cell must have a total absorption value > 0", call. = FALSE)
-    }
 
     # Create the transition matrix
-    tr <- gdistance::transition(data, transitionFunction = tr_fun, directions, symm = symm)
-    if(directions == 8 || raster::isLonLat(data)) {
-      tr <- gdistance::geoCorrection(tr, type = "c")
-    }
+    samc_obj@data@q = .transition(data, tr_fun, directions, symm)
+
+    #if(directions == 8 || raster::isLonLat(data)) {
+    #  tr <- gdistance::geoCorrection(tr, type = "c")
+    #}
+
+    gc()
 
     if(is.na(raster::projection(data)) && raster::xres(data) != raster::yres(data)) {
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 
-    samc_obj <- samc(tr, absorption, fidelity)
 
-    samc_obj@source = "map"
-    samc_obj@map <- m
-    samc_obj@clumps <- clumps
+
+
+
+
+    samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@q))
+    samc_obj@.cache$dgf_exists = FALSE
+
 
     return(samc_obj)
   })
