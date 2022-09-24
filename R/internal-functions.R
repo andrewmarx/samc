@@ -24,48 +24,61 @@
 
   cell_nums = terra::cells(resistance)
   adj = terra::adjacent(resistance, cells=cell_nums, pairs=TRUE, directions=dir)
+  adj = adj[adj[, 2] %in% cell_nums, ]
+
+  adj_length = nrow(adj)
 
   if(sym) adj = adj[adj[,1] < adj[,2],]
 
-  adj = adj[adj[, 2] %in% cell_nums, ]
+  i = adj[,1]
+  j = adj[,2]
 
-  cell_nums = unique(adj[, 1])
+  sums = numeric(max(adj))
 
   res = as.vector(terra::values(resistance))
-  fid = as.vector(terra::values(fidelity))
-  abs = as.vector(terra::values(absorption))
 
-  transition.values = numeric(nrow(adj))
+  adj[] = res[adj]
+  rm(res);gc()
 
-  #for (i in 1:nrow(adj)) {
-  #  transition.values[i] = fun(res[as.vector(adj[i, ])])
-  #}
+  transition.values = numeric(adj_length)
 
-  for (i in cell_nums) {
-    indices = which(adj[, 1] == i)
+  if (sym) {
+    adj_length = nrow(adj)
+    for (k in 1:adj_length) {
+      transition.values[c(k, k + adj_length)] = fun(adj[k, ])
 
-    sub_adj = adj[indices, , drop = FALSE]
-    sub_adj[] = res[sub_adj]
+      sums[i[k]] = sums[i[k]] + transition.values[k]
+      sums[j[k]] = sums[j[k]] + transition.values[k]
+    }
 
-    results = apply(sub_adj, 1, fun)
-    results = (1 - abs[i] - fid[i]) * results / sum(results)
+    tmp = i
+    i = c(i, j)
+    j = c(j, tmp)
+  } else {
+    for (k in 1:nrow(adj)) {
+      transition.values[k] = fun(adj[k, ])
 
-    transition.values[indices] = results
+      sums[i[k]] = sums[i[k]] + transition.values[k]
+    }
   }
 
-  rm(res, fid, abs)
-  gc()
+  rm(adj);gc()
+
+  tmp = as.vector(terra::values(1 - absorption - fidelity))
+
+  transition.values = tmp[i] * transition.values / sums[i]
+
+  rm(tmp, sums); gc()
 
   if(!all(transition.values >= 0)){
     warning("transition function gives negative values")
   }
 
-  i = adj[,1]
-  j = adj[,2]
-  rm(adj)
-  gc()
+  i = c(i, cell_nums)
+  j = c(j, cell_nums)
+  transition.values = c(transition.values, as.vector(terra::values(fidelity))[cell_nums])
 
-  transitionMatrix = Matrix::sparseMatrix(i = i, j = j, x = transition.values, symmetric = sym)
+  transitionMatrix = Matrix::sparseMatrix(i = i, j = j, x = transition.values)
 
   return(transitionMatrix)
 }
