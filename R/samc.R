@@ -366,12 +366,23 @@ setMethod(
 
     gc()
 
+    samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
+
     if(is.na(raster::projection(data)) && raster::xres(data) != raster::yres(data)) {
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 
 
+    # Check dimnames
+    if (is.null(rownames(samc_obj@data@q))) rownames(samc_obj@data@q) <- 1:nrow(samc_obj@data@q)
+    if (is.null(colnames(samc_obj@data@q))) colnames(samc_obj@data@q) <- 1:ncol(samc_obj@data@q)
 
+    if (any(duplicated(rownames(samc_obj@data@q))))
+      stop("Row names must be unique")
+    if (any(duplicated(colnames(samc_obj@data@q))))
+      stop("Column names must be unique")
+
+    names(samc_obj@data@t_abs) <- rownames(samc_obj@data@q)
 
 
 
