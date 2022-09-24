@@ -11,34 +11,52 @@
 #'
 #' @param data A SpatRaster
 #' @noRd
-.transition <- function(data, fun, dir, sym = TRUE) {
+.transition <- function(resistance, absorption, fidelity, fun, dir, sym = TRUE) {
   if (class(fun) == "character" || !(dir %in% c(4, 8))) {
     stop("gdistance's named funtion options not supported")
     #return(gdistance::transition(data, fun, dir, sym))
   }
 
-  data_crs = terra::crs(data)
-  data_cells = terra::ncell(data)
-  data_rows = terra::nrow(data)
-  data_cols = terra::ncol(data)
+  data_crs = terra::crs(resistance)
+  data_cells = terra::ncell(resistance)
+  data_rows = terra::nrow(resistance)
+  data_cols = terra::ncol(resistance)
 
-  Cells = terra::cells(data)
-  adj = terra::adjacent(data, cells=Cells, pairs=TRUE, directions=dir)
+  cell_nums = terra::cells(resistance)
+  adj = terra::adjacent(resistance, cells=cell_nums, pairs=TRUE, directions=dir)
 
   if(sym) adj = adj[adj[,1] < adj[,2],]
 
-  data = as.vector(terra::values(data))
+  adj = adj[adj[, 2] %in% cell_nums, ]
+
+  cell_nums = unique(adj[, 1])
+
+  res = as.vector(terra::values(resistance))
+  fid = as.vector(terra::values(fidelity))
+  abs = as.vector(terra::values(absorption))
 
   transition.values = numeric(nrow(adj))
 
-  for (i in 1:nrow(adj)) {
-    transition.values[i] = fun(data[as.vector(adj[i, ])])
+  #for (i in 1:nrow(adj)) {
+  #  transition.values[i] = fun(res[as.vector(adj[i, ])])
+  #}
+
+  for (i in cell_nums) {
+    indices = which(adj[, 1] == i)
+
+    sub_adj = adj[indices, , drop = FALSE]
+    sub_adj[] = res[sub_adj]
+
+    results = apply(sub_adj, 1, fun)
+    results = (1 - abs[i] - fid[i]) * results / sum(results)
+
+    transition.values[indices] = results
   }
 
-  rm(data)
+  rm(res, fid, abs)
   gc()
 
-  if(!all(transition.values>=0)){
+  if(!all(transition.values >= 0)){
     warning("transition function gives negative values")
   }
 

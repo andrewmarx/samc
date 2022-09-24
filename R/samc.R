@@ -358,7 +358,7 @@ setMethod(
 
 
     # Create the transition matrix
-    samc_obj@data@q = .transition(data, tr_fun, directions, symm)
+    samc_obj@data@q = .transition(data, absorption, fidelity, tr_fun, directions, symm)
 
     #if(directions == 8 || raster::isLonLat(data)) {
     #  tr <- gdistance::geoCorrection(tr, type = "c")
