@@ -374,15 +374,15 @@ setMethod(
 
 
     # Check dimnames
-    if (is.null(rownames(samc_obj@data@q))) rownames(samc_obj@data@q) <- 1:nrow(samc_obj@data@q)
-    if (is.null(colnames(samc_obj@data@q))) colnames(samc_obj@data@q) <- 1:ncol(samc_obj@data@q)
-
-    if (any(duplicated(rownames(samc_obj@data@q))))
-      stop("Row names must be unique")
-    if (any(duplicated(colnames(samc_obj@data@q))))
-      stop("Column names must be unique")
-
-    names(samc_obj@data@t_abs) <- rownames(samc_obj@data@q)
+    # if (is.null(rownames(samc_obj@data@q))) rownames(samc_obj@data@q) <- 1:nrow(samc_obj@data@q)
+    # if (is.null(colnames(samc_obj@data@q))) colnames(samc_obj@data@q) <- 1:ncol(samc_obj@data@q)
+    #
+    # if (any(duplicated(rownames(samc_obj@data@q))))
+    #   stop("Row names must be unique")
+    # if (any(duplicated(colnames(samc_obj@data@q))))
+    #   stop("Column names must be unique")
+    #
+    # names(samc_obj@data@t_abs) <- rownames(samc_obj@data@q)
 
 
 
