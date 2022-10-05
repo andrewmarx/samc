@@ -14,7 +14,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // cond_t
 Rcpp::NumericVector cond_t(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
-RcppExport SEXP _samc_cond_t(SEXP IQSEXP, SEXP qjSEXP) {
+RcppExport SEXP _samc2_cond_t(SEXP IQSEXP, SEXP qjSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -26,7 +26,7 @@ END_RCPP
 }
 // sum_qn_q
 Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::SparseMatrix<double> >& M2, const Eigen::VectorXd& q, Rcpp::NumericVector t);
-RcppExport SEXP _samc_sum_qn_q(SEXP MSEXP, SEXP M2SEXP, SEXP qSEXP, SEXP tSEXP) {
+RcppExport SEXP _samc2_sum_qn_q(SEXP MSEXP, SEXP M2SEXP, SEXP qSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -40,7 +40,7 @@ END_RCPP
 }
 // diagf_par
 Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int threads);
-RcppExport SEXP _samc_diagf_par(SEXP MSEXP, SEXP threadsSEXP) {
+RcppExport SEXP _samc2_diagf_par(SEXP MSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -52,7 +52,7 @@ END_RCPP
 }
 // psid_long
 Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& psi, const Eigen::VectorXd& dg);
-RcppExport SEXP _samc_psid_long(SEXP MSEXP, SEXP psiSEXP, SEXP dgSEXP) {
+RcppExport SEXP _samc2_psid_long(SEXP MSEXP, SEXP psiSEXP, SEXP dgSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -65,7 +65,7 @@ END_RCPP
 }
 // qpow_row
 Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
+RcppExport SEXP _samc2_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -78,7 +78,7 @@ END_RCPP
 }
 // qpow_col
 Rcpp::List qpow_col(Eigen::Map<Eigen::SparseMatrix< double> >& M, const int col, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_qpow_col(SEXP MSEXP, SEXP colSEXP, SEXP stepsSEXP) {
+RcppExport SEXP _samc2_qpow_col(SEXP MSEXP, SEXP colSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -91,7 +91,7 @@ END_RCPP
 }
 // psiq
 Rcpp::List psiq(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& psi, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_psiq(SEXP MSEXP, SEXP psiSEXP, SEXP stepsSEXP) {
+RcppExport SEXP _samc2_psiq(SEXP MSEXP, SEXP psiSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -104,7 +104,7 @@ END_RCPP
 }
 // sum_qpow_row
 Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
+RcppExport SEXP _samc2_sum_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -117,7 +117,7 @@ END_RCPP
 }
 // sum_qpowrv
 Rcpp::List sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& rv, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_qpowrv(SEXP MSEXP, SEXP rvSEXP, SEXP stepsSEXP) {
+RcppExport SEXP _samc2_sum_qpowrv(SEXP MSEXP, SEXP rvSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -130,7 +130,7 @@ END_RCPP
 }
 // sum_psiqpow
 Rcpp::List sum_psiqpow(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& psi, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_psiqpow(SEXP MSEXP, SEXP psiSEXP, SEXP stepsSEXP) {
+RcppExport SEXP _samc2_sum_psiqpow(SEXP MSEXP, SEXP psiSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -143,7 +143,7 @@ END_RCPP
 }
 // psif
 Rcpp::NumericVector psif(Eigen::Map<Eigen::SparseMatrix<double> >& M, Eigen::VectorXd& psi);
-RcppExport SEXP _samc_psif(SEXP MSEXP, SEXP psiSEXP) {
+RcppExport SEXP _samc2_psif(SEXP MSEXP, SEXP psiSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -155,7 +155,7 @@ END_RCPP
 }
 // f1
 Rcpp::NumericVector f1(Eigen::Map<Eigen::SparseMatrix<double> >& M);
-RcppExport SEXP _samc_f1(SEXP MSEXP) {
+RcppExport SEXP _samc2_f1(SEXP MSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -166,7 +166,7 @@ END_RCPP
 }
 // f_row
 Rcpp::NumericVector f_row(Eigen::SparseMatrix<double>& M, const int row);
-RcppExport SEXP _samc_f_row(SEXP MSEXP, SEXP rowSEXP) {
+RcppExport SEXP _samc2_f_row(SEXP MSEXP, SEXP rowSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -178,7 +178,7 @@ END_RCPP
 }
 // f_col
 Rcpp::NumericVector f_col(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int col);
-RcppExport SEXP _samc_f_col(SEXP MSEXP, SEXP colSEXP) {
+RcppExport SEXP _samc2_f_col(SEXP MSEXP, SEXP colSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -190,24 +190,24 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_samc_cond_t", (DL_FUNC) &_samc_cond_t, 2},
-    {"_samc_sum_qn_q", (DL_FUNC) &_samc_sum_qn_q, 4},
-    {"_samc_diagf_par", (DL_FUNC) &_samc_diagf_par, 2},
-    {"_samc_psid_long", (DL_FUNC) &_samc_psid_long, 3},
-    {"_samc_qpow_row", (DL_FUNC) &_samc_qpow_row, 3},
-    {"_samc_qpow_col", (DL_FUNC) &_samc_qpow_col, 3},
-    {"_samc_psiq", (DL_FUNC) &_samc_psiq, 3},
-    {"_samc_sum_qpow_row", (DL_FUNC) &_samc_sum_qpow_row, 3},
-    {"_samc_sum_qpowrv", (DL_FUNC) &_samc_sum_qpowrv, 3},
-    {"_samc_sum_psiqpow", (DL_FUNC) &_samc_sum_psiqpow, 3},
-    {"_samc_psif", (DL_FUNC) &_samc_psif, 2},
-    {"_samc_f1", (DL_FUNC) &_samc_f1, 1},
-    {"_samc_f_row", (DL_FUNC) &_samc_f_row, 2},
-    {"_samc_f_col", (DL_FUNC) &_samc_f_col, 2},
+    {"_samc2_cond_t", (DL_FUNC) &_samc2_cond_t, 2},
+    {"_samc2_sum_qn_q", (DL_FUNC) &_samc2_sum_qn_q, 4},
+    {"_samc2_diagf_par", (DL_FUNC) &_samc2_diagf_par, 2},
+    {"_samc2_psid_long", (DL_FUNC) &_samc2_psid_long, 3},
+    {"_samc2_qpow_row", (DL_FUNC) &_samc2_qpow_row, 3},
+    {"_samc2_qpow_col", (DL_FUNC) &_samc2_qpow_col, 3},
+    {"_samc2_psiq", (DL_FUNC) &_samc2_psiq, 3},
+    {"_samc2_sum_qpow_row", (DL_FUNC) &_samc2_sum_qpow_row, 3},
+    {"_samc2_sum_qpowrv", (DL_FUNC) &_samc2_sum_qpowrv, 3},
+    {"_samc2_sum_psiqpow", (DL_FUNC) &_samc2_sum_psiqpow, 3},
+    {"_samc2_psif", (DL_FUNC) &_samc2_psif, 2},
+    {"_samc2_f1", (DL_FUNC) &_samc2_f1, 1},
+    {"_samc2_f_row", (DL_FUNC) &_samc2_f_row, 2},
+    {"_samc2_f_col", (DL_FUNC) &_samc2_f_col, 2},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_samc(DllInfo *dll) {
+RcppExport void R_init_samc2(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

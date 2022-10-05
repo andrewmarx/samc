@@ -1,4 +1,4 @@
-useDynLib(samc)
+useDynLib(samc2)
 importClassesFrom("Matrix", "CsparseMatrix")
 importClassesFrom("Matrix", "dgCMatrix")
 importClassesFrom("raster", "RasterLayer")

@@ -1,7 +1,7 @@
-Package: samc
+Package: samc2
 Type: Package
 Title: Spatial Absorbing Markov Chains
-Version: 2.0.1
+Version: 2.1.0
 Authors@R: c(
     person("Andrew", "Marx", , "ajm.rpackages@gmail.com", role = c("aut", "cre", "cph"), 
       comment = c(ORCID = "0000-0002-7456-1631")
