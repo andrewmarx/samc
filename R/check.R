@@ -111,29 +111,16 @@ setMethod(
     inf_counts = numeric(n)
     nan_counts = numeric(n)
 
-    for (r in terra::nrow(a)) {
+    for (r in 1:terra::nrow(a)) {
       data = terra::values(a, row = r, nrows = 1)
-      inf_counts = inf_counts + colSums(is.infinite(data))
-      nan_counts = nan_counts + colSums(is.nan(data))
 
-      data = is.finite(data)
+      if (any(is.infinite(data))) stop("Data contains Inf or -Inf", call. = FALSE)
+      if (any(is.nan(data))) stop("Data contains Inf or -Inf", call. = FALSE)
 
-      if (length(unique(rowSums(data))) != 1) {
-        break
-      }
+      data = rowSums(is.finite(data))
+      if (any(data > 0 & data < n)) stop("NA mismatch in input data", call. = FALSE)
     }
 
-    if (any(inf_counts > 0)) {
-      msg = paste(inf_counts, collapse=", ")
-      stop(paste("Data contains Inf or -Inf element in layers:", msg), call. = FALSE)
-    } else if (any(nan_counts > 0)) {
-      msg = paste(inf_counts, collapse=", ")
-      stop(paste("Data contains NaN elements in layers:", msg), call. = FALSE)
-    }
-
-    if (length(unique(rowSums(data))) != 1) {
-      stop("NA mismatch in input data", call. = FALSE)
-    }
 
     return(TRUE)
   })
