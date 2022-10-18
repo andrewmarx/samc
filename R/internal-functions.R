@@ -247,11 +247,9 @@ setMethod(
   signature(samc = "samc", x = "character"),
   function(samc, x) {
 
-    if (length(x) != 1) stop("Only a single name can be used.", call. = FALSE)
-
     .validate_names(names(samc$names), x)
 
-    return(samc$names[[x]])
+    return(unlist(samc$names[x]))
   })
 
 
