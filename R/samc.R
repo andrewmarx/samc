@@ -243,6 +243,7 @@ setMethod(
                                                  t_abs = abs_vec),
                              source = "map",
                              map = m,
+                             names = list(),
                              clumps = -1,
                              override = FALSE,
                              threads = 1,
@@ -309,8 +310,6 @@ setMethod(
       stop("directions must be set to either 4 or 8", call. = FALSE)
     }
 
-
-
     #abs_vec <- as.vector(absorption)
     #fid_vec <- as.vector(fidelity)
 
@@ -330,6 +329,7 @@ setMethod(
                                                  t_abs = numeric(0)),
                              source = "map",
                              map = is.finite(data),
+                             names = list(),
                              clumps = -1,
                              override = FALSE,
                              threads = 1,

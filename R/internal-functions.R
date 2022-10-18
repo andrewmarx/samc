@@ -158,8 +158,11 @@
 .validate_names <- function(vec, x) {
   invalid_names <- x[!(x %in% vec)]
 
-  if (length(invalid_names > 0))
+  if (length(invalid_names > 0)){
+    print(vec)
+    print(x)
     stop(paste("\nInvalid location name:", invalid_names), call. = FALSE)
+  }
 }
 
 
@@ -227,10 +230,12 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "character"),
   function(samc, x) {
-    row_names <- rownames(samc$q_matrix)
-    .validate_names(row_names, x)
 
-    return(match(x, row_names))
+    if (length(x) != 1) stop("Only a single name can be used.", call. = FALSE)
+
+    .validate_names(names(samc$names), x)
+
+    return(samc$names[[x]])
   })
 
 

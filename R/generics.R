@@ -22,6 +22,8 @@ NULL
 setMethod("$", signature(x = "samc"), function(x, name) {
   if(name == "override"){
     return(x@override)
+  } else if (name == "names"){
+    return(x@names)
   } else if (name == "q_matrix"){
     return(x@data@q)
   } else if (name == "p_matrix") {
@@ -29,8 +31,8 @@ setMethod("$", signature(x = "samc"), function(x, name) {
     p <- rbind(p, matrix(0, nrow = 1, ncol = ncol(p)))
     Matrix::diag(p)[ncol(p)] <- 1
 
-    colnames(p) <- c(colnames(x@data@q), "total")
-    rownames(p) <- colnames(p)
+    #colnames(p) <- c(colnames(x@data@q), "total")
+    #rownames(p) <- colnames(p)
 
     return(p)
   } else if (name == "threads"){
@@ -67,6 +69,8 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
     } else {
       x@data@c_abs <- .process_abs_states(x, value)
     }
+  } else if (name == "names"){
+    x@names = value
   } else if (name == "q_matrix"){
     warning("Cannot modify the Q matrix this way.", call. = FALSE)
   } else if (name == "p_matrix"){
