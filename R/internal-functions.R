@@ -392,14 +392,22 @@ setMethod(
 #' @noRd
 setMethod(
   ".process_occ",
-  signature(samc = "samc", x = "Raster"),
+  signature(samc = "samc", x = "SpatRaster"),
   function(samc, x) {
     check(samc, x)
 
-    pv <- as.vector(x)
+    pv <- as.vector(terra::values(x))
     pv <- pv[is.finite(pv)]
 
     return(.process_occ(samc, pv))
+  })
+
+#' @noRd
+setMethod(
+  ".process_occ",
+  signature(samc = "samc", x = "Raster"),
+  function(samc, x) {
+    return(.process_occ(samc, .rasterize(x)))
   })
 
 setMethod(
