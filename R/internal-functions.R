@@ -89,6 +89,12 @@
   j = c(j, cell_nums)
   transition.values = c(transition.values, as.vector(terra::values(fidelity))[cell_nums])
 
+
+  # Adjust for NAs
+  i = match(i, cell_nums)
+  j = match(j, cell_nums)
+
+
   transitionMatrix = Matrix::sparseMatrix(i = i, j = j, x = transition.values)
 
   return(transitionMatrix)
