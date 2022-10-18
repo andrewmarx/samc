@@ -338,7 +338,7 @@ setMethod(
 
 
     # Check for "clumps"
-    cl = terra::patches(samc_obj@map, directions = directions, allowGaps = FALSE)
+    cl = terra::patches(samc_obj@map, directions = directions, zeroAsNA = TRUE, allowGaps = FALSE)
     samc_obj@clumps = sum(!is.na(terra::unique(cl)[, 1]))
 
     if (samc_obj@clumps > 1) {
