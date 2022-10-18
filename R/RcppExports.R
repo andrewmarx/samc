@@ -2,58 +2,58 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .cond_t <- function(IQ, qj) {
-    .Call('_samc2_cond_t', PACKAGE = 'samc2', IQ, qj)
+    .Call('_samc_cond_t', PACKAGE = 'samc', IQ, qj)
 }
 
 .sum_qn_q <- function(M, M2, q, t) {
-    .Call('_samc2_sum_qn_q', PACKAGE = 'samc2', M, M2, q, t)
+    .Call('_samc_sum_qn_q', PACKAGE = 'samc', M, M2, q, t)
 }
 
 .diagf_par <- function(M, threads) {
-    .Call('_samc2_diagf_par', PACKAGE = 'samc2', M, threads)
+    .Call('_samc_diagf_par', PACKAGE = 'samc', M, threads)
 }
 
 .psid_long <- function(M, psi, dg) {
-    .Call('_samc2_psid_long', PACKAGE = 'samc2', M, psi, dg)
+    .Call('_samc_psid_long', PACKAGE = 'samc', M, psi, dg)
 }
 
 .qpow_row <- function(M, row, steps) {
-    .Call('_samc2_qpow_row', PACKAGE = 'samc2', M, row, steps)
+    .Call('_samc_qpow_row', PACKAGE = 'samc', M, row, steps)
 }
 
 .qpow_col <- function(M, col, steps) {
-    .Call('_samc2_qpow_col', PACKAGE = 'samc2', M, col, steps)
+    .Call('_samc_qpow_col', PACKAGE = 'samc', M, col, steps)
 }
 
 .psiq <- function(M, psi, steps) {
-    .Call('_samc2_psiq', PACKAGE = 'samc2', M, psi, steps)
+    .Call('_samc_psiq', PACKAGE = 'samc', M, psi, steps)
 }
 
 .sum_qpow_row <- function(M, row, steps) {
-    .Call('_samc2_sum_qpow_row', PACKAGE = 'samc2', M, row, steps)
+    .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, row, steps)
 }
 
 .sum_qpowrv <- function(M, rv, steps) {
-    .Call('_samc2_sum_qpowrv', PACKAGE = 'samc2', M, rv, steps)
+    .Call('_samc_sum_qpowrv', PACKAGE = 'samc', M, rv, steps)
 }
 
 .sum_psiqpow <- function(M, psi, steps) {
-    .Call('_samc2_sum_psiqpow', PACKAGE = 'samc2', M, psi, steps)
+    .Call('_samc_sum_psiqpow', PACKAGE = 'samc', M, psi, steps)
 }
 
 .psif <- function(M, psi) {
-    .Call('_samc2_psif', PACKAGE = 'samc2', M, psi)
+    .Call('_samc_psif', PACKAGE = 'samc', M, psi)
 }
 
 .f1 <- function(M) {
-    .Call('_samc2_f1', PACKAGE = 'samc2', M)
+    .Call('_samc_f1', PACKAGE = 'samc', M)
 }
 
 .f_row <- function(M, row) {
-    .Call('_samc2_f_row', PACKAGE = 'samc2', M, row)
+    .Call('_samc_f_row', PACKAGE = 'samc', M, row)
 }
 
 .f_col <- function(M, col) {
-    .Call('_samc2_f_col', PACKAGE = 'samc2', M, col)
+    .Call('_samc_f_col', PACKAGE = 'samc', M, col)
 }
 

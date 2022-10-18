@@ -1,4 +1,4 @@
-Package: samc2
+Package: samc
 Type: Package
 Title: Spatial Absorbing Markov Chains
 Version: 2.1.0
@@ -40,7 +40,7 @@ Imports:
     Matrix,
     raster,
     terra
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
 Suggests: knitr,
     rmarkdown,
     testthat,
