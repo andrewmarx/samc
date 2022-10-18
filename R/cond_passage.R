@@ -95,7 +95,7 @@ setMethod(
 
     # insert 0 element back into vector so output length is same original data
     final <- 1:(length(t) + 1)
-    names(final) <- rownames(samc$q_matrix)
+    names(final) <- samc$names
 
     j <- 1
     for (i in 1:length(final)) {
