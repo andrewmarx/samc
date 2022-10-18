@@ -183,7 +183,7 @@ setMethod(
   ".rasterize",
   signature(x = "matrix"),
   function(x) {
-    terra::rast(x, extent = terra::ext(0.5, ncol(x) + 0.5, 0.5, nrow(x) + 0.5))
+    terra::rast(x, extent = terra::ext(0.5, ncol(x) + 0.5, 0.5, nrow(x) + 0.5), crs = "local")
   })
 
 #' @noRd
