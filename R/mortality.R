@@ -323,7 +323,7 @@ setMethod(
   signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
     vis <- visitation(samc, origin = origin)
-    names(vis) <- rownames(samc$q_matrix)
+    names(vis) <- samc$names
 
     mort <- vis * samc@data@t_abs
 
@@ -346,7 +346,7 @@ setMethod(
     dest <- .process_locations(samc, dest)
 
     vis <- visitation(samc, dest = dest)
-    names(vis) <- rownames(samc$q_matrix)
+    names(vis) <- samc$names
 
     mort <- vis * samc@data@t_abs[dest]
 
@@ -378,7 +378,7 @@ setMethod(
       vis <- visitation(samc, dest = d)
       results[dest == d] <- vis[origin[dest == d]]
     }
-    names(results) <- rownames(samc$q_matrix)[dest]
+    names(results) <- samc$names[dest]
 
 
     mort <- results * samc@data@t_abs[dest]
@@ -407,7 +407,7 @@ setMethod(
     Matrix::diag(q) <- Matrix::diag(q) + 1
 
     pf <- .psif(q, pv)
-    names(pf) <- rownames(samc$q_matrix)
+    names(pf) <- samc$names
 
     mort <- pf * samc@data@t_abs
 

@@ -41,3 +41,4 @@ setClass(
 #' @keywords internal
 
 setClassUnion("samc_raster", c("RasterLayer", "SpatRaster"))
+setClassUnion("char_null", c("character", "NULL"))

@@ -247,9 +247,9 @@ setMethod(
   signature(samc = "samc", x = "character"),
   function(samc, x) {
 
-    .validate_names(names(samc$names), x)
+    .validate_names(samc$names, x)
 
-    return(unlist(samc$names[x]))
+    return(match(x, samc$names))
   })
 
 

@@ -84,7 +84,7 @@ setClass(
   slots = list(data = "samc_data",
                source = "character",
                map = "samc_raster",
-               names = "list",
+               names = "char_null",
                clumps = "numeric",
                override = "logical",
                threads = "numeric",
