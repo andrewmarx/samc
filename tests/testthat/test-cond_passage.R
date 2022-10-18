@@ -29,7 +29,10 @@ br_function <- function(samc, col) {
   return(as.numeric(res))
 }
 
+test_num = 0
 for(test in testlist) {
+  test_num = test_num + 1
+
   # TODO cond_passage does not work in all cases yet. Remove this when it does
   if (!(test$id %in% c(1, 2))) next
 
@@ -40,7 +43,7 @@ for(test in testlist) {
   samc_p <- samc(samc_obj$p_matrix)
 
   # Run the tests
-  test_that("Testing cond_passage(samc, dest)", {
+  test_that(paste("Testing cond_passage(samc, dest):", test_num), {
 
     base_result <- br_function(samc_obj, col_vec[1])
 
@@ -56,7 +59,7 @@ for(test in testlist) {
     expect_equal(r1, r2)
   })
 
-  test_that("Testing cond_passage(samc, origin, dest)", {
+  test_that(paste("Testing cond_passage(samc, origin, dest)", test_num), {
 
     vector_result <- cond_passage(samc_p, row_vec, col_vec)
     vector_result_char <- cond_passage(samc_p, as.character(row_vec), as.character(col_vec))
