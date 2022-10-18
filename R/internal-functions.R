@@ -17,11 +17,10 @@
     #return(gdistance::transition(data, fun, dir, sym))
   }
 
-  # {resistance = res2; absorption = abs2; fidelity = fid2}
-  data_crs = terra::crs(resistance)
-  data_cells = terra::ncell(resistance)
-  data_rows = terra::nrow(resistance)
-  data_cols = terra::ncol(resistance)
+  #data_crs = terra::crs(resistance)
+  #data_cells = terra::ncell(resistance)
+  #data_rows = terra::nrow(resistance)
+  #data_cols = terra::ncol(resistance)
 
   cell_nums = terra::cells(resistance)
   adj = terra::adjacent(resistance, cells=cell_nums, pairs=TRUE, directions=dir)
