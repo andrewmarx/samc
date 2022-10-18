@@ -318,7 +318,7 @@ setMethod(
 
     if (abs_minmax["min", 1] < 0 || abs_minmax["max", 1] > 1) {
       stop("Absorption values must be in range of 0-1", call. = FALSE)
-    } else if (abs_minmax["min", 1] == 0) {
+    } else if (abs_minmax["max", 1] == 0) {
       stop("At least one cell must have an absorption value > 0", call. = FALSE)
     }
 
