@@ -17,6 +17,7 @@
     #return(gdistance::transition(data, fun, dir, sym))
   }
 
+  # {resistance = res2; absorption = abs2; fidelity = fid2}
   data_crs = terra::crs(resistance)
   data_cells = terra::ncell(resistance)
   data_rows = terra::nrow(resistance)
@@ -28,7 +29,17 @@
 
   adj_length = nrow(adj)
 
-  if(sym) adj = adj[adj[,1] < adj[,2],]
+  if(sym) adj = adj[adj[, 1] < adj[, 2], ]
+
+  coords <- cbind(terra::xyFromCell(resistance, adj[, 1]),
+                  terra::xyFromCell(resistance, adj[, 2]))
+
+
+  dist <- terra::distance(coords[,1:2],
+                          coords[,3:4],
+                          lonlat = terra::is.lonlat(resistance),
+                          pairwise = TRUE)
+
 
   i = adj[,1]
   j = adj[,2]
@@ -45,7 +56,7 @@
   if (sym) {
     adj_length = nrow(adj)
     for (k in 1:adj_length) {
-      transition.values[c(k, k + adj_length)] = fun(adj[k, ])
+      transition.values[c(k, k + adj_length)] = fun(adj[k, ]) / dist[k]
 
       sums[i[k]] = sums[i[k]] + transition.values[k]
       sums[j[k]] = sums[j[k]] + transition.values[k]
@@ -56,13 +67,13 @@
     j = c(j, tmp)
   } else {
     for (k in 1:nrow(adj)) {
-      transition.values[k] = fun(adj[k, ])
+      transition.values[k] = fun(adj[k, ]) / dist[k]
 
       sums[i[k]] = sums[i[k]] + transition.values[k]
     }
   }
 
-  rm(adj);gc()
+  rm(adj);rm(dist);gc()
 
   tmp = as.vector(terra::values(1 - absorption - fidelity))
 
@@ -287,23 +298,26 @@ setGeneric(
 #' @noRd
 setMethod(
   ".process_abs_states",
-  signature(samc = "samc", x = "Raster"),
+  signature(samc = "samc", x = "samc_raster"),
   function(samc, x) {
+
+    x = .rasterize(x)
+
     check(samc, x)
 
-    if (raster::nlayers(x) == 0) {
+    if (terra::nlyr(x) == 0) {
      stop("Missing absorption data", call. = FALSE)
     }
 
-    abs_vec <- as.vector(x[[1]])
 
-    if (raster::nlayers(x) > 1) {
-      abs_mat <- raster::as.matrix(x)
-    } else {
-      abs_mat <- matrix(abs_vec, ncol = 1)
+    abs_mat <- terra::values(x)
+    abs_vec <- as.vector(abs_mat[, 1])
+
+    abs_minmax = terra::minmax(x)
+
+    if (min(abs_minmax["min", ]) < 0 || max(abs_minmax["max", ]) > 1) {
+      stop("Absorption values must be in range of 0-1", call. = FALSE)
     }
-
-    if(any(abs_mat > 1, na.rm = TRUE) || any(abs_mat < 0, na.rm = TRUE)) stop("", call. = FALSE)
 
     excl <- which(is.na(abs_vec))
     if (length(excl) > 0) {
@@ -322,14 +336,24 @@ setMethod(
 
 setMethod(
   ".process_abs_states",
+  signature(samc = "samc", x = "RasterStack"),
+  function(samc, x) {
+
+    return(.process_abs_states(samc, terra::rast(x)))
+  })
+
+setMethod(
+  ".process_abs_states",
   signature(samc = "samc", x = "list"),
   function(samc, x) {
 
-    if (!all(sapply(x, is.matrix))) stop("List can only contain matrices. If using rasters, use raster::stack() instead.", call. = FALSE)
+    if (!all(sapply(x, is.matrix))) stop("List can only contain matrices. If using rasters, use raster::stack() or c() to combine terra SpatRasters instead.", call. = FALSE)
 
     x <- lapply(x, .rasterize)
 
-    return(.process_abs_states(samc, raster::stack(x)))
+    if(is.null(names(x))) names(x) = 1:length(x)
+
+    return(.process_abs_states(samc, terra::rast(x)))
   })
 
 
