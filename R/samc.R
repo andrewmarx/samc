@@ -225,17 +225,6 @@ setMethod(
 
     tr_mat <- methods::as(tr_mat, "dgCMatrix")
 
-    # Check dimnames
-    if (is.null(rownames(tr_mat))) rownames(tr_mat) <- 1:nrow(tr_mat)
-    if (is.null(colnames(tr_mat))) colnames(tr_mat) <- 1:ncol(tr_mat)
-
-    if (any(duplicated(rownames(tr_mat))))
-      stop("Row names must be unique")
-    if (any(duplicated(colnames(tr_mat))))
-      stop("Column names must be unique")
-
-    names(abs_vec) <- rownames(tr_mat)
-
     # Assemble final
     samc_mat <- methods::new("samc",
                              data = methods::new("samc_data",
@@ -373,22 +362,8 @@ setMethod(
     }
 
 
-    # Check dimnames
-    # if (is.null(rownames(samc_obj@data@q))) rownames(samc_obj@data@q) <- 1:nrow(samc_obj@data@q)
-    # if (is.null(colnames(samc_obj@data@q))) colnames(samc_obj@data@q) <- 1:ncol(samc_obj@data@q)
-    #
-    # if (any(duplicated(rownames(samc_obj@data@q))))
-    #   stop("Row names must be unique")
-    # if (any(duplicated(colnames(samc_obj@data@q))))
-    #   stop("Column names must be unique")
-    #
-    # names(samc_obj@data@t_abs) <- rownames(samc_obj@data@q)
-
-
-
     samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@q))
     samc_obj@.cache$dgf_exists = FALSE
-
 
     return(samc_obj)
   })
@@ -469,7 +444,6 @@ setMethod(
     if (!isTRUE(all.equal(Matrix::rowSums(data), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
 
-
     q_mat <- methods::as(data[-r, -c], "dgCMatrix")
     abs_total <- data[-r, c]
 
@@ -483,6 +457,8 @@ setMethod(
       stop("The row and col names of the Q matrix must be unique", call. = FALSE)
     } else {
       nm = rownames(q_mat)
+      rownames(q_mat) = NULL
+      colnames(q_mat) = NULL
     }
 
     print("Warning: Some checks for manually created P matrices are still missing:")

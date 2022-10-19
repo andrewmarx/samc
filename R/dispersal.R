@@ -240,7 +240,7 @@ setMethod(
     f_col[dest] <- f_col[dest] - 1
 
     result <- as.vector(f_col/fjj)
-    names(result) <- rownames(samc$q_matrix)
+    names(result) <- samc$names
 
     return(result)
   })
