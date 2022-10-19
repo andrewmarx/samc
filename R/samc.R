@@ -475,16 +475,15 @@ setMethod(
 
     if (!isTRUE(all.equal(Matrix::rowSums(q_mat) + abs_total, rep(1, length(abs_total)), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
-    if (is.null(rownames(q_mat))) rownames(q_mat) <- 1:nrow(q_mat)
-    if (is.null(colnames(q_mat))) colnames(q_mat) <- 1:ncol(q_mat)
-
-    names(abs_total) <- rownames(q_mat)
-
-    if (!isTRUE(all.equal(rownames(q_mat), colnames(q_mat))))
+    if (is.null(rownames(q_mat)) & is.null(colnames(q_mat))) {
+      nm = NULL
+    } else if (!isTRUE(all.equal(rownames(q_mat), colnames(q_mat)))) {
       stop("The row and col names of the Q matrix must be identical", call. = FALSE)
-
-    if (any(duplicated(rownames(q_mat))))
+    } else if (any(duplicated(rownames(q_mat)))) {
       stop("The row and col names of the Q matrix must be unique", call. = FALSE)
+    } else {
+      nm = rownames(q_mat)
+    }
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
@@ -496,6 +495,7 @@ setMethod(
                                                  t_abs = abs_total),
                              source = "matrix",
                              map = raster::raster(matrix()),
+                             names = nm,
                              clumps = -1,
                              threads = 1,
                              override = FALSE)
