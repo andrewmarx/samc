@@ -41,7 +41,6 @@ for(test in testlist) {
 
   # Create a version from P matrix
   samc_p <- samc(samc_obj$p_matrix)
-  samc_p$names = samc_obj$names # TODO: remove when names code updated for this scenario
   samc_p@clumps = samc_obj@clumps # TODO: remove when creation of samc object from P matrix calculates clumps
 
 
