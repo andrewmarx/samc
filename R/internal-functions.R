@@ -22,6 +22,11 @@
   #data_rows = terra::nrow(resistance)
   #data_cols = terra::ncol(resistance)
 
+  fid_max = terra::minmax(fidelity)[2]
+  if (fid_max == 0) {
+    fidelity = 0
+  }
+
   cell_nums = terra::cells(resistance)
   adj = terra::adjacent(resistance, cells=cell_nums, pairs=TRUE, directions=dir)
   adj = adj[adj[, 2] %in% cell_nums, ]
@@ -74,19 +79,22 @@
 
   rm(adj);rm(dist);gc()
 
+  transition.values = transition.values / sums[i]
+  rm(sums); gc()
+
   tmp = as.vector(terra::values(1 - absorption - fidelity))
-
-  transition.values = tmp[i] * transition.values / sums[i]
-
-  rm(tmp, sums); gc()
+  transition.values = tmp[i] * transition.values
+  rm(tmp); gc()
 
   if(!all(transition.values >= 0)){
     warning("transition function gives negative values")
   }
 
-  i = c(i, cell_nums)
-  j = c(j, cell_nums)
-  transition.values = c(transition.values, as.vector(terra::values(fidelity))[cell_nums])
+  if (fid_max > 0) {
+    i = c(i, cell_nums)
+    j = c(j, cell_nums)
+    transition.values = c(transition.values, as.vector(terra::values(fidelity))[cell_nums])
+  }
 
 
   # Adjust for NAs
