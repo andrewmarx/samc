@@ -75,12 +75,7 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
       x@data@c_abs <- .process_abs_states(x, value)
     }
   } else if (name == "names"){
-    if (!is.null(value)) {
-      if (length(value) != length(x@data@t_abs)) {
-        stop("The length of names must match the number of states in the matrix", call. = FALSE)
-      }
-    }
-    x@names = value
+    warning("Cannot modify the transient state names.", call. = FALSE)
   } else if (name == "q_matrix"){
     warning("Cannot modify the Q matrix this way.", call. = FALSE)
   } else if (name == "p_matrix"){
