@@ -38,22 +38,21 @@
   coords <- cbind(terra::xyFromCell(resistance, adj[, 1]),
                   terra::xyFromCell(resistance, adj[, 2]))
 
-
-  dist <- terra::distance(coords[,1:2],
-                          coords[,3:4],
-                          lonlat = terra::is.lonlat(resistance),
-                          pairwise = TRUE)
-
-
   i = adj[,1]
   j = adj[,2]
 
   sums = numeric(max(adj))
 
-  res = as.vector(terra::values(resistance))
+  resistance = terra::values(resistance)
+  dim(resistance) = nrow(resistance)
 
-  adj[] = res[adj]
-  rm(res);gc()
+  adj[] = resistance[adj]
+  rm(resistance);gc()
+
+  dist <- terra::distance(coords[,1:2],
+                          coords[,3:4],
+                          lonlat = terra::is.lonlat(absorption),
+                          pairwise = TRUE)
 
   transition.values = numeric(adj_length)
 
