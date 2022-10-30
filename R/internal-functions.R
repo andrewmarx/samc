@@ -107,6 +107,220 @@
 }
 
 
+.transition_new <- function(resistance, absorption, fidelity, fun, dir, sym = TRUE) {
+  if (class(fun) == "character" || !(dir %in% c(4, 8))) {
+    stop("gdistance's named funtion options not supported")
+    #return(gdistance::transition(data, fun, dir, sym))
+  }
+
+  lonlat = terra::is.lonlat(absorption)
+
+
+  #data_crs = terra::crs(resistance)
+  #ncells = terra::ncell(resistance)
+  nrows = terra::nrow(resistance)
+  ncols = terra::ncol(resistance)
+
+  fid_minmax = terra::minmax(fidelity)
+  fid_max = fid_minmax["max", 1]
+  if (fid_max == 0) {
+    fidelity = 0
+  }
+
+  cell_nums = terra::cells(resistance)
+  ncells = length(cell_nums)
+
+  cell_lookup = numeric(ncells) # Pack down to bits and use bitwise operators
+  cell_lookup[cell_nums] = cell_nums
+  dim(cell_lookup) = c(ncols, nrows)
+
+  n_pair = 0
+
+
+  for (i in 1:(nrow(cell_lookup) - 1)) {
+    n_pair = n_pair + sum(cell_lookup[i, ] & cell_lookup[i+1, ])
+  }
+  gc()
+
+  for (i in 1:(ncol(cell_lookup) - 1)) {
+    n_pair = n_pair + sum(cell_lookup[, i] & cell_lookup[, i+1])
+  }
+  gc()
+
+  if (dir == 8) {
+    for (i in 1:(ncol(cell_lookup) - 1)) {
+      n_pair = n_pair + sum(cell_lookup[-nrow(cell_lookup), i] & cell_lookup[-1, i + 1])
+      n_pair = n_pair + sum(cell_lookup[-1, i] & cell_lookup[-nrow(cell_lookup), i + 1])
+    }
+  }
+  gc()
+
+  #rm(cell_lookup);gc()
+
+  n_pair = n_pair*2
+
+  if (fid_max > 0) {
+    fidelity = terra::values(fidelity)
+    n_pair = n_pair + sum(fidelity[cell_nums] > 0)
+  }
+
+  #rm(cell_nums);gc()
+
+
+  mat = new("dgCMatrix")
+  mat@Dim = c(ncells, ncells)
+
+  #mat@x = 1:n_pair
+  #mat@i = 1:n_pair
+  #mat@p = 1:(ncells+1)
+
+
+  resistance = terra::values(resistance)
+  dim(resistance) = c(ncols, nrows)
+
+  if (dir == 4) {
+    offset_r = c(-1, 0, 0, 1)
+    offset_c = c(0, -1, 1, 0)
+
+    offset_n = c(-ncols, -1, 1, ncols)
+  } else if (dir == 8) {
+    offset_r = c(-1, 0, 1, -1, 1, -1, 0, 1)
+    offset_c = c(-1, -1, -1, 0, 0, 1, 1, 1)
+
+    #    offset_r = c(-1, -1, -1, 0, 0, 1, 1, 1)
+    #    offset_c = c(-1, 0, 1, -1, 1, -1, 0, 1)
+
+    #offset_n = c(-ncols-1, -1, ncols-1, -ncols, ncols, -ncols+1, 1, ncols+1)
+    offset_n = c(-ncols-1, -ncols, -ncols+1, -1, 1, ncols - 1, ncols, ncols+1) # ncols of raster = nrow() of matrix
+  } else {
+    stop("Issue with directions", call. = FALSE)
+  }
+
+  dir1 = 1:(dir/2)
+  dir2 = dir1 + (dir/2)
+
+  mat_p = integer(ncells+1)
+
+  mat_i = integer(n_pair)
+  i_index = 1
+  #i_lookup = match(cell_nums)
+
+  mat_x = numeric(n_pair)
+
+  row_sum = numeric(ncells)
+
+
+  row_count = 0L
+
+  if (lonlat) {
+    warning("geocorrection for latlon not implemented", call. = FALSE)
+    dist <- function(r1, c1, r2, c2) {
+      1 # TODO update
+    }
+  } else {
+    dist_lookup = c(1, sqrt(2))
+    dist = function(r1, c1, r2, c2) {
+      dist_lookup[abs(r2 - r1) + abs(c2 - c1)]
+    }
+  }
+
+  for (i in 1:length(cell_nums)) {
+    num = cell_nums[i]
+
+    row = (num - 1) %% nrow(resistance) + 1
+    col = (num - 1) %/% nrow(resistance) + 1
+
+    #print(paste(row, col))
+    rows = row + offset_r
+    cols = col + offset_c
+    nums = num + offset_n
+
+    #xy = terra::xyFromCell(absorption, num)
+    #offset_xy = terra::xyFromCell(absorption, nums)
+
+    #dists = terra::distance(terra::xyFromCell(absorption, num), terra::xyFromCell(absorption, nums), lonlat)
+
+    rc = !(rows < 1 | rows > nrow(resistance) | cols < 1 | cols > ncol(resistance))
+
+    #if (i==2) return(list(num, row, col, rows, cols, rc, nrow(resistance), ncol(resistance)))
+    for (d in dir1) {
+      #print(d)
+      if (rc[d]) {
+        row_count = row_count + 1L
+        #assign("temp", list(i, d, nums, nums[d], cell_lookup[nums[d]], row, col, rows, cols), globalenv())
+
+        mat_row = cell_lookup[nums[d]]
+        result = fun(resistance[c(num, nums[d])]) / dist(row, col, rows[d], cols[d])
+
+        mat_i[i_index] = as.integer(mat_row - 1)
+        mat_x[i_index] = result
+
+        row_sum[mat_row] = row_sum[mat_row] + result
+
+        i_index = i_index + 1
+      }
+    }
+
+    if (fid_max > 0) {
+      if (fidelity[num] > 0) {
+        row_count = row_count + 1L
+        #assign("temp", list(i, d, nums, nums[d], cell_lookup[nums[d]], row, col, rows, cols), globalenv())
+
+        mat_row = cell_lookup[num]
+
+        mat_i[i_index] = as.integer(mat_row - 1)
+        mat_x[i_index] = fidelity[num]
+
+        #row_sum[mat_row] = row_sum[mat_row] + fidelity[num] not needed I think
+
+        i_index = i_index + 1
+      }
+    }
+
+    for (d in dir2) {
+      if (rc[d]) {
+        #print(d)
+        row_count = row_count + 1L
+        #assign("temp", list(i, d, nums, nums[d], cell_lookup[nums[d]], row, col, rows, cols), globalenv())
+
+        mat_row = cell_lookup[nums[d]]
+        result = fun(resistance[c(num, nums[d])]) / dist(row, col, rows[d], cols[d])
+
+        mat_i[i_index] = as.integer(mat_row - 1)
+        mat_x[i_index] = result
+
+        row_sum[mat_row] = row_sum[mat_row] + result
+
+        i_index = i_index + 1
+      }
+    }
+    mat_p[i+1] = row_count
+  }
+
+  tmp = terra::values(1 - absorption) - fidelity
+
+  i_index = 1
+  for (p in 1:ncells) {
+    row_count = mat_p[p+1] - mat_p[p]
+    for (i in 1:row_count) {
+      row = mat_i[i_index] + 1
+      if (p != row) {
+        #mat_x[i_index] = i_index # useful for validation
+        #mat_x[i_index] = cell_nums[row] # useful for validation
+        mat_x[i_index] = mat_x[i_index]/row_sum[row] * tmp[cell_nums[row]]
+      }
+      i_index = i_index + 1
+    }
+  }
+
+  mat@p = mat_p
+  mat@i = mat_i
+  mat@x = mat_x
+
+  return(mat)
+}
+
+
 #' Validate time steps
 #'
 #' Performs several checks to make sure a vector of time steps is valid
