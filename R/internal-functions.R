@@ -101,7 +101,7 @@
 
   if (lonlat) {
     warning("geocorrection for latlon not implemented", call. = FALSE)
-    dist <- function(r1, c1, r2, c2) {
+    dist <- function(x, dir) {
       1 # TODO update
     }
   } else {
