@@ -208,11 +208,7 @@ setMethod(
     origin <- .process_locations(samc, origin)
 
     if (!samc@.cache$dgf_exists) {
-      q <- samc$q_matrix
-      q@x <- -q@x
-      Matrix::diag(q) <- Matrix::diag(q) + 1
-
-      dg <- samc:::.diagf_par(q, samc@threads)
+      dg <- samc:::.diagf_par(samc@data@f, samc@threads)
 
       samc@.cache$dgf <- dg
       samc@.cache$dgf_exists <- TRUE
@@ -222,7 +218,7 @@ setMethod(
     f_row[origin] <- f_row[origin] - 1
 
     result <- as.vector(f_row/samc@.cache$dgf)
-    names(result) <- colnames(samc$q_matrix)
+    names(result) <- colnames(samc$q_matrix) # TODO update based on names changes? Check for other similiar situations
 
     return(result)
   })
@@ -276,18 +272,14 @@ setMethod(
   function(samc, occ) {
     pv <- .process_occ(samc, occ)
 
-    q <- samc$q_matrix
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
-
     if (!samc@.cache$dgf_exists) {
-      dg <- samc:::.diagf_par(q, samc@threads)
+      dg <- samc:::.diagf_par(samc@data@f, samc@threads)
 
       samc@.cache$dgf <- dg
       samc@.cache$dgf_exists <- TRUE
     }
 
-    disp <- .psid_long(q, pv, samc@.cache$dgf)
+    disp <- .psid_long(samc@data@f, pv, samc@.cache$dgf)
 
     return(as.vector(disp))
   })

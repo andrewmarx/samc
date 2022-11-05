@@ -52,11 +52,8 @@ setMethod(
   "survival",
   signature(samc = "samc", occ = "missing"),
   function(samc) {
-    q <- samc$q_matrix
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
 
-    z = .f1(q)
+    z = .f1(samc@data@f)
 
     return(as.vector(z))
   })

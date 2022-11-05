@@ -401,12 +401,7 @@ setMethod(
   function(samc, occ) {
     pv <- .process_occ(samc, occ)
 
-    q <- samc$q_matrix
-
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
-
-    pf <- .psif(q, pv)
+    pf <- .psif(samc@data@f, pv)
     names(pf) <- samc$names
 
     mort <- pf * samc@data@t_abs
