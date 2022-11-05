@@ -18,17 +18,10 @@
 
   lonlat = terra::is.lonlat(absorption)
 
-
   #data_crs = terra::crs(resistance)
   #ncells = terra::ncell(resistance)
   nrows = terra::nrow(x)
   ncols = terra::ncol(x)
-
-  fid_minmax = terra::minmax(fidelity)
-  fid_max = fid_minmax["max", 1]
-  if (fid_max == 0) {
-    fidelity = 0
-  }
 
   cell_nums = terra::cells(x)
   ncells = length(cell_nums)
@@ -57,12 +50,9 @@
   }
   gc()
 
-  n_pair = n_pair*2
+  n_pair = n_pair*2 + ncells
 
-  if (fid_max > 0) {
-    fidelity = terra::values(fidelity)
-    n_pair = n_pair + sum(fidelity[cell_nums] > 0)
-  }
+
 
   mat = new("dgCMatrix")
   mat@Dim = c(ncells, ncells)
@@ -103,6 +93,11 @@
     warning("geocorrection for latlon not implemented", call. = FALSE)
     dist <- function(x, dir) {
       1 # TODO update
+
+      # Get raster first column cell numbers
+      # Get adjacent cell numbers
+      # Convert to xy coords
+      # Get dist
     }
   } else {
     dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
@@ -113,6 +108,8 @@
 
   nc = nrows
   nr = ncols
+
+  fidelity = terra::values(fidelity)
 
   for (i in 1:length(cell_nums)) {
     num = cell_nums[i]
@@ -143,7 +140,7 @@
           result = fun(x[c(num, nums[d])]) / dist(num, d)
 
           mat_i[i_index] = as.integer(mat_row - 1)
-          mat_x[i_index] = result
+          mat_x[i_index] = -result
 
           row_sum[mat_row] = row_sum[mat_row] + result
 
@@ -152,20 +149,16 @@
       }
     }
 
-    if (fid_max > 0) {
-      if (fidelity[num] > 0) {
-        row_count = row_count + 1L
 
-        mat_row = cell_lookup[num]
+    row_count = row_count + 1L
 
-        mat_i[i_index] = as.integer(mat_row - 1)
-        mat_x[i_index] = fidelity[num]
+    mat_row = cell_lookup[num]
 
-        #row_sum[mat_row] = row_sum[mat_row] + fidelity[num] not needed I think
+    mat_i[i_index] = as.integer(mat_row - 1)
+    mat_x[i_index] = 1 - fidelity[num]
 
-        i_index = i_index + 1
-      }
-    }
+    i_index = i_index + 1
+
 
     for (d in dir2) {
       if (rc[d]) {
@@ -177,7 +170,7 @@
           result = fun(x[c(num, nums[d])]) / dist(num, d)
 
           mat_i[i_index] = as.integer(mat_row - 1)
-          mat_x[i_index] = result
+          mat_x[i_index] = -result
 
           row_sum[mat_row] = row_sum[mat_row] + result
 

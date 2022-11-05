@@ -225,10 +225,13 @@ setMethod(
 
     tr_mat <- methods::as(tr_mat, "dgCMatrix")
 
+    tr_mat@x = -tr_mat@x
+    Matrix::diag(tr_mat) <- Matrix::diag(tr_mat) + 1
+
     # Assemble final
     samc_mat <- methods::new("samc",
                              data = methods::new("samc_data",
-                                                 q = tr_mat,
+                                                 f = tr_mat,
                                                  t_abs = abs_vec),
                              source = "map",
                              map = m,
@@ -314,7 +317,7 @@ setMethod(
 
     samc_obj <- methods::new("samc",
                              data = methods::new("samc_data",
-                                                 q = new("dgCMatrix"),
+                                                 f = new("dgCMatrix"),
                                                  t_abs = numeric(0)),
                              source = "map",
                              map = is.finite(data),
@@ -347,7 +350,7 @@ setMethod(
 
 
     # Create the transition matrix
-    samc_obj@data@q = .transition(data, absorption, fidelity, tr_fun, directions, symm)
+    samc_obj@data@f = .transition(data, absorption, fidelity, tr_fun, directions, symm)
 
     #if(directions == 8 || raster::isLonLat(data)) {
     #  tr <- gdistance::geoCorrection(tr, type = "c")
@@ -362,7 +365,7 @@ setMethod(
     }
 
 
-    samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@q))
+    samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@f))
     samc_obj@.cache$dgf_exists = FALSE
 
     return(samc_obj)
@@ -461,13 +464,16 @@ setMethod(
       colnames(q_mat) = NULL
     }
 
+    q_mat@x = -q_mat@x
+    Matrix::diag(q_mat) <- Matrix::diag(q_mat) + 1
+
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
     print("2) Every disconnected region of the graph must have at least one non-zero absorption value.")
     # TODO The clumps value is a placeholder and needs to be calculated as a safety check for the cond_passage() function
     samc_obj <- methods::new("samc",
                              data = methods::new("samc_data",
-                                                 q = q_mat,
+                                                 f = q_mat,
                                                  t_abs = abs_total),
                              source = "matrix",
                              map = raster::raster(matrix()),
