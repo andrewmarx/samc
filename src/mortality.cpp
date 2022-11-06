@@ -87,3 +87,15 @@ Rcpp::NumericVector psif(Eigen::Map<Eigen::SparseMatrix<double> > &M, Eigen::Vec
 
   return Rcpp::wrap(res);
 }
+
+// [[Rcpp::export(".psif_iter")]]
+Rcpp::NumericVector psif_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, Eigen::VectorXd &psi)
+{
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+
+  solver.compute(M.transpose());
+
+  Eigen::VectorXd res = solver.solve(psi);
+
+  return Rcpp::wrap(res);
+}

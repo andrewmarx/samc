@@ -19,3 +19,18 @@ Rcpp::NumericVector f1(Eigen::Map<Eigen::SparseMatrix<double> > &M)
 
   return Rcpp::wrap(res);
 }
+
+// [[Rcpp::export(".f1_iter")]]
+Rcpp::NumericVector f1_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M)
+{
+  Eigen::VectorXd one(M.rows());
+  one.fill(1.0);
+
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+
+  solver.compute(M);
+
+  Eigen::VectorXd res = solver.solve(one);
+
+  return Rcpp::wrap(res);
+}

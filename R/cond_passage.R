@@ -91,7 +91,11 @@ setMethod(
     Qj@x <- -Qj@x
     Matrix::diag(Qj) <- Matrix::diag(Qj) + 1
 
-    t <- as.numeric(.cond_t(Qj, qj))
+    if (samc@iter) {
+      t <- as.numeric(.cond_t_iter(Qj, qj))
+    } else {
+      t <- as.numeric(.cond_t(Qj, qj))
+    }
 
     # insert 0 element back into vector so output length is same original data
     final <- 1:(length(t) + 1)

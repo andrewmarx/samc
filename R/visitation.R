@@ -90,7 +90,13 @@ setMethod(
 
     origin = .process_locations(samc, origin)
 
-    r <- .f_row(samc@data@f, origin);
+    if (samc@iter) {
+      r <- .f_row_iter(samc@data@f, origin)
+    } else {
+      r <- .f_row(samc@data@f, origin)
+    }
+
+
     return(as.vector(r))
   })
 
@@ -105,7 +111,13 @@ setMethod(
 
     dest <- .process_locations(samc, dest)
 
-    r <- .f_col(samc@data@f, dest);
+    if (samc@iter) {
+      r <- .f_col_iter(samc@data@f, dest);
+    } else {
+      r <- .f_col(samc@data@f, dest);
+    }
+
+
     return(as.vector(r))
   })
 

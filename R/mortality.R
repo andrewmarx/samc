@@ -401,7 +401,12 @@ setMethod(
   function(samc, occ) {
     pv <- .process_occ(samc, occ)
 
-    pf <- .psif(samc@data@f, pv)
+    if (samc@iter) {
+      pf <- .psif_iter(samc@data@f, pv)
+    } else {
+      pf <- .psif(samc@data@f, pv)
+    }
+
     names(pf) <- samc$names
 
     mort <- pf * samc@data@t_abs

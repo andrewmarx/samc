@@ -53,7 +53,11 @@ setMethod(
   signature(samc = "samc", occ = "missing"),
   function(samc) {
 
-    z = .f1(samc@data@f)
+    if (samc@iter) {
+      z = .f1_iter(samc@data@f)
+    } else {
+      z = .f1(samc@data@f)
+    }
 
     return(as.vector(z))
   })
