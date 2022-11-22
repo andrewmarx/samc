@@ -134,7 +134,7 @@ setMethod(
 
     time <- c(0, time)
 
-    if (samc@iter) {
+    if (samc@solver == "iter") {
       res <- .sum_qn_q_iter(q, q2, qv, time)
     } else {
       res <- .sum_qn_q(q, q2, qv, time)
@@ -213,7 +213,7 @@ setMethod(
     origin <- .process_locations(samc, origin)
 
     if (!samc@.cache$dgf_exists) {
-      if (samc@iter) {
+      if (samc@solver == "iter") {
         dg <- samc:::.diagf_par_iter(samc@data@f, samc@threads)
       } else {
         dg <- samc:::.diagf_par(samc@data@f, samc@threads)
@@ -282,7 +282,7 @@ setMethod(
     pv <- .process_occ(samc, occ)
 
     if (!samc@.cache$dgf_exists) {
-      if (samc@iter) {
+      if (samc@solver == "iter") {
         dg <- samc:::.diagf_par_iter(samc@data@f, samc@threads)
       } else {
         dg <- samc:::.diagf_par(samc@data@f, samc@threads)
@@ -292,7 +292,7 @@ setMethod(
       samc@.cache$dgf_exists <- TRUE
     }
 
-    if (samc@iter) {
+    if (samc@solver == "iter") {
       disp <- .psid_long_iter(samc@data@f, pv, samc@.cache$dgf)
     } else {
       disp <- .psid_long(samc@data@f, pv, samc@.cache$dgf)

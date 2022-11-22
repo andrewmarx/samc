@@ -87,7 +87,7 @@ setClass(
                names = "char_null",
                clumps = "numeric",
                override = "logical",
-               iter = "logical",
+               solver = "character",
                threads = "numeric",
                .cache = "environment")
 

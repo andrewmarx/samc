@@ -46,6 +46,8 @@ setMethod("$", signature(x = "samc"), function(x, name) {
     return(p)
   } else if (name == "threads"){
     return(x@threads)
+  } else if (name == "solver"){
+    return(x@solver)
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
@@ -92,6 +94,12 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
               "Specifying more threads than a machine supports in hardware will likely lead to lost performance.\n")
     } else {
       warning("Input must be a single positive integer.", call. = FALSE)
+    }
+  } else if (name == "solver"){
+    if (x %in% c("direct", "iter")) {
+      x@solver = value
+    } else {
+      warning("Valid inputs: \"direct\" \"iter\"", call. = FALSE)
     }
   } else {
     warning("Invalid object specified.", call. = FALSE)

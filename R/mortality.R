@@ -401,7 +401,7 @@ setMethod(
   function(samc, occ) {
     pv <- .process_occ(samc, occ)
 
-    if (samc@iter) {
+    if (samc@solver == "iter") {
       pf <- .psif_iter(samc@data@f, pv)
     } else {
       pf <- .psif(samc@data@f, pv)

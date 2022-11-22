@@ -90,7 +90,7 @@ setMethod(
 
     origin = .process_locations(samc, origin)
 
-    if (samc@iter) {
+    if (samc@solver == "iter") {
       r <- .f_row_iter(samc@data@f, origin)
     } else {
       r <- .f_row(samc@data@f, origin)
@@ -111,7 +111,7 @@ setMethod(
 
     dest <- .process_locations(samc, dest)
 
-    if (samc@iter) {
+    if (samc@solver == "iter") {
       r <- .f_col_iter(samc@data@f, dest);
     } else {
       r <- .f_col(samc@data@f, dest);

@@ -53,7 +53,7 @@ setMethod(
   signature(samc = "samc", occ = "missing"),
   function(samc) {
 
-    if (samc@iter) {
+    if (samc@solver == "iter") {
       z = .f1_iter(samc@data@f)
     } else {
       z = .f1(samc@data@f)

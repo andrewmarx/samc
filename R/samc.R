@@ -238,7 +238,7 @@ setMethod(
                              names = NULL,
                              clumps = -1,
                              override = FALSE,
-                             iter = FALSE,
+                             solver = "direct",
                              threads = 1,
                              .cache = new.env())
     samc_mat@.cache$dgf = numeric(nrow(tr_mat))
@@ -325,7 +325,7 @@ setMethod(
                              names = NULL,
                              clumps = -1,
                              override = FALSE,
-                             iter = FALSE,
+                             solver = "direct",
                              threads = 1,
                              .cache = new.env())
 
@@ -483,7 +483,7 @@ setMethod(
                              clumps = -1,
                              threads = 1,
                              override = FALSE,
-                             iter = FALSE)
+                             solver = "direct")
 
     return(samc_obj)
   })
