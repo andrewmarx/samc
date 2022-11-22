@@ -54,7 +54,7 @@ Rcpp::List sum_qn_q_iter(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
 
   Eigen::VectorXd q2 = q;
 
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   solver.compute(M2);
 
@@ -129,7 +129,7 @@ Rcpp::NumericVector diagf_par_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, 
 
   Rcpp::Rcout << "Performing setup. This can take several minutes...";
 
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   int sz = M.rows();
 
@@ -185,7 +185,7 @@ Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M, const
 // [[Rcpp::export(".psid_long_iter")]]
 Rcpp::NumericVector psid_long_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::VectorXd &psi, const Eigen::VectorXd &dg)
 {
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   solver.compute(M.transpose());
 

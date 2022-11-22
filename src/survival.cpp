@@ -26,7 +26,7 @@ Rcpp::NumericVector f1_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M)
   Eigen::VectorXd one(M.rows());
   one.fill(1.0);
 
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   solver.compute(M);
 

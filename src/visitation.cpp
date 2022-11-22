@@ -25,7 +25,7 @@ Rcpp::NumericVector f_row(Eigen::SparseMatrix<double> &M, const int row)
 Rcpp::NumericVector f_row_iter(Eigen::SparseMatrix<double> &M, const int row)
 {
   int sz = M.rows();
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   solver.compute(M.transpose());
 
@@ -59,7 +59,7 @@ Rcpp::NumericVector f_col_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, cons
 {
   int sz = M.rows();
 
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   solver.compute(M);
 
