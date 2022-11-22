@@ -61,6 +61,15 @@ NULL
 #'   Matrices are passed in as a \code{list}, and rasters are passed in as a \code{RasterStack}.
 #'   Using \code{NA} as the input will reset it.
 #'
+#'   \item \strong{solver}
+#'
+#'   \code{samc_obj$solver} can be used to change the default linear algebra solver
+#'   used in some of the metrics. The default value of "direct" means a direct solver
+#'   is used, and is what was used in previous versions of the package. The alternative
+#'   value of "iter" switches the package to an iterative solver, which is significantly
+#'   more memory efficient for larger datasets, but in general will be noticeably slower
+#'   depending on patterns in the data.
+#'
 #'   \item \strong{threads}
 #'
 #'   \code{samc_obj$threads} can be used to get or set the number of threads used
@@ -73,6 +82,7 @@ NULL
 #' @slot map Used to verify landscape inputs and mapping of vector data
 #' @slot clumps Number of discontinuous regions in data
 #' @slot override Used to prevent accidental use of memory intensive functions
+#' @slot solver Controls the linear solver used for relevant metrics
 #' @slot threads Used for multi-threading
 #' @slot .cache Cached data for performance boosts
 
