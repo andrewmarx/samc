@@ -37,9 +37,9 @@ Depends: R (>= 3.6.0)
 Imports:
     methods,
     gdistance,
-    Matrix,
+    Matrix (>= 1.5-3),
     raster,
-    terra
+    terra (>= 1.6-41)
 RoxygenNote: 7.2.1
 Suggests: knitr,
     rmarkdown,
@@ -67,4 +67,4 @@ Collate:
     'samc.R'
     'survival.R'
     'zzz.R'
-LinkingTo: Rcpp (>= 1.0.5), RcppEigen (>= 0.3.3.9.1), RcppThread (>= 2.1.3)
+LinkingTo: Rcpp (>= 1.0.9), RcppEigen (>= 0.3.3.9.3), RcppThread (>= 2.1.3)
