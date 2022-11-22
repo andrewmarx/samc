@@ -105,6 +105,9 @@ for(i in 1:length(masklist)) {
                              testlist[[i]]$fid,
                              tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
+
+  testlist[[i]]$samc@names = as.character(1:length(testlist[[i]]$samc@data@t_abs))
+
   testlist[[i]]$samc$abs_states <- list(testlist[[i]]$abs * p1, testlist[[i]]$abs * p2)
 
   testlist[[i]]$id <- i
@@ -122,6 +125,8 @@ for(i in (n + 1):(n + length(masklist))) {
                              testlist[[i]]$abs,
                              testlist[[i]]$fid,
                              tr_args = list(fun = function(x) 1/(mean(x) + x[1]), dir = 4, sym = FALSE))
+
+  testlist[[i]]$samc@names = as.character(1:length(testlist[[i]]$samc@data@t_abs))
 
   testlist[[i]]$samc$abs_states <- list(testlist[[i]]$abs * p1, testlist[[i]]$abs * p2)
   testlist[[i]]$id <- i

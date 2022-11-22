@@ -66,13 +66,8 @@ setMethod(
   function(samc) {
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    q <- samc$q_matrix
-
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
-
     # TODO: possibly optimize using C++
-    abs_mat <- Matrix::solve(q, samc@data@c_abs)
+    abs_mat <- Matrix::solve(samc@data@f, samc@data@c_abs)
 
     abs_mat <- as.matrix(abs_mat)
 
@@ -111,12 +106,7 @@ setMethod(
     pv <- as.vector(occ)
     pv <- pv[is.finite(pv)]
 
-    q <- samc$q_matrix
-
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
-
-    pf <- samc:::.psif(q, pv)
+    pf <- samc:::.psif(samc@data@f, pv)
 
     result <- as.vector(pf %*% samc@data@c_abs)
     names(result) <- colnames(samc@data@c_abs)

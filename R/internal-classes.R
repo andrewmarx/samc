@@ -6,7 +6,7 @@ NULL
 #'
 #' Contains the data fields used in the samc-class
 #'
-#' @slot q Q matrix
+#' @slot f F matrix
 #' @slot t_abs Total absorption
 #' @slot c_abs Component absorption states
 #'
@@ -18,7 +18,7 @@ setClass(
   "samc_data",
 
   # define the slots
-  slots = list(q = "dgCMatrix",
+  slots = list(f = "CsparseMatrix",
                t_abs = "numeric",
                c_abs = "matrix")
 
@@ -31,3 +31,14 @@ setClass(
   #   return(TRUE)
   # }
 )
+
+
+#' samc raster class
+#'
+#' Class for grouping different raster types under one parameter
+#'
+#' @name samc_raster-class
+#' @keywords internal
+
+setClassUnion("samc_raster", c("RasterLayer", "SpatRaster"))
+setClassUnion("char_null", c("character", "NULL"))

@@ -40,6 +40,9 @@ setGeneric(
     standardGeneric("check")
   })
 
+
+
+# TODO merge
 #' @rdname check
 setMethod(
   "check",
@@ -96,11 +99,53 @@ setMethod(
 #' @rdname check
 setMethod(
   "check",
+  signature(a = "SpatRaster", b = "missing"),
+  function(a){
+
+    n <- terra::nlyr(a)
+
+    if (n == 0) {
+      stop("No raster layers found", call. = FALSE)
+    }
+
+    inf_counts = numeric(n)
+    nan_counts = numeric(n)
+
+    for (r in 1:terra::nrow(a)) {
+      data = terra::values(a, row = r, nrows = 1)
+
+      if (any(is.infinite(data))) stop("Data contains Inf or -Inf", call. = FALSE)
+      if (any(is.nan(data))) stop("Data contains Inf or -Inf", call. = FALSE)
+
+      data = rowSums(is.finite(data))
+      if (any(data > 0 & data < n)) stop("NA mismatch in input data", call. = FALSE)
+    }
+
+
+    return(TRUE)
+  })
+
+
+
+#' @rdname check
+setMethod(
+  "check",
   signature(a = "matrix", b = "missing"),
   function(a){
     a <- .rasterize(a)
 
     check(a)
+  })
+
+
+
+# TODO: merge
+#' @rdname check
+setMethod(
+  "check",
+  signature(a = "SpatRaster", b = "SpatRaster"),
+  function(a, b){
+    check(c(a, b)) # TODO make CRS warning an error?
   })
 
 #' @rdname check
@@ -110,6 +155,8 @@ setMethod(
   function(a, b){
     check(raster::stack(a, b))
   })
+
+
 
 #' @rdname check
 setMethod(
@@ -122,6 +169,9 @@ setMethod(
     check(a, b)
   })
 
+
+
+# TODO merge
 #' @rdname check
 setMethod(
   "check",
@@ -134,6 +184,22 @@ setMethod(
 
     check(a, b)
   })
+
+#' @rdname check
+setMethod(
+  "check",
+  signature(a = "samc", b = "SpatRaster"),
+  function(a, b){
+    if (a@source != "map") stop("Parameters do not apply to a samc-class object created from a ", a@source, call. = FALSE)
+
+    a <- a@map
+    a[!a[]] <- NA
+
+    check(a, b)
+  })
+
+
+
 
 #' @rdname check
 setMethod(

@@ -21,4 +21,18 @@ Rcpp::NumericVector cond_t(Eigen::Map<Eigen::SparseMatrix<double> > &IQ, Eigen::
   return Rcpp::wrap(res);
 }
 
+// [[Rcpp::export(".cond_t_iter")]]
+Rcpp::NumericVector cond_t_iter(Eigen::Map<Eigen::SparseMatrix<double> > &IQ, Eigen::VectorXd &qj)
+{
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
+  solver.compute(IQ);
+
+  Eigen::VectorXd b = solver.solve(qj);
+
+  solver.compute(IQ * b.asDiagonal());
+
+  Eigen::VectorXd res = solver.solve(b);
+
+  return Rcpp::wrap(res);
+}

@@ -133,7 +133,12 @@ setMethod(
     Matrix::diag(q2) <- Matrix::diag(q2) + 1
 
     time <- c(0, time)
-    res <- .sum_qn_q(q, q2, qv, time)
+
+    if (samc@solver == "iter") {
+      res <- .sum_qn_q_iter(q, q2, qv, time)
+    } else {
+      res <- .sum_qn_q(q, q2, qv, time)
+    }
 
     res <- lapply(res, as.vector)
 
@@ -208,11 +213,11 @@ setMethod(
     origin <- .process_locations(samc, origin)
 
     if (!samc@.cache$dgf_exists) {
-      q <- samc$q_matrix
-      q@x <- -q@x
-      Matrix::diag(q) <- Matrix::diag(q) + 1
-
-      dg <- samc:::.diagf_par(q, samc@threads)
+      if (samc@solver == "iter") {
+        dg <- samc:::.diagf_par_iter(samc@data@f, samc@threads)
+      } else {
+        dg <- samc:::.diagf_par(samc@data@f, samc@threads)
+      }
 
       samc@.cache$dgf <- dg
       samc@.cache$dgf_exists <- TRUE
@@ -222,7 +227,7 @@ setMethod(
     f_row[origin] <- f_row[origin] - 1
 
     result <- as.vector(f_row/samc@.cache$dgf)
-    names(result) <- colnames(samc$q_matrix)
+    names(result) <- colnames(samc$q_matrix) # TODO update based on names changes? Check for other similiar situations
 
     return(result)
   })
@@ -240,7 +245,7 @@ setMethod(
     f_col[dest] <- f_col[dest] - 1
 
     result <- as.vector(f_col/fjj)
-    names(result) <- rownames(samc$q_matrix)
+    names(result) <- samc$names
 
     return(result)
   })
@@ -276,18 +281,23 @@ setMethod(
   function(samc, occ) {
     pv <- .process_occ(samc, occ)
 
-    q <- samc$q_matrix
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
-
     if (!samc@.cache$dgf_exists) {
-      dg <- samc:::.diagf_par(q, samc@threads)
+      if (samc@solver == "iter") {
+        dg <- samc:::.diagf_par_iter(samc@data@f, samc@threads)
+      } else {
+        dg <- samc:::.diagf_par(samc@data@f, samc@threads)
+      }
 
       samc@.cache$dgf <- dg
       samc@.cache$dgf_exists <- TRUE
     }
 
-    disp <- .psid_long(q, pv, samc@.cache$dgf)
+    if (samc@solver == "iter") {
+      disp <- .psid_long_iter(samc@data@f, pv, samc@.cache$dgf)
+    } else {
+      disp <- .psid_long(samc@data@f, pv, samc@.cache$dgf)
+
+    }
 
     return(as.vector(disp))
   })

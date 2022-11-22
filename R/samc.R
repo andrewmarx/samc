@@ -132,14 +132,18 @@ setGeneric(
 setMethod(
   "samc",
   signature(data = "TransitionLayer",
-            absorption = "RasterLayer",
-            fidelity = "RasterLayer",
+            absorption = "samc_raster",
+            fidelity = "samc_raster",
             tr_args = "missing"),
   function(data, absorption, fidelity) {
+
+    absorption = .rasterize(absorption)
+    fidelity = .rasterize(fidelity)
+
     check(absorption, fidelity)
 
-    abs_vec <- as.vector(absorption)
-    fid_vec <- as.vector(fidelity)
+    abs_vec <- as.vector(terra::values(absorption))
+    fid_vec <- as.vector(terra::values(fidelity))
 
     if (any(fid_vec < 0, na.rm = TRUE) || any(fid_vec > 1, na.rm = TRUE)) {
       stop("Fidelity values must be in range of 0-1", call. = FALSE)
@@ -163,19 +167,21 @@ setMethod(
 
     # Get raster
     rs <- gdistance::raster(data)
+    rs = terra::rast(rs)
     rs[] <- is.finite(rs[])
 
     if (!identical(dim(m)[1:2], dim(rs)[1:2])) {
       stop("Dimensions of absorption raster does not match dimensions of raster used to create TransitionLayer")
     }
 
-    if (!identical(raster::extent(m), raster::extent(rs))) {
+    if (!identical(terra::ext(m)[], terra::ext(rs)[])) {
       stop("Extent of absorption raster does not match extent of raster used to create TransitionLayer")
     }
 
-    if (!raster::compareCRS(m, rs)) {
-      stop("crs of absorption raster does not match crs of raster used to create TransitionLayer")
-    }
+    # TODO reimpliment for terra
+    #if (!raster::compareCRS(m, rs)) {
+    #  stop("crs of absorption raster does not match crs of raster used to create TransitionLayer")
+    #}
 
 
     tr_mat <- gdistance::transitionMatrix(data)
@@ -219,26 +225,20 @@ setMethod(
 
     tr_mat <- methods::as(tr_mat, "dgCMatrix")
 
-    # Check dimnames
-    if (is.null(rownames(tr_mat))) rownames(tr_mat) <- 1:nrow(tr_mat)
-    if (is.null(colnames(tr_mat))) colnames(tr_mat) <- 1:ncol(tr_mat)
-
-    if (any(duplicated(rownames(tr_mat))))
-      stop("Row names must be unique")
-    if (any(duplicated(colnames(tr_mat))))
-      stop("Column names must be unique")
-
-    names(abs_vec) <- rownames(tr_mat)
+    tr_mat@x = -tr_mat@x
+    Matrix::diag(tr_mat) <- Matrix::diag(tr_mat) + 1
 
     # Assemble final
     samc_mat <- methods::new("samc",
                              data = methods::new("samc_data",
-                                                 q = tr_mat,
+                                                 f = tr_mat,
                                                  t_abs = abs_vec),
                              source = "map",
                              map = m,
+                             names = NULL,
                              clumps = -1,
                              override = FALSE,
+                             solver = "direct",
                              threads = 1,
                              .cache = new.env())
     samc_mat@.cache$dgf = numeric(nrow(tr_mat))
@@ -251,10 +251,12 @@ setMethod(
 setMethod(
   "samc",
   signature(data = "TransitionLayer",
-            absorption = "RasterLayer",
+            absorption = "samc_raster",
             fidelity = "missing",
             tr_args = "missing"),
   function(data, absorption) {
+    absorption = .rasterize(absorption)
+
     fidelity <- absorption
     fidelity[is.finite(fidelity)] <- 0
 
@@ -264,29 +266,36 @@ setMethod(
 #' @rdname samc
 setMethod(
   "samc",
-  signature(data = "RasterLayer",
-            absorption = "RasterLayer",
-            fidelity = "RasterLayer",
+  signature(data = "samc_raster",
+            absorption = "samc_raster",
+            fidelity = "samc_raster",
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
     .validate_tr_args(tr_args)
+
+    data = .rasterize(data)
+    absorption = .rasterize(absorption)
+    fidelity = .rasterize(fidelity)
 
     tr_fun <- tr_args$fun
     directions <-tr_args$dir
     symm <- tr_args$sym
 
     # Make sure the input data all aligns
-    check(raster::stack(data, fidelity, absorption))
+    check(c(data, fidelity, absorption))
 
-    if (any(data[] <= 0, na.rm = TRUE)) {
+    data_minmax = terra::minmax(data)
+    if (data_minmax["min", 1] < 0) {
       stop("The data must not have values <= 0", call. = FALSE)
     }
 
-    if (any(fidelity[] < 0, na.rm = TRUE) || any(fidelity[] > 1, na.rm = TRUE)) {
+    fid_minmax = terra::minmax(fidelity)
+    if (fid_minmax["min", 1] < 0 || fid_minmax["max", 1] > 1) {
       stop("Fidelity values must be in range of 0-1", call. = FALSE)
     }
 
-    if (any((fidelity[] + absorption[]) > 1, na.rm = TRUE)) {
+    fidabs_minmax = terra::minmax(fidelity + absorption)
+    if (fidabs_minmax["max", 1] > 1) {
       stop("No cells can have fidelity + absoprtion > 1", call. = FALSE)
     }
 
@@ -294,50 +303,72 @@ setMethod(
       stop("directions must be set to either 4 or 8", call. = FALSE)
     }
 
-    # Create map template
-    m <- data
-    m[] <- is.finite(m[])
+    #abs_vec <- as.vector(absorption)
+    #fid_vec <- as.vector(fidelity)
+
+    abs_minmax = terra::minmax(absorption)
+
+    if (abs_minmax["min", 1] < 0 || abs_minmax["max", 1] > 1) {
+      stop("Absorption values must be in range of 0-1", call. = FALSE)
+    } else if (abs_minmax["max", 1] == 0) {
+      stop("At least one cell must have an absorption value > 0", call. = FALSE)
+    }
+
+
+
+    samc_obj <- methods::new("samc",
+                             data = methods::new("samc_data",
+                                                 f = new("dgCMatrix"),
+                                                 t_abs = numeric(0)),
+                             source = "map",
+                             map = is.finite(data),
+                             names = NULL,
+                             clumps = -1,
+                             override = FALSE,
+                             solver = "direct",
+                             threads = 1,
+                             .cache = new.env())
+
+
 
     # Check for "clumps"
-    cl <- raster::clump(m, directions = directions, gaps = FALSE)
-    clumps <- sum(!is.na(unique(cl[])))
+    cl = terra::patches(samc_obj@map, directions = directions, zeroAsNA = TRUE, allowGaps = FALSE)
+    samc_obj@clumps = sum(!is.na(terra::unique(cl)[, 1]))
 
-    if (clumps > 1) {
+    if (samc_obj@clumps > 1) {
       print("Warning: Input contains disconnected regions. This does not work with the cond_passage() metric.")
 
-      temp_abs <- absorption[[1]]
-      temp_abs[temp_abs > 0] <- 1
-      temp_abs <- temp_abs * cl
+      temp_abs = absorption[[1]]
+      temp_abs[temp_abs > 0] = 1
+      temp_abs = temp_abs * cl
 
-      if (!all(1:clumps %in% unique(temp_abs[]))) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
+      if (!all(1:samc_obj@clumps %in% terra::unique(temp_abs)[, 1])) stop("All disconnected regions must have at least one non-zero absorption value", call. = FALSE)
+
+      rm(temp_abs)
     }
+    rm(cl)
+    gc()
 
-    abs_vec <- as.vector(absorption)
-    fid_vec <- as.vector(fidelity)
 
-    if (any(abs_vec > 1, na.rm = TRUE) || any(abs_vec < 0, na.rm = TRUE)) {
-      stop("Absorption values must be in range of 0-1", call. = FALSE)
-    }
-
-    if (sum(abs_vec, na.rm = TRUE) == 0) {
-      stop("At least one cell must have a total absorption value > 0", call. = FALSE)
-    }
 
     # Create the transition matrix
-    tr <- gdistance::transition(data, transitionFunction = tr_fun, directions, symm = symm)
-    if(directions == 8 || raster::isLonLat(data)) {
-      tr <- gdistance::geoCorrection(tr, type = "c")
-    }
+    samc_obj@data@f = .transition(data, absorption, fidelity, tr_fun, directions, symm)
+
+    #if(directions == 8 || raster::isLonLat(data)) {
+    #  tr <- gdistance::geoCorrection(tr, type = "c")
+    #}
+
+    gc()
+
+    samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
 
     if(is.na(raster::projection(data)) && raster::xres(data) != raster::yres(data)) {
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 
-    samc_obj <- samc(tr, absorption, fidelity)
 
-    samc_obj@source = "map"
-    samc_obj@map <- m
-    samc_obj@clumps <- clumps
+    samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@f))
+    samc_obj@.cache$dgf_exists = FALSE
 
     return(samc_obj)
   })
@@ -345,11 +376,14 @@ setMethod(
 #' @rdname samc
 setMethod(
   "samc",
-  signature(data = "RasterLayer",
-            absorption = "RasterLayer",
+  signature(data = "samc_raster",
+            absorption = "samc_raster",
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {
+
+    data = .rasterize(data)
+    absorption = .rasterize(absorption)
 
     fidelity <- data
     fidelity[is.finite(fidelity)] <- 0
@@ -415,22 +449,25 @@ setMethod(
     if (!isTRUE(all.equal(Matrix::rowSums(data), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
 
-
     q_mat <- methods::as(data[-r, -c], "dgCMatrix")
     abs_total <- data[-r, c]
 
     if (!isTRUE(all.equal(Matrix::rowSums(q_mat) + abs_total, rep(1, length(abs_total)), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
-    if (is.null(rownames(q_mat))) rownames(q_mat) <- 1:nrow(q_mat)
-    if (is.null(colnames(q_mat))) colnames(q_mat) <- 1:ncol(q_mat)
-
-    names(abs_total) <- rownames(q_mat)
-
-    if (!isTRUE(all.equal(rownames(q_mat), colnames(q_mat))))
+    if (is.null(rownames(q_mat)) & is.null(colnames(q_mat))) {
+      nm = NULL
+    } else if (!isTRUE(all.equal(rownames(q_mat), colnames(q_mat)))) {
       stop("The row and col names of the Q matrix must be identical", call. = FALSE)
-
-    if (any(duplicated(rownames(q_mat))))
+    } else if (any(duplicated(rownames(q_mat)))) {
       stop("The row and col names of the Q matrix must be unique", call. = FALSE)
+    } else {
+      nm = rownames(q_mat)
+      rownames(q_mat) = NULL
+      colnames(q_mat) = NULL
+    }
+
+    q_mat@x = -q_mat@x
+    Matrix::diag(q_mat) <- Matrix::diag(q_mat) + 1
 
     print("Warning: Some checks for manually created P matrices are still missing:")
     print("1) Discontinuous data will not work with the cond_passage() function.")
@@ -438,13 +475,15 @@ setMethod(
     # TODO The clumps value is a placeholder and needs to be calculated as a safety check for the cond_passage() function
     samc_obj <- methods::new("samc",
                              data = methods::new("samc_data",
-                                                 q = q_mat,
+                                                 f = q_mat,
                                                  t_abs = abs_total),
                              source = "matrix",
                              map = raster::raster(matrix()),
+                             names = nm,
                              clumps = -1,
                              threads = 1,
-                             override = FALSE)
+                             override = FALSE,
+                             solver = "direct")
 
     return(samc_obj)
   })
