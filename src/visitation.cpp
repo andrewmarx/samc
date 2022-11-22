@@ -4,6 +4,8 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 
+#include <Rcpp/Benchmark/Timer.h>
+
 
 // [[Rcpp::export(".f_row")]]
 Rcpp::NumericVector f_row(Eigen::SparseMatrix<double> &M, const int row)
@@ -44,12 +46,22 @@ Rcpp::NumericVector f_col(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int
 
   Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
+  //Rcpp::Timer timer;
+
+  //timer.step("compute() start");
   solver.compute(M);
+  //timer.step("compute() end");
 
   Eigen::VectorXd col_vec = Eigen::VectorXd::Zero(sz);
   col_vec(col-1) = 1;
 
+  //timer.step("solve() start");
   Eigen::VectorXd res = solver.solve(col_vec);
+  //timer.step("solve() end");
+
+  //Rcpp::NumericVector tr(timer);
+  //Rcpp::Rcout << tr;
+
 
   return Rcpp::wrap(res);
 }
@@ -61,12 +73,21 @@ Rcpp::NumericVector f_col_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, cons
 
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
+  //Rcpp::Timer timer;
+
+  //timer.step("compute() start");
   solver.compute(M);
+  //timer.step("compute() end");
 
   Eigen::VectorXd col_vec = Eigen::VectorXd::Zero(sz);
   col_vec(col-1) = 1;
 
+  //timer.step("solve() start");
   Eigen::VectorXd res = solver.solve(col_vec);
+  //timer.step("solve() end");
+
+  //Rcpp::NumericVector tr(timer);
+  //Rcpp::Rcout << tr;
 
   return Rcpp::wrap(res);
 }
