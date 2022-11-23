@@ -4,6 +4,8 @@
 - Removed default naming of cells for samc objects created from rasters. This leads to substantially smaller samc objects, especially as raster inputs become larger.
 - Overhauled the samc object creation to be substantially more memory efficient. It is now feasible to create samc objects with 100-150 Million transient states with 32 GB of RAM. However, this memory efficiency comes with the tradeoff that samc objects can take significantly longer to create (~2x as long based on preliminary testing).
 - Added optional support for iterative solvers in metrics (where applicable). This greatly reduces the memory requirements of these metrics, but in general will take longer to calculate. Initial tests indicate that the `visitation()` function is feasible for samc objects with 50 Million cells with 32 GB of RAM. Details about changing the solver can be found in the help documentation for the `samc-class`.
+- Updated the performance vignette to include additional information about the choice of linear solver. Also removed old memory consumption benchmarks due to a flaw in testing where profilers in R do not measure the memory consumption of native code.
+- Bumped various package version requirements.
 
 # samc 2.0.1
 
