@@ -51,6 +51,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
+#' @param occ Placeholder/not currently implemented.
 #' @template param-origin
 #' @template param-dest
 #'
@@ -62,7 +63,7 @@ NULL
 
 setGeneric(
   "visitation",
-  function(samc, origin, dest) {
+  function(samc, occ, origin, dest) {
     standardGeneric("visitation")
   })
 
@@ -70,7 +71,7 @@ setGeneric(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "missing", dest = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing"),
   function(samc){
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -83,7 +84,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "location", dest = "missing"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing"),
   function(samc, origin){
     if (length(origin) != 1)
       stop("origin can only contain a single value for this version of the function", call. = FALSE)
@@ -104,7 +105,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "missing", dest = "location"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location"),
   function(samc, dest){
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -125,7 +126,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", origin = "location", dest = "location"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "location"),
   function(samc, origin, dest){
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)

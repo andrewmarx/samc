@@ -52,6 +52,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
+#' @param occ Placeholder/not currently implemented.
 #' @template param-origin
 #' @template param-dest
 #'
@@ -63,7 +64,7 @@ NULL
 
 setGeneric(
   "cond_passage",
-  function(samc, origin, dest) {
+  function(samc, occ, origin, dest) {
     standardGeneric("cond_passage")
   })
 
@@ -71,7 +72,7 @@ setGeneric(
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
-  signature(samc = "samc", origin = "missing", dest = "location"),
+  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location"),
   function(samc, dest) {
     if (samc@clumps == -1)
       warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
@@ -118,7 +119,7 @@ setMethod(
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
-  signature(samc = "samc", origin = "location", dest = "location"),
+  signature(samc = "samc", occ = "missing", origin = "location", dest = "location"),
   function(samc, origin, dest) {
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
