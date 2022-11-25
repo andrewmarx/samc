@@ -204,7 +204,7 @@ setMethod(
     }
 
     # Old approach
-    tr_mat <- methods::as(tr_mat, "dgTMatrix") # dgTMatrix is easier to edit directly
+    tr_mat <- methods::as(methods::as(methods::as(tr_mat, "dMatrix"), "generalMatrix"), "TsparseMatrix") # dgTMatrix is easier to edit directly
     tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
 
     # New approach that causes crash during one of the dispersal() tests
@@ -223,7 +223,7 @@ setMethod(
       abs_vec <- abs_vec[-excl]
     }
 
-    tr_mat <- methods::as(tr_mat, "dgCMatrix")
+    tr_mat <- methods::as(methods::as(tr_mat, "CsparseMatrix"), "generalMatrix")
 
     tr_mat@x = -tr_mat@x
     Matrix::diag(tr_mat) <- Matrix::diag(tr_mat) + 1
@@ -449,7 +449,7 @@ setMethod(
     if (!isTRUE(all.equal(Matrix::rowSums(data), rep(1, r), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
 
 
-    q_mat <- methods::as(data[-r, -c], "dgCMatrix")
+    q_mat <- methods::as(methods::as(data[-r, -c], "CsparseMatrix"), "generalMatrix")
     abs_total <- data[-r, c]
 
     if (!isTRUE(all.equal(Matrix::rowSums(q_mat) + abs_total, rep(1, length(abs_total)), check.names = FALSE))) stop("All row sums must be equal to 1", call. = FALSE) # Use all.equal() to avoid numerical precision issues
@@ -496,7 +496,7 @@ setMethod(
             fidelity = "missing",
             tr_args = "missing"),
   function(data) {
-    p <- methods::as(data, "dgCMatrix")
+    p <- methods::as(methods::as(data, "CsparseMatrix"), "generalMatrix")
 
     return(samc(data = p))
   })
