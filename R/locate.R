@@ -56,10 +56,11 @@ setMethod(
   function(samc){
     if (samc@source != "map") stop("This function can only be used when the samc object was created from raster or matrix inputs for resistance data", call. = FALSE)
 
-    ras <- samc@map
-    n <- sum(ras[])
-    ras[ras] <- 1:n
-    ras[ras[] == 0] <- NA
+    n <- sum(samc@map[])
+    ras <- as.numeric(samc@map)
+    ras[ras == 0] = NA
+
+    ras[terra::cells(ras)] <- 1:n
 
     return(ras)
   })
@@ -71,7 +72,7 @@ setMethod(
   function(samc, xy){
     ras <- locate(samc)
 
-    result <- raster::extract(ras, xy)
+    result <- terra::extract(ras, xy)[, 2]
 
     if (anyNA(result)) stop("One or more coordinates do not correspond to non-NA cells.", call. = FALSE)
 
