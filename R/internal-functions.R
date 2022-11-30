@@ -12,8 +12,12 @@
 #' @param data A SpatRaster
 #' @noRd
 .transition <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
-  if (class(fun) == "character" || !(dir %in% c(4, 8))) {
-    stop("gdistance's named funtion options not supported")
+  if (class(fun) == "character") {
+    stop("Named transition functions not supported", call. = FALSE)
+  }
+
+  if (!(dir %in% c(4, 8))) {
+    stop("Invalid `dir` input", call. = FALSE)
   }
 
   lonlat = terra::is.lonlat(absorption)

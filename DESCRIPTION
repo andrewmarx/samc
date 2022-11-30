@@ -36,7 +36,6 @@ LazyData: true
 Depends: R (>= 3.6.0)
 Imports:
     methods,
-    gdistance,
     Matrix (>= 1.5-3),
     raster,
     terra (>= 1.6-41)
@@ -44,6 +43,7 @@ RoxygenNote: 7.2.1
 Suggests: knitr,
     rmarkdown,
     testthat,
+    gdistance,
     viridisLite
 VignetteBuilder: knitr
 Collate:

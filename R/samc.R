@@ -16,13 +16,15 @@ NULL
 #'
 #' \emph{\code{samc(data = matrix, absorption = matrix, fidelity = matrix, tr_args = list())}}
 #'
+#' \emph{\code{samc(data = SpatRaster, absorption = SpatRaster, fidelity = SpatRaster, tr_args = list())}}
+#'
 #' \emph{\code{samc(data = RasterLayer, absorption = RasterLayer, fidelity = RasterLayer, tr_args = list())}}
 #'
 #' The \code{\link{samc-class}} object can be created from a combination of
 #' resistance (or conductance), absorption, and fidelity data. These different landscape data
-#' inputs must be the same type (a matrix or RasterLayer), and have identical
+#' inputs must be the same type (a matrix, SpatRaster, or RasterLayer), and have identical
 #' properties, including dimensions, location of NA cells, and CRS (if using
-#' RasterLayers).
+#' raster inputs).
 #'
 #' The \code{data} and \code{absorption} inputs are always mandatory for this approach. The
 #' \code{fidelity} input is optional. If the \code{fidelity} input is not provided, then it it
@@ -30,32 +32,17 @@ NULL
 #' to an adjacent cell each time step).
 #'
 #' The \code{tr_args} parameter is mandatory. It used when calculating the values for
-#' the transition matrix. Internally, is used in the \code{\link[gdistance]{transition}}
-#' function in the gdistance package to create the transition matrix. \code{tr_args}
-#' must be constructed as list with a transition function, the number of directions (4 or 8),
-#' and if the transition function is symmetric (TRUE or FALSE). Here is the template:
+#' the transition matrix. \code{tr_args}  must be constructed as list with a
+#' transition function, the number of directions (4 or 8), and if the transition
+#' function is symmetric (TRUE or FALSE; currently not used). Here is the template:
 #' \code{list(fun = `function`, dir = `numeric`, sym = `logical`)}
 #'
-#' \strong{Option 2: TransitionLayer}
+#' When using raster inputs, SpatRaster objects (from the terra package) are recommended
+#' over RasterLayer objects (from the raster package). Internally, samc is using SpatRaster
+#' objects, which means RasterLayer objects are being converted to SpatRaster objects,
+#' which is a source of memory inefficiency.
 #'
-#' \emph{\code{samc(data = TransitionLayer, absorption = RasterLayer, fidelity = RasterLayer)}}
-#'
-#' The \code{data} parameter can be a \code{TransitionLayer} object created using the gdistance package.
-#' In this case the \code{absorption} parameter is mandatory and should be a RasterLayer
-#' that has identical properties to the RasterLayer used to create the TransitionLayer
-#' object. The \code{fidelity} parameter is optional and has the same requirements as
-#' the \code{absorption} parameter. The \code{\link{check}} function can be used to
-#' verify these requirements.
-#'
-#' The advantage of this approach is that it offers slightly more flexibility than
-#' the first option. Namely, it's useful if the TransitionLayer needs additional
-#' modifications before it is normalized with the absorption and fidelity inputs.
-#' The disadvantage compared to the first option is that samc() cannot detect certain
-#' issues when the TransitionLayer is manually created and modified. So if users
-#' do not need to manually modify the TransitionLayer, then the first option for
-#' creating a samc object is recommended.
-#'
-#' \strong{Option 3: P Matrix}
+#' \strong{Option 2: P Matrix}
 #'
 #' \emph{\code{samc(data = matrix)}}
 #'
@@ -128,140 +115,6 @@ setGeneric(
     standardGeneric("samc")
   })
 
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "TransitionLayer",
-            absorption = "samc_raster",
-            fidelity = "samc_raster",
-            tr_args = "missing"),
-  function(data, absorption, fidelity) {
-
-    absorption = .rasterize(absorption)
-    fidelity = .rasterize(fidelity)
-
-    check(absorption, fidelity)
-
-    abs_vec <- as.vector(terra::values(absorption))
-    fid_vec <- as.vector(terra::values(fidelity))
-
-    if (any(fid_vec < 0, na.rm = TRUE) || any(fid_vec > 1, na.rm = TRUE)) {
-      stop("Fidelity values must be in range of 0-1", call. = FALSE)
-    }
-
-    if (any(abs_vec > 1, na.rm = TRUE) || any(abs_vec < 0, na.rm = TRUE)) {
-      stop("Absorption values must be in range of 0-1", call. = FALSE)
-    }
-
-    if (sum(abs_vec, na.rm = TRUE) == 0) {
-      stop("At least one cell must have a total absorption value > 0", call. = FALSE)
-    }
-
-    if (any((fid_vec + abs_vec) > 1, na.rm = TRUE)) {
-      stop("No cells can have fidelity + absoprtion > 1", call. = FALSE)
-    }
-
-    # Create map template
-    m <- absorption
-    m[] <- is.finite(m[])
-
-    # Get raster
-    rs <- gdistance::raster(data)
-    rs = terra::rast(rs)
-    rs[] <- is.finite(rs[])
-
-    if (!identical(dim(m)[1:2], dim(rs)[1:2])) {
-      stop("Dimensions of absorption raster does not match dimensions of raster used to create TransitionLayer")
-    }
-
-    if (!identical(terra::ext(m)[], terra::ext(rs)[])) {
-      stop("Extent of absorption raster does not match extent of raster used to create TransitionLayer")
-    }
-
-    # TODO reimpliment for terra
-    #if (!raster::compareCRS(m, rs)) {
-    #  stop("crs of absorption raster does not match crs of raster used to create TransitionLayer")
-    #}
-
-
-    tr_mat <- gdistance::transitionMatrix(data)
-
-    if (length(abs_vec) != nrow(tr_mat)) {
-      stop("Absorption length does not match number of rows in TransitionLayer", call. = FALSE)
-    }
-
-
-    # Normalize the transition Matrix
-
-    Matrix::diag(tr_mat) <- 0
-
-    if (sum(Matrix::rowSums(tr_mat)[which(!m[])]) != 0) {
-       stop("NA cells in absorption raster correspond to non-zero probabilities in the TransitionLayer", call. = FALSE)
-    }
-
-    if (any(!m[which(Matrix::rowSums(tr_mat) != 0)])) {
-      stop("Non-zero probabilities in the TransitionLayer correspond to NA cells in absorption raster correspond to ", call. = FALSE)
-    }
-
-    # Old approach
-    tr_mat <- methods::as(methods::as(methods::as(tr_mat, "dMatrix"), "generalMatrix"), "TsparseMatrix") # dgTMatrix is easier to edit directly
-    tr_mat@x <- (1 - abs_vec[tr_mat@i + 1] - fid_vec[tr_mat@i + 1]) * tr_mat@x / Matrix::rowSums(tr_mat)[tr_mat@i + 1]
-
-    # New approach that causes crash during one of the dispersal() tests
-    #    tr_mat <- (1 - Matrix::rowSums(abs_mat) - fid_vec) * tr_mat / Matrix::rowSums(tr_mat)
-
-
-    # Calculate fidelity values rather than assigning directly.
-    # This approach ensures that P(abs) + P(fid) = 1 for isolated cells.
-    Matrix::diag(tr_mat) <- 1 - Matrix::rowSums(tr_mat) - abs_vec
-
-    # Remove rows/cols for NA cells
-    excl <- which(is.na(abs_vec))
-
-    if (length(excl) > 0) {
-      tr_mat = tr_mat[-excl, -excl]
-      abs_vec <- abs_vec[-excl]
-    }
-
-    tr_mat <- methods::as(methods::as(tr_mat, "CsparseMatrix"), "generalMatrix")
-
-    tr_mat@x = -tr_mat@x
-    Matrix::diag(tr_mat) <- Matrix::diag(tr_mat) + 1
-
-    # Assemble final
-    samc_mat <- methods::new("samc",
-                             data = methods::new("samc_data",
-                                                 f = tr_mat,
-                                                 t_abs = abs_vec),
-                             source = "map",
-                             map = m,
-                             names = NULL,
-                             clumps = -1,
-                             override = FALSE,
-                             solver = "direct",
-                             threads = 1,
-                             .cache = new.env())
-    samc_mat@.cache$dgf = numeric(nrow(tr_mat))
-    samc_mat@.cache$dgf_exists = FALSE
-
-    return(samc_mat)
-  })
-
-#' @rdname samc
-setMethod(
-  "samc",
-  signature(data = "TransitionLayer",
-            absorption = "samc_raster",
-            fidelity = "missing",
-            tr_args = "missing"),
-  function(data, absorption) {
-    absorption = .rasterize(absorption)
-
-    fidelity <- absorption
-    fidelity[is.finite(fidelity)] <- 0
-
-    return(samc(data, absorption, fidelity))
-  })
 
 #' @rdname samc
 setMethod(
@@ -350,14 +203,8 @@ setMethod(
     gc()
 
 
-
     # Create the transition matrix
     samc_obj@data@f = .transition(data, absorption, fidelity, tr_fun, directions, symm)
-
-    #if(directions == 8 || raster::isLonLat(data)) {
-    #  tr <- gdistance::geoCorrection(tr, type = "c")
-    #}
-
     gc()
 
     samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
