@@ -93,15 +93,22 @@
 
   row_count = 0L
 
-  if (lonlat) {
-    warning("geocorrection for latlon not implemented", call. = FALSE)
-    dist <- function(x, dir) {
-      1 # TODO update
+  if(!is.na(lonlat)) {
+    if (lonlat) {
+      warning("geocorrection for latlon not implemented", call. = FALSE)
+      dist <- function(x, dir) {
+        1 # TODO update
 
-      # Get raster first column cell numbers
-      # Get adjacent cell numbers
-      # Convert to xy coords
-      # Get dist
+        # Get raster first column cell numbers
+        # Get adjacent cell numbers
+        # Convert to xy coords
+        # Get dist
+      }
+    } else {
+      dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
+      dist = function(x, dir) {
+        dist_lookup[dir]
+      }
     }
   } else {
     dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
@@ -109,6 +116,9 @@
       dist_lookup[dir]
     }
   }
+
+
+
 
   nc = nrows
   nr = ncols
