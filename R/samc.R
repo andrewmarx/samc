@@ -27,12 +27,12 @@ NULL
 #' raster inputs).
 #'
 #' The \code{data} and \code{absorption} inputs are always mandatory for this approach. The
-#' \code{fidelity} input is optional. If the \code{fidelity} input is not provided, then it it
+#' \code{fidelity} input is optional. If the \code{fidelity} input is not provided, then it
 #' is assumed that there is no site fidelity (i.e., individuals will always move
 #' to an adjacent cell each time step).
 #'
-#' The \code{tr_args} parameter is mandatory. It used when calculating the values for
-#' the transition matrix. \code{tr_args}  must be constructed as list with a
+#' The \code{tr_args} parameter is mandatory. It is used when calculating the values for
+#' the transition matrix. \code{tr_args} must be constructed as a list with a
 #' transition function, the number of directions (4 or 8), and if the transition
 #' function is symmetric (TRUE or FALSE; currently not used). Here is the template:
 #' \code{list(fun = `function`, dir = `numeric`, sym = `logical`)}
@@ -56,7 +56,7 @@ NULL
 #'   \item The number of rows must equal the number of columns (a square matrix)
 #'   \item Total absorption must be a single column on the right-hand side of the matrix
 #'   \item At the bottom of the matrix, there must be a row filled with 0's except
-#'   for last element (bottom-right of the matrix diagonal), which must be set to 1
+#'   for the last element (bottom-right of the matrix diagonal), which must be set to 1
 #'   \item Every disconnected region of the matrix must have at least one non-zero
 #'   absorbing value
 #'   \item Each row must sum to 1
@@ -83,13 +83,18 @@ NULL
 #' function crashing. In terms of raster/matrix inputs, a disconnected graph
 #' occurs when one or more pixels/cells are unreachable from other pixels/cells
 #' due to the presence of a full barrier made up of NA values. In a raster, these
-#' may be obvious as islands, but can be as inconspicuous as a rogue isolated
+#' may be obvious as islands but can be as inconspicuous as a rogue isolated
 #' pixel. There may be other currently unknown situations that lead to unsolvable
 #' metrics.
 #'
-#' Future work is planned towards identifying these issues during creation of the
-#' samc-class object and handling them appropriately to prevent inadvertent
+#' Future work is planned towards identifying these issues during the creation of
+#' the samc-class object and handling them appropriately to prevent inadvertent
 #' crashes.
+#'
+#' \strong{Version 3 Changes}
+#'
+#' Support for creating samc-class objects from TransitionLayer objects was removed
+#' so that the package is not dependent on gdistance.
 #'
 #' \strong{Version 2 Changes}
 #'
