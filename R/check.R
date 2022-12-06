@@ -41,7 +41,6 @@ setGeneric(
   })
 
 
-
 # TODO merge
 #' @rdname check
 setMethod(
@@ -96,6 +95,7 @@ setMethod(
     return(TRUE)
   })
 
+
 #' @rdname check
 setMethod(
   "check",
@@ -126,7 +126,6 @@ setMethod(
   })
 
 
-
 #' @rdname check
 setMethod(
   "check",
@@ -138,8 +137,6 @@ setMethod(
   })
 
 
-
-# TODO: merge
 #' @rdname check
 setMethod(
   "check",
@@ -148,6 +145,7 @@ setMethod(
     check(c(a, b)) # TODO make CRS warning an error?
   })
 
+
 #' @rdname check
 setMethod(
   "check",
@@ -155,7 +153,6 @@ setMethod(
   function(a, b){
     check(raster::stack(a, b))
   })
-
 
 
 #' @rdname check
@@ -170,35 +167,24 @@ setMethod(
   })
 
 
+# TODO: reimplement source checks to ensure inputs match original data type used to create samc object
 
-# TODO merge
 #' @rdname check
 setMethod(
   "check",
   signature(a = "samc", b = "Raster"),
   function(a, b){
-    if (a@source != "map") stop("Parameters do not apply to a samc-class object created from a ", a@source, call. = FALSE)
-
-    a <- a@map
-    a[!a[]] <- NA
-
-    check(a, b)
+    check(a@map, b)
   })
+
 
 #' @rdname check
 setMethod(
   "check",
   signature(a = "samc", b = "SpatRaster"),
   function(a, b){
-    if (a@source != "map") stop("Parameters do not apply to a samc-class object created from a ", a@source, call. = FALSE)
-
-    a <- a@map
-    a[!a[]] <- NA
-
-    check(a, b)
+    check(a@map, b)
   })
-
-
 
 
 #' @rdname check
@@ -206,7 +192,5 @@ setMethod(
   "check",
   signature(a = "samc", b = "matrix"),
   function(a, b){
-    b <- .rasterize(b)
-
-    check(a, b)
+    check(a@map, .rasterize(b))
   })

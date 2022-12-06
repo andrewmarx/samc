@@ -167,22 +167,18 @@ setMethod(
       stop("At least one cell must have an absorption value > 0", call. = FALSE)
     }
 
-
-
     samc_obj <- methods::new("samc",
                              data = methods::new("samc_data",
                                                  f = new("dgCMatrix"),
                                                  t_abs = numeric(0)),
-                             source = "map",
-                             map = is.finite(data),
+                             source = "SpatRaster",
+                             map = data,
                              names = NULL,
                              clumps = -1,
                              override = FALSE,
                              solver = "direct",
                              threads = 1,
                              .cache = new.env())
-
-
 
     # Check for "clumps"
     cl = terra::patches(samc_obj@map, directions = directions, zeroAsNA = TRUE, allowGaps = FALSE)
@@ -213,6 +209,8 @@ setMethod(
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
 
+    map_cells = terra::cells(samc_obj@map)
+    samc_obj@map[map_cells] <- 1:length(map_cells)
 
     samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@f))
     samc_obj@.cache$dgf_exists = FALSE
@@ -220,11 +218,46 @@ setMethod(
     return(samc_obj)
   })
 
+
 #' @rdname samc
 setMethod(
   "samc",
-  signature(data = "samc_raster",
-            absorption = "samc_raster",
+  signature(data = "RasterLayer",
+            absorption = "RasterLayer",
+            fidelity = "RasterLayer",
+            tr_args = "list"),
+  function(data, absorption, fidelity, tr_args) {
+
+    data = .rasterize(data)
+    absorption = .rasterize(absorption)
+    fidelity = .rasterize(fidelity)
+
+    samc_obj = samc(data, absorption, fidelity, tr_args = tr_args)
+    samc_obj@source = "RasterLayer"
+
+    return(samc_obj)
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "SpatRaster",
+            absorption = "SpatRaster",
+            fidelity = "missing",
+            tr_args = "list"),
+  function(data, absorption, tr_args) {
+
+    fidelity <- data
+    fidelity[is.finite(fidelity)] <- 0
+
+    return(samc(data, absorption, fidelity, tr_args))
+  })
+
+#' @rdname samc
+setMethod(
+  "samc",
+  signature(data = "RasterLayer",
+            absorption = "RasterLayer",
             fidelity = "missing",
             tr_args = "list"),
   function(data, absorption, tr_args) {
@@ -232,10 +265,10 @@ setMethod(
     data = .rasterize(data)
     absorption = .rasterize(absorption)
 
-    fidelity <- data
-    fidelity[is.finite(fidelity)] <- 0
+    samc_obj = samc(data, absorption, tr_args = tr_args)
+    samc_obj@source = "RasterLayer"
 
-    return(samc(data, absorption, fidelity, tr_args))
+    return(samc_obj)
   })
 
 #' @rdname samc
@@ -251,9 +284,10 @@ setMethod(
     absorption <- .rasterize(absorption)
     fidelity <- .rasterize(fidelity)
 
-    #fidelity[is.finite(fidelity)] <- 0
+    samc_obj = samc(data, absorption, fidelity, tr_args)
+    samc_obj@source = "matrix"
 
-    return(samc(data, absorption, fidelity, tr_args))
+    return(samc_obj)
   })
 
 
@@ -270,7 +304,10 @@ setMethod(
     data <- .rasterize(data)
     absorption <- .rasterize(absorption)
 
-    return(samc(data, absorption, tr_args = tr_args))
+    samc_obj = samc(data, absorption, tr_args = tr_args)
+    samc_obj@source = "matrix"
+
+    return(samc_obj)
   })
 
 
@@ -324,8 +361,8 @@ setMethod(
                              data = methods::new("samc_data",
                                                  f = q_mat,
                                                  t_abs = abs_total),
-                             source = "matrix",
-                             map = raster::raster(matrix()),
+                             source = "transition",
+                             map = terra::rast(),
                              names = nm,
                              clumps = -1,
                              threads = 1,

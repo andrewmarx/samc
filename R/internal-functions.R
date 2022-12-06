@@ -304,7 +304,7 @@
 }
 
 
-#' Rasterize matrices
+#' Rasterize
 #'
 #' Convert a matrix to a SpatRaster. Ensures consistency of conversion throughout the package
 #'
@@ -428,7 +428,7 @@ setMethod(
 
     x = .rasterize(x)
 
-    check(samc, x)
+    check(samc@map, x)
 
     if (terra::nlyr(x) == 0) {
      stop("Missing absorption data", call. = FALSE)
@@ -472,6 +472,7 @@ setMethod(
   signature(samc = "samc", x = "list"),
   function(samc, x) {
 
+    # TODO: check against output field
     if (!all(sapply(x, is.matrix))) stop("List can only contain matrices. If using rasters, use raster::stack() or c() to combine terra SpatRasters instead.", call. = FALSE)
 
     x <- lapply(x, .rasterize)
@@ -514,7 +515,7 @@ setMethod(
   ".process_occ",
   signature(samc = "samc", x = "SpatRaster"),
   function(samc, x) {
-    check(samc, x)
+    check(samc@map, x)
 
     pv <- as.vector(terra::values(x))
     pv <- pv[is.finite(pv)]

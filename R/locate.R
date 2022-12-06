@@ -54,15 +54,17 @@ setMethod(
   "locate",
   signature(samc = "samc", xy = "missing"),
   function(samc){
-    if (samc@source != "map") stop("This function can only be used when the samc object was created from raster or matrix inputs for resistance data", call. = FALSE)
-
-    n <- sum(samc@map[])
-    ras <- as.numeric(samc@map)
-    ras[ras == 0] = NA
-
-    ras[terra::cells(ras)] <- 1:n
-
-    return(ras)
+    if (samc@source == "transition") {
+      stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
+    } else if (samc@source == "SpatRaster") {
+      return(samc@map)
+    } else if (samc@source == "RasterLayer") {
+      return(raster::raster(samc@map))
+    } else if (samc@source == "matrix") {
+      return(as.matrix(samc@map, wide = TRUE))
+    } else {
+      stop("An unexpected issue occurred. Please report a bug with a reproducible example", call. = FALSE)
+    }
   })
 
 #' @rdname locate
@@ -70,9 +72,9 @@ setMethod(
   "locate",
   signature(samc = "samc", xy = "ANY"),
   function(samc, xy){
-    ras <- locate(samc)
+    if (samc@source == "transition") stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
 
-    result <- terra::extract(ras, xy)[, 2]
+    result <- terra::extract(samc@map, xy)[, 2]
 
     if (anyNA(result)) stop("One or more coordinates do not correspond to non-NA cells.", call. = FALSE)
 

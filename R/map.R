@@ -42,17 +42,24 @@ setMethod(
   "map",
   signature(samc = "samc", vec = "numeric"),
   function(samc, vec){
-    if (samc@source != "map") stop("This function cannot be used with a samc-class object created from a ", samc@source, call. = FALSE)
+    if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
 
-    if (length(vec) != sum(samc@map[], na.rm = TRUE))
+    if (length(vec) != length(terra::cells(samc@map)))
       stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
 
-    ras <- samc@map
+    ras <- as.numeric(samc@map)
 
-    ras[ras[]] <- vec
-    ras[!samc@map[]] <- NA
+    ras[terra::cells(ras)] <- vec
 
-    return(ras)
+    if (samc@source == "SpatRaster") {
+      return(ras)
+    } else if (samc@source == "RasterLayer") {
+      return(raster::raster(ras))
+    } else if (samc@source == "matrix") {
+      return(as.matrix(ras, wide = TRUE))
+    } else {
+      stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
+    }
   })
 
 #' @rdname map
@@ -60,21 +67,29 @@ setMethod(
   "map",
   signature(samc = "samc", vec = "list"),
   function(samc, vec){
-    if (samc@source != "map") stop("This function cannot be used with a samc-class object created from a ", samc@source, call. = FALSE)
+    if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
 
     lapply(vec, function(x){
       if (!inherits(x, "numeric"))
         stop("List contains invalid item(s); all entries must be numeric vectors.", call. = FALSE)
-      if (length(x) != sum(samc@map[], na.rm = TRUE))
+      if (length(x) != length(terra::cells(samc@map)))
         stop("The length of one or more vectors in the list does not match the number of non-NA cells in the landscape data", call. = FALSE)
     })
 
     res <- lapply(vec, function(x){
       ras <- samc@map
 
-      ras[ras[]] <- x
-      ras[!samc@map[]] <- NA
-      return(ras)
+      ras[terra::cells(ras)] <- x
+
+      if (samc@source == "SpatRaster") {
+        return(ras)
+      } else if (samc@source == "RasterLayer") {
+        return(raster::raster(ras))
+      } else if (samc@source == "matrix") {
+        return(as.matrix(ras, wide = TRUE))
+      } else {
+        stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
+      }
     })
 
     return(res)
