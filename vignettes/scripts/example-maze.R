@@ -16,6 +16,7 @@
 ## @knitr 1_library_1
 library(samc)
 library(raster)
+library(terra)
 library(gdistance)
 library(viridisLite)
 
@@ -23,10 +24,10 @@ library(viridisLite)
 ## @knitr 1_setup_1
 plot_maze <- function(map, title, colors) {
   # start = 1 (top left), finish = last element (bottom right)
-  sf <- xyFromCell(map, c(1, length(map)))
+  sf <- terra::xyFromCell(map, c(1, ncell(map)))
 
-  plot(map, main = title, col = colors, axes = FALSE, box = FALSE, asp = 1)
-  plot(rasterToPolygons(map), border = 'black', lwd = 1, add = TRUE)
+  plot(map, main = title, col = colors, axes = FALSE, asp = 1)
+  plot(as.polygons(map, dissolve = FALSE), border = 'black', lwd = 1, add = TRUE)
   points(sf, pch = c('S', 'F'), cex = 1, font = 2)
 }
 
@@ -61,14 +62,16 @@ maze_res = matrix(
   nrow = 20, byrow = TRUE
 )
 
-maze_res <- raster(maze_res, xmn = 0.5, xmx = ncol(maze_res) + 0.5, ymn = 0.5, ymx = nrow(maze_res) + 0.5)
+maze_res <- rast(maze_res,
+                 extent = terra::ext(0.5, ncol(maze_res) + 0.5, 0.5, nrow(maze_res) + 0.5),
+                 crs = "local")
 maze_res[maze_res==0] <- NA # 0 makes the formatting cleaner above, but NA is needed for true barriers
 
 # Get info about the shortest path through the maze using gdistance
 lcd <- (function() {
   points <- xyFromCell(maze_res, c(1, 400))
 
-  tr <- transition(maze_res, function(x) 1/mean(x), 4)
+  tr <- transition(raster(maze_res), function(x) 1/mean(x), 4)
   tr <- geoCorrection(tr)
 
   list(dist = costDistance(tr, points),
@@ -216,7 +219,10 @@ plot_maze(map(maze_samc, maze_occ3_dist), "Location at t=17", viridis(256))
 
 ## @knitr 2_fid_1
 # Intersections determined using a moving window function
-ints_res <- focal(maze_res, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) > 3}, pad = TRUE)
+ints_res <- focal(maze_res,
+                  w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3),
+                  fun = function(x) {sum(!is.na(x)) > 3})
+
 ints_res[is.na(maze_res)] <- NA
 ints_res <- ints_res * 0.1
 
@@ -229,11 +235,11 @@ ints_samc <- samc(maze_res, maze_finish, ints_res, tr_args = tr)
 ## @knitr 2_fid_3
 # Original results from Part 1
 survival(maze_samc)[maze_origin]
-cond_passage(maze_samc, maze_origin, maze_dest)
+cond_passage(maze_samc, origin = maze_origin, dest = maze_dest)
 
 # Results with fidelity at intersections
 survival(ints_samc)[maze_origin]
-cond_passage(ints_samc, maze_origin, maze_dest)
+cond_passage(ints_samc, origin = maze_origin, dest = maze_dest)
 
 
 ## @knitr 2_fid_4
@@ -288,7 +294,9 @@ plot_maze(map(maze_samc, maze_dist), "Location at t=201", viridis(256))
 
 ## @knitr 2_end_1
 # Dead ends
-ends_res <- focal(maze_res, w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3), fun = function(x){sum(!is.na(x)) == 2}, pad = TRUE)
+ends_res <- focal(maze_res,
+                  w = matrix(c(NA, 1, NA, 1, 1, 1, NA, 1, NA), nrow = 3, ncol = 3),
+                  fun = function(x){sum(!is.na(x)) == 2})
 ends_res[is.na(maze_res)] <- NA
 ends_res <- ends_res * 9 + 1
 ends_res[20, 20] <- 1
@@ -303,11 +311,11 @@ ends_samc <- samc(ends_res, maze_finish, tr_args = tr)
 ## @knitr 2_end_3
 # Original results from Part 1
 survival(maze_samc)[maze_origin]
-cond_passage(maze_samc, maze_origin, maze_dest)
+cond_passage(maze_samc, origin = maze_origin, dest = maze_dest)
 
 # Results with dead ends
 survival(ends_samc)[maze_origin]
-cond_passage(ends_samc, maze_origin, maze_dest)
+cond_passage(ends_samc, origin = maze_origin, dest = maze_dest)
 
 
 ## @knitr 2_end_4
@@ -340,11 +348,11 @@ traps_samc <- samc(maze_res, maze_abs_total, tr_args = tr)
 ## @knitr 2_traps_3
 # Original results from Part 1
 survival(maze_samc)[maze_origin]
-cond_passage(maze_samc, maze_origin, maze_dest)
+cond_passage(maze_samc, origin = maze_origin, dest = maze_dest)
 
 # Results with traps
 survival(traps_samc)[maze_origin]
-cond_passage(traps_samc, maze_origin, maze_dest)
+cond_passage(traps_samc, origin = maze_origin, dest = maze_dest)
 
 
 ## @knitr 2_traps_4
@@ -386,7 +394,7 @@ traps_mort[maze_dest]
 names(maze_finish) <- "Finish"
 names(maze_traps) <- "Traps"
 
-traps_samc$abs_states <- raster::stack(maze_finish, maze_traps)
+traps_samc$abs_states <- c(maze_finish, maze_traps)
 
 
 ## @knitr 2_add_4
@@ -416,12 +424,13 @@ short_res[16, 6] <- 10
 lcd2 <- (function() {
   points <- xyFromCell(short_res, c(1, 400))
 
-  tr <- transition(short_res, function(x) 1/mean(x), 4)
+  tr <- transition(raster(short_res), function(x) 1/mean(x), 4)
   tr <- geoCorrection(tr)
 
   list(dist = costDistance(tr, points),
        path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
 })()
+
 
 plot_maze(short_res, "Shortcut Maze", vir_col)
 lines(lcd2$path, col = vir_col[2], lw = 3)
@@ -480,7 +489,7 @@ plot_maze(map(short_samc, short_disp_sol), "Partial solution (Shortcut Maze)", v
 
 ## @knitr 3_combine_1
 # Combine our previous resistance layers
-all_res <- max(stack(short_res, ints_res, ends_res), na.rm = TRUE)
+all_res <- max(c(short_res, ints_res, ends_res), na.rm = TRUE)
 
 # For absorption, all we need is an updated version of our traps raster
 all_traps <- maze_traps
@@ -515,19 +524,19 @@ plot_maze(map(all_samc, all_surv), "Expected Time to Absorption", viridis(256))
 ## @knitr 3_combine_4
 # Original results (Part 1)
 survival(maze_samc)[maze_origin]
-cond_passage(maze_samc, maze_origin, maze_dest)
+cond_passage(maze_samc, origin = maze_origin, dest = maze_dest)
 
 # Results with traps (Part 2)
 survival(traps_samc)[maze_origin]
-cond_passage(traps_samc, maze_origin, maze_dest)
+cond_passage(traps_samc, origin = maze_origin, dest = maze_dest)
 
 # Results with a shortcut
 survival(short_samc)[short_origin]
-cond_passage(short_samc, short_origin, short_dest)
+cond_passage(short_samc, origin = short_origin, dest = short_dest)
 
 # Results with everything
 survival(all_samc)[all_start]
-cond_passage(all_samc, all_start, all_finish)
+cond_passage(all_samc, origin = all_start, dest = all_finish)
 
 
 ## @knitr 3_combine_5
