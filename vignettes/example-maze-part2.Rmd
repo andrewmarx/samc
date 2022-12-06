@@ -54,7 +54,7 @@ Part 2 reuses the code from [Part 1](example-maze-part2.html).
 
 ## Fidelity
 
-The first change explored in this part will be the incorporation of fidelity into the samc object. In Part 1, transitions always occurred from one cell to a different neighboring cell. With fidelity, transitions can occur from a cell to itself; essentially, there's no movement over the course of a time step. There are potentially many different ways that fidelity could be applied to the maze, but for simplicity, this example will keep things simple by using it to create a delay in movement at intersections. The goal is to model "hesitation" when an individual is presented with the choice of three or more paths. For additional simplicity, all intersections will be treated the same and assigned a fidelity probability of `0.1`, which means that once an individual is at an intersection, there is a 10% probability that they will stay in the intersection from one time step to the next.
+The first change explored in this part will be the incorporation of fidelity into the samc object. In Part 1, transitions always occurred from one cell to a different neighboring cell. With fidelity, transitions can occur from a cell to itself; essentially, there's no movement during a time step. There are potentially many different ways that fidelity could be applied to the maze, but for simplicity, this example will keep things simple by using it to create a delay in movement at intersections. The goal is to model "hesitation" when an individual is presented with the choice of three or more paths. For additional simplicity, all intersections will be treated the same and assigned a fidelity probability of `0.1`, which means that once an individual is at an intersection, there is a 10% probability that they will stay in the intersection from one time step to the next.
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<2_fid_1>>
 ```
@@ -69,7 +69,7 @@ To start, let's see how the new fidelity input affects the expected time to fini
 <<2_fid_3>>
 ```
 
-Intuitively, with "hesitation" added to the movement, the expected time to finish increases. Also note that incorporating fidelity in this particular example does not affect the relationship between `survival()` and `cond_passage()`.
+Intuitively, with "hesitation" added to the movement, the expected time to finish increases. Also, note that incorporating fidelity in this particular example does not affect the relationship between `survival()` and `cond_passage()`.
 
 In terms of the probability of visiting any particular cell, changing the fidelity does not change the results from Part 1:
 ```{r}
@@ -104,7 +104,7 @@ For comparison, here's the original samc object using the same time steps:
 ```
 
 
-## Dead End Avoidance
+## Dead-End Avoidance
 
 Technically, the package doesn't offer the ability to "look ahead" at future states to adjust the transition probabilities. In other words, if a route would eventually lead to a dead end, there's nothing in the `samc()` function or the metric functions to account for that or model the possibility that an individual in the maze can see down a hallway. It can, however, be faked somewhat by adjusting the resistance map so that the dead ends have a much higher resistance. This will reduce the probability of an individual entering a dead end, almost as if they looked ahead. A sliding window function can be used to create this new map:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
@@ -121,7 +121,7 @@ Hypothetically, since an individual can now "look ahead", they should be able to
 <<2_end_3>>
 ```
 
-Since the dead ends have a lower probability of being transitioned to, the `dispersal()` and `visitation()` metrics should obviously reflect that:
+Since the dead ends have a lower probability of being transitioned to, the `dispersal()` and `visitation()` metrics should reflect that:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', message=FALSE}
 <<2_end_4>>
 ```
@@ -136,9 +136,9 @@ It's fairly to trivial to add lethal traps to the maze by updating the absorptio
 1. Start with a single total absorption input. Then take that input and decompose it into multiple absorption components.
 1. Start with multiple absorption components. Then take those inputs and combine them into a single total absorption input.
 
-The choice really depends on the data available and the goals of the project. For example, the first strategy is useful if we've somehow measured total absorption for a model and want to explore different hypotheses for how it breaks down into different types of absorption. The second is useful if we already have direct knowledge of different sources of absorption.
+The choice depends on the data available and the goals of the project. For example, the first strategy is useful if we've somehow measured total absorption for a model and want to explore different hypotheses for how it breaks down into different types of absorption. The second is useful if we already have direct knowledge of different sources of absorption.
 
-This example will take the second approach. One absorption component has already been created for finish point. A second simple absorption component will created that represents a few traps with a `0.2` or 20% absorption probability:
+This example will take the second approach. One absorption component has already been created for the finish point. A second simple absorption component will be created that represents a few traps with a `0.2` or 20% absorption probability:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<2_traps_1>>
 ```
@@ -153,12 +153,12 @@ For easy comparison, everything else will be kept the same as the original examp
 <<2_traps_3>>
 ```
 
-The results are drastically different from what has been seen before. First, the clear relationship between `survival()` and `cond_passage()` no longer exists. This is because `survival()` has a different interpretation in this context and no longer determines how long it will take to finish; instead it now calculates how long it will take an individual to either finish *or* be absorbed in one of the traps (i.e., die). This also drastically changes the plotting results of `survival()` (note the change in figure title from Part 1 to reflect the new interpretation):
+The results are drastically different from what has been seen before. First, the clear relationship between `survival()` and `cond_passage()` no longer exists. This is because `survival()` has a different interpretation in this context and no longer determines how long it will take to finish; instead, it now calculates how long it will take an individual to either finish *or* be absorbed in one of the traps (i.e., die). This also drastically changes the plotting results of `survival()` (note the change in figure title from Part 1 to reflect the new interpretation):
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<2_traps_4>>
 ```
 
-The results are also drastically different from Part 1 when looking at visitation probability and number of visits:
+The results are also drastically different from Part 1 when looking at visitation probability and the number of visits:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<2_traps_5>>
 ```
@@ -171,9 +171,9 @@ Importantly, the technique in Part 1 of using visitation probabilities of `1.0` 
 It shows part of the solution observed before, but only up to the first maze intersection that leads to two or more possible sources of absorption.
 
 
-## Addtional metrics
+## Additional metrics
 
-The inclusion of multiple absorption states makes the metrics that were not useful of Part 1 more relevant. Starting with `mortality()`, it is possible to visualize where an individual is expected to be absorbed:
+The inclusion of multiple absorption states makes the metrics that were not useful in Part 1 more relevant. Starting with `mortality()`, it is possible to visualize where an individual is expected to be absorbed:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<2_add_1>>
 ```
@@ -183,7 +183,7 @@ This result is quite possibly unexpected. Why does the finish point look like it
 <<2_add_2>>
 ```
 
-There's only a 3.0% chance of an individual finishing the maze! This might seem low given the traps are only lethal 20% of the time, but it actually makes sense. Recall the [Probability of visiting a cell](example-maze-part1.html#probability-of-visiting-a-cell-1) and [Visits per cell](example-maze-part1.html#visits-per-cell-1) sections from Part 1; an individual spends most of their time in the early part of the maze. That means they have a lot more exposure to the first trap and, consequently, are more likely to be absorbed there with a 85.2% probability. For the trap farthest from the start, reaching it first requires passing by the finish, so consequently it has only a 0.39% of being the source of absorption, a substantially lower probability than just finishing the maze.
+There's only a 3.0% chance of an individual finishing the maze! This might seem low given the traps are only lethal 20% of the time, but it makes sense. Recall the [Probability of visiting a cell](example-maze-part1.html#probability-of-visiting-a-cell-1) and [Visits per cell](example-maze-part1.html#visits-per-cell-1) sections from Part 1; an individual spends most of their time in the early part of the maze. That means they have a lot more exposure to the first trap and, consequently, are more likely to be absorbed there with an 85.2% probability. For the trap farthest from the start, reaching it first requires passing by the finish, so consequently, it has only a 0.39% of being the source of absorption, a substantially lower probability than just finishing the maze.
 
 It is possible to break down the total absorption so that the role of different sources of absorption can be investigated more easily. Now that the samc object has been created, it can be provided the original absorption layers that were used to calculate the total absorption:
 ```{r}

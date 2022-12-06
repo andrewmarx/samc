@@ -84,7 +84,7 @@ lines(lcd$path, col = vir_col[2], lw = 3)
 
 
 ## @knitr 1_setup_4
-# End of maze
+# End of the maze
 maze_finish <- maze_res * 0
 maze_finish[20, 20] <- 1
 

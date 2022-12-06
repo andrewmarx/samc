@@ -28,7 +28,7 @@ samc_obj <- samc(res_data, abs_data, tr_args = tr)
 
 ## Introduction
 
-As of v2.0.0, the samc package does support the use of multiple cores for parallelization. Currently, this feature is targeted towards the `dispersal()` function for the `dispersal(samc, occ)` option. This function is particularly useful, but has a severe performance limitation explained in the [Performance](performance.html#special-cases-1) vignette. Fortunately, this particular case is suitable for parallelization, which means that multiple cores can be used to drastically reduce the runtime of the analysis.
+As of v2.0.0, the samc package does support the use of multiple cores for parallelization. Currently, this feature is targeted towards the `dispersal()` function for the `dispersal(samc, occ)` option. This function is particularly useful but has a severe performance limitation explained in the [Performance](performance.html#special-cases-1) vignette. Fortunately, this particular case is suitable for parallelization, which means that multiple cores can be used to drastically reduce the runtime of the analysis.
 
 Until this feature has been well established, it is recommended that users compare the results of the non-parallel version with the parallel version. This can be done efficiently using a scaled-down version of input data. Once the results for the scaled-down data have been verified, then the parallel version can be run for the larger full dataset. When doing this testing, the samc object (create using `samc()`) will have to be recreated. If you do not, then the analysis will use cached results from the previous run.
 
@@ -50,9 +50,9 @@ That's it. If a function supports parallelization, it will now make use of multi
 
 ## Limitations
 
-In general, using more cores to solve a problem will not scale perfectly. In addition, there can be diminishing returns as the number of cores used increases. There are multiple factors that play into this. Users with very high core count machines (e.g., 32, 64, or 128 cores) may find that using all of their cores does not provide significant benefit over a more moderate amount of cores. The only way to know for sure is to benchmark the analysis at different core counts.
+In general, using more cores to solve a problem will not scale perfectly. In addition, there can be diminishing returns as the number of cores used increases. Multiple factors that play into this. Users with very high core count machines (e.g., 32, 64, or 128 cores) may find that using all of their cores does not provide significant benefit over a more moderate amount of cores. The only way to know for sure is to benchmark the analysis at different core counts.
 
-In general, using more cores means that additional memory will need to be used to solve the problem. The severity of the memory increase will vary depending on the problem. In the case of `dispersal()`, the memory requirements for additional cores used is fairly minimal. This means that as long as machines have a reasonable amount of memory per core, this should not be an issue.
+In general, using more cores means that additional memory will need to be used to solve the problem. The severity of the memory increase will vary depending on the problem. In the case of `dispersal()`, the memory requirement for additional cores used is fairly minimal. This means that as long as machines have a reasonable amount of memory per core, this should not be an issue.
 
 If you use all the cores of a machine at once, it can negatively affect the performance of other software running. Therefore, if you need to use your machine for other tasks while the analysis is running, you will likely need to restrict how many cores you use.
 

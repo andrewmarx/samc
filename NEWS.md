@@ -3,7 +3,7 @@
 - Added support for the terra package for raster data. Internally, the package now uses terra and converts RasterLayer objects to SpatRaster objects. It's recommended that users switch to the terra package for loading and preparing raster data for samc.
 - Removed default naming of cells for samc objects created from rasters. This leads to substantially smaller samc objects, especially as raster inputs become larger.
 - Overhauled the samc object creation to be substantially more memory efficient. It is now feasible to create samc objects with 100-150 Million transient states with 32 GB of RAM. However, this memory efficiency comes with the tradeoff that samc objects can take significantly longer to create (~2x as long based on preliminary testing).
-- Added optional support for iterative solvers in metrics (where applicable). This greatly reduces the memory requirements of these metrics, but in general will take longer to calculate. Initial tests indicate that the `visitation()` function is feasible for samc objects with 50 Million cells with 32 GB of RAM. Details about changing the solver can be found in the help documentation for the `samc-class`.
+- Added optional support for iterative solvers in metrics (where applicable). This greatly reduces the memory requirements of these metrics, but in general, will take longer to calculate. Initial tests indicate that the `visitation()` function is feasible for samc objects with 50 Million cells with 32 GB of RAM. Details about changing the solver can be found in the help documentation for the `samc-class`.
 - Updated the performance vignette to include additional information about the choice of linear solver. Also removed old memory consumption benchmarks due to a flaw in testing where profilers in R do not measure the memory consumption of native code.
 - Bumped various package version requirements.
 
@@ -16,8 +16,8 @@
 
 # samc 2.0.0
 
-- Removed backwards compatibility for deprecated `samc()` function parameters. This is a breaking change that will make maintaining the package and adding new features a simpler process going forward, and that will hopefully only be a minor inconvenience for users. The warning message on package load introduced in v1.4.0 has been updated to reflect the new changes.
-- Updated `cond_passage()` to return `0` for when *i==j* in the vectors. This fixes an issue associated with shifted indices in `cond_passage(samc, dest)`. It also technically breaks backwards compatibility for when `dest` equals `origin` in `cond_passage(samc, origin, dest)`. Previously, `cond_passage(samc, origin, dest)` would return `NA` when `origin` equaled `dest`, but this decision was arbitrary. The `cond_passage()` documentation explains why.
+- Removed backward compatibility for deprecated `samc()` function parameters. This is a breaking change that will make maintaining the package and adding new features a simpler process going forward, and that will hopefully only be a minor inconvenience for users. The warning message on package load introduced in v1.4.0 has been updated to reflect the new changes.
+- Updated `cond_passage()` to return `0` for when *i==j* in the vectors. This fixes an issue associated with shifted indices in `cond_passage(samc, dest)`. It also technically breaks backward compatibility for when `dest` equals `origin` in `cond_passage(samc, origin, dest)`. Previously, `cond_passage(samc, origin, dest)` would return `NA` when `origin` equaled `dest`, but this decision was arbitrary. The `cond_passage()` documentation explains why.
 - Added a new section for worked examples on the website.
 - Added a new example illustrating how to use various aspects of the package with a simple perfect maze and interpret the results. See the Maze Part 1 vignette.
 - Added multithreading for the `dispersal(samc, origin/occ)` function via the RcppThread package. See the Parallel Computing vignette for details.
@@ -33,7 +33,7 @@
 
 # samc 1.4.0
 
-- Due to a ballooning parameter count, the samc() function parameters are being adjusted. The new version is samc(data, absorption, fidelity, tr_args). Code using the previous syntax should continue to work (with one rare edge-case as an exception), but backwards compatibility will be remove in version 1.5.0, so old code should be updated. See the samc() function documentation and website tutorials for full details and examples. Package startup output has been added to detail the changes as well.
+- Due to a ballooning parameter count, the samc() function parameters are being adjusted. The new version is samc(data, absorption, fidelity, tr_args). Code using the previous syntax should continue to work (with one rare edge-case as an exception), but backward compatibility will be removed in version 1.5.0, so old code should be updated. See the samc() function documentation and website tutorials for full details and examples. Package startup output has been added to detail the changes as well.
   - Updated long/lat handling in samc() to use projection info built into the raster. Deprecated latlon parameter (no longer needed). Added warning for when rasters have non-square cells and are missing projection information.
   - The data parameter should be used to pass in the data related to transition probabilities (essentially replaces the resistance and p_mat parameters)
   - The tr_fun and directions parameters have been deprecated. This information is now passed as list to the tr_args.
@@ -42,8 +42,8 @@
 - Added the ability to directly input a custom TransitionLayer to the samc() function. This allows more flexibility than RasterLayer/matrix maps, but is a little safer than directly inputting a P matrix. See samc() documentation and *Overview* vignette for full details.
 - Added the ability to use the $ operator for accessing and modifying components of samc-class objects. See samc-class documentation for details.
 - Updated check() so that multiple rasters can be inputted in the first argument as a RasterStack. This eliminates the need to manually run check() for multiple pairs of rasters.
-- Added initial support for caching intermediate results of some calculations. This currently only benefits dispersal(samc, occ), which now caches the diag(F) calculation. This means that while the first run of this method will still be slow, subsequent runs will be substantially faster. With this feature, dispersal(samc, origin) has been enabled, and will share the same cached information with dispersal(samc, occ). Future versions will expand the cache options to additional metrics.
-- Added support for multiple absorption. The `absorption` parameter in samc() is treated as the total absorption (consistent with previous behavior). After creation of the samc-class object, additional absorbing states can be attached to the samc-class object. See the samc-class documentation and the new *Multiple Absorption* tutorial for more details. 
+- Added initial support for caching intermediate results of some calculations. This currently only benefits dispersal(samc, occ), which now caches the diag(F) calculation. This means that while the first run of this method will still be slow, subsequent runs will be substantially faster. With this feature, dispersal(samc, origin) has been enabled and will share the same cached information with dispersal(samc, occ). Future versions will expand the cache options to additional metrics.
+- Added support for multiple absorption. The `absorption` parameter in samc() is treated as the total absorption (consistent with previous behavior). After the creation of the samc-class object, additional absorbing states can be attached to the samc-class object. See the samc-class documentation and the new *Multiple Absorption* tutorial for more details. 
 - Added a new absorption() metric. This metric is closely related to the mortality() metric. The absorption() metric can be used to determine the overall probability that a particular absorbing state will be reached (the mortality() metric calculates it for individual transient states rather than overall).
 - Fix missing value short-term dispersal
 - Overhauled the *Overview* vignette, including adding more details about the construction of the P matrix.
@@ -56,7 +56,7 @@
 - Fixed an issue with the check() function when data contains NA's.
 - Fixed an issue with the raster returned from locate(samc) having 0 for NA cells.
 - Improved error checking and messaging for the check() and locate() functions.
-- Named rows and columns for the P matrix is now supported. Previously, naming the rows and columns would cause some checks to fail. If names are not manually assigned, the names are simply the row/column numbers converted to character strings.
+- Named rows and columns for the P matrix are now supported. Previously, naming the rows and columns would cause some checks to fail. If names are not manually assigned, the names are simply the row/column numbers converted to character strings.
 - Analytical functions updated to support named inputs for the origin and dest location parameters
 - When both the origin and dest parameter is used in a function, the inputs can be paired vectors.
 - Added the pairwise() utility function
@@ -81,7 +81,7 @@
 
 # samc 1.1.0
 
-- Added support for the use vectors of time steps in most short-term metrics. It is more computationally efficient and ergonomic to do this rather than calculating short-term metrics for each individual time step. Some key points:
+- Added support for the use vectors of time steps in most short-term metrics. It is more computationally efficient and ergonomic to do this rather than calculating short-term metrics for time steps individually. Some key points:
   - When vector inputs are used for time steps, the result is contained in a list
   - The names of the entries in the list are character versions of the corresponding time step values
   - Time step vectors must consist of ordered positive integers with no duplicate values
