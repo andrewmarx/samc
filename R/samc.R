@@ -126,9 +126,9 @@ setMethod(
   function(data, absorption, fidelity, tr_args) {
     .validate_tr_args(tr_args)
 
-    data = rasterize(data)
-    absorption = rasterize(absorption)
-    fidelity = rasterize(fidelity)
+    data = .rasterize(data)
+    absorption = .rasterize(absorption)
+    fidelity = .rasterize(fidelity)
 
     tr_fun <- tr_args$fun
     directions <-tr_args$dir
@@ -228,9 +228,9 @@ setMethod(
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
 
-    data = rasterize(data)
-    absorption = rasterize(absorption)
-    fidelity = rasterize(fidelity)
+    data = .rasterize(data)
+    absorption = .rasterize(absorption)
+    fidelity = .rasterize(fidelity)
 
     samc_obj = samc(data, absorption, fidelity, tr_args = tr_args)
     samc_obj@source = "RasterLayer"
@@ -262,8 +262,8 @@ setMethod(
             tr_args = "list"),
   function(data, absorption, tr_args) {
 
-    data = rasterize(data)
-    absorption = rasterize(absorption)
+    data = .rasterize(data)
+    absorption = .rasterize(absorption)
 
     samc_obj = samc(data, absorption, tr_args = tr_args)
     samc_obj@source = "RasterLayer"
@@ -280,9 +280,9 @@ setMethod(
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
 
-    data <- rasterize(data)
-    absorption <- rasterize(absorption)
-    fidelity <- rasterize(fidelity)
+    data <- .rasterize(data)
+    absorption <- .rasterize(absorption)
+    fidelity <- .rasterize(fidelity)
 
     samc_obj = samc(data, absorption, fidelity, tr_args)
     samc_obj@source = "matrix"
@@ -301,8 +301,8 @@ setMethod(
             tr_args = "list"),
   function(data, absorption, tr_args) {
 
-    data <- rasterize(data)
-    absorption <- rasterize(absorption)
+    data <- .rasterize(data)
+    absorption <- .rasterize(absorption)
 
     samc_obj = samc(data, absorption, tr_args = tr_args)
     samc_obj@source = "matrix"
