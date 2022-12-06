@@ -131,7 +131,7 @@ setMethod(
   "check",
   signature(a = "matrix", b = "missing"),
   function(a){
-    a <- .rasterize(a)
+    a <- rasterize(a)
 
     check(a)
   })
@@ -160,8 +160,8 @@ setMethod(
   "check",
   signature(a = "matrix", b = "matrix"),
   function(a, b){
-    a <- .rasterize(a)
-    b <- .rasterize(b)
+    a <- rasterize(a)
+    b <- rasterize(b)
 
     check(a, b)
   })
@@ -192,5 +192,5 @@ setMethod(
   "check",
   signature(a = "samc", b = "matrix"),
   function(a, b){
-    check(a@map, .rasterize(b))
+    check(a@map, rasterize(b))
   })
