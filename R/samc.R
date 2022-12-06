@@ -119,9 +119,9 @@ setGeneric(
 #' @rdname samc
 setMethod(
   "samc",
-  signature(data = "samc_raster",
-            absorption = "samc_raster",
-            fidelity = "samc_raster",
+  signature(data = "SpatRaster",
+            absorption = "SpatRaster",
+            fidelity = "SpatRaster",
             tr_args = "list"),
   function(data, absorption, fidelity, tr_args) {
     .validate_tr_args(tr_args)
