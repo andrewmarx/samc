@@ -10,8 +10,8 @@ NULL
 #' Map vector data to a RasterLayer
 #'
 #' This is a convenience function to ensure that vector data is properly mapped
-#' back to the original landscape data. The reason this is needed is that the
-#' package supports both matrices and RasterLayers, which differ in the order
+#' back to the original landscape data. The reason this is needed is that the package
+#' supports matrices, RasterLayers, and SpatRasters, which can differ in the order
 #' that data is read and written (R matrices are column-major order, whereas the
 #' raster package uses row-major order). Internally, the package uses only a
 #' single order, regardless of the original data. This can cause issues with
@@ -25,7 +25,8 @@ NULL
 #'
 #' @param samc Spatial absorbing Markov chain object. This should be output from the samc() function.
 #' @param vec Vector data to fill into the map.
-#' @return A RasterLayer or SpatRaster object
+#' @return A matrix, RasterLayer, or SpatRaster object. The returned type will match
+#' the type used to create the samc object.
 #'
 #' @example inst/examples/example.R
 #'

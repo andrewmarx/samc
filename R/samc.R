@@ -98,9 +98,9 @@ NULL
 #' code will have to be updated to the new samc() function structure in order to work.
 #'
 #'
-#' @param data A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}} or Matrix package dgCMatrix sparse matrix.
-#' @param absorption A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
-#' @param fidelity A \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
+#' @param data A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}} or Matrix package dgCMatrix sparse matrix.
+#' @param absorption A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
+#' @param fidelity A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param tr_args A list with args for constructing a transition matrix.
 #'
 #' @return A \code{\link{samc-class}} object

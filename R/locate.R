@@ -18,8 +18,8 @@ NULL
 #' trying to determine the cell numbers that should be used in analyses.
 #'
 #' The \code{\link{locate}} function operates more-or-less like the
-#' \code{\link[raster]{cellFromXY}} function in the raster package, but unlike
-#' \code{\link[raster]{cellFromXY}}, locate properly accounts for NA cells
+#' \code{\link[terra]{cellFromXY}} function in the raster package, but unlike
+#' \code{\link[terra]{cellFromXY}}, locate properly accounts for NA cells
 #' in identifying cell numbers from coordinate data.
 #'
 #' This function can also be used if the samc object was created from matrix inputs
@@ -30,14 +30,14 @@ NULL
 #' The xy parameter can also be excluded. In this case, the function returns a
 #' raster where the values of the cells contains the cell number.
 #'
-#' Internally, this function relies on the \code{\link[raster]{extract}} function
+#' Internally, this function relies on the \code{\link[terra]{extract}} function
 #' from the raster package, and any valid input for the y argument of that function
 #' is valid here.
 #'
 #' @param samc A \code{\link{samc-class}} object
-#' @param xy Any valid input to the y argument of the \code{\link[raster]{extract}} function in the raster package.
+#' @param xy Any valid input to the y argument of the \code{\link[terra]{extract}} function in the raster package.
 #
-#' @return A RasterLayer or a vector
+#' @return A SpatRaster, RasterLayer, matrix, or a vector
 #'
 #' @example inst/examples/locate.R
 #'
