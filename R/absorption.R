@@ -121,7 +121,7 @@ setMethod(
   function(samc, occ) {
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    occ <- samc:::.rasterize(occ)
+    occ <- rasterize(occ)
 
     return(absorption(samc, occ))
   })

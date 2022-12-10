@@ -5,8 +5,8 @@
 ## @knitr setup
 # First step is to load the libraries. Not all of these libraries are stricly
 # needed; some are used for convenience and visualization for this tutorial.
-library("samc")
 library("terra")
+library("samc")
 library("ggplot2")
 
 
@@ -18,18 +18,9 @@ abs_data <- samc::ex_abs_data
 occ_data <- samc::ex_occ_data
 
 # To make things easier for plotting later, convert the matrices to rasters
-res_data <- rast(res_data,
-                 extent = terra::ext(0.5, ncol(res_data) + 0.5,
-                                     0.5, nrow(res_data) + 0.5),
-                 crs = "local")
-abs_data <- rast(abs_data,
-                 extent = terra::ext(0.5, ncol(abs_data) + 0.5,
-                                     0.5, nrow(abs_data) + 0.5),
-                 crs = "local")
-occ_data <- rast(occ_data,
-                 extent = terra::ext(0.5, ncol(occ_data) + 0.5,
-                                     0.5, nrow(occ_data) + 0.5),
-                 crs = "local")
+res_data <- rasterize(res_data)
+abs_data <- rasterize(abs_data)
+occ_data <- rasterize(occ_data)
 
 
 # Setup the details for our transition function

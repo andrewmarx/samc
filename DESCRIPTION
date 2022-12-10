@@ -64,6 +64,7 @@ Collate:
     'map.R'
     'mortality.R'
     'pairwise.R'
+    'rasterize.R'
     'samc.R'
     'survival.R'
     'zzz.R'

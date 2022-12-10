@@ -6,6 +6,7 @@
 - Added optional support for iterative solvers in metrics (where applicable). This greatly reduces the memory requirements of these metrics, but in general, will take longer to calculate. Initial tests indicate that the `visitation()` function is feasible for samc objects with 50 Million cells with 32 GB of RAM. Details about changing the solver can be found in the help documentation for the `samc-class`.
 - Updated the performance vignette to include additional information about the choice of linear solver. Also removed old memory consumption benchmarks due to a flaw in testing where profilers in R do not measure the memory consumption of native code.
 - Bumped various package version requirements.
+- Made the `rasterize()` function publicly availabe. Mainly useful for converting matrices to a SpatRaster that matches the structure used internally by the package.
 
 # samc 2.0.1
 

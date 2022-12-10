@@ -61,6 +61,7 @@ reference:
       - locate
       - map
       - pairwise
+      - rasterize
       - samc
   - title: "Analytical Functions"
     contents:

@@ -14,9 +14,9 @@
 #
 
 ## @knitr 1_library_1
-library(samc)
 library(raster)
 library(terra)
+library(samc)
 library(gdistance)
 library(viridisLite)
 
@@ -62,9 +62,7 @@ maze_res = matrix(
   nrow = 20, byrow = TRUE
 )
 
-maze_res <- rast(maze_res,
-                 extent = terra::ext(0.5, ncol(maze_res) + 0.5, 0.5, nrow(maze_res) + 0.5),
-                 crs = "local")
+maze_res <- rasterize(maze_res)
 maze_res[maze_res==0] <- NA # 0 makes the formatting cleaner above, but NA is needed for true barriers
 
 # Get info about the shortest path through the maze using gdistance

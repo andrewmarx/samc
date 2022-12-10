@@ -35,8 +35,8 @@ For this example, we will use the example data included in the package, but will
 ```{r, message = FALSE, fig.show='hold'}
 # First step is to load the libraries. Not all of these libraries are strictly
 # needed; some are used for convenience and visualization for this tutorial.
-library("samc")
 library("terra")
+library("samc")
 library("viridisLite")
 
 # "Load" the data. In this case we are using data built into the package.
@@ -47,18 +47,9 @@ abs_data <- samc::ex_abs_data
 occ_data <- samc::ex_occ_data
 
 # To make things easier for plotting later, convert the matrices to rasters
-res_data <- rast(res_data,
-                 extent = terra::ext(0.5, ncol(res_data) + 0.5,
-                                     0.5, nrow(res_data) + 0.5),
-                 crs = "local")
-abs_data <- rast(abs_data,
-                 extent = terra::ext(0.5, ncol(abs_data) + 0.5,
-                                     0.5, nrow(abs_data) + 0.5),
-                 crs = "local")
-occ_data <- rast(occ_data,
-                 extent = terra::ext(0.5, ncol(occ_data) + 0.5,
-                                     0.5, nrow(occ_data) + 0.5),
-                 crs = "local")
+res_data <- rasterize(res_data)
+abs_data <- rasterize(abs_data)
+occ_data <- rasterize(occ_data)
 
 # Generate some random values that will be used as proportions for dividing the
 # absorption data.

@@ -304,44 +304,6 @@
 }
 
 
-#' Rasterize
-#'
-#' Convert a matrix to a SpatRaster. Ensures consistency of conversion throughout the package
-#'
-#' @param x A matrix
-#' @noRd
-setGeneric(
-  ".rasterize",
-  function(x) {
-    standardGeneric(".rasterize")
-  })
-
-#' @noRd
-setMethod(
-  ".rasterize",
-  signature(x = "matrix"),
-  function(x) {
-    terra::rast(x, extent = terra::ext(0.5, ncol(x) + 0.5, 0.5, nrow(x) + 0.5), crs = "local")
-  })
-
-#' @noRd
-setMethod(
-  ".rasterize",
-  signature(x = "RasterLayer"),
-  function(x) {
-    terra::rast(x)
-  })
-
-#' @noRd
-setMethod(
-  ".rasterize",
-  signature(x = "SpatRaster"),
-  function(x) {
-    x
-  })
-
-
-
 #' Process location inputs
 #'
 #' Process location inputs
@@ -426,7 +388,7 @@ setMethod(
   signature(samc = "samc", x = "samc_raster"),
   function(samc, x) {
 
-    x = .rasterize(x)
+    x = rasterize(x)
 
     check(samc@map, x)
 
@@ -475,7 +437,7 @@ setMethod(
     # TODO: check against output field
     if (!all(sapply(x, is.matrix))) stop("List can only contain matrices. If using rasters, use raster::stack() or c() to combine terra SpatRasters instead.", call. = FALSE)
 
-    x <- lapply(x, .rasterize)
+    x <- lapply(x, rasterize)
 
     if(is.null(names(x))) names(x) = 1:length(x)
 
@@ -528,12 +490,12 @@ setMethod(
   ".process_occ",
   signature(samc = "samc", x = "Raster"),
   function(samc, x) {
-    return(.process_occ(samc, .rasterize(x)))
+    return(.process_occ(samc, rasterize(x)))
   })
 
 setMethod(
   ".process_occ",
   signature(samc = "samc", x = "matrix"),
   function(samc, x) {
-    return(.process_occ(samc, .rasterize(x)))
+    return(.process_occ(samc, rasterize(x)))
   })
