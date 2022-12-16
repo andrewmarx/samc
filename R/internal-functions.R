@@ -496,7 +496,7 @@ setMethod(
 #' @noRd
 setMethod(
   ".process_occ",
-  signature(samc = "samc", x = "Raster"),
+  signature(samc = "samc", x = "RasterLayer"),
   function(samc, x) {
     return(.process_occ(samc, rasterize(x)))
   })
