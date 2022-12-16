@@ -97,14 +97,13 @@ setMethod(
 #' @rdname absorption
 setMethod(
   "absorption",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing"),
+  signature(samc = "samc", occ = "ANY", origin = "missing"),
   function(samc, occ) {
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    check(samc, occ)
+    #check(samc, occ)
 
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    pv <- .process_occ(samc, occ)
 
     pf <- samc:::.psif(samc@data@f, pv)
 
@@ -112,16 +111,4 @@ setMethod(
     names(result) <- colnames(samc@data@c_abs)
 
     return(result)
-  })
-
-#' @rdname absorption
-setMethod(
-  "absorption",
-  signature(samc = "samc", occ = "matrix", origin = "missing"),
-  function(samc, occ) {
-    if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
-
-    occ <- rasterize(occ)
-
-    return(absorption(samc, occ))
   })
