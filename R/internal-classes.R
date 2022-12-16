@@ -33,12 +33,11 @@ setClass(
 )
 
 
-#' samc raster class
+#' samc char_null class
 #'
-#' Class for grouping different raster types under one parameter
+#' Class for grouping character and NULL data types
 #'
-#' @name samc_raster-class
+#' @name char_null-class
 #' @keywords internal
-
-setClassUnion("samc_raster", c("RasterLayer", "SpatRaster"))
+#'
 setClassUnion("char_null", c("character", "NULL"))

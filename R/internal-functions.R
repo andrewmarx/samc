@@ -385,7 +385,7 @@ setGeneric(
 #' @noRd
 setMethod(
   ".process_abs_states",
-  signature(samc = "samc", x = "samc_raster"),
+  signature(samc = "samc", x = "SpatRaster"),
   function(samc, x) {
 
     x = rasterize(x)
@@ -424,6 +424,14 @@ setMethod(
 setMethod(
   ".process_abs_states",
   signature(samc = "samc", x = "RasterStack"),
+  function(samc, x) {
+
+    return(.process_abs_states(samc, terra::rast(x)))
+  })
+
+setMethod(
+  ".process_abs_states",
+  signature(samc = "samc", x = "RasterLayer"),
   function(samc, x) {
 
     return(.process_abs_states(samc, terra::rast(x)))
