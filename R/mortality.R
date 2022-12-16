@@ -261,6 +261,8 @@ setMethod(
   function(samc, occ, time) {
     .validate_time_steps(time)
 
+    check(samc, occ)
+
     pv <- .process_occ(samc, occ)
 
     q <- samc$q_matrix
@@ -399,6 +401,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
+    check(samc, occ)
+
     pv <- .process_occ(samc, occ)
 
     if (samc@solver == "iter") {

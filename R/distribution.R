@@ -196,6 +196,8 @@ setMethod(
   "distribution",
   signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
+    check(samc, occ)
+
     pv <- .process_occ(samc, occ)
 
     .validate_time_steps(time)

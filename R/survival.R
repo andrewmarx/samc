@@ -68,6 +68,8 @@ setMethod(
   "survival",
   signature(samc = "samc", occ = "ANY"),
   function(samc, occ) {
+    check(samc, occ)
+
     pv <- .process_occ(samc, occ)
 
     sv <- survival(samc)

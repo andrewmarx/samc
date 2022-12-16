@@ -164,6 +164,8 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
+    check(samc, occ)
+
     dest <- .process_locations(samc, dest)
 
     pv <- .process_occ(samc, occ)
@@ -279,6 +281,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, occ) {
+    check(samc, occ)
+
     pv <- .process_occ(samc, occ)
 
     if (!samc@.cache$dgf_exists) {
@@ -309,6 +313,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, occ, dest) {
+    check(samc, occ)
+
     pv <- .process_occ(samc, occ)
 
     dj <- dispersal(samc, dest = dest)

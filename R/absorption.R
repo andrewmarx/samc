@@ -101,7 +101,7 @@ setMethod(
   function(samc, occ) {
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    #check(samc, occ)
+    check(samc, occ)
 
     pv <- .process_occ(samc, occ)
 
