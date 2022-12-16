@@ -61,7 +61,6 @@ Collate:
     'generics.R'
     'internal-functions.R'
     'locate.R'
-    'map-class.R'
     'map.R'
     'mortality.R'
     'pairwise.R'

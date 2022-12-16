@@ -54,7 +54,6 @@ reference:
   - title: "Classes"
     contents:
       - samc-class
-      - map-class
       - location-class
   - title: "Utility Functions"
     contents:
