@@ -105,7 +105,7 @@ setMethod(
 
     pv <- .process_occ(samc, occ)
 
-    pf <- samc:::.psif(samc@data@f, pv)
+    pf <-.psif(samc@data@f, pv, samc@.cache$sc)
 
     result <- as.vector(pf %*% samc@data@c_abs)
     names(result) <- colnames(samc@data@c_abs)

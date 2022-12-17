@@ -6,19 +6,20 @@
 
 #include <Rcpp/Benchmark/Timer.h>
 
+#include "solver-cache.h"
+
 
 // [[Rcpp::export(".f_row")]]
-Rcpp::NumericVector f_row(Eigen::SparseMatrix<double> &M, const int row)
+Rcpp::NumericVector f_row(const Eigen::SparseMatrix<double> &M, const int row, Rcpp::XPtr<SolverCache> &SC)
 {
   int sz = M.rows();
-  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
-  solver.compute(M.transpose());
+  SC->buildSolver(M.transpose(), "mt");
 
   Eigen::VectorXd row_vec = Eigen::VectorXd::Zero(sz);
   row_vec(row-1) = 1;
 
-  Eigen::VectorXd res = solver.solve(row_vec);
+  Eigen::VectorXd res = SC->solver().solve(row_vec);
 
   return Rcpp::wrap(res);
 }

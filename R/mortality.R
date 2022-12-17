@@ -408,7 +408,7 @@ setMethod(
     if (samc@solver == "iter") {
       pf <- .psif_iter(samc@data@f, pv)
     } else {
-      pf <- .psif(samc@data@f, pv)
+      pf <- .psif(samc@data@f, pv, samc@.cache$sc)
     }
 
     names(pf) <- samc$names

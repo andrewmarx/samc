@@ -94,7 +94,7 @@ setMethod(
     if (samc@solver == "iter") {
       r <- .f_row_iter(samc@data@f, origin)
     } else {
-      r <- .f_row(samc@data@f, origin)
+      r <- .f_row(samc@data@f, origin, samc@.cache$sc)
     }
 
 

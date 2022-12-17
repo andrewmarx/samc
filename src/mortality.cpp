@@ -4,6 +4,8 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 
+#include "solver-cache.h"
+
 
 // [[Rcpp::export(".sum_qpow_row")]]
 Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int row, Rcpp::NumericVector steps)
@@ -77,13 +79,11 @@ Rcpp::List sum_psiqpow(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen:
 }
 
 // [[Rcpp::export(".psif")]]
-Rcpp::NumericVector psif(Eigen::Map<Eigen::SparseMatrix<double> > &M, Eigen::VectorXd &psi)
+Rcpp::NumericVector psif(Eigen::Map<Eigen::SparseMatrix<double> > &M, Eigen::VectorXd &psi, Rcpp::XPtr<SolverCache> &SC)
 {
-  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
+  SC->buildSolver(M.transpose(), "mt");
 
-  solver.compute(M.transpose());
-
-  Eigen::VectorXd res = solver.solve(psi);
+  Eigen::VectorXd res = SC->solver().solve(psi);
 
   return Rcpp::wrap(res);
 }

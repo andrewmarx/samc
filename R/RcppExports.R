@@ -57,8 +57,8 @@
     .Call('_samc_sum_psiqpow', PACKAGE = 'samc', M, psi, steps)
 }
 
-.psif <- function(M, psi) {
-    .Call('_samc_psif', PACKAGE = 'samc', M, psi)
+.psif <- function(M, psi, SC) {
+    .Call('_samc_psif', PACKAGE = 'samc', M, psi, SC)
 }
 
 .psif_iter <- function(M, psi) {
@@ -77,8 +77,8 @@
     .Call('_samc_f1_iter', PACKAGE = 'samc', M)
 }
 
-.f_row <- function(M, row) {
-    .Call('_samc_f_row', PACKAGE = 'samc', M, row)
+.f_row <- function(M, row, SC) {
+    .Call('_samc_f_row', PACKAGE = 'samc', M, row, SC)
 }
 
 .f_row_iter <- function(M, row) {
