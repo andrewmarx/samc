@@ -18,7 +18,7 @@ class SolverCache {
 
 public:
   SolverCache() { name = ""; }
-  void buildSolver(Eigen::SparseMatrix<double> &M, const std::string& fun);
+  void buildSolver(const Eigen::SparseMatrix<double> &M, const std::string& fun);
   Solver& solver() { return m_solver; }
 };
 

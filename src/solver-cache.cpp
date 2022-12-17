@@ -10,11 +10,11 @@
 Rcpp::XPtr<SolverCache> solver_cache()
 {
   SolverCache* sc = new SolverCache();
-  Rcpp::XPtr<SolverCache> ptr(sc);
+  Rcpp::XPtr<SolverCache> ptr(sc, true);
   return ptr;
 }
 
-void SolverCache::buildSolver(Eigen::SparseMatrix<double> &M, const std::string& fun)
+void SolverCache::buildSolver(const Eigen::SparseMatrix<double> &M, const std::string &fun)
 {
   if (name != fun)
   {
