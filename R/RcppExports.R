@@ -65,6 +65,10 @@
     .Call('_samc_psif_iter', PACKAGE = 'samc', M, psi)
 }
 
+.solver_cache <- function() {
+    .Call('_samc_solver_cache', PACKAGE = 'samc')
+}
+
 .f1 <- function(M) {
     .Call('_samc_f1', PACKAGE = 'samc', M)
 }
