@@ -56,7 +56,7 @@ setMethod(
     if (samc@solver == "iter") {
       z = .f1_iter(samc@data@f)
     } else {
-      z = .f1(samc@data@f)
+      z = .f1(samc@data@f, samc@.cache$sc)
     }
 
     return(as.vector(z))

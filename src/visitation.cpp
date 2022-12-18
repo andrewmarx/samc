@@ -41,28 +41,25 @@ Rcpp::NumericVector f_row_iter(Eigen::SparseMatrix<double> &M, const int row)
 }
 
 // [[Rcpp::export(".f_col")]]
-Rcpp::NumericVector f_col(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int col)
+Rcpp::NumericVector f_col(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int col, Rcpp::XPtr<SolverCache> &SC)
 {
   int sz = M.rows();
-
-  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
   //Rcpp::Timer timer;
 
   //timer.step("compute() start");
-  solver.compute(M);
+  SC->buildSolver(M, "m");
   //timer.step("compute() end");
 
   Eigen::VectorXd col_vec = Eigen::VectorXd::Zero(sz);
   col_vec(col-1) = 1;
 
   //timer.step("solve() start");
-  Eigen::VectorXd res = solver.solve(col_vec);
+  Eigen::VectorXd res = SC->solver().solve(col_vec);
   //timer.step("solve() end");
 
   //Rcpp::NumericVector tr(timer);
   //Rcpp::Rcout << tr;
-
 
   return Rcpp::wrap(res);
 }

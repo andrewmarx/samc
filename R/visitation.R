@@ -115,9 +115,8 @@ setMethod(
     if (samc@solver == "iter") {
       r <- .f_col_iter(samc@data@f, dest);
     } else {
-      r <- .f_col(samc@data@f, dest);
+      r <- .f_col(samc@data@f, dest, samc@.cache$sc);
     }
-
 
     return(as.vector(r))
   })

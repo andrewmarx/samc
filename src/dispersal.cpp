@@ -13,6 +13,8 @@
 #include <string>
 #include <iomanip>
 
+#include "solver-cache.h"
+
 
 // [[Rcpp::export(".sum_qn_q")]]
 Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
@@ -171,13 +173,13 @@ Rcpp::NumericVector diagf_par_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, 
 
 
 // [[Rcpp::export(".psid_long")]]
-Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::VectorXd &psi, const Eigen::VectorXd &dg)
+Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M,
+                              const Eigen::VectorXd &psi, const Eigen::VectorXd &dg,
+                              Rcpp::XPtr<SolverCache> &SC)
 {
-  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
+  SC->buildSolver(M.transpose(), "mt");
 
-  solver.compute(M.transpose());
-
-  Eigen::VectorXd psiF = solver.solve(psi) - psi;
+  Eigen::VectorXd psiF = SC->solver().solve(psi) - psi;
 
   return Rcpp::wrap(psiF.cwiseQuotient(dg));
 }

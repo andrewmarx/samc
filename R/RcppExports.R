@@ -25,8 +25,8 @@
     .Call('_samc_diagf_par_iter', PACKAGE = 'samc', M, threads)
 }
 
-.psid_long <- function(M, psi, dg) {
-    .Call('_samc_psid_long', PACKAGE = 'samc', M, psi, dg)
+.psid_long <- function(M, psi, dg, SC) {
+    .Call('_samc_psid_long', PACKAGE = 'samc', M, psi, dg, SC)
 }
 
 .psid_long_iter <- function(M, psi, dg) {
@@ -69,8 +69,8 @@
     .Call('_samc_solver_cache', PACKAGE = 'samc')
 }
 
-.f1 <- function(M) {
-    .Call('_samc_f1', PACKAGE = 'samc', M)
+.f1 <- function(M, SC) {
+    .Call('_samc_f1', PACKAGE = 'samc', M, SC)
 }
 
 .f1_iter <- function(M) {
@@ -85,8 +85,8 @@
     .Call('_samc_f_row_iter', PACKAGE = 'samc', M, row)
 }
 
-.f_col <- function(M, col) {
-    .Call('_samc_f_col', PACKAGE = 'samc', M, col)
+.f_col <- function(M, col, SC) {
+    .Call('_samc_f_col', PACKAGE = 'samc', M, col, SC)
 }
 
 .f_col_iter <- function(M, col) {

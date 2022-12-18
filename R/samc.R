@@ -372,6 +372,11 @@ setMethod(
                              override = FALSE,
                              solver = "direct")
 
+    samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@f))
+    samc_obj@.cache$dgf_exists = FALSE
+
+    samc_obj@.cache$sc = .solver_cache();
+
     return(samc_obj)
   })
 

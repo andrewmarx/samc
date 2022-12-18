@@ -299,8 +299,7 @@ setMethod(
     if (samc@solver == "iter") {
       disp <- .psid_long_iter(samc@data@f, pv, samc@.cache$dgf)
     } else {
-      disp <- .psid_long(samc@data@f, pv, samc@.cache$dgf)
-
+      disp <- .psid_long(samc@data@f, pv, samc@.cache$dgf, samc@.cache$sc)
     }
 
     return(as.vector(disp))
