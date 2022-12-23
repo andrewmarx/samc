@@ -27,6 +27,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -39,14 +41,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -54,6 +56,9 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="articles/overview.html">Overview</a>
+    </li>
+    <li>
+      <a href="articles/article-circuit-theory.html">Circuit Theory</a>
     </li>
     <li>
       <a href="articles/performance.html">Performance</a>
@@ -70,7 +75,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -82,7 +87,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -109,7 +114,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -138,7 +143,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/andrewmarx/samc">
+  <a href="https://github.com/andrewmarx/samc" class="external-link">
     <span class="fa fa-github"></span>
      
   </a>
@@ -155,51 +160,66 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="samc-" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#samc-" class="anchor"></a><strong>samc</strong> <a href="reference/figures/3d-stack.png"><img align="right" width="35%" src="reference/figures/3d-stack-small.png" style="padding-left: 10px"></a>
+<div class="section level1">
+<div class="page-header"><h1 id="samc-">
+<strong>samc</strong> <a href="reference/figures/3d-stack.png"><img align="right" width="35%" src="reference/figures/3d-stack-small.png" style="padding-left: 10px"></a>
+<a class="anchor" aria-label="anchor" href="#samc-"></a>
 </h1></div>
-
-<div id="introduction" class="section level3">
-<h3 class="hasAnchor">
-<a href="#introduction" class="anchor"></a><strong>Introduction</strong>
+<p><a href="https://cran.r-project.org/package=samc" class="external-link"><img src="https://www.r-pkg.org/badges/version/samc" alt="CRAN_Status_Badge"></a> <a href="https://cran.r-project.org/package=samc" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/samc" alt="metacran downloads"></a></p>
+<div class="section level3">
+<h3 id="introduction">
+<strong>Introduction</strong><a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h3>
-<p>This is an R package that implements functions for working with absorbing Markov chains using theorems described in the book “Finite Markov Chains” by Kemeny and Snell. The design of this package is based on the implementation of these theorems in the framework described by Fletcher et al. in <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333"><em>Toward a unified framework for connectivity that disentangles movement and mortality in space and time</em></a> (Ecology Letters, 2019; DOI: <a href="https://doi.org/10.1111/ele.13333">10.1111/ele.13333</a>), which applies them to spatial ecology. This framework incorporates both resistance and absorption (or mortality) using spatial absorbing Markov chains to provide several short- and long-term predictions for metrics related to connectivity in landscapes. These metrics are listed in Table 1 of Fletcher et al. (2019), as well as the <a href="articles/overview.html">Overview</a> vignette. Despite the ecological context of the package, these functions can be used in any application of absorbing Markov chains.</p>
+<p>This is an R package that implements functions for working with absorbing Markov chains using theorems described in the book “Finite Markov Chains” by Kemeny and Snell. The design of this package is based on the implementation of these theorems in the framework described by Fletcher et al. in <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333" class="external-link"><em>Toward a unified framework for connectivity that disentangles movement and mortality in space and time</em></a> (Ecology Letters, 2019; DOI: <a href="https://doi.org/10.1111/ele.13333" class="external-link">10.1111/ele.13333</a>), which applies them to spatial ecology. This framework incorporates both resistance and absorption (or mortality) using spatial absorbing Markov chains to provide several short- and long-term predictions for metrics related to connectivity in landscapes. These metrics are listed in Table 1 of Fletcher et al. (2019), as well as the <a href="articles/overview.html">Overview</a> vignette. Despite the ecological context of the package, these functions can be used in any application of absorbing Markov chains.</p>
 </div>
-<div id="installation" class="section level3">
-<h3 class="hasAnchor">
-<a href="#installation" class="anchor"></a><strong>Installation</strong>
+<div class="section level3">
+<h3 id="installation">
+<strong>Installation</strong><a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
 <p>It is recommended that users install the samc package via CRAN, where it will be regularly kept up to date.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"samc"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"samc"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="citation" class="section level3">
-<h3 class="hasAnchor">
-<a href="#citation" class="anchor"></a><strong>Citation</strong>
-</h3>
-<p>Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020), samc: an R package for connectivity modeling with spatial absorbing Markov chains. Ecography, 43: 518-527. <a href="https://doi.org/10.1111/ecog.04891">doi:10.1111/ecog.04891</a></p>
-</div>
-<div id="version-2" class="section level3">
-<h3 class="hasAnchor">
-<a href="#version-2" class="anchor"></a><strong>Version 2</strong>
+<div class="section level3">
+<h3 id="version-2">
+<strong>Version 2</strong><a class="anchor" aria-label="anchor" href="#version-2"></a>
 </h3>
 <p>Version 2 of the package officially removed support for various deprecated parameters in the <code><a href="reference/samc.html">samc()</a></code> function. Deprecation warnings were provided starting in v1.4.0 of the package, along with message details and a backwards compatible implementation of the expected changes. Removing this backwards compatibility is a breaking change that will require some old code to be updated in order run on the latest version of the package. The changes needed are straightforward and mostly entail some reorganization of the input parameters for the <code><a href="reference/samc.html">samc()</a></code> function. Some of the old functionality, primarily overriding memory safety limits, has been moved to the <code>samc-class</code> itself, and is no longer tied to the object creation. Redesigning the <code><a href="reference/samc.html">samc()</a></code> function and removing backwards compatibility makes maintaining the package and adding new features later a substantially improved process; hopefully with only minor inconvenience to users.</p>
 </div>
-<div id="support" class="section level3">
-<h3 class="hasAnchor">
-<a href="#support" class="anchor"></a><strong>Support</strong>
+<div class="section level3">
+<h3 id="citation">
+<strong>Citation</strong><a class="anchor" aria-label="anchor" href="#citation"></a>
+</h3>
+<p>Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020), samc: an R package for connectivity modeling with spatial absorbing Markov chains. Ecography, 43: 518-527. <a href="https://doi.org/10.1111/ecog.04891" class="external-link">doi:10.1111/ecog.04891</a></p>
+</div>
+<div class="section level3">
+<h3 id="publications">
+<strong>Publications</strong><a class="anchor" aria-label="anchor" href="#publications"></a>
+</h3>
+<p>This is a list of publications where the samc package was applied to a research question:</p>
+<ul>
+<li>
+<a href="http://dx.doi.org/10.1007/s10980-022-01569-8" class="external-link"><strong>Landscape connectivity for an endangered carnivore: habitat conservation and road mitigation for ocelots in the US</strong></a> <em>Landscape Ecology (Dec 2022)</em>
+</li>
+<li>
+<a href="https://doi.org/10.1111/2041-210X.13975" class="external-link"><strong>Extending isolation by resistance to predict genetic connectivity</strong></a> <em>Methods in Ecology and Evolution (Sep 2022)</em>
+</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="support">
+<strong>Support</strong><a class="anchor" aria-label="anchor" href="#support"></a>
 </h3>
 <p>Please note that this section is for package specific queries. If you have questions or comments about the related published articles, contact the authors.</p>
-<div id="have-an-error-and-cant-fix-it" class="section level4">
-<h4 class="hasAnchor">
-<a href="#have-an-error-and-cant-fix-it" class="anchor"></a>Have an error and can’t fix it?</h4>
+<div class="section level4">
+<h4 id="have-an-error-and-cant-fix-it">Have an error and can’t fix it?<a class="anchor" aria-label="anchor" href="#have-an-error-and-cant-fix-it"></a>
+</h4>
 <p>If you have an error, make sure you are using the newest version of the package. Then, check the site’s <a href="articles/troubleshooting.html">Troubleshooting</a> page, which is periodically updated with common errors that users encounter.</p>
 </div>
-<div id="not-sure-how-to-do-something-found-a-bug-have-a-feature-request-still-cant-solve-your-error-want-to-show-off-your-project" class="section level4">
-<h4 class="hasAnchor">
-<a href="#not-sure-how-to-do-something-found-a-bug-have-a-feature-request-still-cant-solve-your-error-want-to-show-off-your-project" class="anchor"></a>Not sure how to do something? Found a bug? Have a feature request? Still can’t solve your error? Want to show off your project?</h4>
-<p>We have a Github discussions page for anything and everything related to the package here: <a href="https://github.com/andrewmarx/samc/discussions">Github Discussions</a></p>
+<div class="section level4">
+<h4 id="not-sure-how-to-do-something-found-a-bug-have-a-feature-request-still-cant-solve-your-error-want-to-show-off-your-project">Not sure how to do something? Found a bug? Have a feature request? Still can’t solve your error? Want to show off your project?<a class="anchor" aria-label="anchor" href="#not-sure-how-to-do-something-found-a-bug-have-a-feature-request-still-cant-solve-your-error-want-to-show-off-your-project"></a>
+</h4>
+<p>We have a Github discussions page for anything and everything related to the package here: <a href="https://github.com/andrewmarx/samc/discussions" class="external-link">Github Discussions</a></p>
 </div>
 </div>
 </div>
@@ -207,53 +227,51 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=samc">https://​cloud.r-project.org/​package=samc</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/andrewmarx/samc/">https://​github.com/​andrewmarx/​samc/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/andrewmarx/samc/issues/">https://​github.com/​andrewmarx/​samc/​issues/​</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=samc" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/andrewmarx/samc/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/andrewmarx/samc/issues/" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>GPL (&gt;=3)</li>
 </ul>
 </div>
+
+
 <div class="citation">
-<h2>Citation</h2>
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html">Citing samc</a></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>Andrew Marx <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-7456-1631" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="authors.html#citation">Citing samc</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=samc"><img src="https://www.r-pkg.org/badges/version/samc" alt="CRAN_Status_Badge"></a></li>
-<li><a href="https://cran.r-project.org/package=samc"><img src="https://cranlogs.r-pkg.org/badges/grand-total/samc" alt="metacran downloads"></a></li>
+<li>Andrew Marx <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-7456-1631" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
-</div>
+
+
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Andrew Marx.</p>
+  <p></p>
+<p>Developed by Andrew Marx.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -261,6 +279,8 @@
 
   
 
+
+  
 
   </body>
 </html>

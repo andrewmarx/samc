@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,14 +33,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -46,6 +48,9 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/overview.html">Overview</a>
+    </li>
+    <li>
+      <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -62,7 +67,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -74,7 +79,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -101,7 +106,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -130,7 +135,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/andrewmarx/samc">
+  <a href="https://github.com/andrewmarx/samc" class="external-link">
     <span class="fa fa-github"></span>
      
   </a>
@@ -145,35 +150,40 @@
 
       
 
-      </header><script src="code-snippets_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Code Snippets</h1>
-                        <h4 class="author">Andrew Marx</h4>
+                        <h4 data-toc-skip class="author">Andrew
+Marx</h4>
             
-            <h4 class="date">2022-08-19</h4>
+            <h4 data-toc-skip class="date">2022-12-23</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/code-snippets.Rmd"><code>vignettes/code-snippets.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/code-snippets.Rmd" class="external-link"><code>vignettes/code-snippets.Rmd</code></a></small>
       <div class="hidden name"><code>code-snippets.Rmd</code></div>
 
     </div>
 
     
     
-<div id="introduction" class="section level2">
-<h2 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>This page is home to code that isn’t suitable for inclusion in the samc package or dedicated vignettes, but that users may find beneficial nonetheless. Some of what is included here may eventually be integrated into the package. Code here is not as thoroughly tested as the package and may not work in all situations or versions of the package.</p>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>This page is home to code that isn’t suitable for inclusion in the
+samc package or dedicated vignettes, but that users may find beneficial
+nonetheless. Some of what is included here may eventually be integrated
+into the package. Code here is not as thoroughly tested as the package
+and may not work in all situations or versions of the package.</p>
 </div>
-<div id="reshaping-output-from-pairwise" class="section level2">
-<h2 class="hasAnchor">
-<a href="#reshaping-output-from-pairwise" class="anchor"></a>Reshaping output from pairwise()</h2>
+<div class="section level2">
+<h2 id="reshaping-output-from-pairwise">Reshaping output from pairwise()<a class="anchor" aria-label="anchor" href="#reshaping-output-from-pairwise"></a>
+</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># df will be a "long" format data.frame with columns "origin", "dest", and "result"</span>
-<span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pairwise.html">pairwise</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-
-<span class="co"># Use reshape2 to convert to a pairwise matrix</span>
-<span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/cast.html">acast</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">origin</span> <span class="op">~</span> <span class="va">dest</span>, value.var <span class="op">=</span> <span class="st">"result"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># df will be a "long" format data.frame with columns "origin", "dest", and "result"</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pairwise.html">pairwise</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Use reshape2 to convert to a pairwise matrix</span></span>
+<span><span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/cast.html" class="external-link">acast</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">origin</span> <span class="op">~</span> <span class="va">dest</span>, value.var <span class="op">=</span> <span class="st">"result"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </div>
 
@@ -188,11 +198,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Andrew Marx.</p>
+  <p></p>
+<p>Developed by Andrew Marx.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -200,6 +212,8 @@
 
   
 
+
+  
 
   </body>
 </html>

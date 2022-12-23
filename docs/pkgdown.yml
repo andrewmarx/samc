@@ -1,7 +1,8 @@
-pandoc: 2.14.0.3
-pkgdown: 1.6.1
+pandoc: 2.19.2
+pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
+  article-circuit-theory: article-circuit-theory.html
   code-snippets: code-snippets.html
   data-disconnected: data-disconnected.html
   example-coinflip: example-coinflip.html
@@ -18,5 +19,5 @@ articles:
   tutorial-locations: tutorial-locations.html
   tutorial-multiple-absorption: tutorial-multiple-absorption.html
   tutorial-temporal: tutorial-temporal.html
-last_built: 2022-08-19T13:05Z
+last_built: 2022-12-23T14:00Z
 

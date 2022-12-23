@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,14 +33,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -46,6 +48,9 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/overview.html">Overview</a>
+    </li>
+    <li>
+      <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -62,7 +67,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -74,7 +79,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -101,7 +106,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -130,7 +135,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/andrewmarx/samc">
+  <a href="https://github.com/andrewmarx/samc" class="external-link">
     <span class="fa fa-github"></span>
      
   </a>
@@ -145,85 +150,189 @@
 
       
 
-      </header><script src="performance_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Performance</h1>
-                        <h4 class="author">Andrew Marx</h4>
+                        <h4 data-toc-skip class="author">Andrew
+Marx</h4>
             
-            <h4 class="date">2022-08-19</h4>
+            <h4 data-toc-skip class="date">2022-12-23</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/performance.Rmd"><code>vignettes/performance.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/performance.Rmd" class="external-link"><code>vignettes/performance.Rmd</code></a></small>
       <div class="hidden name"><code>performance.Rmd</code></div>
 
     </div>
 
     
     
-<div id="introduction" class="section level2">
-<h2 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>This document provides details about the different performance aspects of the package. There are two general issues users should be aware of: computation time and memory (RAM) usage.</p>
-<p>Computation time is the more straightforward of the two. Basically, as the size of the landscape data increases, the amount of time it takes the calculations to run will also increase. Additionally, many functions have a time parameter for calculating short-term metrics. As the time parameter increases, users should expect a proportional increase in computation time (with an important caveat discussed below). A recommended strategy for users is to initially use low resolution version of their landscape data and low time inputs for initially writing and verifying their scripts. This allows users to incrementally test things until they are satisfied everything is working correctly without needing to wait long periods of time for testing. Then, once ready, they can start using their final inputs, or even first incrementally increasing the size of the data and time parameters as a way to gauge how long their final analysis will take to complete.</p>
-<p>The more complex issue is RAM usage. All of the calculations involve matrix calculations that can consume large amounts of memory. In some cases, the calculations can be optimized to avoid the more memory intensive calculations, but in other cases it is unavoidable, and will limit how some functions in the package can be used. It is important for users to be aware of the limitations of each function they wish to use. Failing to do so may result in excessive RAM utilization. In some cases, the analysis may still run by using the hard drive as additional RAM, but this will slow the analysis by one to three orders of magnitude, and can cause disk wear that is particularly detrimental to solid state drives (SSDs). Otherwise, the analysis will likely crash R, potentially causing loss of work. Writing the initial analysis using a scaled down versions of the user’s landscape data, and then later incrementally increasing the resolution is one approach for determining what is possible to run on a user’s system.</p>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>This document provides details about the different performance
+aspects of the package. There are two general issues users should be
+aware of: computation time and memory (RAM) usage.</p>
+<p>Computation time is the more straightforward of the two. Basically,
+as the size of the landscape data increases, the amount of time it takes
+the calculations to run will also increase. Additionally, many functions
+have a time parameter for calculating short-term metrics. As the time
+parameter increases, users should expect a proportional increase in
+computation time (with an important caveat discussed below). A
+recommended strategy for users is to initially use low resolution
+version of their landscape data and low time inputs for initially
+writing and verifying their scripts. This allows users to incrementally
+test things until they are satisfied everything is working correctly
+without needing to wait long periods of time for testing. Then, once
+ready, they can start using their final inputs, or even first
+incrementally increasing the size of the data and time parameters as a
+way to gauge how long their final analysis will take to complete.</p>
+<p>The more complex issue is RAM usage. All of the calculations involve
+matrix calculations that can consume large amounts of memory. In some
+cases, the calculations can be optimized to avoid the more memory
+intensive calculations, but in other cases it is unavoidable, and will
+limit how some functions in the package can be used. It is important for
+users to be aware of the limitations of each function they wish to use.
+Failing to do so may result in excessive RAM utilization. In some cases,
+the analysis may still run by using the hard drive as additional RAM,
+but this will slow the analysis by one to three orders of magnitude, and
+can cause disk wear that is particularly detrimental to solid state
+drives (SSDs). Otherwise, the analysis will likely crash R, potentially
+causing loss of work. Writing the initial analysis using a scaled down
+versions of the user’s landscape data, and then later incrementally
+increasing the resolution is one approach for determining what is
+possible to run on a user’s system.</p>
 </div>
-<div id="transition-matrix" class="section level2">
-<h2 class="hasAnchor">
-<a href="#transition-matrix" class="anchor"></a>Transition Matrix</h2>
-<p>All of the calculations performed by the package make use of a transition matrix generated using the landscape data. Technically, the size of the transition matrix grows quadratically with the number of cells in the landscape data, meaning that it can quickly consume a computer’s available memory (RAM). The following figure illustrates this, where even a million landscape cells (a 1000x1000 raster without any missing data) requires ~7500 GB of RAM, about 1000x what is typically available in modern consumer computers.</p>
+<div class="section level2">
+<h2 id="transition-matrix">Transition Matrix<a class="anchor" aria-label="anchor" href="#transition-matrix"></a>
+</h2>
+<p>All of the calculations performed by the package make use of a
+transition matrix generated using the landscape data. Technically, the
+size of the transition matrix grows quadratically with the number of
+cells in the landscape data, meaning that it can quickly consume a
+computer’s available memory (RAM). The following figure illustrates
+this, where even a million landscape cells (a 1000x1000 raster without
+any missing data) requires ~7500 GB of RAM, about 1000x what is
+typically available in modern consumer computers.</p>
 <p><img src="performance_files/figure-html/fig1-1.png" width="624" style="display: block; margin: auto;"></p>
-<p>Fortunately, the initial transition matrix is sparse (it contains the value <code>0</code> in the majority of its cells). This allows the way it is stored in RAM to be optimized so that the amount of memory it consumes only grows linearly with the number of cells in the landscape data. In practice, this means the transition matrix takes up significantly less RAM. Using a 1000x1000 landscape raster (one million landscape cells) again as an example, the transition matrix can be condensed down to less than 0.15 GB of RAM.</p>
+<p>Fortunately, the initial transition matrix is sparse (it contains the
+value <code>0</code> in the majority of its cells). This allows the way
+it is stored in RAM to be optimized so that the amount of memory it
+consumes only grows linearly with the number of cells in the landscape
+data. In practice, this means the transition matrix takes up
+significantly less RAM. Using a 1000x1000 landscape raster (one million
+landscape cells) again as an example, the transition matrix can be
+condensed down to less than 0.15 GB of RAM.</p>
 <p><img src="performance_files/figure-html/fig2-1.png" width="624" style="display: block; margin: auto;"></p>
 </div>
-<div id="calculations" class="section level2">
-<h2 class="hasAnchor">
-<a href="#calculations" class="anchor"></a>Calculations</h2>
-<p>Just creating a large transition matrix is no longer an issue, but issues still arise when the transition matrix is used in calculations. Some calculations involving the transition matrix, such as calculating the inverse, will produce a dense matrix that cannot be stored in a similarly optimized manner. Instead, the dense matrix will have the same memory requirement as the first figure above. These calculations quickly become impractical with even moderately-low amounts of landscape data. The following figure illustrates how many landscape cells could be practical with consumer hardware when these calculations are involved. This is under <em>ideal</em> circumstances; in practice, more than one dense matrix may need to be in memory at the same time to perform some calculations.</p>
+<div class="section level2">
+<h2 id="calculations">Calculations<a class="anchor" aria-label="anchor" href="#calculations"></a>
+</h2>
+<p>Just creating a large transition matrix is no longer an issue, but
+issues still arise when the transition matrix is used in calculations.
+Some calculations involving the transition matrix, such as calculating
+the inverse, will produce a dense matrix that cannot be stored in a
+similarly optimized manner. Instead, the dense matrix will have the same
+memory requirement as the first figure above. These calculations quickly
+become impractical with even moderately-low amounts of landscape data.
+The following figure illustrates how many landscape cells could be
+practical with consumer hardware when these calculations are involved.
+This is under <em>ideal</em> circumstances; in practice, more than one
+dense matrix may need to be in memory at the same time to perform some
+calculations.</p>
 <p><img src="performance_files/figure-html/fig3-1.png" width="624" style="display: block; margin: auto;"></p>
-<p>Many of the equations in the SAMC paper perform these calculations. In some cases it is completely unavoidable. Fortunately, in other cases, it is possible to refactor the equations to avoid these particular calculations, or to use other math techniques and tools that limits their downside.</p>
+<p>Many of the equations in the SAMC paper perform these calculations.
+In some cases it is completely unavoidable. Fortunately, in other cases,
+it is possible to refactor the equations to avoid these particular
+calculations, or to use other math techniques and tools that limits
+their downside.</p>
 </div>
-<div id="short-term-metrics" class="section level2">
-<h2 class="hasAnchor">
-<a href="#short-term-metrics" class="anchor"></a>Short-term Metrics</h2>
-<p>The short-term metrics (functions where a number of time steps is specified) are expected to have a run time that increases linearly with the number of time steps (as seen in the benchmarks below). Currently, a limitation in the way numbers are stored in computer hardware is causing these calculations to slow down substantially with large time steps (~47000 on one test computer). Until a suitable workaround is identified, users are recommended to start their analyses with smaller numbers and increase them incrementally. Plotting these incremental results may reveal that a large number of time steps is not necessary in order for the results to stabilize for some/all short-term metrics.</p>
+<div class="section level2">
+<h2 id="short-term-metrics">Short-term Metrics<a class="anchor" aria-label="anchor" href="#short-term-metrics"></a>
+</h2>
+<p>The short-term metrics (functions where a number of time steps is
+specified) are expected to have a run time that increases linearly with
+the number of time steps (as seen in the benchmarks below). Currently, a
+limitation in the way numbers are stored in computer hardware is causing
+these calculations to slow down substantially with large time steps
+(~47000 on one test computer). Until a suitable workaround is
+identified, users are recommended to start their analyses with smaller
+numbers and increase them incrementally. Plotting these incremental
+results may reveal that a large number of time steps is not necessary in
+order for the results to stabilize for some/all short-term metrics.</p>
 </div>
-<div id="special-cases" class="section level2">
-<h2 class="hasAnchor">
-<a href="#special-cases" class="anchor"></a>Special Cases</h2>
-<div id="dispersalsamc-origin-dispersalsamc-occ" class="section level4">
-<h4 class="hasAnchor">
-<a href="#dispersalsamc-origin-dispersalsamc-occ" class="anchor"></a>dispersal(samc, origin) &amp; dispersal(samc, occ)</h4>
-<p>These metrics have been optimized for memory usage, but due to the requirement of calculating <span class="math inline">\(diag(F)\)</span>, remain substantially slower than solutions for metrics. Additionally, as the number of transient states increases, the time to compute the result increases quadratically. Once calculated, however, the result of <span class="math inline">\(diag(F)\)</span> is cached and reused in future runs of these metrics. So only the first time running these metrics for a particular samc-class object will be slow.</p>
-<p>Given how slow calculating <span class="math inline">\(diag(F)\)</span> can be, progress updates are provided during different stages of the calculation. The first stage involves a matrix decomposition that generally will take less than a few minutes, but could take several minutes with large datasets. The second stage is by far the most time consuming part of the calculation, and a time estimate will be periodically updated to give users a rough estimate of how long it will take to complete. The first few time estimates tend to be inflated due to the low sampling time, but will improve with each update. During the calculation, other software running on the computer can affect how fast the calculation runs, and in turn, lead to changes in time predictions. Once <span class="math inline">\(diag(F)\)</span> is calculated, obtaining the final result for these metrics will take an amount of time comparable to other metrics.</p>
-<p>As of v1.5.0, these functions support parallel computing to reduce the time required for calculating <span class="math inline">\(diag(F)\)</span>. See the <a href="parallel.html">Parallel Computing</a> vignette for details.</p>
+<div class="section level2">
+<h2 id="special-cases">Special Cases<a class="anchor" aria-label="anchor" href="#special-cases"></a>
+</h2>
+<div class="section level4">
+<h4 id="dispersalsamc-origin-dispersalsamc-occ">dispersal(samc, origin) &amp; dispersal(samc, occ)<a class="anchor" aria-label="anchor" href="#dispersalsamc-origin-dispersalsamc-occ"></a>
+</h4>
+<p>These metrics have been optimized for memory usage, but due to the
+requirement of calculating <span class="math inline">\(diag(F)\)</span>,
+remain substantially slower than solutions for metrics. Additionally, as
+the number of transient states increases, the time to compute the result
+increases quadratically. Once calculated, however, the result of <span class="math inline">\(diag(F)\)</span> is cached and reused in future
+runs of these metrics. So only the first time running these metrics for
+a particular samc-class object will be slow.</p>
+<p>Given how slow calculating <span class="math inline">\(diag(F)\)</span> can be, progress updates are
+provided during different stages of the calculation. The first stage
+involves a matrix decomposition that generally will take less than a few
+minutes, but could take several minutes with large datasets. The second
+stage is by far the most time consuming part of the calculation, and a
+time estimate will be periodically updated to give users a rough
+estimate of how long it will take to complete. The first few time
+estimates tend to be inflated due to the low sampling time, but will
+improve with each update. During the calculation, other software running
+on the computer can affect how fast the calculation runs, and in turn,
+lead to changes in time predictions. Once <span class="math inline">\(diag(F)\)</span> is calculated, obtaining the
+final result for these metrics will take an amount of time comparable to
+other metrics.</p>
+<p>As of v1.5.0, these functions support parallel computing to reduce
+the time required for calculating <span class="math inline">\(diag(F)\)</span>. See the <a href="parallel.html">Parallel Computing</a> vignette for details.</p>
 </div>
 </div>
-<div id="benchmarks" class="section level2">
-<h2 class="hasAnchor">
-<a href="#benchmarks" class="anchor"></a>Benchmarks</h2>
-<p>This section includes automated benchmarks for each method that has been optimized to avoid memory issues. This information is primarily for prioritizing future optimizations, but is published in case some users find it helpful. The benchmarking approach is crude and there may be occasional outliers as a result. Computation time could vary quite a lot with different hardware.</p>
-<div id="overall-performance" class="section level4">
-<h4 class="hasAnchor">
-<a href="#overall-performance" class="anchor"></a>Overall Performance</h4>
-<p>Performance of each of the functions relative to number of landscape cells. For short-term metrics, the number of time steps was set to <code>10000</code>.</p>
+<div class="section level2">
+<h2 id="benchmarks">Benchmarks<a class="anchor" aria-label="anchor" href="#benchmarks"></a>
+</h2>
+<p>This section includes automated benchmarks for each method that has
+been optimized to avoid memory issues. This information is primarily for
+prioritizing future optimizations, but is published in case some users
+find it helpful. The benchmarking approach is crude and there may be
+occasional outliers as a result. Computation time could vary quite a lot
+with different hardware.</p>
+<div class="section level4">
+<h4 id="overall-performance">Overall Performance<a class="anchor" aria-label="anchor" href="#overall-performance"></a>
+</h4>
+<p>Performance of each of the functions relative to number of landscape
+cells. For short-term metrics, the number of time steps was set to
+<code>10000</code>.</p>
 <p><img src="img/bt.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
-<div id="overall-memory-usage" class="section level4">
-<h4 class="hasAnchor">
-<a href="#overall-memory-usage" class="anchor"></a>Overall Memory Usage</h4>
-<p>Maximum amount of RAM needed by each function at any single point in the computation. Note that this does not include the memory used by other objects in the code (such as the <code>samc-class</code> object), or other programs running on the computer. For short-term metrics, the number of time steps was set to <code>10000</code>.</p>
+<div class="section level4">
+<h4 id="overall-memory-usage">Overall Memory Usage<a class="anchor" aria-label="anchor" href="#overall-memory-usage"></a>
+</h4>
+<p>Maximum amount of RAM needed by each function at any single point in
+the computation. Note that this does not include the memory used by
+other objects in the code (such as the <code>samc-class</code> object),
+or other programs running on the computer. For short-term metrics, the
+number of time steps was set to <code>10000</code>.</p>
 <p><img src="img/br.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
-<div id="temporal-performance" class="section level4">
-<h4 class="hasAnchor">
-<a href="#temporal-performance" class="anchor"></a>Temporal Performance</h4>
-<p>Performance of each of the short-term metrics for varying number of time steps. The number of landscape cells used for this benchmark was 500,000.</p>
+<div class="section level4">
+<h4 id="temporal-performance">Temporal Performance<a class="anchor" aria-label="anchor" href="#temporal-performance"></a>
+</h4>
+<p>Performance of each of the short-term metrics for varying number of
+time steps. The number of landscape cells used for this benchmark was
+500,000.</p>
 <p><img src="img/btt.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
-<div id="temporal-memory-usage" class="section level4">
-<h4 class="hasAnchor">
-<a href="#temporal-memory-usage" class="anchor"></a>Temporal Memory Usage</h4>
-<p>Maximum amount of RAM needed by each short-term metric for varying number of time steps. Note that this does not include the memory used by other objects in the code (such as the <code>samc-class</code> object), or other programs running on the computer. The number of landscape cells used for this benchmark was 500,000.</p>
+<div class="section level4">
+<h4 id="temporal-memory-usage">Temporal Memory Usage<a class="anchor" aria-label="anchor" href="#temporal-memory-usage"></a>
+</h4>
+<p>Maximum amount of RAM needed by each short-term metric for varying
+number of time steps. Note that this does not include the memory used by
+other objects in the code (such as the <code>samc-class</code> object),
+or other programs running on the computer. The number of landscape cells
+used for this benchmark was 500,000.</p>
 <p><img src="img/btr.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 </div>
@@ -240,11 +349,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Andrew Marx.</p>
+  <p></p>
+<p>Developed by Andrew Marx.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -252,6 +363,8 @@
 
   
 
+
+  
 
   </body>
 </html>

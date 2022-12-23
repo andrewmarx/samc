@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+
+
     <div class="container template-article">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,21 +33,24 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/overview.html">Overview</a>
+    </li>
+    <li>
+      <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -62,9 +67,9 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Data
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -74,9 +79,9 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Tutorials
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -101,9 +106,9 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Examples
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -130,9 +135,9 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/andrewmarx/samc">
+  <a href="https://github.com/andrewmarx/samc" class="external-link">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -143,183 +148,248 @@
 </div>
 <!--/.navbar -->
 
-      
 
-      </header><script src="tutorial-multiple-absorption_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Multiple Absorption Tutorial</h1>
-                        <h4 class="author">Andrew Marx</h4>
-            
-            <h4 class="date">2022-08-19</h4>
-      
-      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/tutorial-multiple-absorption.Rmd"><code>vignettes/tutorial-multiple-absorption.Rmd</code></a></small>
+                        <h4 data-toc-skip class="author">Andrew
+Marx</h4>
+
+            <h4 data-toc-skip class="date">2022-12-23</h4>
+
+      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/tutorial-multiple-absorption.Rmd" class="external-link"><code>vignettes/tutorial-multiple-absorption.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-multiple-absorption.Rmd</code></div>
 
     </div>
 
-    
-    
-<div id="introduction" class="section level2">
-<h2 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>Starting in v1.4.0, the samc package included support for multiple sources of absorption when creating an samc object. Additionally, when multiple sources of absorption are provided, the results of the mortality() metric are now decomposed into its individual and total components, which are returned in a named list. When only a single absorption input is provided, the function will work exactly like it did previously to maintain backwards compatibility with existing code.</p>
-<p><em>Note: only the asymptotic (long-term) calculations are currently decomposed. The short-term mortality metrics still need to be updated.</em></p>
+
+
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>Starting in v1.4.0, the samc package included support for multiple
+sources of absorption when creating an samc object. Additionally, when
+multiple sources of absorption are provided, the results of the
+mortality() metric are now decomposed into its individual and total
+components, which are returned in a named list. When only a single
+absorption input is provided, the function will work exactly like it did
+previously to maintain backwards compatibility with existing code.</p>
+<p><em>Note: only the asymptotic (long-term) calculations are currently
+decomposed. The short-term mortality metrics still need to be
+updated.</em></p>
 </div>
-<div id="setup" class="section level2">
-<h2 class="hasAnchor">
-<a href="#setup" class="anchor"></a>Setup</h2>
-<p>For this example, we will use the example data included in the package, but will semi-randomly divide/decompose the absorption matrix into two separate layers. These layers are used for illustrative purposes and do not represent anything meaningful.</p>
+<div class="section level2">
+<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+</h2>
+<p>For this example, we will use the example data included in the
+package, but will semi-randomly divide/decompose the absorption matrix
+into two separate layers. These layers are used for illustrative
+purposes and do not represent anything meaningful.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># First step is to load the libraries. Not all of these libraries are strictly</span>
-<span class="co"># needed; some are used for convenience and visualization for this tutorial.</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/raster">"raster"</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://andrewmarx.github.io/samc/">"samc"</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://sjmgarnier.github.io/viridisLite/">"viridisLite"</a></span><span class="op">)</span>
-
-<span class="co"># "Load" the data. In this case we are using data built into the package.</span>
-<span class="co"># In practice, users will likely load raster data using the raster() function</span>
-<span class="co"># from the raster package.</span>
-<span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span>
-<span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span>
-<span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span>
-
-<span class="co"># Generate some random values that will be used as proportions for dividing the</span>
-<span class="co"># absorption data.</span>
-<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">abs_data</span><span class="op">)</span>, max <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">p1</span>
-
-<span class="co"># Divide our absorption data into two layers. When added together, these two</span>
-<span class="co"># layers should be identical to the original</span>
-<span class="va">abs_data_a</span> <span class="op">&lt;-</span> <span class="va">abs_data</span> <span class="op">*</span> <span class="va">p1</span>
-<span class="va">abs_data_b</span> <span class="op">&lt;-</span> <span class="va">abs_data</span> <span class="op">*</span> <span class="va">p2</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span><span class="op">(</span><span class="va">abs_data_a</span> <span class="op">+</span> <span class="va">abs_data_b</span>, <span class="va">abs_data</span><span class="op">)</span>
-<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># First step is to load the libraries. Not all of these libraries are strictly</span></span>
+<span><span class="co"># needed; some are used for convenience and visualization for this tutorial.</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/raster" class="external-link">"raster"</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://andrewmarx.github.io/samc/" class="external-link">"samc"</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://sjmgarnier.github.io/viridisLite/" class="external-link">"viridisLite"</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># "Load" the data. In this case we are using data built into the package.</span></span>
+<span><span class="co"># In practice, users will likely load raster data using the raster() function</span></span>
+<span><span class="co"># from the raster package.</span></span>
+<span><span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span></span>
+<span><span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span></span>
+<span><span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span></span>
+<span></span>
+<span><span class="co"># Generate some random values that will be used as proportions for dividing the</span></span>
+<span><span class="co"># absorption data.</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">abs_data</span><span class="op">)</span>, max <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">p1</span></span>
+<span></span>
+<span><span class="co"># Divide our absorption data into two layers. When added together, these two</span></span>
+<span><span class="co"># layers should be identical to the original</span></span>
+<span><span class="va">abs_data_a</span> <span class="op">&lt;-</span> <span class="va">abs_data</span> <span class="op">*</span> <span class="va">p1</span></span>
+<span><span class="va">abs_data_b</span> <span class="op">&lt;-</span> <span class="va">abs_data</span> <span class="op">*</span> <span class="va">p2</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">abs_data_a</span> <span class="op">+</span> <span class="va">abs_data_b</span>, <span class="va">abs_data</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
-<div id="total-single-absorption" class="section level2">
-<h2 class="hasAnchor">
-<a href="#total-single-absorption" class="anchor"></a>Total (Single) Absorption</h2>
-<p>The use of multiple absorption layers is mainly of interest for the mortality() metric, which calculates the probability of absorption at different transient states or locations. By providing multiple absorption layers, we can tease apart the role that different sources of absorption might have in a model. To start, we will work with the total absorption.</p>
+<div class="section level2">
+<h2 id="total-single-absorption">Total (Single) Absorption<a class="anchor" aria-label="anchor" href="#total-single-absorption"></a>
+</h2>
+<p>The use of multiple absorption layers is mainly of interest for the
+mortality() metric, which calculates the probability of absorption at
+different transient states or locations. By providing multiple
+absorption layers, we can tease apart the role that different sources of
+absorption might have in a model. To start, we will work with the total
+absorption.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Setup the details for our transition function</span>
-<span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="co"># Function for calculating transition probabilities</span>
-           dir <span class="op">=</span> <span class="fl">8</span>, <span class="co"># Directions of the transitions. Either 4 or 8.</span>
-           sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Is the function symmetric?</span>
-
-<span class="co"># Create the samc object using the original "total" absorption layer</span>
-<span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span>
-
-<span class="co"># Let's say we're interested in where absorption is expected to occur throughout</span>
-<span class="co"># the model if starting from a single location</span>
-<span class="va">mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-
-<span class="co"># When only working with total absorption, this version of mortality() returns</span>
-<span class="co"># a named vector</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">mort</span><span class="op">)</span>
-<span class="co">#&gt;  Named num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span>
-<span class="co">#&gt;  - attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span>
-
-<span class="co"># Let's visualize it</span>
-<span class="va">mort_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">mort_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Setup the details for our transition function</span></span>
+<span><span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="co"># Function for calculating transition probabilities</span></span>
+<span>           dir <span class="op">=</span> <span class="fl">8</span>, <span class="co"># Directions of the transitions. Either 4 or 8.</span></span>
+<span>           sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Is the function symmetric?</span></span>
+<span></span>
+<span><span class="co"># Create the samc object using the original "total" absorption layer</span></span>
+<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Let's say we're interested in where absorption is expected to occur throughout</span></span>
+<span><span class="co"># the model if starting from a single location</span></span>
+<span><span class="va">mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># When only working with total absorption, this version of mortality() returns</span></span>
+<span><span class="co"># a named vector</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">mort</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  Named num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span>
+<span><span class="co">#&gt;  - attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span></span>
+<span></span>
+<span><span class="co"># Let's visualize it</span></span>
+<span><span class="va">mort_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mort_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
-<div id="multiple-absorption" class="section level2">
-<h2 class="hasAnchor">
-<a href="#multiple-absorption" class="anchor"></a>Multiple Absorption</h2>
-<p>Since our data is a matrix object, we will provide the decomposed absorption layers in a list object. When using raster data, it would be provided as either a RasterStack or a RasterBrick. The layers in the list/RasterStack/RasterBrick can be named, which will carryover into the results, which can help with code readability when accessing different parts of the results.</p>
+<div class="section level2">
+<h2 id="multiple-absorption">Multiple Absorption<a class="anchor" aria-label="anchor" href="#multiple-absorption"></a>
+</h2>
+<p>Since our data is a matrix object, we will provide the decomposed
+absorption layers in a list object. When using raster data, it would be
+provided as either a RasterStack or a RasterBrick. The layers in the
+list/RasterStack/RasterBrick can be named, which will carryover into the
+results, which can help with code readability when accessing different
+parts of the results.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Let's attach absorption layers to our samc object</span>
-<span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>abs1 <span class="op">=</span> <span class="va">abs_data_a</span>,
-                            abs2 <span class="op">=</span> <span class="va">abs_data_b</span><span class="op">)</span>
-
-<span class="co"># Now rerun the analysis</span>
-<span class="va">mort_multiple</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-
-<span class="co"># Let's note the differences from what was returned before. Here, we have a list</span>
-<span class="co"># of named vectors. The first is for the total absorption. The last two are for</span>
-<span class="co"># the subdivided or decomposed absorption inputs</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">mort_multiple</span><span class="op">)</span>
-<span class="co">#&gt; List of 3</span>
-<span class="co">#&gt;  $ total: Named num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span>
-<span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span>
-<span class="co">#&gt;  $ abs1 : Named num [1:2624] 5.92e-05 1.40e-05 1.54e-04 2.35e-05 3.77e-05 ...</span>
-<span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span>
-<span class="co">#&gt;  $ abs2 : Named num [1:2624] 0.000724 0.000773 0.00055 0.000631 0.000584 ...</span>
-<span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span>
-
-<span class="co"># Let's visualize it</span>
-<span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_multiple</span><span class="op">)</span>
-<span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html">stack</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">multiple_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Let's attach absorption layers to our samc object</span></span>
+<span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>abs1 <span class="op">=</span> <span class="va">abs_data_a</span>,</span>
+<span>                            abs2 <span class="op">=</span> <span class="va">abs_data_b</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Now rerun the analysis</span></span>
+<span><span class="va">mort_multiple</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Let's note the differences from what was returned before. Here, we have a list</span></span>
+<span><span class="co"># of named vectors. The first is for the total absorption. The last two are for</span></span>
+<span><span class="co"># the subdivided or decomposed absorption inputs</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">mort_multiple</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 3</span></span>
+<span><span class="co">#&gt;  $ total: Named num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span>
+<span><span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span></span>
+<span><span class="co">#&gt;  $ abs1 : Named num [1:2624] 0.000188 0.000196 0.000171 0.000121 0.000027 ...</span></span>
+<span><span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span></span>
+<span><span class="co">#&gt;  $ abs2 : Named num [1:2624] 0.000596 0.000592 0.000533 0.000534 0.000594 ...</span></span>
+<span><span class="co">#&gt;   ..- attr(*, "names")= chr [1:2624] "1" "2" "3" "4" ...</span></span>
+<span></span>
+<span><span class="co"># Let's visualize it</span></span>
+<span><span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_multiple</span><span class="op">)</span></span>
+<span><span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html" class="external-link">stack</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">multiple_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-
-<span class="co"># Let's check some things.</span>
-
-<span class="co">#First, the results of the decomposed layers in the list should add up to the total result</span>
-<span class="fu"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">multiple_map</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="co">#&gt; [1] TRUE</span>
-<span class="co"># Alternatively, we could use the layer names:</span>
-<span class="fu"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">$</span><span class="va">total</span>, <span class="va">multiple_map</span><span class="op">$</span><span class="va">abs1</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">$</span><span class="va">abs2</span><span class="op">)</span>
-<span class="co">#&gt; [1] TRUE</span>
-
-<span class="co"># Second, notice in the plots above that the result for the single input and the total</span>
-<span class="co"># result for the multiple input look very similar? That's because they are identical</span>
-<span class="fu"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span><span class="op">(</span><span class="va">mort</span>, <span class="va">mort_multiple</span><span class="op">$</span><span class="va">total</span><span class="op">)</span>
-<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="co"># Let's check some things.</span></span>
+<span></span>
+<span><span class="co">#First, the results of the decomposed layers in the list should add up to the total result</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">multiple_map</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co"># Alternatively, we could use the layer names:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">$</span><span class="va">total</span>, <span class="va">multiple_map</span><span class="op">$</span><span class="va">abs1</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">$</span><span class="va">abs2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span></span>
+<span><span class="co"># Second, notice in the plots above that the result for the single input and the total</span></span>
+<span><span class="co"># result for the multiple input look very similar? That's because they are identical</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">mort</span>, <span class="va">mort_multiple</span><span class="op">$</span><span class="va">total</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
-<div id="partial-absorption-data" class="section level2">
-<h2 class="hasAnchor">
-<a href="#partial-absorption-data" class="anchor"></a>Partial Absorption Data</h2>
-<p>In the above code, the decomposed absorption data sums to the total absorption data. This is not strictly necessary, and the decomposed absorption data can consist of any number of inputs. These inputs are treated independently of one another by the package. This is potentially useful in at least two different situations.</p>
-<p>The first situation is where we are only interested in the results for a subset of the absorption components. In other words, there might be multiple sources of absorption contributing to the total overall absorption used to create the samc object, but our analysis might be only interested in learning about one of them. In that case, we only need to supply the absorption probabilities for what we are interested in; the others can be excluded.</p>
+<div class="section level2">
+<h2 id="partial-absorption-data">Partial Absorption Data<a class="anchor" aria-label="anchor" href="#partial-absorption-data"></a>
+</h2>
+<p>In the above code, the decomposed absorption data sums to the total
+absorption data. This is not strictly necessary, and the decomposed
+absorption data can consist of any number of inputs. These inputs are
+treated independently of one another by the package. This is potentially
+useful in at least two different situations.</p>
+<p>The first situation is where we are only interested in the results
+for a subset of the absorption components. In other words, there might
+be multiple sources of absorption contributing to the total overall
+absorption used to create the samc object, but our analysis might be
+only interested in learning about one of them. In that case, we only
+need to supply the absorption probabilities for what we are interested
+in; the others can be excluded.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Let's say we are interested in just the first component we created above</span>
-<span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>abs1 <span class="op">=</span> <span class="va">abs_data_a</span><span class="op">)</span>
-
-<span class="va">mort_partial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-
-<span class="co"># Let's visualize it. Note that the results are the same as before, just without</span>
-<span class="co"># the second component.</span>
-<span class="va">partial_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_partial</span><span class="op">)</span>
-<span class="va">partial_map</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html">stack</a></span><span class="op">(</span><span class="va">partial_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">partial_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Let's say we are interested in just the first component we created above</span></span>
+<span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>abs1 <span class="op">=</span> <span class="va">abs_data_a</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mort_partial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Let's visualize it. Note that the results are the same as before, just without</span></span>
+<span><span class="co"># the second component.</span></span>
+<span><span class="va">partial_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_partial</span><span class="op">)</span></span>
+<span><span class="va">partial_map</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html" class="external-link">stack</a></span><span class="op">(</span><span class="va">partial_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">partial_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;"></p>
-<p>The second situation is where we might have multiple candidate models for a particular source of absorption. Rather than running the analysis once for every candidate, we can simply include them all and run the analysis once.</p>
+<p>The second situation is where we might have multiple candidate models
+for a particular source of absorption. Rather than running the analysis
+once for every candidate, we can simply include them all and run the
+analysis once.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Create multiple versions of our first component. This might represent multiple</span>
-<span class="co"># models or hypotheses we want to explore</span>
-<span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>abs1_2 <span class="op">=</span> <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.2</span>,
-                            abs1_4 <span class="op">=</span> <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.4</span>,
-                            abs1_6 <span class="op">=</span> <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.6</span>,
-                            abs1_8 <span class="op">=</span> <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.8</span>,
-                            abs1 <span class="op">=</span> <span class="va">abs_data_a</span><span class="op">)</span>
-
-<span class="va">mort_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-
-<span class="co"># Let's visualize it. Note that the results are not particularly interesting visually;</span>
-<span class="co"># the only difference between these models is the scale</span>
-<span class="va">models_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_models</span><span class="op">)</span>
-<span class="va">models_map</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html">stack</a></span><span class="op">(</span><span class="va">models_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">models_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Create multiple versions of our first component. This might represent multiple</span></span>
+<span><span class="co"># models or hypotheses we want to explore</span></span>
+<span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>abs1_2 <span class="op">=</span> <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.2</span>,</span>
+<span>                            abs1_4 <span class="op">=</span> <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.4</span>,</span>
+<span>                            abs1_6 <span class="op">=</span> <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.6</span>,</span>
+<span>                            abs1_8 <span class="op">=</span> <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.8</span>,</span>
+<span>                            abs1 <span class="op">=</span> <span class="va">abs_data_a</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mort_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Let's visualize it. Note that the results are not particularly interesting visually;</span></span>
+<span><span class="co"># the only difference between these models is the scale</span></span>
+<span><span class="va">models_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_models</span><span class="op">)</span></span>
+<span><span class="va">models_map</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html" class="external-link">stack</a></span><span class="op">(</span><span class="va">models_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">models_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
-<div id="calculating-total-absorption-from-individual-components" class="section level2">
-<h2 class="hasAnchor">
-<a href="#calculating-total-absorption-from-individual-components" class="anchor"></a>Calculating Total Absorption From Individual Components</h2>
-<p>Up to this point, total absorption in our examples is assumed to have already been known. One possibility is that total absorption is known or estimated directly from empirical data. This section, however, comments on the situation where it’s the individual absorption components (e.g., different sources of absorption) that have been directly measured or estimated, and now the user is in a situation where they need to combine that data into total absorption that they can use as input into the samc() function. Ultimately, any number of arbitrary mathematical functions could be used to combine the individual components into a total absorption. As a starting point, however, users may want to think about how their data fits into probability theory.</p>
-<p>Let’s say we have two possible sources of absorption <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>. If they cannot occur at the same time, they are mutually exclusive, or disjoint, events. An example of this might be a deer dispersing across a landscape that can die to either predation or road mortality (hit by a vehicle). In this case, both types of absorption result in death of the deer, and since a deer cannot die twice, this means that both types of absorption are mutually exclusive. Under the rules of probability, we can then calculate our total absorption as <span class="math inline">\(P(A\text{ or }B) = P(A) + P(B)\)</span> where <span class="math inline">\(P(A) = \text{Probability of Predation}\)</span> and <span class="math inline">\(P(B) = \text{Probability of Road Mortality}\)</span>.</p>
-<p>More complex scenarios are possible. It’s conceivable that there might be situations where two or more or different sources of absorption can occur simultaneously. In this case, the total absorption could be calculated as <span class="math inline">\(P(A\text{ or }B) = P(A) + P(B) - P(A)P(B)\)</span>. When interpreting results using multiple absorption in the package, the results for <span class="math inline">\(P(A)P(B)\)</span> can be calculated either by providing the absorption sources <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> and then multiplying their results after the analysis, or absorption sources <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> can be pre-multiplied into a single absorbing state which is then used as an absorbing state for the analysis.</p>
+<div class="section level2">
+<h2 id="calculating-total-absorption-from-individual-components">Calculating Total Absorption From Individual Components<a class="anchor" aria-label="anchor" href="#calculating-total-absorption-from-individual-components"></a>
+</h2>
+<p>Up to this point, total absorption in our examples is assumed to have
+already been known. One possibility is that total absorption is known or
+estimated directly from empirical data. This section, however, comments
+on the situation where it’s the individual absorption components (e.g.,
+different sources of absorption) that have been directly measured or
+estimated, and now the user is in a situation where they need to combine
+that data into total absorption that they can use as input into the
+samc() function. Ultimately, any number of arbitrary mathematical
+functions could be used to combine the individual components into a
+total absorption. As a starting point, however, users may want to think
+about how their data fits into probability theory.</p>
+<p>Let’s say we have two possible sources of absorption <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>. If they cannot occur at the same time,
+they are mutually exclusive, or disjoint, events. An example of this
+might be a deer dispersing across a landscape that can die to either
+predation or road mortality (hit by a vehicle). In this case, both types
+of absorption result in death of the deer, and since a deer cannot die
+twice, this means that both types of absorption are mutually exclusive.
+Under the rules of probability, we can then calculate our total
+absorption as <span class="math inline">\(P(A\text{ or }B) = P(A) +
+P(B)\)</span> where <span class="math inline">\(P(A) = \text{Probability
+of Predation}\)</span> and <span class="math inline">\(P(B) =
+\text{Probability of Road Mortality}\)</span>.</p>
+<p>More complex scenarios are possible. It’s conceivable that there
+might be situations where two or more or different sources of absorption
+can occur simultaneously. In this case, the total absorption could be
+calculated as <span class="math inline">\(P(A\text{ or }B) = P(A) + P(B)
+- P(A)P(B)\)</span>. When interpreting results using multiple absorption
+in the package, the results for <span class="math inline">\(P(A)P(B)\)</span> can be calculated either by
+providing the absorption sources <span class="math inline">\(A\)</span>
+and <span class="math inline">\(B\)</span> and then multiplying their
+results after the analysis, or absorption sources <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> can be pre-multiplied into a single
+absorbing state which is then used as an absorbing state for the
+analysis.</p>
 </div>
-<div id="disabling-multiple-absorption" class="section level2">
-<h2 class="hasAnchor">
-<a href="#disabling-multiple-absorption" class="anchor"></a>Disabling Multiple Absorption</h2>
+<div class="section level2">
+<h2 id="disabling-multiple-absorption">Disabling Multiple Absorption<a class="anchor" aria-label="anchor" href="#disabling-multiple-absorption"></a>
+</h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># To remove all the absorption components</span>
-<span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="cn">NA</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># To remove all the absorption components</span></span>
+<span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></code></pre></div>
 </div>
   </div>
 
@@ -334,17 +404,21 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Andrew Marx.</p>
+  <p></p>
+<p>Developed by Andrew Marx.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
 </div>
 
-  
+
+
+
 
 
   </body>

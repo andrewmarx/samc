@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,14 +33,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -46,6 +48,9 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/overview.html">Overview</a>
+    </li>
+    <li>
+      <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -62,7 +67,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -74,7 +79,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -101,7 +106,7 @@
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Examples
      
     <span class="caret"></span>
@@ -130,7 +135,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/andrewmarx/samc">
+  <a href="https://github.com/andrewmarx/samc" class="external-link">
     <span class="fa fa-github"></span>
      
   </a>
@@ -145,33 +150,54 @@
 
       
 
-      </header><script src="data-disconnected_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Disconnected Data</h1>
-                        <h4 class="author">Andrew Marx</h4>
+                        <h4 data-toc-skip class="author">Andrew
+Marx</h4>
             
-            <h4 class="date">2022-08-19</h4>
+            <h4 data-toc-skip class="date">2022-12-23</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/master/vignettes/data-disconnected.Rmd"><code>vignettes/data-disconnected.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/data-disconnected.Rmd" class="external-link"><code>vignettes/data-disconnected.Rmd</code></a></small>
       <div class="hidden name"><code>data-disconnected.Rmd</code></div>
 
     </div>
 
     
     
-<p><em>Note: this vignette is far from complete and only contains a brief discussion (originally from an email) of the topic in the context of rasters. It will be rewritten and expanded in future releases.</em></p>
-<div id="rasters" class="section level2">
-<h2 class="hasAnchor">
-<a href="#rasters" class="anchor"></a>Rasters</h2>
-<p>Imagine you have a raster with 2 islands, and that water separating the islands in the raster is represented with <code>NA</code>’s. These two islands would be disconnected and will result in <code>"Warning: Input contains disconnected regions. This does not work with the cond_passage() metric."</code>. The warning isn’t an issue if you don’t need the <code><a href="../reference/cond_passage.html">cond_passage()</a></code> function.</p>
-<p>Now, each island (aka region) must have at least one pixel with a non-zero absorbing value. The math algorithms don’t work without that. If a region does not have at least one non-zero absorbing value, then the <code><a href="../reference/samc.html">samc()</a></code> function will result in <code>Error: All disconnected regions must have at least one non-zero absorption value</code></p>
-<p>Now the tricky part; an island/region can be as small as a single pixel. So, if you’re not careful with your raster, you might have very small, isolated patches as small as a pixel floating around somewhere. If you’re using just 4 directions for the transition function, they could even be immediately diagonal to another patch.</p>
-<p>The easiest way to spot these is to pick one of your rasters and set all your non-<code>NA</code> values to the same value, like 1. Then turn all the <code>NA</code>’s to a different value, like 0. Then plot it. Code:</p>
+<p><em>Note: this vignette is far from complete and only contains a
+brief discussion (originally from an email) of the topic in the context
+of rasters. It will be rewritten and expanded in future
+releases.</em></p>
+<div class="section level2">
+<h2 id="rasters">Rasters<a class="anchor" aria-label="anchor" href="#rasters"></a>
+</h2>
+<p>Imagine you have a raster with 2 islands, and that water separating
+the islands in the raster is represented with <code>NA</code>’s. These
+two islands would be disconnected and will result in
+<code>"Warning: Input contains disconnected regions. This does not work with the cond_passage() metric."</code>.
+The warning isn’t an issue if you don’t need the
+<code><a href="../reference/cond_passage.html">cond_passage()</a></code> function.</p>
+<p>Now, each island (aka region) must have at least one pixel with a
+non-zero absorbing value. The math algorithms don’t work without that.
+If a region does not have at least one non-zero absorbing value, then
+the <code><a href="../reference/samc.html">samc()</a></code> function will result in
+<code>Error: All disconnected regions must have at least one non-zero absorption value</code></p>
+<p>Now the tricky part; an island/region can be as small as a single
+pixel. So, if you’re not careful with your raster, you might have very
+small, isolated patches as small as a pixel floating around somewhere.
+If you’re using just 4 directions for the transition function, they
+could even be immediately diagonal to another patch.</p>
+<p>The easiest way to spot these is to pick one of your rasters and set
+all your non-<code>NA</code> values to the same value, like 1. Then turn
+all the <code>NA</code>’s to a different value, like 0. Then plot it.
+Code:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>raster[<span class="sc">!</span><span class="fu">is.na</span>(raster[])<span class="er">)</span> <span class="ot">&lt;-</span> <span class="dv">1</span> </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>raster[<span class="fu">is.na</span>(raster[])<span class="er">)</span> <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(raster)</span></code></pre></div>
-<p>If your raster is particularly large, then you might need to save it out to a high-res image to spot solo pixels</p>
+<p>If your raster is particularly large, then you might need to save it
+out to a high-res image to spot solo pixels</p>
 </div>
   </div>
 
@@ -186,11 +212,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Andrew Marx.</p>
+  <p></p>
+<p>Developed by Andrew Marx.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -198,6 +226,8 @@
 
   
 
+
+  
 
   </body>
 </html>

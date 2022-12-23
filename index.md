@@ -17,15 +17,22 @@ It is recommended that users install the samc package via CRAN, where it will be
 install.packages("samc")
 ```
 
+### **Version 2**
+
+Version 2 of the package officially removed support for various deprecated parameters in the `samc()` function. Deprecation warnings were provided starting in v1.4.0 of the package, along with message details and a backwards compatible implementation of the expected changes. Removing this backwards compatibility is a breaking change that will require some old code to be updated in order run on the latest version of the package. The changes needed are straightforward and mostly entail some reorganization of the input parameters for the `samc()` function. Some of the old functionality, primarily overriding memory safety limits, has been moved to the `samc-class` itself, and is no longer tied to the object creation. Redesigning the `samc()` function and removing backwards compatibility makes maintaining the package and adding new features later a substantially improved process; hopefully with only minor inconvenience to users.
+
 
 ### **Citation**
 
 Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020), samc: an R package for connectivity modeling with spatial absorbing Markov chains. Ecography, 43: 518-527. [doi:10.1111/ecog.04891](https://doi.org/10.1111/ecog.04891)
 
 
-### **Version 2**
+### **Publications**
 
-Version 2 of the package officially removed support for various deprecated parameters in the `samc()` function. Deprecation warnings were provided starting in v1.4.0 of the package, along with message details and a backwards compatible implementation of the expected changes. Removing this backwards compatibility is a breaking change that will require some old code to be updated in order run on the latest version of the package. The changes needed are straightforward and mostly entail some reorganization of the input parameters for the `samc()` function. Some of the old functionality, primarily overriding memory safety limits, has been moved to the `samc-class` itself, and is no longer tied to the object creation. Redesigning the `samc()` function and removing backwards compatibility makes maintaining the package and adding new features later a substantially improved process; hopefully with only minor inconvenience to users.
+This is a list of publications where the samc package was applied to a research question:
+
+- [**Landscape connectivity for an endangered carnivore: habitat conservation and road mitigation for ocelots in the US**](http://dx.doi.org/10.1007/s10980-022-01569-8) *Landscape Ecology (Dec 2022)*
+- [**Extending isolation by resistance to predict genetic connectivity**](https://doi.org/10.1111/2041-210X.13975) *Methods in Ecology and Evolution (Sep 2022)*
 
 
 ### **Support**
