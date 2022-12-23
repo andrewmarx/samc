@@ -110,8 +110,9 @@ plot(abs_data_i, main = "Source Absorption Map", col = viridis(256))
 abs_data_j = res_data * 0
 abs_data_j[cellFromXY(res_data, dest_coords)] = 1
 plot(abs_data_j, main = "Destination Absorption Map", col = viridis(256))
+```
 
-
+```{r}
 # Create samc objects for each direction
 samc_ij = samc(res_data, abs_data_j, tr_args = tr)
 samc_ji = samc(res_data, abs_data_i, tr_args = tr)
@@ -128,7 +129,7 @@ hitting_ij + hitting_ji
 commuteDistance(gdist, rbind(origin_coords, dest_coords))
 ```
 
-There are a few key things to note here. First, the two results are slightly different. This is because SAMC is calculating the time to reach the destination plus one additional time step for absorption. In circuit theory, these two transitions are not considered separately; that is, reaching the destination is equivalent to going to the ground state (absorption). This occurs twice (once in each direction), which causes SAMC to have a commute distance that is `2` time steps higher than what gdistance calculates.
+There are a few key things to note here. First, the two commute distance results are slightly different. This is because SAMC is calculating the time to reach the destination plus one additional time step for absorption. In circuit theory, these two transitions are not considered separately; that is, reaching the destination is equivalent to going to the ground state (absorption). This occurs twice (once in each direction), which causes SAMC to have a commute distance that is `2` time steps higher than what gdistance calculates.
 
 The second thing to note is that the two hitting times produced by SAMC are also slightly different. In other words, movement in one direction between the two points is not equivalent to movement in the other direction. This extra information about the total commute distance can be useful in a real-world scenario. For example, gene flow between two populations may be different in both directions. In this case, the hitting times, rather than commute distance, may result in better models comparing gene flow to landscape connectivity.
 
