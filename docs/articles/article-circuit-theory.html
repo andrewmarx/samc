@@ -330,8 +330,11 @@ absorption occurring outside the destination nodes (<span class="math inline">\(
 <span><span class="va">abs_data_j</span> <span class="op">=</span> <span class="va">res_data</span> <span class="op">*</span> <span class="fl">0</span></span>
 <span><span class="va">abs_data_j</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/xyCellFrom.html" class="external-link">cellFromXY</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">dest_coords</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">abs_data_j</span>, main <span class="op">=</span> <span class="st">"Destination Absorption Map"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span></span>
+<span></span></code></pre></div>
+<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;"></p>
+
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Create samc objects for each direction</span></span>
 <span><span class="va">samc_ij</span> <span class="op">=</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data_j</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span></span>
 <span><span class="va">samc_ji</span> <span class="op">=</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data_i</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span></span>
@@ -351,7 +354,7 @@ absorption occurring outside the destination nodes (<span class="math inline">\(
 <span><span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/commuteDistance-methods.html" class="external-link">commuteDistance</a></span><span class="op">(</span><span class="va">gdist</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">origin_coords</span>, <span class="va">dest_coords</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          1</span></span>
 <span><span class="co">#&gt; 2 501.3218</span></span></code></pre></div>
-<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;"></p>
+
 <p>There are a few key things to note here. First, the two commute distance
 results are slightly different. This is because SAMC is calculating the time
 to reach the destination plus one additional time step for absorption. In
