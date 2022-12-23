@@ -12,7 +12,8 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.show = 'hold', fig.width = 7, fig.height = 5, fig.align = 'center'
 )
 
 required <- c("viridisLite")
@@ -23,43 +24,51 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
 
 ## Background
 
-This document describes the relationship between the samc package and circuit theory. This relationship was derived in an article published in Methods in Ecology and Evolution, 2022; DOI: [10.1111/2041-210X.13975](https://doi.org/10.1111/2041-210X.13975). This material was also presented as part of a workshop during the 2021 International Association for Landscape Ecology - North American annual meeting: [IALE-NA 2021 Workshops](https://www.ialena.org/workshops-2021.html).
+This document describes the relationship between the samc package and circuit theory, as presented in an article published in Methods in Ecology and Evolution (2022; DOI: [10.1111/2041-210X.13975](https://doi.org/10.1111/2041-210X.13975)) and at a workshop during the 2021 International Association for Landscape Ecology - North American annual meeting: [IALE-NA 2021 Workshops](https://www.ialena.org/workshops-2021.html).
 
-Circuit theory (McRae, 2008) has become a widely used tool in ecology and conservation to model landscape connectivity. It can be used to calculate several different metrics: Commute time or effective distance (resistance), the net flow from one node to another (current), and the probability of reaching nodes (voltage).
+Circuit theory (McRae et al. 2008) is a widely used tool in ecology and conservation for modeling landscape connectivity. It can be used to calculate several different metrics, including:
 
-SAMC and circuit theory both use Markov chain theory to model movement based on variations in the landscape coded as resistance values. However, by utilizing absorbing Markov chains, SAMC extends these capabilities to a variety of short- and long-term metrics and also allows for explicitly incorporating absorption states into the model. These absorption states can be used to model any effect that might permanently stop movement in the landscape, such as natural death, predation probability, disease risk, human removal, or even non-mortality causes like permanent settlement.
+- Commute time or resistance distance
+- Net flow from one node to another
+- Probability of reaching nodes
+
+Both SAMC and circuit theory use Markov chain theory to model movement based on variations in the landscape coded as resistance values. However, SAMC extends these capabilities by utilizing absorbing Markov chains, which allow it to model a variety of short- and long-term metrics. SAMC also allows for explicitly incorporating multiple absorption states into the model. These states can represent any effect that might permanently stop movement in the landscape, such as:
+
+- Natural death
+- Predation probability
+- Disease risk
+- Human removal
+- Non-mortality causes (e.g., permanent settlement)
 
 ## Code Setup
 
-This section is for loading the packages and creating objects used in the examples. The resistance data will have two routes, one long and one short, between the source and destination, with no difference in the actual resistance values of the cells along the paths. The absorption data will have a low background absorption plus an area of strong absorption along the short path.
+This section is for loading the packages and creating objects used in the examples. The resistance data has two low-resistance routes between the source and destinations. The absorption data has no background absorption, but does have a narrow strip of strong absorption that runs across most of the map, but not across the left route. This is the same example data used in the IALE workshop, where the absorption data was used to describe a hypothetical highway with a safe crossing area for the left route.
 
-```{r, fig.show='hold'}
+```{r}
 library("samc")
 library("raster")
 library("gdistance")
 library("viridisLite")
 
 # Create a landscape with two paths around an obstacle
-res_data = matrix(c(NA,   NA,   NA,   NA,   NA,   NA,   NA,   NA,   NA,    NA,
-                    NA,    1,   1,    1,    1,    1,    1,     1,    1,    NA,
-                    NA,    1,   NA,   NA,   NA,   NA,   NA,   NA,    1,    NA,
-                    NA,    1,   NA,   NA,   NA,   NA,   NA,   NA,    1,    NA,
-                    NA,    1,   NA,   NA,   NA,   NA,   NA,   NA,    1,    NA,
-                    NA,    1,   NA,   NA,   NA,   NA,   NA,   NA,    1,    NA,
-                    NA,    1,   NA,   NA,   NA,   NA,   NA,   NA,    1,    NA,
-                    NA,    1,   NA,   NA,   NA,   NA,   NA,   NA,    1,    NA,
-                    NA,    1,    1,    1,    1,    1,    1,    1,    1,    NA,
-                    NA,   NA,   NA,   NA,   NA,   NA,   NA,   NA,   NA,    NA),
+# This is the same 
+res_data = matrix(c(20,   20,   20,   10,   10,    5,    5,   10,   10,    10,
+                    20,   20,   10,   10,   10,    1,    1,    1,    1,    10,
+                    10,   10,   10,    1,    1,    1,    1,    1,    1,     5,
+                    10,   10,    1,    1,   20,    1,    1,    1,   10,    10,
+                     5,    1,    1,   20,   20,   20,    1,    1,    1,     5,
+                    10,    1,   20,   20,   20,   20,   20,    1,    1,     2,
+                    10,    1,   20,   20,   20,   20,    2,    2,    1,     1,
+                    20,    1,    1,   10,   10,   10,    2,    1,    1,     1,
+                    20,    1,    1,    1,    1,    1,    1,    1,    2,     2,
+                    10,   10,   10,   10,    1,    1,    5,    5,    5,     5),
                   nrow = 10, byrow = TRUE)
-abs_data = matrix(0.00001, nrow = 10, ncol = 10) # Create a baseline mortality or absorption level
-abs_data[3:8, 7:10] = 0.3 # Make the short path on the right have a high risk of absorption
+abs_data = res_data * 0 # Create a baseline mortality or absorption level. To experiment with background mortality rates, add a small number to this (e.g., `+ 0.0001`)
+abs_data[6, c(1, 4:10)] = 0.1 # Create a "highway" with high absorption and a safe crossing point
 abs_data[is.na(res_data)] = NA
 
 res_data = raster(res_data, xmn = 0.5, xmx = ncol(res_data) + 0.5, ymn = 0.5, ymx = nrow(res_data) + 0.5)
 abs_data = raster(abs_data, xmn = 0.5, xmx = ncol(abs_data) + 0.5, ymn = 0.5, ymx = nrow(abs_data) + 0.5)
-
-res_data = disaggregate(res_data, 2)
-abs_data = disaggregate(abs_data, 2)
 
 plot(res_data, main = "Example Resistance Data", xlab = "x", ylab = "y", col = viridis(256))
 plot(abs_data, main = "Example Absorption Data", xlab = "x", ylab = "y", col = viridis(256))
@@ -68,8 +77,8 @@ tr = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE)
 
 samc_obj = samc(res_data, abs_data, tr_args = tr)
 
-origin_coords = matrix(c(7, 2), ncol = 2)
-dest_coords = matrix(c(9, 9.5), ncol = 2)
+origin_coords = matrix(c(2, 2), ncol = 2)
+dest_coords = matrix(c(9, 9), ncol = 2)
 
 origin_cell = locate(samc_obj, origin_coords)
 dest_cell = locate(samc_obj, dest_coords)
@@ -78,17 +87,17 @@ gdist = transition(res_data, tr$fun, tr$dir)
 gdist = geoCorrection(gdist)
 ```
 
-## Commute Time
+## Commute Time and Hitting Time
 
-**Commute time**, or **commute distance**, is the expected length or time, or the number of steps, it takes to go between two nodes in a graph using a random walk. In circuit theory, commute time is a function of the resistance distance between two nodes (Chandra et al., 1997). This measure is bidirectional; it is the sum of going from one node to another and back. Let us refer to **commute time** as $C$ where $C_{ij}$ is the commute time from node $i$ to node $j$ and then back to node $i$.
+**Commute time** (sometimes referred to as **commute distance**), is the expected length of time, or the number of steps, it takes to go from one node to another and back in a graph using a random walk. In circuit theory, commute time is proportional to the resistance distance between two nodes (Chandra et al., 1997). This measure is bidirectional; it is the sum of going from one node to another and back. Let us refer to commute time as $C$ where $C_{ij}$ is the commute time from node $i$ to node $j$ and then back to node $i$.
 
-**Hitting time**, or **first passage time**, is the expected time, or the number of steps, it takes to go from one node to another using a random walk. This measure is unidirectional; it only accounts for going from one node to another, but *not* back. The hitting times may not be equal for different directions between two nodes depending on the situation. Let us refer to **hitting time** using $H$, where $H_{ij}$ is the hitting time from node $i$ to node $j$, and $H_{ji}$ is the hitting time from node $j$ to node $i$. $H_{ij}$ and $H_{ij}$ may or may not be equal.
+**Hitting time**, or **first passage time**, is the expected time, or the number of steps, it takes to go from one node to another using a random walk. This measure is unidirectional; it only accounts for going from one node to another, but *not* back. The hitting times may not be equal for different directions between two nodes depending on the situation. Let us refer to hitting time using $H$, where $H_{ij}$ is the hitting time from node $i$ to node $j$, and $H_{ji}$ is the hitting time from node $j$ to node $i$. $H_{ij}$ and $H_{ij}$ may or may not be equal.
 
 Given these definitions, the sum of the two hitting times between two nodes is the same as the commute time between the two nodes. That is, $C_{ij}=H_{ij}+H_{ji}$.
 
-Circuit theory can be used to calculate the commute time between two points via tools like Circuitscape (indirectly from resistance outputs) or the gdistance R package (directly with the `commuteDistance()` function), but commute time cannot be directly calculated using SAMC. Alternatively,  a means for calculating hitting time is not provided in circuit theory but is possible using SAMC. These two hitting times can then be summed to get the commute time. There are two ways in which hitting times can be calculated with SAMC.
+Circuit theory can be used to calculate the commute time between two points via tools like Circuitscape (indirectly from resistance outputs) or the gdistance R package (directly with the `commuteDistance()` function). In the SAMC, it can be calculated by adding the hitting times in both directions. There are two ways in which hitting times can be calculated with SAMC.
 
-The first (limited) approach to calculating hitting times via SAMC is with the `survival()` metric. This requires creating two `samc` objects (one for each direction between two nodes). One must not have absorption except total absorption at node $i$, and the other must not have absorption except total absorption at node $j$. As long as absorption only occurs at the destination node and has an absorption probability of `1`, the `survival()` function effectively calculates the first passage time to that node. Applying the `survival()` function to both samc objects and summing the results will provide the commute time. This approach is limited because it does not broadly allow for absorption; graphs with absorption occurring outside the destination nodes ($i$ and $j$) require an alternative approach.
+The first (limited) approach to calculating hitting times via SAMC is with the `survival()` metric. This requires creating two `samc` objects (one for each direction between two nodes). To do so, the only non-zero absorption value needs to be at the destination node ($i$ or $j$, depending on the direction). As long as absorption only occurs at the destination node and has an absorption probability of `1`, the `survival()` function will calculate the first passage time to that node. Applying the `survival()` function to both samc objects and summing the results will provide the commute time. This approach is limited because it does not broadly allow for variation in absorption; graphs with absorption occurring outside the destination nodes ($i$ and $j$) require an alternative approach.
 
 ```{r}
 # Absorption only at the origin i
@@ -119,7 +128,7 @@ hitting_ij + hitting_ji
 commuteDistance(gdist, rbind(origin_coords, dest_coords))
 ```
 
-There are a few key things to note here. First, the two results are slightly different. This is because SAMC calculates the time to reach the destination plus one additional time step for absorption. In circuit theory, these two transitions are not considered separately; that is, reaching the destination is equivalent to going to the ground state (absorption). This occurs twice (once in each direction), which causes SAMC to have a commute distance that is `2` time steps higher than what gdistance calculates.
+There are a few key things to note here. First, the two results are slightly different. This is because SAMC is calculating the time to reach the destination plus one additional time step for absorption. In circuit theory, these two transitions are not considered separately; that is, reaching the destination is equivalent to going to the ground state (absorption). This occurs twice (once in each direction), which causes SAMC to have a commute distance that is `2` time steps higher than what gdistance calculates.
 
 The second thing to note is that the two hitting times produced by SAMC are also slightly different. In other words, movement in one direction between the two points is not equivalent to movement in the other direction. This extra information about the total commute distance can be useful in a real-world scenario. For example, gene flow between two populations may be different in both directions. In this case, the hitting times, rather than commute distance, may result in better models comparing gene flow to landscape connectivity.
 
@@ -154,9 +163,9 @@ To think about this, consider a landscape without any absorption. In this scenar
 
 Consider this in the context of dispersal and gene flow; realistically, an individual dispersing from one population might never make it to another population. For example, they might die along the way. As a result, they would not contribute to gene flow between the two populations in this case. SAMC provides a mechanism to account for this possibility via the `cond_passage()` function and the incorporation of absorption more broadly.
 
-## Net and Total Flow
+## Net and Total Movement Flow
 
-One application of circuit theory is the construction of current maps that describe the net movement from one node to another. There is an essential distinction between **net** and **total** movement flow here; **net** movement is the difference between movement flows in opposite directions, whereas **total** movement is the sum of the movement flows in opposite directions. These "current" flow maps are commonly used to identify movement corridors and pinch points.
+One application of circuit theory is the construction of current maps that describe the net movement from one node to another. There is an essential distinction between **net** and **total** movement flow here; **net** movement is the difference between movement flows in opposite directions, whereas **total** movement is the sum of the movement flows in opposite directions. These "current" flow maps are commonly used to identify movement corridors and pinch points that may occur in landscapes.
 
 Current maps produced by Circuitscape model the net flow, and the gdistance package can model both with the `passage()` function. SAMC does not currently have a metric for directly calculating net flow, but it can calculate the total movement directly using the `visitation()` metric. To get equivalent results between gdistance and SAMC, we must again disregard absorption outside the destination.
 
@@ -182,7 +191,7 @@ net_gdist = passage(gdist, origin_coords, dest_coords, theta = 0, totalNet = "ne
 plot(net_gdist, main = "Net Movement Flow (gdistance)", col = viridis(256))
 
 
-# This function is included for educational purposes and may not be optimized
+# This function may not be optimized for large landscapes and lacks safety checks
 visitation_net <- function(samc_obj, origin, dest){
 
   vis = visitation(samc_obj, origin = origin)
@@ -206,8 +215,6 @@ plot(net_samc_ras,  main = "Net Movement Flow (samc)", col = viridis(256))
 all.equal(values(net_gdist), values(net_samc_ras))
 ```
 
-This shows us what we might expect given the example; there is more net movement flow from the source to the destination along the shorter route.
-
 As with commute distance, SAMC is not limited to calculating the total and net movement flows for landscapes without absorption. `visitation()` and the net visitation calculations are perfectly valid for our original samc object with broader landscape absorption.
 
 ```{r}
@@ -216,10 +223,15 @@ reg_samc_ras = map(samc_obj, reg_net_samc)
 plot(reg_samc_ras,  main = "Net Movement Flow (samc with absorption)", col = viridis(256))
 ```
 
-Overall, incorporating absorption more broadly has reduced the net movement flow because a portion of the individuals is now being removed before reaching the destination. More importantly, the strong absorption along the shorter route has resulted in a large reduction in movement flow. As a result, the longer route now has greater net movement flow (difficult to distinguish given the current color scale). We can subtract the absorption model from the non-absorption model to see how much net movement flow has decreased.
+Overall, incorporating absorption more broadly has reduced the net movement flow because a portion of the individuals is now being removed before reaching the destination. More importantly, the incorporation of absorption now means the destination is not guaranteed to be reached, leading to a dramatic drop in the net movement at the destination cell. We can subtract the absorption model from the non-absorption model to see how much net movement flow has decreased.
 
 ```{r}
 plot(net_gdist - reg_samc_ras, main = "Effect of Absorption on Net Movement Flow", col = viridis(256))
 ```
 
-This shows that the absorption model in this scenario disproportionately affected the short route.
+This shows a nearly imperceptible effect of the absorption layer on the net movement flow below the strip of absorption, but as individuals encounter absorption, the net movement flow in the top half of the map drops dramatically. We can see that the presence of the absorption strip has decreased the net movement flow at the destination over 97%:
+
+```{r}
+net_samc_ras[dest_cell] # Net movement flow at destination w/o absorption
+reg_net_samc[dest_cell] # With absorption
+```
