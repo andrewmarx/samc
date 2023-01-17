@@ -93,6 +93,12 @@
 
   row_count = 0L
 
+  # TODO double check this works for dir = 4
+  dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
+  dist = function(x, dir) {
+    dist_lookup[dir]
+  }
+
   if(!is.na(lonlat)) {
     if (lonlat) {
       warning("geocorrection for latlon not implemented", call. = FALSE)
@@ -104,21 +110,8 @@
         # Convert to xy coords
         # Get dist
       }
-    } else {
-      dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
-      dist = function(x, dir) {
-        dist_lookup[dir]
-      }
-    }
-  } else {
-    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
-    dist = function(x, dir) {
-      dist_lookup[dir]
     }
   }
-
-
-
 
   nc = nrows
   nr = ncols
