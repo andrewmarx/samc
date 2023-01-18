@@ -1,4 +1,4 @@
-# samc 2.1.0
+# samc 3.0.0
 
 - Added support for the terra package for raster data. Internally, the package now uses terra and converts RasterLayer objects to SpatRaster objects. It's recommended that users switch to the terra package for loading and preparing raster data for samc.
 - Removed default naming of cells for samc objects created from rasters. This leads to substantially smaller samc objects, especially as raster inputs become larger.
