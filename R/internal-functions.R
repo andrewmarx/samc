@@ -189,7 +189,7 @@
     mat_p[i+1] = row_count
   }
 
-  tmp = terra::values(1 - absorption) - fidelity
+  tmp = 1 - terra::values(absorption) - fidelity
 
   i_index = 1
   for (p in 1:ncells) {
