@@ -96,9 +96,9 @@ print(tolerance)
 
 
 ## @knitr 1_setup_6
-tr <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
+rw_model <- list(fun = function(x) 1/mean(x), dir = 4, sym = TRUE)
 
-maze_samc <- samc(maze_res, maze_finish, tr_args = tr)
+maze_samc <- samc(maze_res, maze_finish, model = rw_model)
 
 maze_origin <- locate(maze_samc, data.frame(x = 1, y = 20))
 maze_dest <- locate(maze_samc, data.frame(x = 20, y = 1))
@@ -227,7 +227,7 @@ ints_res <- ints_res * 0.1
 plot_maze(ints_res, "Intersections", vir_col)
 
 ## @knitr 2_fid_2
-ints_samc <- samc(maze_res, maze_finish, ints_res, tr_args = tr)
+ints_samc <- samc(maze_res, maze_finish, ints_res, model = rw_model)
 
 
 ## @knitr 2_fid_3
@@ -303,7 +303,7 @@ plot_maze(ends_res, "Dead Ends", vir_col)
 
 
 ## @knitr 2_end_2
-ends_samc <- samc(ends_res, maze_finish, tr_args = tr)
+ends_samc <- samc(ends_res, maze_finish, model = rw_model)
 
 
 ## @knitr 2_end_3
@@ -340,7 +340,7 @@ plot_maze(maze_traps, "Traps", vir_col)
 ## @knitr 2_traps_2
 maze_abs_total <- maze_finish + maze_traps
 
-traps_samc <- samc(maze_res, maze_abs_total, tr_args = tr)
+traps_samc <- samc(maze_res, maze_abs_total, model = rw_model)
 
 
 ## @knitr 2_traps_3
@@ -446,7 +446,7 @@ short_finish[20, 20] <- 1
 
 
 ## @knitr 3_short_4
-short_samc <- samc(short_res, short_finish, tr_args = tr)
+short_samc <- samc(short_res, short_finish, model = rw_model)
 
 # Important: we have to rerun locate()
 short_origin <- locate(short_samc, data.frame(x = 1, y = 20))
@@ -505,7 +505,7 @@ plot_maze(all_traps, "Final Maze Traps", vir_col)
 
 
 ## @knitr 3_combine_2
-all_samc <- samc(all_res, all_abs_total, tr_args = tr)
+all_samc <- samc(all_res, all_abs_total, model = rw_model)
 
 # We can actually reuse the short_res locations in this case, but let's make new ones anyway
 all_start <- locate(all_samc, data.frame(x = 1, y = 20))

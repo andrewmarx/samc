@@ -73,9 +73,9 @@ abs_data = raster(abs_data, xmn = 0.5, xmx = ncol(abs_data) + 0.5, ymn = 0.5, ym
 plot(res_data, main = "Example Resistance Data", xlab = "x", ylab = "y", col = viridis(256))
 plot(abs_data, main = "Example Absorption Data", xlab = "x", ylab = "y", col = viridis(256))
 
-tr = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE)
+rw_model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE)
 
-samc_obj = samc(res_data, abs_data, tr_args = tr)
+samc_obj = samc(res_data, abs_data, model = rw_model)
 
 origin_coords = matrix(c(2, 2), ncol = 2)
 dest_coords = matrix(c(9, 9), ncol = 2)
@@ -83,7 +83,7 @@ dest_coords = matrix(c(9, 9), ncol = 2)
 origin_cell = locate(samc_obj, origin_coords)
 dest_cell = locate(samc_obj, dest_coords)
 
-gdist = transition(res_data, tr$fun, tr$dir)
+gdist = transition(res_data, model$fun, model$dir)
 gdist = geoCorrection(gdist)
 ```
 
@@ -114,8 +114,8 @@ plot(abs_data_j, main = "Destination Absorption Map", col = viridis(256))
 
 ```{r}
 # Create samc objects for each direction
-samc_ij = samc(res_data, abs_data_j, tr_args = tr)
-samc_ji = samc(res_data, abs_data_i, tr_args = tr)
+samc_ij = samc(res_data, abs_data_j, model = model)
+samc_ji = samc(res_data, abs_data_i, model = model)
 
 # Calculate commute distance with samc
 hitting_ij = survival(samc_ij, abs_data_i) # Reusing the other abs layer as an occupancy input

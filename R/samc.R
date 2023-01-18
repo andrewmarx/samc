@@ -14,11 +14,11 @@ NULL
 #'
 #' \strong{Option 1: Raster or Matrix Maps}
 #'
-#' \emph{\code{samc(data = matrix, absorption = matrix, fidelity = matrix, tr_args = list())}}
+#' \emph{\code{samc(data = matrix, absorption = matrix, fidelity = matrix, model = list())}}
 #'
-#' \emph{\code{samc(data = SpatRaster, absorption = SpatRaster, fidelity = SpatRaster, tr_args = list())}}
+#' \emph{\code{samc(data = SpatRaster, absorption = SpatRaster, fidelity = SpatRaster, model = list())}}
 #'
-#' \emph{\code{samc(data = RasterLayer, absorption = RasterLayer, fidelity = RasterLayer, tr_args = list())}}
+#' \emph{\code{samc(data = RasterLayer, absorption = RasterLayer, fidelity = RasterLayer, model = list())}}
 #'
 #' The \code{\link{samc-class}} object can be created from a combination of
 #' resistance (or conductance), absorption, and fidelity data. These different landscape data
@@ -31,8 +31,8 @@ NULL
 #' is assumed that there is no site fidelity (i.e., individuals will always move
 #' to an adjacent cell each time step).
 #'
-#' The \code{tr_args} parameter is mandatory. It is used when calculating the values for
-#' the transition matrix. \code{tr_args} must be constructed as a list with a
+#' The \code{model} parameter is mandatory. It is used when calculating the values for
+#' the transition matrix. \code{model} must be constructed as a list with a
 #' transition function, the number of directions (4 or 8), and if the transition
 #' function is symmetric (TRUE or FALSE; currently not used). Here is the template:
 #' \code{list(fun = `function`, dir = `numeric`, sym = `logical`)}
@@ -106,7 +106,7 @@ NULL
 #' @param data A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}} or Matrix package dgCMatrix sparse matrix.
 #' @param absorption A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param fidelity A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
-#' @param tr_args A list with args for constructing a transition matrix.
+#' @param model A list with args for constructing a transition matrix.
 #'
 #' @return A \code{\link{samc-class}} object
 #'
@@ -116,7 +116,7 @@ NULL
 
 setGeneric(
   "samc",
-  function(data, absorption, fidelity, tr_args) {
+  function(data, absorption, fidelity, model) {
     standardGeneric("samc")
   })
 
@@ -127,13 +127,13 @@ setMethod(
   signature(data = "SpatRaster",
             absorption = "SpatRaster",
             fidelity = "SpatRaster",
-            tr_args = "list"),
-  function(data, absorption, fidelity, tr_args) {
-    .validate_tr_args(tr_args)
+            model = "list"),
+  function(data, absorption, fidelity, model) {
+    .validate_model(model)
 
-    tr_fun <- tr_args$fun
-    directions <-tr_args$dir
-    symm <- tr_args$sym
+    tr_fun <- model$fun
+    directions <-model$dir
+    symm <- model$sym
 
     # Make sure the input data all aligns
     check(c(data, fidelity, absorption))
@@ -228,14 +228,14 @@ setMethod(
   signature(data = "RasterLayer",
             absorption = "RasterLayer",
             fidelity = "RasterLayer",
-            tr_args = "list"),
-  function(data, absorption, fidelity, tr_args) {
+            model = "list"),
+  function(data, absorption, fidelity, model) {
 
     data = rasterize(data)
     absorption = rasterize(absorption)
     fidelity = rasterize(fidelity)
 
-    samc_obj = samc(data, absorption, fidelity, tr_args = tr_args)
+    samc_obj = samc(data, absorption, fidelity, model = model)
     samc_obj@source = "RasterLayer"
 
     return(samc_obj)
@@ -247,13 +247,13 @@ setMethod(
   signature(data = "SpatRaster",
             absorption = "SpatRaster",
             fidelity = "missing",
-            tr_args = "list"),
-  function(data, absorption, tr_args) {
+            model = "list"),
+  function(data, absorption, model) {
 
     fidelity <- data
     fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(data, absorption, fidelity, tr_args))
+    return(samc(data, absorption, fidelity, model))
   })
 
 #' @rdname samc
@@ -262,13 +262,13 @@ setMethod(
   signature(data = "RasterLayer",
             absorption = "RasterLayer",
             fidelity = "missing",
-            tr_args = "list"),
-  function(data, absorption, tr_args) {
+            model = "list"),
+  function(data, absorption, model) {
 
     data = rasterize(data)
     absorption = rasterize(absorption)
 
-    samc_obj = samc(data, absorption, tr_args = tr_args)
+    samc_obj = samc(data, absorption, model = model)
     samc_obj@source = "RasterLayer"
 
     return(samc_obj)
@@ -280,14 +280,14 @@ setMethod(
   signature(data = "matrix",
             absorption = "matrix",
             fidelity = "matrix",
-            tr_args = "list"),
-  function(data, absorption, fidelity, tr_args) {
+            model = "list"),
+  function(data, absorption, fidelity, model) {
 
     data <- rasterize(data)
     absorption <- rasterize(absorption)
     fidelity <- rasterize(fidelity)
 
-    samc_obj = samc(data, absorption, fidelity, tr_args)
+    samc_obj = samc(data, absorption, fidelity, model)
     samc_obj@source = "matrix"
 
     return(samc_obj)
@@ -301,13 +301,13 @@ setMethod(
   signature(data = "matrix",
             absorption = "matrix",
             fidelity = "missing",
-            tr_args = "list"),
-  function(data, absorption, tr_args) {
+            model = "list"),
+  function(data, absorption, model) {
 
     data <- rasterize(data)
     absorption <- rasterize(absorption)
 
-    samc_obj = samc(data, absorption, tr_args = tr_args)
+    samc_obj = samc(data, absorption, model = model)
     samc_obj@source = "matrix"
 
     return(samc_obj)
@@ -324,7 +324,7 @@ setMethod(
   signature(data = "dgCMatrix",
             absorption = "missing",
             fidelity = "missing",
-            tr_args = "missing"),
+            model = "missing"),
   function(data) {
 
     r = nrow(data)
@@ -386,7 +386,7 @@ setMethod(
   signature(data = "matrix",
             absorption = "missing",
             fidelity = "missing",
-            tr_args = "missing"),
+            model = "missing"),
   function(data) {
     p <- methods::as(methods::as(data, "CsparseMatrix"), "generalMatrix")
 
