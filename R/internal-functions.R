@@ -93,9 +93,18 @@
 
   row_count = 0L
 
-  # TODO double check this works for dir = 4
-  dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
+  # TODO double check dist lookup stuff
+
+  if (dir == 4) {
+    dist_lookup = c(1, 1, 1, 1)
+  } else if (dir == 8) {
+    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
+  } else {
+    stop("Bad dir in dist lookup code", call. = FALSE)
+  }
+
   dist = function(x, dir) {
+    # x not used intentionally
     dist_lookup[dir]
   }
 
