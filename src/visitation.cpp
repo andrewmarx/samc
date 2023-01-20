@@ -89,3 +89,25 @@ Rcpp::NumericVector f_col_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, cons
 
   return Rcpp::wrap(res);
 }
+
+// [[Rcpp::export(".psif")]]
+Rcpp::NumericVector psif(Eigen::Map<Eigen::SparseMatrix<double> > &M, Eigen::VectorXd &psi, Rcpp::XPtr<SolverCache> &SC)
+{
+  SC->buildSolver(M.transpose(), "mt");
+
+  Eigen::VectorXd res = SC->solver().solve(psi);
+
+  return Rcpp::wrap(res);
+}
+
+// [[Rcpp::export(".psif_iter")]]
+Rcpp::NumericVector psif_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, Eigen::VectorXd &psi)
+{
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
+
+  solver.compute(M.transpose());
+
+  Eigen::VectorXd res = solver.solve(psi);
+
+  return Rcpp::wrap(res);
+}

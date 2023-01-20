@@ -48,6 +48,24 @@ NULL
 #' state \eqn{\mathit{i}}.
 #' }
 #'
+#' \eqn{\psi^TF}
+#' \itemize{
+#'   \item \strong{visitation(samc, occ)}
+#'
+#' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the number
+#' of times that transient state \eqn{\mathit{j}} is visited before absorption
+#' given an initial state \eqn{\psi}.
+#'
+#' If the samc-class object was created using matrix or RasterLayer maps, then
+#' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
+#' \code{\link{map}} function.
+#'
+#'   \item \strong{visitation(samc, occ, dest)}
+#'
+#' The result is a numeric value that is the number of times transient state
+#' \eqn{\mathit{j}} is visited before absorption given an initial state \eqn{\psi}.
+#' }
+#'
 #' @template section-perf
 #'
 #' @template param-samc
@@ -142,4 +160,40 @@ setMethod(
     }
 
     return(result)
+  })
+
+# visitation(samc, occ) ----
+#' @rdname visitation
+setMethod(
+  "visitation",
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing"),
+  function(samc, occ){
+
+    check(samc, occ)
+
+    pv <- .process_occ(samc, occ)
+
+    if (samc@solver == "iter") {
+      r <- .psif_iter(samc@data@f, origin)
+    } else {
+      r <- .psif(samc@data@f, origin, samc@.cache$sc)
+    }
+
+    return(as.vector(r))
+  })
+
+
+# visitation(samc, occ, dest) ----
+#' @rdname visitation
+setMethod(
+  "visitation",
+  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location"),
+  function(samc, occ, dest){
+    check(samc, occ)
+
+    pv <- .process_occ(samc, occ)
+
+    fj <- visitation(samc, dest = dest)
+
+    return(as.numeric(pv %*% fj))
   })
