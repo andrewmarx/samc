@@ -98,9 +98,7 @@
   if (dir == 4) {
     dist_lookup = c(1, 1, 1, 1)
   } else if (dir == 8) {
-    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1)
-  } else {
-    stop("Bad dir in dist lookup code", call. = FALSE)
+    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, 1, sqrt(2), 1, sqrt(2))
   }
 
   dist = function(x, dir) {
