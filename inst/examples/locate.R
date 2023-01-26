@@ -3,9 +3,9 @@ library(raster)
 
 
 # Load example data
-res_data <- samc::ex_res_data
-abs_data <- samc::ex_abs_data
-occ_data <- samc::ex_occ_data
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
+occ_data <- samc::example_split_corridor$occ
 
 
 # Create samc-class object

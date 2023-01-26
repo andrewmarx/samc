@@ -16,11 +16,10 @@ knitr::opts_chunk$set(
 )
 
 library("samc")
-library("raster")
 
-res_data <- samc::ex_res_data
-abs_data <- samc::ex_abs_data
-occ_data <- samc::ex_occ_data
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
+occ_data <- samc::example_split_corridor$occ
 ```
 
 ## Introduction
@@ -34,24 +33,24 @@ This will occur if the `check()` function detects that different sources of land
 
 ```{r, error = TRUE}
 # Working example
-r1 <- ex_res_data
-r2 <- ex_res_data
+r1 <- res_data
+r2 <- res_data
 check(r1, r2)
 
 
 # Remove the NA's in r2 by overwriting all the elements with the number 1.
 # check() doesn't check the actual values of the data, but it does check the
 # location of NA's
-r1 <- ex_res_data
-r2 <- ex_res_data
+r1 <- res_data
+r2 <- res_data
 r2[1] <- 1
 check(r1, r2)
 
 
 # Change the dimensions of r2 by subsetting it. check() ensures that the data
 # inputs have the same number of rows and columns
-r1 <- ex_res_data
-r2 <- ex_res_data
+r1 <- res_data
+r2 <- res_data
 r2 <- r2[1:5, 1:5]
 check(r1, r2)
 ```

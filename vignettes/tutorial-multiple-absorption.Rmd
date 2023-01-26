@@ -42,9 +42,9 @@ library("viridisLite")
 # "Load" the data. In this case we are using data built into the package.
 # In practice, users will likely load raster data using the raster() function
 # from the raster package.
-res_data <- samc::ex_res_data
-abs_data <- samc::ex_abs_data
-occ_data <- samc::ex_occ_data
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
+occ_data <- samc::example_split_corridor$occ
 
 # To make things easier for plotting later, convert the matrices to rasters
 res_data <- samc::rasterize(res_data)

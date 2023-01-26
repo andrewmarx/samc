@@ -20,7 +20,7 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
   knitr::opts_chunk$set(eval = FALSE)
 }
 
-library("raster")
+library("terra")
 library("samc")
 library("viridisLite")
 ```
@@ -121,24 +121,21 @@ When the values in $\psi$ sum to a value other than one, care must be taken in t
 
 ## Built-in Example Data
 
-The package includes built-in example map data. Some of this data was used to create the figures in the SAMC paper and is used in numerous package tutorials. They are:
+The package includes built-in example map data. Some of this data was used to create the figures in the SAMC paper and is used in numerous package tutorials.
 
-* `ex_res_data`: A matrix with landscape resistance data.
-* `ex_abs_data`: A matrix with landscape absorption (mortality) data.
-* `ex_occ_data`: A matrix with landscape occupancy data.
+* `example_split_corridor`: A list with three matrices
+  * `res`: A matrix with landscape resistance data.
+  * `abs`: A matrix with landscape absorption (mortality) data.
+  * `occ`: A matrix with landscape occupancy data.
 
 ```{r, fig.show='hold'}
-str(samc::ex_res_data)
-str(samc::ex_abs_data)
-str(samc::ex_occ_data)
+str(samc::example_split_corridor)
 
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
+occ_data <- samc::example_split_corridor$occ
 
-plot(raster(samc::ex_res_data, xmn = 1, xmx = ncol(samc::ex_res_data), ymn = 1, ymx = nrow(samc::ex_res_data)),
-     main = "Example Resistance Data", xlab = "x", ylab = "y", col = viridis(256))
-
-plot(raster(samc::ex_abs_data, xmn = 1, xmx = ncol(samc::ex_abs_data), ymn = 1, ymx = nrow(samc::ex_abs_data)),
-     main = "Example Absorption Data", xlab = "x", ylab = "y", col = viridis(256))
-
-plot(raster(samc::ex_occ_data, xmn = 1, xmx = ncol(samc::ex_occ_data), ymn = 1, ymx = nrow(samc::ex_occ_data)),
-     main = "Example Occupancy Data", xlab = "x", ylab = "y", col = viridis(256))
+plot(rasterize(res_data), main = "Example Resistance Data", xlab = "x", ylab = "y", col = viridis(256))
+plot(rasterize(abs_data), main = "Example Absorption Data", xlab = "x", ylab = "y", col = viridis(256))
+plot(rasterize(occ_data), main = "Example Occupancy Data", xlab = "x", ylab = "y", col = viridis(256))
 ```

@@ -76,6 +76,4 @@ reference:
       - visitation
   - title: "Built-in Data"
     contents:
-      - ex_abs_data
-      - ex_occ_data
-      - ex_res_data
+      - example_split_corridor
