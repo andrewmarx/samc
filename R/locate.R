@@ -74,7 +74,7 @@ setMethod(
   function(samc, xy){
     if (samc@source == "transition") stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
 
-    result <- terra::extract(samc@map, xy)[, 2]
+    result <- terra::extract(samc@map, xy)[, 1] # TODO figure out why column of 2 wasn't triggering errors in test
 
     if (anyNA(result)) stop("One or more coordinates do not correspond to non-NA cells.", call. = FALSE)
 
