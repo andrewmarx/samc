@@ -93,7 +93,7 @@
 
   row_count = 0L
 
-  # TODO double check dist lookup stuff
+  # TODO Create tests to directly validate results for both directions options for planar and latlon
 
   if (dir == 4) {
     dist_lookup = c(1, 1, 1, 1)
