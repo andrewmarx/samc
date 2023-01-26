@@ -108,14 +108,33 @@
 
   if(!is.na(lonlat)) {
     if (lonlat) {
-      warning("geocorrection for latlon not implemented", call. = FALSE)
-      dist <- function(x, dir) {
-        1 # TODO update
+      cn = (0:(nrow(absorption) - 1))*ncol(absorption) + 1
 
-        # Get raster first column cell numbers
-        # Get adjacent cell numbers
-        # Convert to xy coords
-        # Get dist
+      adj = adjacent(absorption, cn, directions = 8, pairs = TRUE)
+
+      dist = distance(xyFromCell(absorption, adj[, 1]),
+                      xyFromCell(absorption, adj[, 2]),
+                      lonlat = TRUE, pairwise = TRUE)
+
+      adj = adjacent(absorption, cn, directions = dir, pairs = FALSE)
+      adj = t(adj)
+
+      dist_lookup = adj
+      dist_lookup[!is.nan(dist_lookup)] = dist
+
+      if (dir == 4) {
+        dir_reindex = c(1, 3, 3, 4)
+      } else if (dir == 8) {
+        dir_reindex = c(3, 2, 3, 5, 5, 8, 7, 8)
+      }
+
+
+      dist <- function(x, dir) {
+        dir = dir_reindex[dir]
+
+        x = trunc((x - 1) / ncols) + 1
+
+        dist_lookup[dir, x]
       }
     }
   }
