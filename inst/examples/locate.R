@@ -1,5 +1,5 @@
+library(terra)
 library(samc)
-library(raster)
 
 
 # Load example data

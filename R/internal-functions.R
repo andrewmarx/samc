@@ -110,13 +110,14 @@
     if (lonlat) {
       cn = (0:(nrow(absorption) - 1))*ncol(absorption) + 1
 
-      adj = adjacent(absorption, cn, directions = 8, pairs = TRUE)
+      adj = terra::adjacent(absorption, cn, directions = 8, pairs = TRUE)
 
-      dist = distance(xyFromCell(absorption, adj[, 1]),
-                      xyFromCell(absorption, adj[, 2]),
-                      lonlat = TRUE, pairwise = TRUE)
+      dist = terra::distance(
+        terra::xyFromCell(absorption, adj[, 1]),
+        terra::xyFromCell(absorption, adj[, 2]),
+        lonlat = TRUE, pairwise = TRUE)
 
-      adj = adjacent(absorption, cn, directions = dir, pairs = FALSE)
+      adj = terra::adjacent(absorption, cn, directions = dir, pairs = FALSE)
       adj = t(adj)
 
       dist_lookup = adj
