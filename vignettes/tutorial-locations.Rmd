@@ -88,7 +88,7 @@ mort_dest[7]
 locations_map <- locate(samc_obj)
 
 # Convert to a raster for visualization purposes
-locations_map = rasterize(locations_map)
+locations_map = samc::rasterize(locations_map)
 
 
 # Plot it. since the location values increase incrementally from left to right and

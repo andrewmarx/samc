@@ -16,8 +16,8 @@
 ## @knitr 1_library_1
 library(raster)
 library(terra)
-library(samc)
 library(gdistance)
+library(samc)
 library(viridisLite)
 
 
@@ -62,7 +62,7 @@ maze_res = matrix(
   nrow = 20, byrow = TRUE
 )
 
-maze_res <- rasterize(maze_res)
+maze_res <- samc::rasterize(maze_res)
 maze_res[maze_res==0] <- NA # 0 makes the formatting cleaner above, but NA is needed for true barriers
 
 # Get info about the shortest path through the maze using gdistance
@@ -72,7 +72,7 @@ lcd <- (function() {
   tr <- transition(raster(maze_res), function(x) 1/mean(x), 4)
   tr <- geoCorrection(tr)
 
-  list(dist = costDistance(tr, points),
+  list(dist = gdistance::costDistance(tr, points),
        path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
 })()
 
@@ -425,7 +425,7 @@ lcd2 <- (function() {
   tr <- transition(raster(short_res), function(x) 1/mean(x), 4)
   tr <- geoCorrection(tr)
 
-  list(dist = costDistance(tr, points),
+  list(dist = gdistance::costDistance(tr, points),
        path = shortestPath(tr, points[1, ], points[2, ], output="SpatialLines"))
 })()
 

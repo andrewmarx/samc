@@ -18,9 +18,9 @@ abs_data <- samc::ex_abs_data
 occ_data <- samc::ex_occ_data
 
 # To make things easier for plotting later, convert the matrices to rasters
-res_data <- rasterize(res_data)
-abs_data <- rasterize(abs_data)
-occ_data <- rasterize(occ_data)
+res_data <- samc::rasterize(res_data)
+abs_data <- samc::rasterize(abs_data)
+occ_data <- samc::rasterize(occ_data)
 
 
 # Setup the details for our transition function
