@@ -45,16 +45,8 @@
     .Call('_samc_psiq', PACKAGE = 'samc', M, psi, steps)
 }
 
-.sum_qpow_row <- function(M, row, steps) {
-    .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, row, steps)
-}
-
 .sum_qpowrv <- function(M, rv, steps) {
     .Call('_samc_sum_qpowrv', PACKAGE = 'samc', M, rv, steps)
-}
-
-.sum_psiqpow <- function(M, psi, steps) {
-    .Call('_samc_sum_psiqpow', PACKAGE = 'samc', M, psi, steps)
 }
 
 .solver_cache <- function() {
@@ -67,6 +59,18 @@
 
 .f1_iter <- function(M) {
     .Call('_samc_f1_iter', PACKAGE = 'samc', M)
+}
+
+.sum_qpow_row <- function(M, row, steps) {
+    .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, row, steps)
+}
+
+.sum_qpow_col <- function(M, col, steps) {
+    .Call('_samc_sum_qpow_col', PACKAGE = 'samc', M, col, steps)
+}
+
+.sum_psiqpow <- function(M, psi, steps) {
+    .Call('_samc_sum_psiqpow', PACKAGE = 'samc', M, psi, steps)
 }
 
 .f_row <- function(M, row, SC) {

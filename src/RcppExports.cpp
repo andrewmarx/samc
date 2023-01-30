@@ -155,19 +155,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sum_qpow_row
-Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const int >::type row(rowSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(sum_qpow_row(M, row, steps));
-    return rcpp_result_gen;
-END_RCPP
-}
 // sum_qpowrv
 Rcpp::List sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& rv, Rcpp::NumericVector steps);
 RcppExport SEXP _samc_sum_qpowrv(SEXP MSEXP, SEXP rvSEXP, SEXP stepsSEXP) {
@@ -178,19 +165,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type rv(rvSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
     rcpp_result_gen = Rcpp::wrap(sum_qpowrv(M, rv, steps));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sum_psiqpow
-Rcpp::List sum_psiqpow(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& psi, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_psiqpow(SEXP MSEXP, SEXP psiSEXP, SEXP stepsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type psi(psiSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(sum_psiqpow(M, psi, steps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -224,6 +198,45 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     rcpp_result_gen = Rcpp::wrap(f1_iter(M));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sum_qpow_row
+Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, Rcpp::NumericVector steps);
+RcppExport SEXP _samc_sum_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const int >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sum_qpow_row(M, row, steps));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sum_qpow_col
+Rcpp::List sum_qpow_col(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int& col, Rcpp::NumericVector steps);
+RcppExport SEXP _samc_sum_qpow_col(SEXP MSEXP, SEXP colSEXP, SEXP stepsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const int& >::type col(colSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sum_qpow_col(M, col, steps));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sum_psiqpow
+Rcpp::List sum_psiqpow(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& psi, Rcpp::NumericVector steps);
+RcppExport SEXP _samc_sum_psiqpow(SEXP MSEXP, SEXP psiSEXP, SEXP stepsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sum_psiqpow(M, psi, steps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -315,12 +328,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_samc_qpow_row", (DL_FUNC) &_samc_qpow_row, 3},
     {"_samc_qpow_col", (DL_FUNC) &_samc_qpow_col, 3},
     {"_samc_psiq", (DL_FUNC) &_samc_psiq, 3},
-    {"_samc_sum_qpow_row", (DL_FUNC) &_samc_sum_qpow_row, 3},
     {"_samc_sum_qpowrv", (DL_FUNC) &_samc_sum_qpowrv, 3},
-    {"_samc_sum_psiqpow", (DL_FUNC) &_samc_sum_psiqpow, 3},
     {"_samc_solver_cache", (DL_FUNC) &_samc_solver_cache, 0},
     {"_samc_f1", (DL_FUNC) &_samc_f1, 2},
     {"_samc_f1_iter", (DL_FUNC) &_samc_f1_iter, 1},
+    {"_samc_sum_qpow_row", (DL_FUNC) &_samc_sum_qpow_row, 3},
+    {"_samc_sum_qpow_col", (DL_FUNC) &_samc_sum_qpow_col, 3},
+    {"_samc_sum_psiqpow", (DL_FUNC) &_samc_sum_psiqpow, 3},
     {"_samc_f_row", (DL_FUNC) &_samc_f_row, 3},
     {"_samc_f_row_iter", (DL_FUNC) &_samc_f_row_iter, 2},
     {"_samc_f_col", (DL_FUNC) &_samc_f_col, 3},

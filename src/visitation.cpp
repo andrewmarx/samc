@@ -8,6 +8,79 @@
 
 #include "solver-cache.h"
 
+// [[Rcpp::export(".sum_qpow_row")]]
+Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int row, Rcpp::NumericVector steps)
+{
+  int n = steps.size();
+
+  Rcpp::List res = Rcpp::List::create();
+
+  Eigen::RowVectorXd row_vec = Eigen::RowVectorXd::Zero(M.rows());
+  row_vec(row - 1) = 1;
+
+  Eigen::RowVectorXd time_res = row_vec;
+
+  for(int i = 1; i < n; i++) {
+    for (int j = steps[i - 1]; j < steps[i]; j++) {
+      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+      row_vec = row_vec * M;
+      time_res = time_res + row_vec;
+    }
+
+    res.push_back(time_res, std::to_string((int)steps[i]));
+  }
+
+  return res;
+}
+
+// [[Rcpp::export(".sum_qpow_col")]]
+Rcpp::List sum_qpow_col(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int &col, Rcpp::NumericVector steps)
+{
+  int n = steps.size();
+
+  Rcpp::List res = Rcpp::List::create();
+
+  Eigen::VectorXd col_vec = Eigen::VectorXd::Zero(M.rows());
+  col_vec(col-1) = 1;
+
+  Eigen::VectorXd qc = col_vec;
+  Eigen::VectorXd time_res = col_vec;
+
+  for(int i = 1; i < n; i++) {
+    for (int j = steps[i - 1]; j < steps[i]; j++) {
+      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+      qc = M * qc;
+      time_res = time_res + qc;
+    }
+
+    res.push_back(time_res, std::to_string((int)steps[i]));
+  }
+
+  return res;
+}
+
+// [[Rcpp::export(".sum_psiqpow")]]
+Rcpp::List sum_psiqpow(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &psi, Rcpp::NumericVector steps)
+{
+  int n = steps.size();
+
+  Rcpp::List res = Rcpp::List::create();
+
+  Eigen::RowVectorXd psiq = psi;
+  Eigen::RowVectorXd time_res = psi;
+
+  for(int i = 1; i < n; i++) {
+    for (int j = steps[i - 1]; j < steps[i]; j++) {
+      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+      psiq = psiq * M;
+      time_res = time_res + psiq;
+    }
+
+    res.push_back(time_res, std::to_string((int)steps[i]));
+  }
+
+  return res;
+}
 
 // [[Rcpp::export(".f_row")]]
 Rcpp::NumericVector f_row(const Eigen::SparseMatrix<double> &M, const int row, Rcpp::XPtr<SolverCache> &SC)
