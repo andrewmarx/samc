@@ -58,7 +58,7 @@ NULL
 #'
 #' \eqn{\psi^T \tilde{B}_t}
 #' \itemize{
-#'   \item \strong{mortality(samc, occ, time)}
+#'   \item \strong{mortality(samc, init, time)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
 #' probability of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}}
@@ -110,7 +110,7 @@ NULL
 #'
 #' \eqn{\psi^T B}
 #' \itemize{
-#'   \item \strong{mortality(samc, occ)}
+#'   \item \strong{mortality(samc, init)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
 #' probability of absorption at transient state \eqn{\mathit{j}} given an initial
@@ -124,7 +124,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @template param-occ
+#' @template param-init
 #' @template param-origin
 #' @template param-dest
 #' @template param-time
@@ -137,7 +137,7 @@ NULL
 
 setGeneric(
   "mortality",
-  function(samc, occ, origin, dest, time) {
+  function(samc, init, origin, dest, time) {
     standardGeneric("mortality")
   })
 
@@ -145,7 +145,7 @@ setGeneric(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -176,7 +176,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
     mort = visitation(samc, origin = origin, time = time)
 
@@ -193,7 +193,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -224,7 +224,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
     dest <- .process_locations(samc, dest)
 
@@ -239,14 +239,14 @@ setMethod(
     }
   })
 
-# mortality(samc, occ, time) ----
+# mortality(samc, init, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
-  function(samc, occ, time) {
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
+  function(samc, init, time) {
 
-    mort = visitation(samc, occ = occ, time = time)
+    mort = visitation(samc, init = init, time = time)
 
     rdg <- samc@data@t_abs
 
@@ -261,7 +261,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -299,7 +299,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
     vis <- visitation(samc, origin = origin)
     names(vis) <- samc$names
@@ -320,7 +320,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
     dest <- .process_locations(samc, dest)
 
@@ -343,7 +343,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
@@ -372,15 +372,15 @@ setMethod(
     return(mort)
   })
 
-# mortality(samc, occ) ----
+# mortality(samc, init) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
-  function(samc, occ) {
-    check(samc, occ)
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
+  function(samc, init) {
+    check(samc, init)
 
-    pv <- .process_occ(samc, occ)
+    pv <- .process_occ(samc, init)
 
     if (samc@solver == "iter") {
       pf <- .psif_iter(samc@data@f, pv)

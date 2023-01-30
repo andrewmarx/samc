@@ -50,7 +50,7 @@ NULL
 #'
 #' \eqn{\psi^T \tilde{F}_{t}}
 #' \itemize{
-#'   \item \strong{visitation(samc, occ, time)}
+#'   \item \strong{visitation(samc, init, time)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the number
 #' of times that transient state \eqn{\mathit{j}} is visited after \eqn{\mathit{t}}
@@ -60,7 +60,7 @@ NULL
 #' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
 #' \code{\link{map}} function.
 #'
-#'   \item \strong{visitation(samc, occ, dest, time)}
+#'   \item \strong{visitation(samc, init, dest, time)}
 #'
 #' The result is a numeric value that is the number of times transient state
 #' \eqn{\mathit{j}} is visited after \eqn{\mathit{t}} time steps given an initial
@@ -108,7 +108,7 @@ NULL
 #'
 #' \eqn{\psi^TF}
 #' \itemize{
-#'   \item \strong{visitation(samc, occ)}
+#'   \item \strong{visitation(samc, init)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the number
 #' of times that transient state \eqn{\mathit{j}} is visited before absorption
@@ -118,7 +118,7 @@ NULL
 #' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
 #' \code{\link{map}} function.
 #'
-#'   \item \strong{visitation(samc, occ, dest)}
+#'   \item \strong{visitation(samc, init, dest)}
 #'
 #' The result is a numeric value that is the number of times transient state
 #' \eqn{\mathit{j}} is visited before absorption given an initial state \eqn{\psi}.
@@ -127,7 +127,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @param occ Placeholder/not currently implemented.
+#' @param init Placeholder/not currently implemented.
 #' @template param-origin
 #' @template param-dest
 #'
@@ -139,7 +139,7 @@ NULL
 
 setGeneric(
   "visitation",
-  function(samc, occ, origin, dest, time) {
+  function(samc, init, origin, dest, time) {
     standardGeneric("visitation")
   })
 
@@ -148,7 +148,7 @@ setGeneric(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time){
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -172,7 +172,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time){
     if (length(origin) != 1)
       stop("origin can only contain a single location for this version of the function", call. = FALSE)
@@ -197,7 +197,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time){
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -222,7 +222,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time){
 
     dest = .process_locations(samc, dest)
@@ -238,17 +238,17 @@ setMethod(
     }
   })
 
-# visitation(samc, occ, time) ----
+# visitation(samc, init, time) ----
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
-  function(samc, occ, time){
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
+  function(samc, init, time){
     .validate_time_steps(time)
 
-    check(samc, occ)
+    check(samc, init)
 
-    pv <- .process_occ(samc, occ)
+    pv <- .process_occ(samc, init)
 
     q <- samc$q_matrix
 
@@ -267,7 +267,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc){
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -280,7 +280,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin){
     if (length(origin) != 1)
       stop("origin can only contain a single value for this version of the function", call. = FALSE)
@@ -301,7 +301,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest){
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -321,7 +321,7 @@ setMethod(
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest){
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
@@ -340,16 +340,16 @@ setMethod(
     return(result)
   })
 
-# visitation(samc, occ) ----
+# visitation(samc, init) ----
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
-  function(samc, occ){
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
+  function(samc, init){
 
-    check(samc, occ)
+    check(samc, init)
 
-    pv <- .process_occ(samc, occ)
+    pv <- .process_occ(samc, init)
 
     if (samc@solver == "iter") {
       r <- .psif_iter(samc@data@f, origin)
@@ -361,15 +361,15 @@ setMethod(
   })
 
 
-# visitation(samc, occ, dest) ----
+# visitation(samc, init, dest) ----
 #' @rdname visitation
 setMethod(
   "visitation",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location", time = "missing"),
-  function(samc, occ, dest){
-    check(samc, occ)
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
+  function(samc, init, dest){
+    check(samc, init)
 
-    pv <- .process_occ(samc, occ)
+    pv <- .process_occ(samc, init)
 
     fj <- visitation(samc, dest = dest)
 

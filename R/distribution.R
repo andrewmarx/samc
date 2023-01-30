@@ -58,7 +58,7 @@ NULL
 #'
 #' \eqn{\psi^TQ^t}
 #' \itemize{
-#'   \item \strong{distribution(samc, occ, time)}
+#'   \item \strong{distribution(samc, init, time)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
 #' of being at transient state \eqn{\mathit{i}} after \eqn{\mathit{t}} time steps
@@ -75,7 +75,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @template param-occ
+#' @template param-init
 #' @template param-origin
 #' @template param-dest
 #' @template param-time
@@ -88,7 +88,7 @@ NULL
 
 setGeneric(
   "distribution",
-  function(samc, occ, origin, dest, time) {
+  function(samc, init, origin, dest, time) {
     standardGeneric("distribution")
   })
 
@@ -96,7 +96,7 @@ setGeneric(
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
 
     if (!samc@override)
@@ -120,7 +120,7 @@ setMethod(
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
     if (length(origin) != 1)
       stop("origin can only contain a single location for this version of the function", call. = FALSE)
@@ -146,7 +146,7 @@ setMethod(
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -172,7 +172,7 @@ setMethod(
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -190,15 +190,15 @@ setMethod(
     }
   })
 
-# distribution(samc, occ, time) ----
+# distribution(samc, init, time) ----
 #' @rdname distribution
 setMethod(
   "distribution",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
-  function(samc, occ, time) {
-    check(samc, occ)
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
+  function(samc, init, time) {
+    check(samc, init)
 
-    pv <- .process_occ(samc, occ)
+    pv <- .process_occ(samc, init)
 
     .validate_time_steps(time)
 

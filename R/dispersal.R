@@ -31,7 +31,7 @@ NULL
 #'
 #' \eqn{\psi^T\tilde{D}_{jt}}
 #' \itemize{
-#'   \item \strong{dispersal(samc, occ, dest, time)}
+#'   \item \strong{dispersal(samc, init, dest, time)}
 #'
 #' The result is a numeric that is the probability of visiting transient state \eqn{\mathit{j}}
 #' within \eqn{\mathit{t}} or fewer time steps given an initial state \eqn{\psi}
@@ -76,7 +76,7 @@ NULL
 #'
 #' \eqn{\psi^TD}
 #' \itemize{
-#'   \item \strong{dispersal(samc, occ)}
+#'   \item \strong{dispersal(samc, init)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the probability
 #' of visiting transient state \eqn{\mathit{j}} given an initial state \eqn{\psi}.
@@ -85,7 +85,7 @@ NULL
 #' vector \eqn{\mathbf{v}} can be mapped to a RasterLayer using the
 #' \code{\link{map}} function.
 #'
-#'   \item \strong{dispersal(samc, occ, dest)}
+#'   \item \strong{dispersal(samc, init, dest)}
 #'
 #' The result is a numeric value that is the probability of visiting transient
 #' state \eqn{\mathit{j}} given an initial state \eqn{\psi}.
@@ -94,7 +94,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @template param-occ
+#' @template param-init
 #' @template param-origin
 #' @template param-dest
 #' @template param-time
@@ -107,7 +107,7 @@ NULL
 
 setGeneric(
   "dispersal",
-  function(samc, occ, origin, dest, time) {
+  function(samc, init, origin, dest, time) {
     standardGeneric("dispersal")
   })
 
@@ -115,7 +115,7 @@ setGeneric(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -155,20 +155,20 @@ setMethod(
     }
   })
 
-# dispersal(samc, occ, dest, time) ----
+# dispersal(samc, init, dest, time) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location", time = "numeric"),
-  function(samc, occ, dest, time) {
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "numeric"),
+  function(samc, init, dest, time) {
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    check(samc, occ)
+    check(samc, init)
 
     dest <- .process_locations(samc, dest)
 
-    pv <- .process_occ(samc, occ)
+    pv <- .process_occ(samc, init)
 
     d <- dispersal(samc, dest = dest, time = time)
 
@@ -186,7 +186,7 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
     if (!samc@override)
       stop("This version of the dispersal() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -210,7 +210,7 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
     origin <- .process_locations(samc, origin)
 
@@ -238,7 +238,7 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
     dest <- .process_locations(samc, dest)
 
@@ -256,7 +256,7 @@ setMethod(
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
@@ -275,15 +275,15 @@ setMethod(
     return(result)
   })
 
-# dispersal(samc, occ) ----
+# dispersal(samc, init) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
-  function(samc, occ) {
-    check(samc, occ)
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
+  function(samc, init) {
+    check(samc, init)
 
-    pv <- .process_occ(samc, occ)
+    pv <- .process_occ(samc, init)
 
     if (!samc@.cache$dgf_exists) {
       if (samc@solver == "iter") {
@@ -306,15 +306,15 @@ setMethod(
   })
 
 
-# dispersal(samc, occ, dest) ----
+# dispersal(samc, init, dest) ----
 #' @rdname dispersal
 setMethod(
   "dispersal",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "location", time = "missing"),
-  function(samc, occ, dest) {
-    check(samc, occ)
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
+  function(samc, init, dest) {
+    check(samc, init)
 
-    pv <- .process_occ(samc, occ)
+    pv <- .process_occ(samc, init)
 
     dj <- dispersal(samc, dest = dest)
 

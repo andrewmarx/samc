@@ -10,7 +10,7 @@ for(test in testlist) {
   Q <- as.matrix(Q)
 
   # Prepare the occupancy data
-  occ_ras <- raster::raster(test$occ)
+  occ_ras <- raster::raster(test$init)
   pv <- as.vector(occ_ras)
   pv <- pv[is.finite(pv)]
 
@@ -111,16 +111,16 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing distribution(samc, occ, time)", {
-    result <- distribution(samc_obj, occ = test$occ, time = time)
+  test_that("Testing distribution(samc, init, time)", {
+    result <- distribution(samc_obj, init = test$init, time = time)
 
     base_result <- pv %*% (Pt)
 
     expect_equal(as.vector(result), as.vector(base_result))
   })
 
-  test_that("Testing distribution(samc, occ, time_vec)", {
-    result <- distribution(samc_obj, occ = test$occ, time = time_vec)
+  test_that("Testing distribution(samc, init, time_vec)", {
+    result <- distribution(samc_obj, init = test$init, time = time_vec)
 
     for (i in 1:length(time_vec)) {
       pt <- Q

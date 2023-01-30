@@ -10,7 +10,7 @@ for(test in testlist) {
   Q <- as.matrix(Q)
 
   # Prepare the occupancy data
-  occ_ras = raster::raster(test$occ)
+  occ_ras = raster::raster(test$init)
   pv = as.vector(occ_ras)
   pv = pv[is.finite(pv)]
 
@@ -51,8 +51,8 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result[, col_vec[1]]))
   })
 
-  test_that("Testing visitation(samc, occ, time)", {
-    result = visitation(samc_obj, occ = test$occ, time = time)
+  test_that("Testing visitation(samc, init, time)", {
+    result = visitation(samc_obj, init = test$init, time = time)
 
     r = pv %*% base_result
     expect_equal(as.vector(result), as.vector(r))

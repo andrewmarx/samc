@@ -15,7 +15,7 @@ for(test in testlist) {
   F_mat <- solve(I - Q)
 
   # Prepare the occupancy data
-  occ_ras <- raster::raster(test$occ)
+  occ_ras <- raster::raster(test$init)
   pv <- as.vector(occ_ras)
   pv <- pv[is.finite(pv)]
 
@@ -34,9 +34,9 @@ for(test in testlist) {
     expect_equal(as.vector(r1), as.vector(r2))
   })
 
-  test_that("Testing survival(samc, occ)", {
-    # Calculate psi*z using survival(samc, occ)
-    r1 <- survival(samc_obj, test$occ)
+  test_that("Testing survival(samc, init)", {
+    # Calculate psi*z using survival(samc, init)
+    r1 <- survival(samc_obj, test$init)
 
     v1 <- numeric(nrow(Q))
     v1[] <- 1
