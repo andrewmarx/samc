@@ -38,6 +38,7 @@ This is a list of publications where the samc package was applied to a research 
 ### **Version 3**
 
 Version 3 of the package made some minor breaking changes:
+
 - The `samc()` function no longer supports `TransitionLayer` inputs. This only had a niche use case, but before v3 wasn't an issue to include because of other dependencies on gdistance. With v3, this became the only dependency left for gdistance, so it was removed to avoid potential future issues should gdistance ever get removed from CRAN (which nearly happened in 2022).
 - With the addition of terra support, the `map()` function was updated so that its output matches the input type to `samc()`. Previously, matrix inputs were matched to RasterLayers, but now they are mapped back to matrices.
 - `cond_passage()` and `visitation()` had an `occ` argument inserted to match the usage of other metrics. These arguments are unused as of v3.0.0 but may be implemented in the future.
