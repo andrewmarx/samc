@@ -158,7 +158,7 @@ setMethod(
 
     q <- as.matrix(samc$q_matrix)
     q2 = base::diag(nrow(q))
-    res <- matrix(0, nrow(q), ncol(q))
+    res <- q2
 
     for (i in 1:(time-1)) {
       q2 = q2 %*% q
@@ -209,7 +209,7 @@ setMethod(
 
     time = c(1, time)
 
-    ft = .sum_qpow_row(q, origin, time)
+    ft = .sum_qpow_col(q, dest, time)
 
     if (length(ft) == 1) {
       return(ft[[1]])
