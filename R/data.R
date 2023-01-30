@@ -10,3 +10,13 @@
 #'
 #' @source Fletcher et al (2019) <doi:10.1111/ele.13333>
 "example_split_corridor"
+
+
+#' Simple maze example
+#'
+#' A simple maze layout.
+#'
+#' @format A 20x20 matrix.
+#'
+#' @source Generated for Maze Example vignettes
+"example_maze"

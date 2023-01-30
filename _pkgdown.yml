@@ -76,4 +76,5 @@ reference:
       - visitation
   - title: "Built-in Data"
     contents:
+      - example_maze
       - example_split_corridor
