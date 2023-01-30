@@ -53,8 +53,8 @@ The `samc-class` is used to manage the $P$ matrix and other information to help 
 
 The first option is to use a map of resistance (or conductance) and a map of total absorption with a list of transition arguments to calculate the transition probabilities between cells in the maps. There are certain requirements for these maps:
 
-* They must be 2-dimensional matrices, `RasterLayer`, or `SpatRaster` objects. They have to be the same type.
-* They must have the same dimensions (number of rows and columns).
+* They must be 2-dimensional matrices, `RasterLayer`, or `SpatRaster` objects. These different types cannot be mixed.
+* All inputs must have the same dimensions (number of rows and columns).
 * `NA` is allowed in the cells, but must match between the sets of data. I.e., if cell `[3, 6]` of the *resistance* data has a `NA` value, then cell `[3, 6]` of the *absorption* data must also have a `NA` value and vice versa.
 
 If using `SpatRaster` or `RasterLayer` objects, then additional conditions must be met:
@@ -66,7 +66,7 @@ An optional fidelity map may be provided. This map would represent the probabili
 
 #### Option 2: P Matrix
 
-The Third option for using this package is to directly supply a $P$ matrix. The $P$ matrix can be provided either as a regular matrix or a `dgCmatrix`, which is a sparse matrix object available through the Matrix package. The $R$ portion of the $P$ matrix must be a single column that represents the total absorption probability for each transient state.
+The second option for using this package is to directly supply a $P$ matrix. The $P$ matrix can be provided either as a regular matrix or a `dgCmatrix`, which is a sparse matrix object available through the Matrix package. The $R$ portion of the $P$ matrix must be a single column that represents the total absorption probability for each transient state.
 
 The advantage of this approach is total flexibility. The disadvantage is that the $P$ matrix can be created with certain properties that would lead to crashes, and the package is unable to detect all of them at this time. The other disadvantage is that the package cannot map the results back to anything for visualization purposes.
 
@@ -93,21 +93,24 @@ The package implements functions for the formulas provided in Table 1 of Fletche
 | Function | Equation | Description |
 |:---------|:---------|:------------|
 | `absorption()` | $A = F R$ | Probability of an individual experiencing a specific type of mortality |
-| | $\psi^T A$ | Probability of an individual experiencing a specific type of mortality, regardless of initial location |
+| | $\psi^T A$ | Probability of an individual experiencing a specific type of mortality, given an initial state $\psi$ |
 | `cond_passage()` | $\tilde{t} = \tilde{B}_j^{-1}\tilde{F}\tilde{B}_j{\cdot}1$ | Mean first conditional passage time |
 | `dispersal()` | $\tilde{D}_{jt}=({\sum}_{n=0}^{t-1}\tilde{Q}^n)\tilde{q}_j$ | Probability of an individual visiting a location, if starting at any other location, before or at time *t* |
-| | $\psi^T\tilde{D}_{jt}$ | Probability of an individual visiting a location, before or at time *t*, regardless of initial location |
+| | $\psi^T\tilde{D}_{jt}$ | Probability of an individual visiting a location, before or at time *t*, given an initial state $\psi$ |
 | | $D=(F-I)diag(F)^{-1}$ | Probability of an individual visiting a location |
-| | $\psi^TD$ | Probability of an individual visiting a location, regardless of initial location |
+| | $\psi^TD$ | Probability of an individual visiting a location, given an initial state $\psi$ |
 | `distribution()` | $Q^t$   | Probability of an individual being at a location at time *t* |
-| | $\psi^TQ^t$ | Probability of an individual being at a location at time *t*, regardless of initial location |
+| | $\psi^TQ^t$ | Probability of an individual being at a location at time *t*, given an initial state $\psi$ |
 | `mortality()` | $\tilde{B}_t = (\sum_{n=0}^{t-1} Q^n) \tilde{R}$ | Probability of an individual experiencing mortality at a location before or at time *t* |
-| | $\psi^T \tilde{B}_t$ | Probability of an individual experiencing mortality at a location, before or at time *t*, regardless of initial location |
+| | $\psi^T \tilde{B}_t$ | Probability of an individual experiencing mortality at a location, before or at time *t*, given an initial state $\psi$ |
 | | $B = F \tilde{R}$ | Probability of an individual experiencing mortality at a location |
-| | $\psi^T B$ | Probability of an individual experiencing mortality at a location, regardless of initial location |
+| | $\psi^T B$ | Probability of an individual experiencing mortality at a location, given an initial state $\psi$ |
 | `survival()` | $z=(I-Q)^{-1}{\cdot}1=F{\cdot}1$ | Expected life expectancy of an individual |
-| | ${\psi}^Tz$ | Overall life expectancy, regardless of initial location |
-| `visitation()` | $F = (I-Q)^{-1}$ | Expected number of times an individual visits a location |
+| | ${\psi}^Tz$ | Overall life expectancy, given an initial state $\psi$ |
+| `visitation()` | $\tilde{F}_t = \sum_{n=0}^{t-1} Q^n$ | Expected number of times an individual visits a location before or at time *t* |
+| | ${\psi}^T \tilde{F}_t$ | Expected number of times an individual visits a location before or at time *t*, given an initial state $\psi$ |
+| | $F = (I-Q)^{-1}$ | Expected number of times an individual visits a location |
+| | ${\psi}^T F$ | Expected number of times an individual visits a location, given an initial state $\psi$ |
 
 
 Depending on the combination of inputs used, a function might return a single value, a vector, a matrix, or a list. In some cases, the calculations will be impractical with sufficiently large landscape datasets due to memory and other performance constraints. To work around this, many equations have multiple associated function signatures that allow users to calculate individual portions of the result rather than the entire result. This opens up multiple optimizations that make calculating many of the metrics more practical. More specific details about performance considerations can be found in the [Performance](performance.html) vignette.
