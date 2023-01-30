@@ -3,7 +3,6 @@ library(samc)
 # Load example data
 res_data <- samc::example_split_corridor$res
 abs_data <- samc::example_split_corridor$abs
-occ_data <- samc::example_split_corridor$occ
 
 
 # Create samc-class object

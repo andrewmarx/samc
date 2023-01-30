@@ -5,7 +5,7 @@ library(samc)
 # Load example data
 res_data <- samc::example_split_corridor$res
 abs_data <- samc::example_split_corridor$abs
-occ_data <- samc::example_split_corridor$occ
+init_data <- samc::example_split_corridor$init
 
 
 # Create samc-class object
