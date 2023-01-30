@@ -44,7 +44,7 @@ Both SAMC and circuit theory use Markov chain theory to model movement based on 
 
 This section is for loading the packages and creating objects used in the examples. The resistance data has two low-resistance routes between the source and destinations. The absorption data has no background absorption, but does have a narrow strip of strong absorption that runs across most of the map, but not across the left route. This is the same example data used in the IALE workshop, where the absorption data was used to describe a hypothetical highway with a safe crossing area for the left route.
 
-```{r}
+```{r, message = FALSE}
 library("terra")
 library("raster")
 library("gdistance")
