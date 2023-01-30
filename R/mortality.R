@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
+# Copyright (c) 2019-2023 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R location-class.R visitation.R
@@ -9,7 +9,7 @@ NULL
 #'
 #' Calculates the probability of absorption at individual transient states.
 #'
-#' \eqn{\tilde{B}_t = (\sum_{n=0}^{t-1} Q^n) \tilde{R}}
+#' \eqn{\tilde{B}_t = \tilde{F} \tilde{R}}
 #' \itemize{
 #'   \item \strong{mortality(samc, time)}
 #'
@@ -153,8 +153,6 @@ setMethod(
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
       stop("The time argument must be a single positive integer", call. = FALSE)
 
-    # TODO: remove as.matrix call, which is needed to convert from a sparse to
-    # dense matrix for the %^% operator, which means removing expm as a dependency
     q <- as.matrix(samc$q_matrix)
     r <- matrix(0, nrow = nrow(q), ncol = nrow(q))
     diag(r) <- samc@data@t_abs
@@ -180,26 +178,14 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
-
-    origin <- .process_locations(samc, origin)
-    .validate_time_steps(time)
-
-    q <- samc$q_matrix
+    mort = visitation(samc, origin = origin, time = time)
 
     rdg <- samc@data@t_abs
 
-    time <- c(1, time)
-
-    mort <- .sum_qpow_row(q, origin, time)
-
-    mort <- lapply(mort, function(x){as.vector(x * rdg)})
-
-    if (length(mort) == 1) {
-      return(mort[[1]])
+    if (is.list(mort)) {
+      return(lapply(mort, function(x){as.vector(x * rdg)}))
     } else {
-      return(mort)
+      return(as.vector(mort * rdg))
     }
   })
 
@@ -212,7 +198,7 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    dest <- .process_locations(samc, dest)
+    dest = .process_locations(samc, dest)
     .validate_time_steps(time)
 
     q <- samc$q_matrix
@@ -259,24 +245,15 @@ setMethod(
   "mortality",
   signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, occ, time) {
-    .validate_time_steps(time)
 
-    check(samc, occ)
+    mort = visitation(samc, occ = occ, time = time)
 
-    pv <- .process_occ(samc, occ)
+    rdg <- samc@data@t_abs
 
-    q <- samc$q_matrix
-    Rdiag <- samc@data@t_abs
-
-    time <- c(1, time)
-    mort <- .sum_psiqpow(q, pv, time)
-
-    mort <- lapply(mort, function(x){as.vector(x * Rdiag)})
-
-    if (length(mort) == 1) {
-      return(mort[[1]])
+    if (is.list(mort)) {
+      return(lapply(mort, function(x){as.vector(x * rdg)}))
     } else {
-      return(mort)
+      return(as.vector(mort * rdg))
     }
   })
 
