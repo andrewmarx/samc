@@ -353,9 +353,9 @@ setMethod(
     pv <- .process_init(samc, init)
 
     if (samc@solver == "iter") {
-      r <- .psif_iter(samc@data@f, origin)
+      r <- .psif_iter(samc@data@f, pv)
     } else {
-      r <- .psif(samc@data@f, origin, samc@.cache$sc)
+      r <- .psif(samc@data@f, pv, samc@.cache$sc)
     }
 
     return(as.vector(r))
