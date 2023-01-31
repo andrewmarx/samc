@@ -45,12 +45,12 @@ library("viridisLite")
 # from the raster package.
 res_data <- samc::example_split_corridor$res
 abs_data <- samc::example_split_corridor$abs
-occ_data <- samc::example_split_corridor$occ
+init_data <- samc::example_split_corridor$init
 
 # To make things easier for plotting later, convert the matrices to rasters
 res_data <- samc::rasterize(res_data)
 abs_data <- samc::rasterize(abs_data)
-occ_data <- samc::rasterize(occ_data)
+init_data <- samc::rasterize(init_data)
 
 
 # Plot the data and make sure it looks good. The built-in data is in matrices, 
@@ -62,7 +62,7 @@ occ_data <- samc::rasterize(occ_data)
 # based non-square matrices.
 plot(res_data, main = "Example Resistance Data", xlab = "x", ylab = "y", col = viridis(256))
 plot(abs_data, main = "Example Absorption Data", xlab = "x", ylab = "y", col = viridis(256))
-plot(occ_data, main = "Example Occupancy Data", xlab = "x", ylab = "y", col = viridis(256))
+plot(init_data, main = "Example Occupancy Data", xlab = "x", ylab = "y", col = viridis(256))
 ```
 
 
@@ -92,14 +92,14 @@ str(samc_obj)
 ## Basic Analysis
 
 ```{r}
-# Convert the occupancy data to probability of occurrence
-occ_prob_data <- occ_data / sum(values(occ_data), na.rm = TRUE)
+# Convert the initial state data to probabilities
+init_prob_data <- init_data / sum(values(init_data), na.rm = TRUE)
 
 
 # Calculate short- and long-term mortality metrics and long-term dispersal
-short_mort <- mortality(samc_obj, occ_prob_data, time = 4800)
-long_mort <- mortality(samc_obj, occ_prob_data)
-long_disp <- dispersal(samc_obj, occ_prob_data)
+short_mort <- mortality(samc_obj, init_prob_data, time = 4800)
+long_mort <- mortality(samc_obj, init_prob_data)
+long_disp <- dispersal(samc_obj, init_prob_data)
 ```
 
 

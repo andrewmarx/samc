@@ -70,7 +70,7 @@ setMethod(
   function(samc, init) {
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     sv <- survival(samc)
 

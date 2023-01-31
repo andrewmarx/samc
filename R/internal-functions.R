@@ -473,36 +473,36 @@ setMethod(
   })
 
 
-#' Process occupancy input
+#' Process initial state input
 #'
-#' Process occupancy input
+#' Process initial state input
 #'
 #' @param samc A samc-class object
-#' @param x occupancy input
+#' @param x initial state input
 #' @noRd
 setGeneric(
-  ".process_occ",
+  ".process_init",
   function(samc, x) {
-    standardGeneric(".process_occ")
+    standardGeneric(".process_init")
   })
 
-# TODO: find a way to check the input type for `occ` to the input type to samc()
+# TODO: find a way to check the input type for `init` to the input type to samc()
 
 #' @noRd
 setMethod(
-  ".process_occ",
+  ".process_init",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
-    if (any(!is.finite(x)) || any(x < 0)) stop("`occ` input must only contain positive numeric values")
+    if (any(!is.finite(x)) || any(x < 0)) stop("`init` input must only contain positive numeric values")
 
-    if (length(x) != nrow(samc$q_matrix)) stop("`occ` input length does not match number of transient states")
+    if (length(x) != nrow(samc$q_matrix)) stop("`init` input length does not match number of transient states")
 
     return(x)
   })
 
 #' @noRd
 setMethod(
-  ".process_occ",
+  ".process_init",
   signature(samc = "samc", x = "SpatRaster"),
   function(samc, x) {
     check(samc@map, x)
@@ -510,20 +510,20 @@ setMethod(
     pv <- as.vector(terra::values(x))
     pv <- pv[is.finite(pv)]
 
-    return(.process_occ(samc, pv))
+    return(.process_init(samc, pv))
   })
 
 #' @noRd
 setMethod(
-  ".process_occ",
+  ".process_init",
   signature(samc = "samc", x = "RasterLayer"),
   function(samc, x) {
-    return(.process_occ(samc, rasterize(x)))
+    return(.process_init(samc, rasterize(x)))
   })
 
 setMethod(
-  ".process_occ",
+  ".process_init",
   signature(samc = "samc", x = "matrix"),
   function(samc, x) {
-    return(.process_occ(samc, rasterize(x)))
+    return(.process_init(samc, rasterize(x)))
   })

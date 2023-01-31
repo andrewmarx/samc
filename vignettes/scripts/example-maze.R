@@ -137,54 +137,54 @@ maze_dist <- distribution(maze_samc, origin = maze_origin, time = 21)
 plot_maze(map(maze_samc, maze_dist), "Location at t=21", viridis(256))
 
 
-## @knitr 1_occ_1
-maze_occ <- maze_res * 0
-maze_occ[1, 1] <- 1
+## @knitr 1_init_1
+maze_init <- maze_res * 0
+maze_init[1, 1] <- 1
 
-plot_maze(maze_occ, "Occupancy", vir_col)
+plot_maze(maze_init, "Occupancy", vir_col)
 
 
-## @knitr 1_occ_2
-survival(maze_samc, occ = maze_occ)
+## @knitr 1_init_2
+survival(maze_samc, init = maze_init)
 
 maze_surv[maze_origin]
 
 
-## @knitr 1_occ_3
+## @knitr 1_init_3
 # Scenario 1: 3 people start in the maze
-maze_occ3 <- maze_res * 0
-maze_occ3[1, 1] <- 3
+maze_init3 <- maze_res * 0
+maze_init3[1, 1] <- 3
 
-survival(maze_samc, occ = maze_occ3)
-
-
-## @knitr 1_occ_4
-survival(maze_samc, occ = maze_occ3) / 3
+survival(maze_samc, init = maze_init3)
 
 
-## @knitr 1_occ_5
+## @knitr 1_init_4
+survival(maze_samc, init = maze_init3) / 3
+
+
+## @knitr 1_init_5
 # Scenario 2: A person starts in each corner of the maze
-maze_occ3 <- maze_res * 0
-maze_occ3[1, 1] <- 1
-maze_occ3[20, 1] <- 1
-maze_occ3[1, 20] <- 1
+maze_init3 <- maze_res * 0
+maze_init3[1, 1] <- 1
+maze_init3[20, 1] <- 1
+maze_init3[1, 20] <- 1
 
-plot_maze(maze_occ3, "Occupancy", vir_col)
+plot_maze(maze_init3, "Occupancy", vir_col)
 
-survival(maze_samc, occ = maze_occ3)
-
-
-## @knitr 1_occ_6
-survival(maze_samc, occ = maze_occ3) / 3
+survival(maze_samc, init = maze_init3)
 
 
-## @knitr 1_occ_7
-maze_occ3_dist <- distribution(maze_samc, occ = maze_occ3, time = 17)
+## @knitr 1_init_6
+survival(maze_samc, init = maze_init3) / 3
+
+
+## @knitr 1_init_7
+maze_init3_dist <- distribution(maze_samc, init = maze_init3, time = 17)
 
 # This makes it easier to see how far along the individuals could be
-maze_occ3_dist <- as.numeric(maze_occ3_dist > 0)
+maze_init3_dist <- as.numeric(maze_init3_dist > 0)
 
-plot_maze(map(maze_samc, maze_occ3_dist), "Location at t=17", viridis(256))
+plot_maze(map(maze_samc, maze_init3_dist), "Location at t=17", viridis(256))
 
 
 

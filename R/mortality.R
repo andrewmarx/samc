@@ -380,7 +380,7 @@ setMethod(
   function(samc, init) {
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     if (samc@solver == "iter") {
       pf <- .psif_iter(samc@data@f, pv)

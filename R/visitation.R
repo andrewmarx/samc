@@ -127,7 +127,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @param init Placeholder/not currently implemented.
+#' @template param-init
 #' @template param-origin
 #' @template param-dest
 #'
@@ -248,7 +248,7 @@ setMethod(
 
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     q <- samc$q_matrix
 
@@ -349,7 +349,7 @@ setMethod(
 
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     if (samc@solver == "iter") {
       r <- .psif_iter(samc@data@f, origin)
@@ -369,7 +369,7 @@ setMethod(
   function(samc, init, dest){
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     fj <- visitation(samc, dest = dest)
 

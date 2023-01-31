@@ -19,7 +19,6 @@ library("samc")
 
 res_data <- samc::example_split_corridor$res
 abs_data <- samc::example_split_corridor$abs
-occ_data <- samc::example_split_corridor$occ
 ```
 
 ## Introduction

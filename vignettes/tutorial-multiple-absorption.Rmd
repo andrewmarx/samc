@@ -44,12 +44,10 @@ library("viridisLite")
 # from the raster package.
 res_data <- samc::example_split_corridor$res
 abs_data <- samc::example_split_corridor$abs
-occ_data <- samc::example_split_corridor$occ
 
 # To make things easier for plotting later, convert the matrices to rasters
 res_data <- samc::rasterize(res_data)
 abs_data <- samc::rasterize(abs_data)
-occ_data <- samc::rasterize(occ_data)
 
 # Generate some random values that will be used as proportions for dividing the
 # absorption data.

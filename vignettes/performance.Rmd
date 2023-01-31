@@ -90,7 +90,7 @@ The short-term metrics (functions where a number of time steps is specified) are
 
 ## Special Cases
 
-#### dispersal(samc, origin) & dispersal(samc, occ)
+#### dispersal(samc, origin) & dispersal(samc, init)
 
 These metrics have been optimized for memory usage, but due to the requirement of calculating $diag(F)$, remain substantially slower than solutions for metrics. Additionally, as the number of transient states increases, the time to compute the result increases quadratically. Once calculated, however, the result of $diag(F)$ is cached and reused in future runs of these metrics. So only the first time running these metrics for a particular samc-class object will be slow.
 
@@ -106,6 +106,8 @@ This section includes automated benchmarks for each method that has been optimiz
 
 #### Overall Performance
 
+*v3.0.0: needs to be updated*
+
 Performance of each of the functions relative to number of landscape cells. For short-term metrics, the number of time steps was set to `10000`.
 
 ```{r fig4, out.width = '100%', fig.align = "center", echo = FALSE}
@@ -119,6 +121,8 @@ knitr::include_graphics("img/bt.png")
 
 
 #### Temporal Performance
+
+*v3.0.0: needs to be updated*
 
 Performance of each of the short-term metrics for varying number of time steps. The number of landscape cells used for this benchmark was 500,000.
 

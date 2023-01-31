@@ -18,7 +18,6 @@ library("gganimate")
 # from the raster package.
 res_data <- samc::example_split_corridor$res
 abs_data <- samc::example_split_corridor$abs
-occ_data <- samc::example_split_corridor$occ
 
 
 # Setup the details for our transition function

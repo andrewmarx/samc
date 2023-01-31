@@ -159,39 +159,39 @@ There are a couple of metrics that have not been covered yet: `absorption()` and
 
 ## Occupancy
 
-Many of the metrics offer a more advanced and flexible option for setting an initial state in the absorbing Markov chain. Inputs to the `occ` parameter (short for occupancy) can essentially be used as an alternative to specifying a singular start point. Here is an example `occ` map that represents the scenario that has been presented so far:
+Many of the metrics offer a more advanced and flexible option for setting an initial state in the absorbing Markov chain. Inputs to the `init` parameter (short for initial state) can essentially be used as an alternative to specifying a singular start point. Here is an example `init` map that represents the scenario that has been presented so far:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<1_occ_1>>
+<<1_init_1>>
 ```
 
 Using the `survival()` metric, it produces the same result as before:
 ```{r, fig.show='hold'}
-<<1_occ_2>>
+<<1_init_2>>
 ```
 
 But now, more interesting scenarios can be tested. For example, let's start the maze with 3 individuals:
 ```{r, fig.show='hold'}
-<<1_occ_3>>
+<<1_init_3>>
 ```
 
 The interpretation becomes a little trickier here. The `survival()` metric is returning the cumulative time spent in the maze for *all* the individuals. This means that with 3 individuals starting at the beginning, 3 times as much time is going to be spent in the maze, but per individual, it will still take the same number of time steps to finish as before:
 ```{r}
-<<1_occ_4>>
+<<1_init_4>>
 ```
 
 Here's a different scenario with 3 individuals again, but now they start in different corners of the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<1_occ_5>>
+<<1_init_5>>
 ```
 
 Again, the cumulative time spent in the maze is larger than reported in the original scenario with one individual. However, this time the average time per individual spent in the maze decreases:
 ```{r, fig.show='hold'}
-<<1_occ_6>>
+<<1_init_6>>
 ```
 
 This is because the additional individuals are now located in corners that are substantially closer to the finish point, so they would be expected to find it faster on average. Based on where each individual starts, it would be reasonable to expect that the individual starting in the bottom left has the biggest advantage. One way to try and visualize this is with the `distrbution()` metric:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<1_occ_7>>
+<<1_init_7>>
 ```
 
 A good exercise for the reader is to apply the concepts of the animations vignette to this figure.

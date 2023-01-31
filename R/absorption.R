@@ -103,7 +103,7 @@ setMethod(
 
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     pf <-.psif(samc@data@f, pv, samc@.cache$sc)
 

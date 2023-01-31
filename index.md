@@ -37,8 +37,11 @@ Version 3 of the package made some minor breaking changes:
 
 - The `samc()` function no longer supports `TransitionLayer` inputs. This only had a niche use case, but before v3 wasn't an issue to include because of other dependencies on gdistance. With v3, this became the only dependency left for gdistance, so it was removed to avoid potential future issues should gdistance ever get removed from CRAN (which nearly happened in 2022).
 - With the addition of terra support, the `map()` function was updated so that its output matches the input type to `samc()`. Previously, matrix inputs were matched to RasterLayers, but now they are mapped back to matrices.
+- The `sym` option for creating the samc object is currently ignored.
+- The `tr_args` and `occ` parameters were renamed to `model` and `init`, respectively.
 - `cond_passage()` and `visitation()` had an `init` argument inserted to match the usage of other metrics. These arguments are not fully implemented as of v3.0.0 but may be implemented in the future.
 - Cells are no longer automatically named by `samc()` when creating the transition matrix from maps. Generating unique character names for each cell ended up being a significant waste of memory as the inputs to `samc()` got larger. It's unlikely these names were ever used in practice, since using the numeric results from `locate()` is more convenient.
+
 
 
 ### **Version 2**

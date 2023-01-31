@@ -198,7 +198,7 @@ setMethod(
   function(samc, init, time) {
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     .validate_time_steps(time)
 

@@ -168,7 +168,7 @@ setMethod(
 
     dest <- .process_locations(samc, dest)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     d <- dispersal(samc, dest = dest, time = time)
 
@@ -283,7 +283,7 @@ setMethod(
   function(samc, init) {
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     if (!samc@.cache$dgf_exists) {
       if (samc@solver == "iter") {
@@ -314,7 +314,7 @@ setMethod(
   function(samc, init, dest) {
     check(samc, init)
 
-    pv <- .process_occ(samc, init)
+    pv <- .process_init(samc, init)
 
     dj <- dispersal(samc, dest = dest)
 

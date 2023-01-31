@@ -15,12 +15,12 @@ library("ggplot2")
 # from the raster package.
 res_data <- samc::example_split_corridor$res
 abs_data <- samc::example_split_corridor$abs
-occ_data <- samc::example_split_corridor$occ
+init_data <- samc::example_split_corridor$init
 
 # To make things easier for plotting later, convert the matrices to rasters
 res_data <- samc::rasterize(res_data)
 abs_data <- samc::rasterize(abs_data)
-occ_data <- samc::rasterize(occ_data)
+init_data <- samc::rasterize(init_data)
 
 
 # Setup the details for our transition function
@@ -34,14 +34,14 @@ rw_model <- list(fun = function(x) 1/mean(x), # Function for calculating transit
 samc_obj <- samc(res_data, abs_data, model = rw_model)
 
 
-# Convert the occupancy data to probability of occurrence
-occ_prob_data <- occ_data / sum(values(occ_data), na.rm = TRUE)
+# Convert the initial state data to probabilities
+init_prob_data <- init_data / sum(values(init_data), na.rm = TRUE)
 
 
 # Calculate short- and long-term mortality metrics and long-term dispersal
-short_mort <- mortality(samc_obj, occ_prob_data, time = 4800)
-long_mort <- mortality(samc_obj, occ_prob_data)
-long_disp <- dispersal(samc_obj, occ_prob_data)
+short_mort <- mortality(samc_obj, init_prob_data, time = 4800)
+long_mort <- mortality(samc_obj, init_prob_data)
+long_disp <- dispersal(samc_obj, init_prob_data)
 
 
 # Create rasters using the vector result data for plotting.
@@ -53,18 +53,18 @@ long_disp_map <- map(samc_obj, long_disp)
 # Convert the landscape data to RasterLayer objects, then to data frames for ggplot
 res_df <- as.data.frame(res_data, xy = TRUE, na.rm = TRUE)
 abs_df <- as.data.frame(abs_data, xy = TRUE, na.rm = TRUE)
-occ_df <- as.data.frame(occ_data, xy = TRUE, na.rm = TRUE)
+init_df <- as.data.frame(init_data, xy = TRUE, na.rm = TRUE)
 
 
 # When overlaying the patch raster, we don't want to plot cells with values of 0
-occ_df <- occ_df[occ_df$lyr.1 != 0, ]
+init_df <- init_df[init_df$lyr.1 != 0, ]
 
 
 # Plot the example resistance and mortality data using ggplot
 res_plot <- ggplot(res_df, aes(x = x, y = y)) +
   geom_raster(aes(fill = lyr.1)) +
   scale_fill_viridis_c() +
-  geom_tile(data = occ_df, aes(x = x, y = y, fill = lyr.1), fill = "grey70", color = "grey70") +
+  geom_tile(data = init_df, aes(x = x, y = y, fill = lyr.1), fill = "grey70", color = "grey70") +
   ggtitle("Resistance Data") +
   coord_equal() + theme_bw()
 print(res_plot)
@@ -72,7 +72,7 @@ print(res_plot)
 abs_plot <- ggplot(abs_df, aes(x = x, y = y)) +
   geom_raster(aes(fill = lyr.1)) +
   scale_fill_viridis_c() +
-  geom_tile(data = occ_df, aes(x = x, y = y, fill = lyr.1), fill = "grey70", color = "grey70") +
+  geom_tile(data = init_df, aes(x = x, y = y, fill = lyr.1), fill = "grey70", color = "grey70") +
   ggtitle("Absorption Data") +
   coord_equal() + theme_bw()
 print(abs_plot)
@@ -92,7 +92,7 @@ long_disp_df <- as.data.frame(long_disp_map, xy = TRUE, na.rm = TRUE)
 stm_plot <- ggplot(short_mort_df, aes(x = x, y = y)) +
   geom_raster(aes(fill = lyr.1)) +
   scale_fill_viridis_c() +
-  geom_tile(data = occ_df, aes(x = x, y = y, fill = lyr.1), fill = "grey70", color = "grey70") +
+  geom_tile(data = init_df, aes(x = x, y = y, fill = lyr.1), fill = "grey70", color = "grey70") +
   ggtitle("Short-term Mortality") +
   coord_equal() + theme_bw()
 print(stm_plot)
@@ -101,7 +101,7 @@ print(stm_plot)
 ltm_plot <- ggplot(long_mort_df, aes(x = x, y = y)) +
   geom_raster(aes(fill = lyr.1)) +
   scale_fill_viridis_c() +
-  geom_tile(data = occ_df, aes(x = x, y = y,fill = lyr.1), fill = "grey70", color = "grey70") +
+  geom_tile(data = init_df, aes(x = x, y = y,fill = lyr.1), fill = "grey70", color = "grey70") +
   ggtitle("Long-term Mortality") +
   coord_equal() + theme_bw()
 print(ltm_plot)
@@ -110,7 +110,7 @@ print(ltm_plot)
 ltd_plot <- ggplot(long_disp_df, aes(x = x, y = y)) +
   geom_raster(aes(fill = lyr.1)) +
   scale_fill_viridis_c() +
-  geom_tile(data = occ_df, aes(x = x, y = y, fill = lyr.1), fill = "grey70", color = "grey70") +
+  geom_tile(data = init_df, aes(x = x, y = y, fill = lyr.1), fill = "grey70", color = "grey70") +
   ggtitle("Long-term Dispersal") +
   coord_equal() + theme_bw()
 print(ltd_plot)
