@@ -14,6 +14,7 @@
 - Added optional support for iterative solvers in metrics (where applicable). This greatly reduces the memory requirements of these metrics, but in general, will take longer to calculate. Initial tests indicate that the `visitation()` function is feasible for samc objects with 50 Million cells with 32 GB of RAM. Details about changing the solver can be found in the help documentation for the `samc-class`.
 - Added caching behavior for some metrics when using a direct solver. This can reduce run-time by over 95% when rerunning these metrics with the same arguments but different input values. Using different arguments or metrics may require rebuilding the cache, so it is best to keep specific usages of a metric grouped in code.
   - In rare cases, cached data is reused for other combinations of arguments and other metrics. This can lead to unexpected situational speedups depending on the order of metrics in the code. Combinations of metrics benefiting from this behavior is not currently documented, but may be in the future.
+  - Currently, each samc object has it's own cache. Creating multiple samc objects can lead to high memory usage by data caches. The best way to avoid this is to only have one samc object at a time. A future version will implement a single global data cache so that having multiple samc objects will not lead to multiple data caches consuming excess memory.
 
 ## Website
 
@@ -30,8 +31,6 @@
 - (**Breaking**) Renamed the `occ` parameter in metrics to `init` (short for "initial state" or "initialize")
 - (**Breaking**) Added the parameter for setting the initial state in the `cond_passage()` function to match other metrics, but it is not currently used.
 - Bumped various package version requirements.
-
-## Breaking Changes
 
 # samc 2.0.1
 
