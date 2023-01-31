@@ -130,6 +130,7 @@ NULL
 #' @template param-init
 #' @template param-origin
 #' @template param-dest
+#' @template param-time
 #'
 #' @return See Details
 #'

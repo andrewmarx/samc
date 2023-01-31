@@ -12,7 +12,7 @@
 #' @param data A SpatRaster
 #' @noRd
 .transition <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
-  if (class(fun) == "character") {
+  if (is(fun, "character")) {
     stop("Named transition functions not supported", call. = FALSE)
   }
 
