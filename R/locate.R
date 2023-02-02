@@ -18,8 +18,8 @@ NULL
 #' trying to determine the cell numbers that should be used in analyses.
 #'
 #' The \code{\link{locate}} function operates more-or-less like the
-#' \code{\link[raster]{cellFromXY}} function in the raster package, but unlike
-#' \code{\link[raster]{cellFromXY}}, locate properly accounts for NA cells
+#' \code{\link[terra]{cellFromXY}} function in the raster package, but unlike
+#' \code{\link[terra]{cellFromXY}}, locate properly accounts for NA cells
 #' in identifying cell numbers from coordinate data.
 #'
 #' This function can also be used if the samc object was created from matrix inputs
@@ -30,14 +30,14 @@ NULL
 #' The xy parameter can also be excluded. In this case, the function returns a
 #' raster where the values of the cells contains the cell number.
 #'
-#' Internally, this function relies on the \code{\link[raster]{extract}} function
+#' Internally, this function relies on the \code{\link[terra]{extract}} function
 #' from the raster package, and any valid input for the y argument of that function
 #' is valid here.
 #'
 #' @param samc A \code{\link{samc-class}} object
-#' @param xy Any valid input to the y argument of the \code{\link[raster]{extract}} function in the raster package.
+#' @param xy Any valid input to the y argument of the \code{\link[terra]{extract}} function in the raster package.
 #
-#' @return A RasterLayer or a vector
+#' @return A SpatRaster, RasterLayer, matrix, or a vector
 #'
 #' @example inst/examples/locate.R
 #'
@@ -54,14 +54,17 @@ setMethod(
   "locate",
   signature(samc = "samc", xy = "missing"),
   function(samc){
-    if (samc@source != "map") stop("This function can only be used when the samc object was created from raster or matrix inputs for resistance data", call. = FALSE)
-
-    ras <- samc@map
-    n <- sum(ras[])
-    ras[ras] <- 1:n
-    ras[ras[] == 0] <- NA
-
-    return(ras)
+    if (samc@source == "transition") {
+      stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
+    } else if (samc@source == "SpatRaster") {
+      return(samc@map)
+    } else if (samc@source == "RasterLayer") {
+      return(raster::raster(samc@map))
+    } else if (samc@source == "matrix") {
+      return(as.matrix(samc@map, wide = TRUE))
+    } else {
+      stop("An unexpected issue occurred. Please report a bug with a reproducible example", call. = FALSE)
+    }
   })
 
 #' @rdname locate
@@ -69,9 +72,10 @@ setMethod(
   "locate",
   signature(samc = "samc", xy = "ANY"),
   function(samc, xy){
-    ras <- locate(samc)
+    if (samc@source == "transition") stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
 
-    result <- raster::extract(ras, xy)
+    result = terra::extract(samc@map, xy)
+    result = result[, ncol(result)] # TODO can it be more robust for different types of inputs (currently handles matrices and data frames for xy having different results)
 
     if (anyNA(result)) stop("One or more coordinates do not correspond to non-NA cells.", call. = FALSE)
 

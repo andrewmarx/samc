@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
       </span>
     </div>
 
@@ -184,7 +184,7 @@ more easily, the `pairwise()` function runs all the combinations of the `origin`
 and `dest` parameters for an analytical function and returns the results in a
 'long' format data.frame. This data.frame can then be reshaped into a pairwise
 matrix or 'wide' format data.frame using tools like the reshape2 or tidyr packages.</p>
-<p>This function is not intended to be used with other inputs such as `occ` or `time`</p>
+<p>This function is not intended to be used with other inputs such as `init` or `time`</p>
     </div>
 
     <div id="ref-examples">
@@ -192,14 +192,13 @@ matrix or 'wide' format data.frame using tools like the reshape2 or tidyr packag
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://andrewmarx.github.io/samc/" class="external-link">samc</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Load example data</span></span></span>
-<span class="r-in"><span><span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="ex_res_data.html">ex_res_data</a></span></span></span>
-<span class="r-in"><span><span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="ex_abs_data.html">ex_abs_data</a></span></span></span>
-<span class="r-in"><span><span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="ex_occ_data.html">ex_occ_data</a></span></span></span>
+<span class="r-in"><span><span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="example_split_corridor.html">example_split_corridor</a></span><span class="op">$</span><span class="va">res</span></span></span>
+<span class="r-in"><span><span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="example_split_corridor.html">example_split_corridor</a></span><span class="op">$</span><span class="va">abs</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create samc-class object</span></span></span>
 <span class="r-in"><span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>,</span></span>
-<span class="r-in"><span>                 tr_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                 model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># pairwise() example</span></span></span>
 <span class="r-in"><span><span class="va">pw</span> <span class="op">&lt;-</span> <span class="fu">pairwise</span><span class="op">(</span><span class="va">cond_passage</span>, <span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, dest <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>

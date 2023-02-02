@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
+# Copyright (c) 2019-2023 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R location-class.R visitation.R
@@ -9,7 +9,7 @@ NULL
 #'
 #' Calculates the probability of absorption at individual transient states.
 #'
-#' \eqn{\tilde{B}_t = (\sum_{n=0}^{t-1} Q^n) \tilde{R}}
+#' \eqn{\tilde{B}_t = \tilde{F} \tilde{R}}
 #' \itemize{
 #'   \item \strong{mortality(samc, time)}
 #'
@@ -58,7 +58,7 @@ NULL
 #'
 #' \eqn{\psi^T \tilde{B}_t}
 #' \itemize{
-#'   \item \strong{mortality(samc, occ, time)}
+#'   \item \strong{mortality(samc, init, time)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
 #' probability of absorption at transient state \eqn{\mathit{j}} within \eqn{\mathit{t}}
@@ -110,7 +110,7 @@ NULL
 #'
 #' \eqn{\psi^T B}
 #' \itemize{
-#'   \item \strong{mortality(samc, occ)}
+#'   \item \strong{mortality(samc, init)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_j} is the unconditional
 #' probability of absorption at transient state \eqn{\mathit{j}} given an initial
@@ -124,7 +124,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @template param-occ
+#' @template param-init
 #' @template param-origin
 #' @template param-dest
 #' @template param-time
@@ -137,7 +137,7 @@ NULL
 
 setGeneric(
   "mortality",
-  function(samc, occ, origin, dest, time) {
+  function(samc, init, origin, dest, time) {
     standardGeneric("mortality")
   })
 
@@ -145,7 +145,7 @@ setGeneric(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -153,8 +153,6 @@ setMethod(
     if (time %% 1 != 0 || time < 1 || length(time) > 1)
       stop("The time argument must be a single positive integer", call. = FALSE)
 
-    # TODO: remove as.matrix call, which is needed to convert from a sparse to
-    # dense matrix for the %^% operator, which means removing expm as a dependency
     q <- as.matrix(samc$q_matrix)
     r <- matrix(0, nrow = nrow(q), ncol = nrow(q))
     diag(r) <- samc@data@t_abs
@@ -178,28 +176,16 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
-
-    origin <- .process_locations(samc, origin)
-    .validate_time_steps(time)
-
-    q <- samc$q_matrix
+    mort = visitation(samc, origin = origin, time = time)
 
     rdg <- samc@data@t_abs
 
-    time <- c(1, time)
-
-    mort <- .sum_qpow_row(q, origin, time)
-
-    mort <- lapply(mort, function(x){as.vector(x * rdg)})
-
-    if (length(mort) == 1) {
-      return(mort[[1]])
+    if (is.list(mort)) {
+      return(lapply(mort, function(x){as.vector(x * rdg)}))
     } else {
-      return(mort)
+      return(as.vector(mort * rdg))
     }
   })
 
@@ -207,12 +193,12 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    dest <- .process_locations(samc, dest)
+    dest = .process_locations(samc, dest)
     .validate_time_steps(time)
 
     q <- samc$q_matrix
@@ -238,7 +224,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "numeric"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
     dest <- .process_locations(samc, dest)
 
@@ -253,28 +239,21 @@ setMethod(
     }
   })
 
-# mortality(samc, occ, time) ----
+# mortality(samc, init, time) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "numeric"),
-  function(samc, occ, time) {
-    .validate_time_steps(time)
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
+  function(samc, init, time) {
 
-    pv <- .process_occ(samc, occ)
+    mort = visitation(samc, init = init, time = time)
 
-    q <- samc$q_matrix
-    Rdiag <- samc@data@t_abs
+    rdg <- samc@data@t_abs
 
-    time <- c(1, time)
-    mort <- .sum_psiqpow(q, pv, time)
-
-    mort <- lapply(mort, function(x){as.vector(x * Rdiag)})
-
-    if (length(mort) == 1) {
-      return(mort[[1]])
+    if (is.list(mort)) {
+      return(lapply(mort, function(x){as.vector(x * rdg)}))
     } else {
-      return(mort)
+      return(as.vector(mort * rdg))
     }
   })
 
@@ -282,7 +261,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "missing", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -320,10 +299,10 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "missing", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
     vis <- visitation(samc, origin = origin)
-    names(vis) <- rownames(samc$q_matrix)
+    names(vis) <- samc$names
 
     mort <- vis * samc@data@t_abs
 
@@ -341,12 +320,12 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "missing", dest = "location", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
     dest <- .process_locations(samc, dest)
 
     vis <- visitation(samc, dest = dest)
-    names(vis) <- rownames(samc$q_matrix)
+    names(vis) <- samc$names
 
     mort <- vis * samc@data@t_abs[dest]
 
@@ -364,7 +343,7 @@ setMethod(
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "missing", origin = "location", dest = "location", time = "missing"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
@@ -378,7 +357,7 @@ setMethod(
       vis <- visitation(samc, dest = d)
       results[dest == d] <- vis[origin[dest == d]]
     }
-    names(results) <- rownames(samc$q_matrix)[dest]
+    names(results) <- samc$names[dest]
 
 
     mort <- results * samc@data@t_abs[dest]
@@ -393,21 +372,23 @@ setMethod(
     return(mort)
   })
 
-# mortality(samc, occ) ----
+# mortality(samc, init) ----
 #' @rdname mortality
 setMethod(
   "mortality",
-  signature(samc = "samc", occ = "ANY", origin = "missing", dest = "missing", time = "missing"),
-  function(samc, occ) {
-    pv <- .process_occ(samc, occ)
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
+  function(samc, init) {
+    check(samc, init)
 
-    q <- samc$q_matrix
+    pv <- .process_init(samc, init)
 
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
+    if (samc@solver == "iter") {
+      pf <- .psif_iter(samc@data@f, pv)
+    } else {
+      pf <- .psif(samc@data@f, pv, samc@.cache$sc)
+    }
 
-    pf <- .psif(q, pv)
-    names(pf) <- rownames(samc$q_matrix)
+    names(pf) <- samc$names
 
     mort <- pf * samc@data@t_abs
 

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2022-12-23</h4>
+            <h4 data-toc-skip class="date">2023-02-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/example-coinflip.Rmd" class="external-link"><code>vignettes/example-coinflip.Rmd</code></a></small>
       <div class="hidden name"><code>example-coinflip.Rmd</code></div>
@@ -169,7 +169,7 @@ Marx</h4>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This example is a write up of an answer I gave to a <a href="https://stats.stackexchange.com/questions/553289/could-any-equation-have-predicted-the-results-of-this-simulation" class="external-link">coin
+<p>This example is a write-up of an answer I gave to a <a href="https://stats.stackexchange.com/questions/553289/could-any-equation-have-predicted-the-results-of-this-simulation" class="external-link">coin
 flip question on StackExchange</a>. Essentially, the question was: given
 a series of coin flips, how many coin flips would it take (on average)
 to get the sequence <span class="math inline">\(Heads-Tails-Heads\)</span>.</p>
@@ -177,7 +177,7 @@ to get the sequence <span class="math inline">\(Heads-Tails-Heads\)</span>.</p>
 Metrics within the package can then be used to answer the posed
 question, as well as explore other questions that may be of
 interest.</p>
-<p>The complete code for this example is available at <a href="https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-coinflip.R" class="external-link">Github</a>.</p>
+<p>The complete code for this example is available on <a href="https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-coinflip.R" class="external-link">Github</a>.</p>
 <!--
 https://latex.codecogs.com/eqneditor/editor.php
 \bordermatrix{
@@ -250,7 +250,7 @@ a state. Each state has a 100% probability of doing <em>something</em>,
 whether it’s changing to a different transient state, an absorbing
 state, or back to the current state.</p>
 <p>For the original question, it’s possible to collapse some of these
-states and simplify the matrix by only considering the last two coint
+states and simplify the matrix by only considering the last two coin
 flips instead of three. For example, <span class="math inline">\(HTT\)</span> would also require a minimum of 3
 flips to reach (like <span class="math inline">\(TTT\)</span>, which has
 the same last two flips), so it could also be used as a starting point
@@ -283,18 +283,18 @@ function.</p>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">samc_obj</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1]  6  8  6  8 10  8 10</span></span></code></pre></div>
 <p>The fifth element represents <span class="math inline">\(TTT\)</span>
-and the the seventh element represents <span class="math inline">\(HTT\)</span>, or the starting points that do not
-have progress towards the result. They both have a value of
+and the seventh element represents <span class="math inline">\(HTT\)</span>, or the starting points that do not
+have progress toward the result. They both have a value of
 <code>10</code>, which indicates that it will take an average of
 <code>10</code> coin flips with a fair coin to see the sequence of <span class="math inline">\(HTH\)</span>.</p>
 <p>The remaining elements give us insight into what would be expected if
-we have already made some coin flips with some progress towards the
-goal. For example, the first and third elements represent, <span class="math inline">\(HHT\)</span> and <span class="math inline">\(THT\)</span>, which are only one flip away from
+we have already made some coin flips with some progress toward the goal.
+For example, the first and third elements represent, <span class="math inline">\(HHT\)</span> and <span class="math inline">\(THT\)</span>, which are only one flip away from
 <span class="math inline">\(HTH\)</span>. As a result, they have the
 lowest expected averages to completion, which should intuitively make
 sense. But they still are relatively high at <code>6</code> flips
 expected. Even though there is a 50% probability of completing the
-sequence in a single flip, a failure would put us back to the <span class="math inline">\(HTT\)</span> state, which is an average of
+sequence in a single flip, a failure would put us back in the <span class="math inline">\(HTT\)</span> state, which is an average of
 <code>10</code> steps away.</p>
 <p>There are other aspects of the model that can be explored using the
 package. For example, the <code><a href="../reference/visitation.html">visitation()</a></code> metric calculates
@@ -316,41 +316,40 @@ sequence. What’s interesting mathematically is that the sum of these
 visitation values is the same as the expected remaining flips before
 hitting <span class="math inline">\(HTH\)</span>.</p>
 <p>Ultimately, the <code><a href="../reference/visitation.html">visitation()</a></code> metric produces a matrix of
-all the possible combinations of states, and specifying an origin point
+all the possible combinations of states and specifying an origin point
 simply gives us a single row of the matrix. It’s possible to get
 individual columns, as well as the entire matrix (which requires
 disabling a safety measure in place for larger problems).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Instead of a start point, we can look at an end point and how often we expect</span></span>
+<code class="sourceCode R"><span><span class="co"># Instead of a start point, we can look at an endpoint and how often we expect</span></span>
 <span><span class="co"># it to occur for each of the possible starting points</span></span>
 <span><span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_obj</span>, dest <span class="op">=</span> <span class="st">"THT"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.5 0.5 1.5 0.5 1.0 1.0 1.0</span></span>
 <span></span>
 <span><span class="co"># These results are just rows/cols of a larger matrix. We can get the entire matrix</span></span>
-<span><span class="co"># of the start/end possibilities but first we have to disable some safety measures</span></span>
+<span><span class="co"># of the start/end possibilities but first, we have to disable some safety measures</span></span>
 <span><span class="co"># in place because this package is designed to work with extremely large P matrices</span></span>
 <span><span class="co"># (millions of rows/cols) where these types of results will consume too much RAM and</span></span>
 <span><span class="co"># crash R</span></span>
 <span><span class="va">samc_obj</span><span class="op">$</span><span class="va">override</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span><span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_obj</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     HHT HHH THT THH TTT TTH HTT</span></span>
-<span><span class="co">#&gt; HHT 1.5 0.5 0.5 0.5   1   1   1</span></span>
-<span><span class="co">#&gt; HHH 1.5 2.5 0.5 0.5   1   1   1</span></span>
-<span><span class="co">#&gt; THT 0.5 0.5 1.5 0.5   1   1   1</span></span>
-<span><span class="co">#&gt; THH 1.5 1.5 0.5 1.5   1   1   1</span></span>
-<span><span class="co">#&gt; TTT 1.0 1.0 1.0 1.0   3   2   1</span></span>
-<span><span class="co">#&gt; TTH 1.0 1.0 1.0 1.0   1   2   1</span></span>
-<span><span class="co">#&gt; HTT 1.0 1.0 1.0 1.0   2   2   2</span></span>
+<span><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7]</span></span>
+<span><span class="co">#&gt; [1,]  1.5  0.5  0.5  0.5    1    1    1</span></span>
+<span><span class="co">#&gt; [2,]  1.5  2.5  0.5  0.5    1    1    1</span></span>
+<span><span class="co">#&gt; [3,]  0.5  0.5  1.5  0.5    1    1    1</span></span>
+<span><span class="co">#&gt; [4,]  1.5  1.5  0.5  1.5    1    1    1</span></span>
+<span><span class="co">#&gt; [5,]  1.0  1.0  1.0  1.0    3    2    1</span></span>
+<span><span class="co">#&gt; [6,]  1.0  1.0  1.0  1.0    1    2    1</span></span>
+<span><span class="co">#&gt; [7,]  1.0  1.0  1.0  1.0    2    2    2</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/rowSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_obj</span><span class="op">)</span><span class="op">)</span> <span class="co"># equivalent to survival() above</span></span>
-<span><span class="co">#&gt; HHT HHH THT THH TTT TTH HTT </span></span>
-<span><span class="co">#&gt;   6   8   6   8  10   8  10</span></span></code></pre></div>
+<span><span class="co">#&gt; [1]  6  8  6  8 10  8 10</span></span></code></pre></div>
 <p>A third relevant metric is <code><a href="../reference/dispersal.html">dispersal()</a></code>. Rather than the
 expected number of times we would expect a coin flip sequence to occur,
 it calculates the probability of a sequence occurring before hitting our
 target sequence of <span class="math inline">\(HTH\)</span>. The
-short-term variant can actually be used to specify a limit to the number
-of flips we will me make.</p>
+short-term variant can be used to specify a limit to the number of flips
+we will make.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">samc_obj</span>, dest <span class="op">=</span> <span class="st">"TTT"</span>, time <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.28125 0.21875 0.28125 0.21875      NA 0.21875 0.59375</span></span></code></pre></div>

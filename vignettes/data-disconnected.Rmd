@@ -43,5 +43,5 @@ raster[is.na(raster[])) <- 0
 plot(raster)
 ```
 
-If your raster is particularly large, then you might need to save it out to a high-res image to spot solo pixels
+If your raster is particularly large, then you might need to save it to a high-res image to spot solo pixels in an external picture editor or viewer.
 

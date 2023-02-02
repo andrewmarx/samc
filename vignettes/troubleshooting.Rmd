@@ -16,11 +16,9 @@ knitr::opts_chunk$set(
 )
 
 library("samc")
-library("raster")
 
-res_data <- samc::ex_res_data
-abs_data <- samc::ex_abs_data
-occ_data <- samc::ex_occ_data
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
 ```
 
 ## Introduction
@@ -34,24 +32,24 @@ This will occur if the `check()` function detects that different sources of land
 
 ```{r, error = TRUE}
 # Working example
-r1 <- ex_res_data
-r2 <- ex_res_data
+r1 <- res_data
+r2 <- res_data
 check(r1, r2)
 
 
 # Remove the NA's in r2 by overwriting all the elements with the number 1.
 # check() doesn't check the actual values of the data, but it does check the
 # location of NA's
-r1 <- ex_res_data
-r2 <- ex_res_data
+r1 <- res_data
+r2 <- res_data
 r2[1] <- 1
 check(r1, r2)
 
 
 # Change the dimensions of r2 by subsetting it. check() ensures that the data
 # inputs have the same number of rows and columns
-r1 <- ex_res_data
-r2 <- ex_res_data
+r1 <- res_data
+r2 <- res_data
 r2 <- r2[1:5, 1:5]
 check(r1, r2)
 ```
@@ -63,23 +61,23 @@ The SAMC package makes use of R's S4 method dispatch system to enforce how the d
 
 ```{r, error = TRUE}
 # Example: Skipping optional arguments. In this case, the `fidelity` argument is
-# optional, so we skip it. The tr_args argument, however, is always required, 
+# optional, so we skip it. The model argument, however, is always required, 
 # so we pass the relevant to it. But because we don't specify which
 # argument it is, R is trying to find a version of the function that expects it
 # as the third argument, but this version does not exist.
 samc_obj <- samc(res_data, abs_data, list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 # Solution
-samc_obj <- samc(res_data, abs_data, tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
+samc_obj <- samc(res_data, abs_data, model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 
 # Example: Incorrect input types. In this case, we are attempting to pass a
 # single numeric value as absorption data. However, the absorption data must 
 # always be in a matrix or RasterLayer object
-samc_obj <- samc(res_data, 0.01, tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
+samc_obj <- samc(res_data, 0.01, model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 # Solution
-samc_obj <- samc(res_data, abs_data, tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
+samc_obj <- samc(res_data, abs_data, model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 ```
 
 ## Error: All disconnected regions must have at least one non-zero absorption value

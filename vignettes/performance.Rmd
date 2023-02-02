@@ -58,7 +58,7 @@ plot(xdat/1000, ydat,
 
 ## Calculations
 
-Just creating a large transition matrix is no longer an issue, but issues still arise when the transition matrix is used in calculations. Some calculations involving the transition matrix, such as calculating the inverse, will produce a dense matrix that cannot be stored in a similarly optimized manner. Instead, the dense matrix will have the same memory requirement as the first figure above. These calculations quickly become impractical with even moderately-low amounts of landscape data. The following figure illustrates how many landscape cells could be practical with consumer hardware when these calculations are involved. This is under *ideal* circumstances; in practice, more than one dense matrix may need to be in memory at the same time to perform some calculations.
+Creating a large transition matrix is no longer the limiting factor in terms of memory, but issues still arise when the transition matrix is used in calculations. Some calculations involving the transition matrix, such as calculating the inverse, will produce a dense matrix that cannot be stored in a similarly optimized manner. Instead, the dense matrix will have the same memory requirement as the first figure above. These calculations quickly become impractical with even moderately-low amounts of landscape data. The following figure illustrates how many landscape cells could be practical with consumer hardware when these calculations are involved. This is under *ideal* circumstances; in practice, more than one dense matrix may need to be in memory at the same time to perform some calculations.
 
 ```{r fig3, fig.width = 6.5, fig.asp = 1, fig.align = "center", echo = FALSE}
 xdat <- seq(0, 50000, 1000)
@@ -74,6 +74,15 @@ plot(xdat/1000, ydat,
 Many of the equations in the SAMC paper perform these calculations. In some cases it is completely unavoidable. Fortunately, in other cases, it is possible to refactor the equations to avoid these particular calculations, or to use other math techniques and tools that limits their downside.
 
 
+## Solvers
+
+There are many different algorithms for solving systems of linear equations on computers. The most straightforward are direct solvers, which use a sequence of operations to deliver an exact solution (not accounting for rounding limitations of hardware). Iterative solvers generate a sequence of improving approximate solutions until some criteria is met (e.g., max time, max number of iterations, min tolerance, etc). In the case of transition matrices generated from raster data, direct solvers appear to generally be significantly faster, but they require a large amount of memory in the process. In contrast, iterative solvers appear to be slower in general (depending on the structure of the data, they might be faster in rare situations), but are substantially more memory efficient.
+
+Prior to version 3.0.0, the samc package always used a direct solver. As of version 3.0.0, the direct solver is still used by default, but now `samc-class` objects can now be switched between the direct solver and an iterative solver. In general, the direct solver should be used where possible, and the iterative solver should be used when the problem cannot be solved within the memory constraints of the system. The iterative solver in samc runs until the error of the result is within the tolerance of the machine precision; in other words the iterative solver should have 15-16 digits of precision for most modern computers, which is a limitation of the direct solver as well.
+
+Not all metrics in samc depend on linear solvers; of the short-term metrics, only `dispersal()` will be affected by the choice of solver.
+
+
 ## Short-term Metrics
 
 The short-term metrics (functions where a number of time steps is specified) are expected to have a run time that increases linearly with the number of time steps (as seen in the benchmarks below). Currently, a limitation in the way numbers are stored in computer hardware is causing these calculations to slow down substantially with large time steps (~47000 on one test computer). Until a suitable workaround is identified, users are recommended to start their analyses with smaller numbers and increase them incrementally. Plotting these incremental results may reveal that a large number of time steps is not necessary in order for the results to stabilize for some/all short-term metrics.
@@ -81,7 +90,7 @@ The short-term metrics (functions where a number of time steps is specified) are
 
 ## Special Cases
 
-#### dispersal(samc, origin) & dispersal(samc, occ)
+#### dispersal(samc, origin) & dispersal(samc, init)
 
 These metrics have been optimized for memory usage, but due to the requirement of calculating $diag(F)$, remain substantially slower than solutions for metrics. Additionally, as the number of transient states increases, the time to compute the result increases quadratically. Once calculated, however, the result of $diag(F)$ is cached and reused in future runs of these metrics. So only the first time running these metrics for a particular samc-class object will be slow.
 
@@ -97,6 +106,8 @@ This section includes automated benchmarks for each method that has been optimiz
 
 #### Overall Performance
 
+*v3.0.0: needs to be updated*
+
 Performance of each of the functions relative to number of landscape cells. For short-term metrics, the number of time steps was set to `10000`.
 
 ```{r fig4, out.width = '100%', fig.align = "center", echo = FALSE}
@@ -106,14 +117,12 @@ knitr::include_graphics("img/bt.png")
 
 #### Overall Memory Usage
 
-Maximum amount of RAM needed by each function at any single point in the computation. Note that this does not include the memory used by other objects in the code (such as the `samc-class` object), or other programs running on the computer. For short-term metrics, the number of time steps was set to `10000`.
-
-```{r fig5, out.width = '100%', fig.align = "center", echo = FALSE}
-knitr::include_graphics("img/br.png")
-```
+*Removed. The profiling tools in R do not measure the memory consumed by native code. In other words, the figures only showed the memory used by the R parts of the code, not the C++ parts, which caused the memory consumption figures to dramatically underestimate memory usage. An external tool has been identified and memory benchmarks will be redone in the future.*
 
 
 #### Temporal Performance
+
+*v3.0.0: needs to be updated*
 
 Performance of each of the short-term metrics for varying number of time steps. The number of landscape cells used for this benchmark was 500,000.
 
@@ -124,8 +133,4 @@ knitr::include_graphics("img/btt.png")
 
 #### Temporal Memory Usage
 
-Maximum amount of RAM needed by each short-term metric for varying number of time steps. Note that this does not include the memory used by other objects in the code (such as the `samc-class` object), or other programs running on the computer. The number of landscape cells used for this benchmark was 500,000.
-
-```{r fig7, out.width = '100%', fig.align = "center", echo = FALSE}
-knitr::include_graphics("img/btr.png")
-```
+*Removed. The profiling tools in R do not measure the memory consumed by native code. In other words, the figures only showed the memory used by the R parts of the code, not the C++ parts, which caused the memory consumption figures to dramatically underestimate memory usage. An external tool has been identified and memory benchmarks will be redone in the future.*

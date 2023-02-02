@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2022-12-23</h4>
+            <h4 data-toc-skip class="date">2023-02-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/tutorial-animations.Rmd" class="external-link"><code>vignettes/tutorial-animations.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-animations.Rmd</code></div>
@@ -198,20 +198,19 @@ desire the style of ggplot with dynamic color scales.</p>
 <span><span class="co"># "Load" the data. In this case we are using data built into the package.</span></span>
 <span><span class="co"># In practice, users will likely load raster data using the raster() function</span></span>
 <span><span class="co"># from the raster package.</span></span>
-<span><span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_res_data.html">ex_res_data</a></span></span>
-<span><span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_abs_data.html">ex_abs_data</a></span></span>
-<span><span class="va">occ_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/ex_occ_data.html">ex_occ_data</a></span></span>
+<span><span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/example_split_corridor.html">example_split_corridor</a></span><span class="op">$</span><span class="va">res</span></span>
+<span><span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/example_split_corridor.html">example_split_corridor</a></span><span class="op">$</span><span class="va">abs</span></span>
 <span></span>
 <span></span>
 <span><span class="co"># Setup the details for our transition function</span></span>
-<span><span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="co"># Function for calculating transition probabilities</span></span>
-<span>           dir <span class="op">=</span> <span class="fl">8</span>, <span class="co"># Directions of the transitions. Either 4 or 8.</span></span>
-<span>           sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Is the function symmetric?</span></span>
+<span><span class="va">rw_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="co"># Function for calculating transition probabilities</span></span>
+<span>                 dir <span class="op">=</span> <span class="fl">8</span>, <span class="co"># Directions of the transitions. Either 4 or 8.</span></span>
+<span>                 sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Is the function symmetric?</span></span>
 <span></span>
 <span><span class="co"># Create a samc object using the resistance and absorption data. We use the</span></span>
 <span><span class="co"># recipricol of the arithmetic mean for calculating the transition matrix. Note,</span></span>
 <span><span class="co"># the input data here are matrices, not RasterLayers.</span></span>
-<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span></span>
+<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, model <span class="op">=</span> <span class="va">rw_model</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="co"># Calculate the probabilities of where an individual starting at specific</span></span>

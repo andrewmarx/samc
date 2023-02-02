@@ -5,16 +5,32 @@
     .Call('_samc_cond_t', PACKAGE = 'samc', IQ, qj)
 }
 
+.cond_t_iter <- function(IQ, qj) {
+    .Call('_samc_cond_t_iter', PACKAGE = 'samc', IQ, qj)
+}
+
 .sum_qn_q <- function(M, M2, q, t) {
     .Call('_samc_sum_qn_q', PACKAGE = 'samc', M, M2, q, t)
+}
+
+.sum_qn_q_iter <- function(M, M2, q, t) {
+    .Call('_samc_sum_qn_q_iter', PACKAGE = 'samc', M, M2, q, t)
 }
 
 .diagf_par <- function(M, threads) {
     .Call('_samc_diagf_par', PACKAGE = 'samc', M, threads)
 }
 
-.psid_long <- function(M, psi, dg) {
-    .Call('_samc_psid_long', PACKAGE = 'samc', M, psi, dg)
+.diagf_par_iter <- function(M, threads) {
+    .Call('_samc_diagf_par_iter', PACKAGE = 'samc', M, threads)
+}
+
+.psid_long <- function(M, psi, dg, SC) {
+    .Call('_samc_psid_long', PACKAGE = 'samc', M, psi, dg, SC)
+}
+
+.psid_long_iter <- function(M, psi, dg) {
+    .Call('_samc_psid_long_iter', PACKAGE = 'samc', M, psi, dg)
 }
 
 .qpow_row <- function(M, row, steps) {
@@ -29,31 +45,55 @@
     .Call('_samc_psiq', PACKAGE = 'samc', M, psi, steps)
 }
 
+.sum_qpowrv <- function(M, rv, steps) {
+    .Call('_samc_sum_qpowrv', PACKAGE = 'samc', M, rv, steps)
+}
+
+.solver_cache <- function() {
+    .Call('_samc_solver_cache', PACKAGE = 'samc')
+}
+
+.f1 <- function(M, SC) {
+    .Call('_samc_f1', PACKAGE = 'samc', M, SC)
+}
+
+.f1_iter <- function(M) {
+    .Call('_samc_f1_iter', PACKAGE = 'samc', M)
+}
+
 .sum_qpow_row <- function(M, row, steps) {
     .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, row, steps)
 }
 
-.sum_qpowrv <- function(M, rv, steps) {
-    .Call('_samc_sum_qpowrv', PACKAGE = 'samc', M, rv, steps)
+.sum_qpow_col <- function(M, col, steps) {
+    .Call('_samc_sum_qpow_col', PACKAGE = 'samc', M, col, steps)
 }
 
 .sum_psiqpow <- function(M, psi, steps) {
     .Call('_samc_sum_psiqpow', PACKAGE = 'samc', M, psi, steps)
 }
 
-.psif <- function(M, psi) {
-    .Call('_samc_psif', PACKAGE = 'samc', M, psi)
+.f_row <- function(M, row, SC) {
+    .Call('_samc_f_row', PACKAGE = 'samc', M, row, SC)
 }
 
-.f1 <- function(M) {
-    .Call('_samc_f1', PACKAGE = 'samc', M)
+.f_row_iter <- function(M, row) {
+    .Call('_samc_f_row_iter', PACKAGE = 'samc', M, row)
 }
 
-.f_row <- function(M, row) {
-    .Call('_samc_f_row', PACKAGE = 'samc', M, row)
+.f_col <- function(M, col, SC) {
+    .Call('_samc_f_col', PACKAGE = 'samc', M, col, SC)
 }
 
-.f_col <- function(M, col) {
-    .Call('_samc_f_col', PACKAGE = 'samc', M, col)
+.f_col_iter <- function(M, col) {
+    .Call('_samc_f_col_iter', PACKAGE = 'samc', M, col)
+}
+
+.psif <- function(M, psi, SC) {
+    .Call('_samc_psif', PACKAGE = 'samc', M, psi, SC)
+}
+
+.psif_iter <- function(M, psi) {
+    .Call('_samc_psif_iter', PACKAGE = 'samc', M, psi)
 }
 

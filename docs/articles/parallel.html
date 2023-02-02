@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2022-12-23</h4>
+            <h4 data-toc-skip class="date">2023-02-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/parallel.Rmd" class="external-link"><code>vignettes/parallel.Rmd</code></a></small>
       <div class="hidden name"><code>parallel.Rmd</code></div>
@@ -172,8 +172,8 @@ Marx</h4>
 <p>As of v2.0.0, the samc package does support the use of multiple cores
 for parallelization. Currently, this feature is targeted towards the
 <code><a href="../reference/dispersal.html">dispersal()</a></code> function for the
-<code>dispersal(samc, occ)</code> option. This function is particularly
-useful, but has a severe performance limitation explained in the <a href="performance.html#special-cases-1">Performance</a> vignette.
+<code>dispersal(samc, init)</code> option. This function is particularly
+useful but has a severe performance limitation explained in the <a href="performance.html#special-cases-1">Performance</a> vignette.
 Fortunately, this particular case is suitable for parallelization, which
 means that multiple cores can be used to drastically reduce the runtime
 of the analysis.</p>
@@ -218,15 +218,15 @@ use of multiple threads (4 in this example).</p>
 </h2>
 <p>In general, using more cores to solve a problem will not scale
 perfectly. In addition, there can be diminishing returns as the number
-of cores used increases. There are multiple factors that play into this.
-Users with very high core count machines (e.g., 32, 64, or 128 cores)
-may find that using all of their cores does not provide significant
-benefit over a more moderate amount of cores. The only way to know for
-sure is to benchmark the analysis at different core counts.</p>
+of cores used increases. Multiple factors that play into this. Users
+with very high core count machines (e.g., 32, 64, or 128 cores) may find
+that using all of their cores does not provide significant benefit over
+a more moderate amount of cores. The only way to know for sure is to
+benchmark the analysis at different core counts.</p>
 <p>In general, using more cores means that additional memory will need
 to be used to solve the problem. The severity of the memory increase
 will vary depending on the problem. In the case of
-<code><a href="../reference/dispersal.html">dispersal()</a></code>, the memory requirements for additional cores
+<code><a href="../reference/dispersal.html">dispersal()</a></code>, the memory requirement for additional cores
 used is fairly minimal. This means that as long as machines have a
 reasonable amount of memory per core, this should not be an issue.</p>
 <p>If you use all the cores of a machine at once, it can negatively

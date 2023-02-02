@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
       </span>
     </div>
 
@@ -127,6 +127,51 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="3.0.2" id="samc-302">samc 3.0.2<small>2023-02-01</small><a class="anchor" aria-label="anchor" href="#samc-302"></a></h2>
+<div class="section level3">
+<h3 id="new-features-3-0-2">New Features<a class="anchor" aria-label="anchor" href="#new-features-3-0-2"></a></h3>
+<ul><li>Added support for the terra package for raster data. Internally, the package now uses terra and converts RasterLayer objects to SpatRaster objects. It’s recommended that users switch to the terra package for loading and preparing raster data for samc.</li>
+<li>Made the <code><a href="../reference/rasterize.html">rasterize()</a></code> function publicly available. Mainly useful for converting matrices to a SpatRaster that matches the structure used internally by the package.</li>
+<li>Added short-term versions of the <code><a href="../reference/visitation.html">visitation()</a></code> function.</li>
+<li>
+<strong><em>Breaking</em></strong> Added support for setting the initial state in the <code><a href="../reference/visitation.html">visitation()</a></code> function</li>
+</ul></div>
+<div class="section level3">
+<h3 id="performance-3-0-2">Performance<a class="anchor" aria-label="anchor" href="#performance-3-0-2"></a></h3>
+<ul><li>
+<strong><em>Breaking</em></strong> Removed default naming of cells for samc objects created from rasters. This leads to substantially smaller samc objects, especially as raster inputs become larger.</li>
+<li>Overhauled the samc object creation to be substantially more memory efficient. It is now feasible to create samc objects with 100+ million transient states with 32 GB of RAM. However, this memory efficiency comes with the tradeoff that samc objects can take significantly longer to create (~2x as long based on preliminary testing).</li>
+<li>Added optional support for iterative solvers in metrics (where applicable). This greatly reduces the memory requirements of these metrics, but in general, will take longer to calculate. Initial tests indicate that the <code><a href="../reference/visitation.html">visitation()</a></code> function is feasible for samc objects with 50 Million cells with 32 GB of RAM. Details about changing the solver can be found in the help documentation for the <code>samc-class</code>.</li>
+<li>Added caching behavior for some metrics when using a direct solver. This can reduce run-time by over 95% when rerunning these metrics with the same arguments but different input values. Using different arguments or metrics may require rebuilding the cache, so it is best to keep specific usages of a metric grouped in code.
+<ul><li>In rare cases, cached data is reused for other combinations of arguments and other metrics. This can lead to unexpected situational speedups depending on the order of metrics in the code. Combinations of metrics benefiting from this behavior is not currently documented, but may be in the future.</li>
+<li>Currently, each samc object has it’s own cache. Creating multiple samc objects can lead to high memory usage by data caches. The best way to avoid this is to only have one samc object at a time. A future version will implement a single global data cache so that having multiple samc objects will not lead to multiple data caches consuming excess memory.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="website-3-0-2">Website<a class="anchor" aria-label="anchor" href="#website-3-0-2"></a></h3>
+<ul><li>Updated the performance vignette to include additional information about the choice of linear solver. Also removed old memory consumption benchmarks due to a flaw in testing where profilers in R do not measure the memory consumption of native code.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-3-0-2">Other<a class="anchor" aria-label="anchor" href="#other-3-0-2"></a></h3>
+<ul><li>
+<strong><em>Breaking</em></strong> Combined the three original example data objects into a single list. Updated documentation accordingly.</li>
+<li>Moved the maze example vignette data into a built-in data object.</li>
+<li>
+<strong><em>Breaking</em></strong> Removed support for TransitionLayer inputs to the <code><a href="../reference/samc.html">samc()</a></code> function so that gdistance can be removed as a dependency.</li>
+<li>
+<strong><em>Breaking</em></strong> The <code>sym</code> option for creating the samc object is currently ignored.</li>
+<li>
+<strong><em>Breaking</em></strong> The <code><a href="../reference/map.html">map()</a></code> function was updated so that the output matches the input types used in the <code><a href="../reference/samc.html">samc()</a></code> function.</li>
+<li>
+<strong><em>Breaking</em></strong> Rename the <code>tr_args</code> parameter to <code>model</code> to reflect future anticipated support for different types of models. Current usage will not change and assumes a default random-walk model.</li>
+<li>
+<strong><em>Breaking</em></strong> Renamed the <code>occ</code> parameter in metrics to <code>init</code> (short for “initial state” or “initialize”)</li>
+<li>
+<strong><em>Breaking</em></strong> Added the parameter for setting the initial state in the <code><a href="../reference/cond_passage.html">cond_passage()</a></code> function to match other metrics, but it is not currently used.</li>
+<li>Bumped various package version requirements.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="2.0.1" id="samc-201">samc 2.0.1<small>2022-06-11</small><a class="anchor" aria-label="anchor" href="#samc-201"></a></h2>
 <ul><li>Fix debian-clang build error</li>
 <li>Replace built-in progress counter with RcppThread progress counter</li>
@@ -135,8 +180,8 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.0.0" id="samc-200">samc 2.0.0<small>2021-10-23</small><a class="anchor" aria-label="anchor" href="#samc-200"></a></h2>
-<ul><li>Removed backwards compatibility for deprecated <code><a href="../reference/samc.html">samc()</a></code> function parameters. This is a breaking change that will make maintaining the package and adding new features a simpler process going forward, and that will hopefully only be a minor inconvenience for users. The warning message on package load introduced in v1.4.0 has been updated to reflect the new changes.</li>
-<li>Updated <code><a href="../reference/cond_passage.html">cond_passage()</a></code> to return <code>0</code> for when <em>i==j</em> in the vectors. This fixes an issue associated with shifted indices in <code>cond_passage(samc, dest)</code>. It also technically breaks backwards compatibility for when <code>dest</code> equals <code>origin</code> in <code>cond_passage(samc, origin, dest)</code>. Previously, <code>cond_passage(samc, origin, dest)</code> would return <code>NA</code> when <code>origin</code> equaled <code>dest</code>, but this decision was arbitrary. The <code><a href="../reference/cond_passage.html">cond_passage()</a></code> documentation explains why.</li>
+<ul><li>Removed backward compatibility for deprecated <code><a href="../reference/samc.html">samc()</a></code> function parameters. This is a breaking change that will make maintaining the package and adding new features a simpler process going forward, and that will hopefully only be a minor inconvenience for users. The warning message on package load introduced in v1.4.0 has been updated to reflect the new changes.</li>
+<li>Updated <code><a href="../reference/cond_passage.html">cond_passage()</a></code> to return <code>0</code> for when <em>i==j</em> in the vectors. This fixes an issue associated with shifted indices in <code>cond_passage(samc, dest)</code>. It also technically breaks backward compatibility for when <code>dest</code> equals <code>origin</code> in <code>cond_passage(samc, origin, dest)</code>. Previously, <code>cond_passage(samc, origin, dest)</code> would return <code>NA</code> when <code>origin</code> equaled <code>dest</code>, but this decision was arbitrary. The <code><a href="../reference/cond_passage.html">cond_passage()</a></code> documentation explains why.</li>
 <li>Added a new section for worked examples on the website.</li>
 <li>Added a new example illustrating how to use various aspects of the package with a simple perfect maze and interpret the results. See the Maze Part 1 vignette.</li>
 <li>Added multithreading for the <code>dispersal(samc, origin/occ)</code> function via the RcppThread package. See the Parallel Computing vignette for details.</li>
@@ -153,7 +198,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.4.0" id="samc-140">samc 1.4.0<small>2021-06-27</small><a class="anchor" aria-label="anchor" href="#samc-140"></a></h2>
-<ul><li>Due to a ballooning parameter count, the samc() function parameters are being adjusted. The new version is samc(data, absorption, fidelity, tr_args). Code using the previous syntax should continue to work (with one rare edge-case as an exception), but backwards compatibility will be remove in version 1.5.0, so old code should be updated. See the samc() function documentation and website tutorials for full details and examples. Package startup output has been added to detail the changes as well.
+<ul><li>Due to a ballooning parameter count, the samc() function parameters are being adjusted. The new version is samc(data, absorption, fidelity, tr_args). Code using the previous syntax should continue to work (with one rare edge-case as an exception), but backward compatibility will be removed in version 1.5.0, so old code should be updated. See the samc() function documentation and website tutorials for full details and examples. Package startup output has been added to detail the changes as well.
 <ul><li>Updated long/lat handling in samc() to use projection info built into the raster. Deprecated latlon parameter (no longer needed). Added warning for when rasters have non-square cells and are missing projection information.</li>
 <li>The data parameter should be used to pass in the data related to transition probabilities (essentially replaces the resistance and p_mat parameters)</li>
 <li>The tr_fun and directions parameters have been deprecated. This information is now passed as list to the tr_args.</li>
@@ -163,8 +208,8 @@
 <li>Added the ability to directly input a custom TransitionLayer to the samc() function. This allows more flexibility than RasterLayer/matrix maps, but is a little safer than directly inputting a P matrix. See samc() documentation and <em>Overview</em> vignette for full details.</li>
 <li>Added the ability to use the $ operator for accessing and modifying components of samc-class objects. See samc-class documentation for details.</li>
 <li>Updated check() so that multiple rasters can be inputted in the first argument as a RasterStack. This eliminates the need to manually run check() for multiple pairs of rasters.</li>
-<li>Added initial support for caching intermediate results of some calculations. This currently only benefits dispersal(samc, occ), which now caches the diag(F) calculation. This means that while the first run of this method will still be slow, subsequent runs will be substantially faster. With this feature, dispersal(samc, origin) has been enabled, and will share the same cached information with dispersal(samc, occ). Future versions will expand the cache options to additional metrics.</li>
-<li>Added support for multiple absorption. The <code>absorption</code> parameter in samc() is treated as the total absorption (consistent with previous behavior). After creation of the samc-class object, additional absorbing states can be attached to the samc-class object. See the samc-class documentation and the new <em>Multiple Absorption</em> tutorial for more details.</li>
+<li>Added initial support for caching intermediate results of some calculations. This currently only benefits dispersal(samc, occ), which now caches the diag(F) calculation. This means that while the first run of this method will still be slow, subsequent runs will be substantially faster. With this feature, dispersal(samc, origin) has been enabled and will share the same cached information with dispersal(samc, occ). Future versions will expand the cache options to additional metrics.</li>
+<li>Added support for multiple absorption. The <code>absorption</code> parameter in samc() is treated as the total absorption (consistent with previous behavior). After the creation of the samc-class object, additional absorbing states can be attached to the samc-class object. See the samc-class documentation and the new <em>Multiple Absorption</em> tutorial for more details.</li>
 <li>Added a new absorption() metric. This metric is closely related to the mortality() metric. The absorption() metric can be used to determine the overall probability that a particular absorbing state will be reached (the mortality() metric calculates it for individual transient states rather than overall).</li>
 <li>Fix missing value short-term dispersal</li>
 <li>Overhauled the <em>Overview</em> vignette, including adding more details about the construction of the P matrix.</li>
@@ -177,7 +222,7 @@
 <ul><li>Fixed an issue with the check() function when data contains NA’s.</li>
 <li>Fixed an issue with the raster returned from locate(samc) having 0 for NA cells.</li>
 <li>Improved error checking and messaging for the check() and locate() functions.</li>
-<li>Named rows and columns for the P matrix is now supported. Previously, naming the rows and columns would cause some checks to fail. If names are not manually assigned, the names are simply the row/column numbers converted to character strings.</li>
+<li>Named rows and columns for the P matrix are now supported. Previously, naming the rows and columns would cause some checks to fail. If names are not manually assigned, the names are simply the row/column numbers converted to character strings.</li>
 <li>Analytical functions updated to support named inputs for the origin and dest location parameters</li>
 <li>When both the origin and dest parameter is used in a function, the inputs can be paired vectors.</li>
 <li>Added the pairwise() utility function</li>
@@ -200,7 +245,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.1.0" id="samc-110">samc 1.1.0<small>2020-05-19</small><a class="anchor" aria-label="anchor" href="#samc-110"></a></h2>
-<ul><li>Added support for the use vectors of time steps in most short-term metrics. It is more computationally efficient and ergonomic to do this rather than calculating short-term metrics for each individual time step. Some key points:
+<ul><li>Added support for the use vectors of time steps in most short-term metrics. It is more computationally efficient and ergonomic to do this rather than calculating short-term metrics for time steps individually. Some key points:
 <ul><li>When vector inputs are used for time steps, the result is contained in a list</li>
 <li>The names of the entries in the list are character versions of the corresponding time step values</li>
 <li>Time step vectors must consist of ordered positive integers with no duplicate values</li>

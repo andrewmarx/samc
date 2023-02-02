@@ -28,7 +28,7 @@ do.call(knitr::read_chunk, list(path = "scripts/example-maze.R"))
 
 This example shows how to use and interpret different absorbing Markov chain metrics with a *perfect maze*. A perfect maze is a maze that has no loops, every point is reachable, and there is only a single path between any two points. The motivation for this type of example is that is fun and interesting while having very simple properties that make it easy to visually and numerically interpret the results of the different metrics available in the package.
 
-The complete code for this series is available on [Github](https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-maze.R).
+The complete code for this series is available on [GitHub](https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-maze.R).
 
 
 ## Libraries
@@ -60,7 +60,7 @@ Create an absorption map where the finish point is the only source of absorption
 <<1_setup_4>>
 ```
 
-Given the nature of some of the calculations performed by the package, it's sometimes possible for floating point precision issues to arise where equality comparisons between two decimal values don't yield expected results. It's an unfortunate limitation of all computer hardware and is why functions like `all.equal()` exist in base R. Unfortunately, there isn't a base function available for the specific comparisons we want to perform, so we will manually have to do it. In order to do so, we will need a tolerance value and will use the default tolerance used by `all.equal()`:
+Given the nature of some of the calculations performed by the package, it's sometimes possible for floating point precision issues to arise where equality comparisons between two decimal values don't yield the expected results. It's an unfortunate limitation of all computer hardware and is why functions like `all.equal()` exist in base R. Unfortunately, there isn't a base function available for the specific comparisons we want to perform, so we will manually have to do it. To do so, we will need a tolerance value and will use the default tolerance used by `all.equal()`:
 ```{r}
 <<1_setup_5>>
 ```
@@ -73,7 +73,7 @@ With the resistance and absorption maps prepared, a samc object can be created:
 <<1_setup_6>>
 ```
 
-The model represented by this samc object has been setup to assume a simple random walk. There is no "memory" of the past to stop the individual from going back to dead ends, there is no ability to "look ahead" and see dead ends, and the individual will always move to a different cell every time step.
+The model represented by this samc object has been set up to assume a simple random walk. There is no "memory" of the past to stop the individual from going back to dead ends, there is no ability to "look ahead" and see dead ends, and the individual will always move to a different cell every time step.
 
 Note the use of only four directions. This prevents diagonal movements in the maze, which in turn will have important consequences for short-term metrics (discussed later).
 
@@ -92,16 +92,16 @@ The result is a vector with the expected time to absorption, or finish, for ever
 <<1_ttf_2>>
 ```
 
-When there is only a single point of total absorption, like this example, `survival()` and `cond_passage()` are nearly identical when the destination for `cond_passage()` is set to the point of absorption (the finish point):
+When there is only a single point of total absorption, like in this example, `survival()` and `cond_passage()` are nearly identical when the destination for `cond_passage()` is set to the point of absorption (the finish point):
 ```{r}
 <<1_ttf_3>>
 ```
 
-It turns out that the cell in the map corresponding to our finish point is not actually an absorbing state; it's still a transient state. Absorption occurs one time step later when the individual is removed from the maze since it can't go anywhere else in our example. So `cond_passage()` reports how long it takes to reach the final cell, and `survival()` tells us how long it takes us to reach the final cell and then be removed from it.
+It turns out that the cell in the map corresponding to our finish point is not an absorbing state; it's still a transient state. Absorption occurs one time step later when the individual is removed from the maze since it can't go anywhere else in our example. So `cond_passage()` reports how long it takes to reach the final cell, and `survival()` tells us how long it takes us to reach the final cell and then be removed from it.
 
-A couple things to keep in mind:
+A couple of things to keep in mind:
 - `survival()` will have different results and a different interpretation for the maze in more complicated scenarios with multiple points of absorption.
-- `cond_passage()` normally does not work when there are states that lead to total absorption. The only exception is when there is a single instance of a state leading to total absorption present and the `dest` parameter is set to it. In that case, the absorption state is actually effectively ignored. This is why `cond_passage()` works as shown in this example, but if attempting to change the `dest` parameter to a different location will cause it to fail. `cond_passage()` can still be used for other `dest` values, but first the absorption value would have to be changed to a value less than `1`.
+- `cond_passage()` normally does not work when there are states that lead to total absorption. The only exception is when there is a single instance of a state leading to total absorption present and the `dest` parameter is set to it. In that case, the absorption state is effectively ignored. This is why `cond_passage()` works as shown in this example, but attempting to change the `dest` parameter to a different location will cause it to fail. `cond_passage()` can still be used for other `dest` values, but first, the absorption value would have to be changed to a value less than `1`.
 
 
 ## Probability of visiting a cell
@@ -111,14 +111,14 @@ If we're interested in knowing the probability that a particular cell (or cells)
 <<1_pov_1>>
 ```
 
-In order to complete the maze, the individual has to visit every cell along the path to the exit, so all of those cells will have a probability of `1.0`. The farther away from this path a cell is located, the lower the probability it will be visited. Additionally, the closer the individual gets to the finish, the less likely they will spend time taking incorrect routes before stumbling upon the finish. There's also the possibility for scenarios like the one where the individual is near the finish and then manages to stumble all the way back to the start. These different aspects contribute to more time spent near the start point, on average, which in turn means that cells near the start have a higher probability of being visited.
+To complete the maze, the individual has to visit every cell along the path to the exit, so all of those cells will have a probability of `1.0`. The farther away from this path a cell is located, the lower the probability it will be visited. Additionally, the closer the individual gets to the finish, the less likely they will spend time taking incorrect routes before stumbling upon the finish. There's also the possibility of scenarios like the one where the individual is near the finish and then manages to stumble back to the start. These different aspects contribute to more time spent near the start point, on average, which in turn means that cells near the start have a higher probability of being visited.
 
 The previous paragraph hinted that the results from the `dispersal()` function can be used to identify the route through the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
 <<1_pov_2>>
 ```
 
-Like the `survival()` function, there is an important caveat: The visitation probabilities don't include time `0`. So while it looks like the starting cell might have a probability of `1` in the first figure, it's actually slightly less and it just wasn't apparent with the color scale:
+Like the `survival()` function, there is an important caveat: The visitation probabilities don't include time `0`. So while it looks like the starting cell might have a probability of `1` in the first figure, it's slightly less and it just wasn't apparent with the color scale:
 ```{r}
 <<1_pov_3>>
 ```
@@ -154,44 +154,44 @@ Earlier it was mentioned that using only 4 directions for the transition functio
 
 ## Other metrics
 
-There are a couple metrics that have not been covered yet: `absorption()` and `mortality()`. For the example provide thus far, they don't do anything useful. `mortality()` would only report a 100% probability of absorption at the finish point; it will be more useful when there are multiple locations with absorption probabilities. `absorption()` is only useful when there are different *types* of absorption.
+There are a couple of metrics that have not been covered yet: `absorption()` and `mortality()`. For the example provide thus far, they don't do anything useful. `mortality()` would only report a 100% probability of absorption at the finish point; it will be more useful when there are multiple locations with absorption probabilities. `absorption()` is only useful when there are different *types* of absorption.
 
 
 ## Occupancy
 
-Many of the metrics offer a more advanced and flexible option for setting an initial state in the absorbing Markov chain. Inputs to the `occ` parameter (short for occupancy) can essentially be used as an alternative to specifying a singular start point. Here is an example `occ` map that represents the scenario that has been presented so far:
+Many of the metrics offer a more advanced and flexible option for setting an initial state in the absorbing Markov chain. Inputs to the `init` parameter (short for initial state) can essentially be used as an alternative to specifying a singular start point. Here is an example `init` map that represents the scenario that has been presented so far:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<1_occ_1>>
+<<1_init_1>>
 ```
 
 Using the `survival()` metric, it produces the same result as before:
 ```{r, fig.show='hold'}
-<<1_occ_2>>
+<<1_init_2>>
 ```
 
-But now,more interesting scenarios can be tested. For example, let's start the maze with 3 individuals:
+But now, more interesting scenarios can be tested. For example, let's start the maze with 3 individuals:
 ```{r, fig.show='hold'}
-<<1_occ_3>>
+<<1_init_3>>
 ```
 
-The interpretation becomes a little trickier here. The `survival()` metric is returning the cumulative time spent in the maze for *all* the individuals. This means that with 3 individuals starting at the beginning, 3 times as much time is going to be spent in the maze, but that per individual, it will still take the same number of time steps to finish as before:
+The interpretation becomes a little trickier here. The `survival()` metric is returning the cumulative time spent in the maze for *all* the individuals. This means that with 3 individuals starting at the beginning, 3 times as much time is going to be spent in the maze, but per individual, it will still take the same number of time steps to finish as before:
 ```{r}
-<<1_occ_4>>
+<<1_init_4>>
 ```
 
 Here's a different scenario with 3 individuals again, but now they start in different corners of the maze:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<1_occ_5>>
+<<1_init_5>>
 ```
 
 Again, the cumulative time spent in the maze is larger than reported in the original scenario with one individual. However, this time the average time per individual spent in the maze decreases:
 ```{r, fig.show='hold'}
-<<1_occ_6>>
+<<1_init_6>>
 ```
 
 This is because the additional individuals are now located in corners that are substantially closer to the finish point, so they would be expected to find it faster on average. Based on where each individual starts, it would be reasonable to expect that the individual starting in the bottom left has the biggest advantage. One way to try and visualize this is with the `distrbution()` metric:
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center'}
-<<1_occ_7>>
+<<1_init_7>>
 ```
 
 A good exercise for the reader is to apply the concepts of the animations vignette to this figure.
@@ -199,4 +199,4 @@ A good exercise for the reader is to apply the concepts of the animations vignet
 
 ## Future parts
 
-In future parts, many different modifications will be made to the maze to explore how they change the results of different metrics and how the different metrics are related. These modifications include the use of fidelity to simulate scenarios where the individual pauses to think about their next decision, modifying the resistance input to simulate "looking ahead" to perform dead end avoidance, and modifying the absorption input to simulate different sources of absorption such as lethal traps.
+In future parts, many different modifications will be made to the maze to explore how they change the results of different metrics and how the different metrics are related. These modifications include the use of fidelity to simulate scenarios where the individual pauses to think about their next decision, modifying the resistance input to simulate "looking ahead" to perform dead-end avoidance, and modifying the absorption input to simulate different sources of absorption such as lethal traps.

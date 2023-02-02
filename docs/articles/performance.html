@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2022-12-23</h4>
+            <h4 data-toc-skip class="date">2023-02-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/performance.Rmd" class="external-link"><code>vignettes/performance.Rmd</code></a></small>
       <div class="hidden name"><code>performance.Rmd</code></div>
@@ -227,24 +227,53 @@ condensed down to less than 0.15 GB of RAM.</p>
 <div class="section level2">
 <h2 id="calculations">Calculations<a class="anchor" aria-label="anchor" href="#calculations"></a>
 </h2>
-<p>Just creating a large transition matrix is no longer an issue, but
-issues still arise when the transition matrix is used in calculations.
-Some calculations involving the transition matrix, such as calculating
-the inverse, will produce a dense matrix that cannot be stored in a
-similarly optimized manner. Instead, the dense matrix will have the same
-memory requirement as the first figure above. These calculations quickly
-become impractical with even moderately-low amounts of landscape data.
-The following figure illustrates how many landscape cells could be
-practical with consumer hardware when these calculations are involved.
-This is under <em>ideal</em> circumstances; in practice, more than one
-dense matrix may need to be in memory at the same time to perform some
-calculations.</p>
+<p>Creating a large transition matrix is no longer the limiting factor
+in terms of memory, but issues still arise when the transition matrix is
+used in calculations. Some calculations involving the transition matrix,
+such as calculating the inverse, will produce a dense matrix that cannot
+be stored in a similarly optimized manner. Instead, the dense matrix
+will have the same memory requirement as the first figure above. These
+calculations quickly become impractical with even moderately-low amounts
+of landscape data. The following figure illustrates how many landscape
+cells could be practical with consumer hardware when these calculations
+are involved. This is under <em>ideal</em> circumstances; in practice,
+more than one dense matrix may need to be in memory at the same time to
+perform some calculations.</p>
 <p><img src="performance_files/figure-html/fig3-1.png" width="624" style="display: block; margin: auto;"></p>
 <p>Many of the equations in the SAMC paper perform these calculations.
 In some cases it is completely unavoidable. Fortunately, in other cases,
 it is possible to refactor the equations to avoid these particular
 calculations, or to use other math techniques and tools that limits
 their downside.</p>
+</div>
+<div class="section level2">
+<h2 id="solvers">Solvers<a class="anchor" aria-label="anchor" href="#solvers"></a>
+</h2>
+<p>There are many different algorithms for solving systems of linear
+equations on computers. The most straightforward are direct solvers,
+which use a sequence of operations to deliver an exact solution (not
+accounting for rounding limitations of hardware). Iterative solvers
+generate a sequence of improving approximate solutions until some
+criteria is met (e.g., max time, max number of iterations, min
+tolerance, etc). In the case of transition matrices generated from
+raster data, direct solvers appear to generally be significantly faster,
+but they require a large amount of memory in the process. In contrast,
+iterative solvers appear to be slower in general (depending on the
+structure of the data, they might be faster in rare situations), but are
+substantially more memory efficient.</p>
+<p>Prior to version 3.0.0, the samc package always used a direct solver.
+As of version 3.0.0, the direct solver is still used by default, but now
+<code>samc-class</code> objects can now be switched between the direct
+solver and an iterative solver. In general, the direct solver should be
+used where possible, and the iterative solver should be used when the
+problem cannot be solved within the memory constraints of the system.
+The iterative solver in samc runs until the error of the result is
+within the tolerance of the machine precision; in other words the
+iterative solver should have 15-16 digits of precision for most modern
+computers, which is a limitation of the direct solver as well.</p>
+<p>Not all metrics in samc depend on linear solvers; of the short-term
+metrics, only <code><a href="../reference/dispersal.html">dispersal()</a></code> will be affected by the choice of
+solver.</p>
 </div>
 <div class="section level2">
 <h2 id="short-term-metrics">Short-term Metrics<a class="anchor" aria-label="anchor" href="#short-term-metrics"></a>
@@ -264,7 +293,7 @@ order for the results to stabilize for some/all short-term metrics.</p>
 <h2 id="special-cases">Special Cases<a class="anchor" aria-label="anchor" href="#special-cases"></a>
 </h2>
 <div class="section level4">
-<h4 id="dispersalsamc-origin-dispersalsamc-occ">dispersal(samc, origin) &amp; dispersal(samc, occ)<a class="anchor" aria-label="anchor" href="#dispersalsamc-origin-dispersalsamc-occ"></a>
+<h4 id="dispersalsamc-origin-dispersalsamc-init">dispersal(samc, origin) &amp; dispersal(samc, init)<a class="anchor" aria-label="anchor" href="#dispersalsamc-origin-dispersalsamc-init"></a>
 </h4>
 <p>These metrics have been optimized for memory usage, but due to the
 requirement of calculating <span class="math inline">\(diag(F)\)</span>,
@@ -302,6 +331,7 @@ with different hardware.</p>
 <div class="section level4">
 <h4 id="overall-performance">Overall Performance<a class="anchor" aria-label="anchor" href="#overall-performance"></a>
 </h4>
+<p><em>v3.0.0: needs to be updated</em></p>
 <p>Performance of each of the functions relative to number of landscape
 cells. For short-term metrics, the number of time steps was set to
 <code>10000</code>.</p>
@@ -310,16 +340,17 @@ cells. For short-term metrics, the number of time steps was set to
 <div class="section level4">
 <h4 id="overall-memory-usage">Overall Memory Usage<a class="anchor" aria-label="anchor" href="#overall-memory-usage"></a>
 </h4>
-<p>Maximum amount of RAM needed by each function at any single point in
-the computation. Note that this does not include the memory used by
-other objects in the code (such as the <code>samc-class</code> object),
-or other programs running on the computer. For short-term metrics, the
-number of time steps was set to <code>10000</code>.</p>
-<p><img src="img/br.png" width="100%" style="display: block; margin: auto;"></p>
+<p><em>Removed. The profiling tools in R do not measure the memory
+consumed by native code. In other words, the figures only showed the
+memory used by the R parts of the code, not the C++ parts, which caused
+the memory consumption figures to dramatically underestimate memory
+usage. An external tool has been identified and memory benchmarks will
+be redone in the future.</em></p>
 </div>
 <div class="section level4">
 <h4 id="temporal-performance">Temporal Performance<a class="anchor" aria-label="anchor" href="#temporal-performance"></a>
 </h4>
+<p><em>v3.0.0: needs to be updated</em></p>
 <p>Performance of each of the short-term metrics for varying number of
 time steps. The number of landscape cells used for this benchmark was
 500,000.</p>
@@ -328,12 +359,12 @@ time steps. The number of landscape cells used for this benchmark was
 <div class="section level4">
 <h4 id="temporal-memory-usage">Temporal Memory Usage<a class="anchor" aria-label="anchor" href="#temporal-memory-usage"></a>
 </h4>
-<p>Maximum amount of RAM needed by each short-term metric for varying
-number of time steps. Note that this does not include the memory used by
-other objects in the code (such as the <code>samc-class</code> object),
-or other programs running on the computer. The number of landscape cells
-used for this benchmark was 500,000.</p>
-<p><img src="img/btr.png" width="100%" style="display: block; margin: auto;"></p>
+<p><em>Removed. The profiling tools in R do not measure the memory
+consumed by native code. In other words, the figures only showed the
+memory used by the R parts of the code, not the C++ parts, which caused
+the memory consumption figures to dramatically underestimate memory
+usage. An external tool has been identified and memory benchmarks will
+be redone in the future.</em></p>
 </div>
 </div>
   </div>

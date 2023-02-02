@@ -6,7 +6,7 @@ NULL
 #'
 #' Contains the data fields used in the samc-class
 #'
-#' @slot q Q matrix
+#' @slot f F matrix
 #' @slot t_abs Total absorption
 #' @slot c_abs Component absorption states
 #'
@@ -18,7 +18,7 @@ setClass(
   "samc_data",
 
   # define the slots
-  slots = list(q = "dgCMatrix",
+  slots = list(f = "CsparseMatrix",
                t_abs = "numeric",
                c_abs = "matrix")
 
@@ -31,3 +31,13 @@ setClass(
   #   return(TRUE)
   # }
 )
+
+
+#' samc char_null class
+#'
+#' Class for grouping character and NULL data types
+#'
+#' @name char_null-class
+#' @keywords internal
+#'
+setClassUnion("char_null", c("character", "NULL"))

@@ -47,8 +47,8 @@ check_fail <- list(
 test_that("check() works as intended", {
   # Check that the testlist scenarios all work
   for (t in testlist) {
-    expect_true(check(t$res, t$occ)) # Not really needed because samc() uses it, but included anyway
-    expect_true(check(t$samc, t$occ))
+    expect_true(check(t$res, t$init)) # Not really needed because samc() uses it, but included anyway
+    expect_true(check(t$samc, t$init))
   }
 
   # Check that fail cases are producing errors

@@ -16,20 +16,19 @@ library("gganimate")
 # "Load" the data. In this case we are using data built into the package.
 # In practice, users will likely load raster data using the raster() function
 # from the raster package.
-res_data <- samc::ex_res_data
-abs_data <- samc::ex_abs_data
-occ_data <- samc::ex_occ_data
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
 
 
 # Setup the details for our transition function
-tr <- list(fun = function(x) 1/mean(x), # Function for calculating transition probabilities
-           dir = 8, # Directions of the transitions. Either 4 or 8.
-           sym = TRUE) # Is the function symmetric?
+rw_model <- list(fun = function(x) 1/mean(x), # Function for calculating transition probabilities
+                 dir = 8, # Directions of the transitions. Either 4 or 8.
+                 sym = TRUE) # Is the function symmetric?
 
 # Create a samc object using the resistance and absorption data. We use the
 # recipricol of the arithmetic mean for calculating the transition matrix. Note,
 # the input data here are matrices, not RasterLayers.
-samc_obj <- samc(res_data, abs_data, tr_args = tr)
+samc_obj <- samc(res_data, abs_data, model = rw_model)
 
 
 # Calculate the probabilities of where an individual starting at specific

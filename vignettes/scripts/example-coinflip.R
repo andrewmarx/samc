@@ -53,12 +53,12 @@ sum(visitation(samc_obj, origin = "HHT")) # Compare to survival() result
 
 
 ## @knitr metric_2_2
-# Instead of a start point, we can look at an end point and how often we expect
+# Instead of a start point, we can look at an endpoint and how often we expect
 # it to occur for each of the possible starting points
 visitation(samc_obj, dest = "THT")
 
 # These results are just rows/cols of a larger matrix. We can get the entire matrix
-# of the start/end possibilities but first we have to disable some safety measures
+# of the start/end possibilities but first, we have to disable some safety measures
 # in place because this package is designed to work with extremely large P matrices
 # (millions of rows/cols) where these types of results will consume too much RAM and
 # crash R

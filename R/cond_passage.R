@@ -52,6 +52,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
+#' @param init Placeholder/not currently implemented.
 #' @template param-origin
 #' @template param-dest
 #'
@@ -63,7 +64,7 @@ NULL
 
 setGeneric(
   "cond_passage",
-  function(samc, origin, dest) {
+  function(samc, init, origin, dest) {
     standardGeneric("cond_passage")
   })
 
@@ -71,7 +72,7 @@ setGeneric(
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
-  signature(samc = "samc", origin = "missing", dest = "location"),
+  signature(samc = "samc", init = "missing", origin = "missing", dest = "location"),
   function(samc, dest) {
     if (samc@clumps == -1)
       warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
@@ -91,11 +92,15 @@ setMethod(
     Qj@x <- -Qj@x
     Matrix::diag(Qj) <- Matrix::diag(Qj) + 1
 
-    t <- as.numeric(.cond_t(Qj, qj))
+    if (samc@solver == "iter") {
+      t <- as.numeric(.cond_t_iter(Qj, qj))
+    } else {
+      t <- as.numeric(.cond_t(Qj, qj))
+    }
 
     # insert 0 element back into vector so output length is same original data
     final <- 1:(length(t) + 1)
-    names(final) <- rownames(samc$q_matrix)
+    names(final) <- samc$names
 
     j <- 1
     for (i in 1:length(final)) {
@@ -114,7 +119,7 @@ setMethod(
 #' @rdname cond_passage
 setMethod(
   "cond_passage",
-  signature(samc = "samc", origin = "location", dest = "location"),
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
   function(samc, origin, dest) {
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)

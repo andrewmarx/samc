@@ -23,7 +23,7 @@ NULL
 #'
 #' \eqn{\psi^Tz}
 #' \itemize{
-#'   \item \strong{survival(samc, occ)}
+#'   \item \strong{survival(samc, init)}
 #'
 #' The result is a numeric that is the expected time to absorption given an initial
 #' state \eqn{\psi}.
@@ -32,7 +32,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @template param-occ
+#' @template param-init
 #'
 #' @return See Details
 #'
@@ -42,7 +42,7 @@ NULL
 
 setGeneric(
   "survival",
-  function(samc, occ) {
+  function(samc, init) {
     standardGeneric("survival")
   })
 
@@ -50,24 +50,27 @@ setGeneric(
 #' @rdname survival
 setMethod(
   "survival",
-  signature(samc = "samc", occ = "missing"),
+  signature(samc = "samc", init = "missing"),
   function(samc) {
-    q <- samc$q_matrix
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
 
-    z = .f1(q)
+    if (samc@solver == "iter") {
+      z = .f1_iter(samc@data@f)
+    } else {
+      z = .f1(samc@data@f, samc@.cache$sc)
+    }
 
     return(as.vector(z))
   })
 
-# survival(samc, occ) ----
+# survival(samc, init) ----
 #' @rdname survival
 setMethod(
   "survival",
-  signature(samc = "samc", occ = "ANY"),
-  function(samc, occ) {
-    pv <- .process_occ(samc, occ)
+  signature(samc = "samc", init = "ANY"),
+  function(samc, init) {
+    check(samc, init)
+
+    pv <- .process_init(samc, init)
 
     sv <- survival(samc)
 

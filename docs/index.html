@@ -41,7 +41,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
       </span>
     </div>
 
@@ -181,12 +181,6 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"samc"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="version-2">
-<strong>Version 2</strong><a class="anchor" aria-label="anchor" href="#version-2"></a>
-</h3>
-<p>Version 2 of the package officially removed support for various deprecated parameters in the <code><a href="reference/samc.html">samc()</a></code> function. Deprecation warnings were provided starting in v1.4.0 of the package, along with message details and a backwards compatible implementation of the expected changes. Removing this backwards compatibility is a breaking change that will require some old code to be updated in order run on the latest version of the package. The changes needed are straightforward and mostly entail some reorganization of the input parameters for the <code><a href="reference/samc.html">samc()</a></code> function. Some of the old functionality, primarily overriding memory safety limits, has been moved to the <code>samc-class</code> itself, and is no longer tied to the object creation. Redesigning the <code><a href="reference/samc.html">samc()</a></code> function and removing backwards compatibility makes maintaining the package and adding new features later a substantially improved process; hopefully with only minor inconvenience to users.</p>
-</div>
-<div class="section level3">
 <h3 id="citation">
 <strong>Citation</strong><a class="anchor" aria-label="anchor" href="#citation"></a>
 </h3>
@@ -207,10 +201,31 @@
 </ul>
 </div>
 <div class="section level3">
+<h3 id="version-3">
+<strong>Version 3</strong><a class="anchor" aria-label="anchor" href="#version-3"></a>
+</h3>
+<p>Version 3 of the package made some minor breaking changes:</p>
+<ul>
+<li>The <code><a href="reference/samc.html">samc()</a></code> function no longer supports <code>TransitionLayer</code> inputs. This only had a niche use case, but before v3 wasn’t an issue to include because of other dependencies on gdistance. With v3, this became the only dependency left for gdistance, so it was removed to avoid potential future issues should gdistance ever get removed from CRAN (which nearly happened in 2022).</li>
+<li>With the addition of terra support, the <code><a href="reference/map.html">map()</a></code> function was updated so that its output matches the input type to <code><a href="reference/samc.html">samc()</a></code>. Previously, matrix inputs were matched to RasterLayers, but now they are mapped back to matrices.</li>
+<li>The <code>sym</code> option for creating the samc object is currently ignored.</li>
+<li>The <code>tr_args</code> and <code>occ</code> parameters were renamed to <code>model</code> and <code>init</code>, respectively.</li>
+<li>
+<code><a href="reference/cond_passage.html">cond_passage()</a></code> and <code><a href="reference/visitation.html">visitation()</a></code> had an <code>init</code> argument inserted to match the usage of other metrics. These arguments are not fully implemented as of v3.0.0 but may be implemented in the future.</li>
+<li>Cells are no longer automatically named by <code><a href="reference/samc.html">samc()</a></code> when creating the transition matrix from maps. Generating unique character names for each cell ended up being a significant waste of memory as the inputs to <code><a href="reference/samc.html">samc()</a></code> got larger. It’s unlikely these names were ever used in practice, since using the numeric results from <code><a href="reference/locate.html">locate()</a></code> is more convenient.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="version-2">
+<strong>Version 2</strong><a class="anchor" aria-label="anchor" href="#version-2"></a>
+</h3>
+<p>Version 2 of the package officially removed support for various deprecated parameters in the <code><a href="reference/samc.html">samc()</a></code> function. Deprecation warnings were provided starting in v1.4.0 of the package, along with message details and a backward compatible implementation of the expected changes. Removing this backward compatibility is a breaking change that will require some old code to be updated in order to run on the latest version of the package. The changes needed are straightforward and mostly entail some reorganization of the input parameters for the <code><a href="reference/samc.html">samc()</a></code> function. Some of the old functionality, primarily overriding memory safety limits, has been moved to the <code>samc-class</code> itself and is no longer tied to the object creation. Redesigning the <code><a href="reference/samc.html">samc()</a></code> function and removing backward compatibility makes maintaining the package and adding new features later a substantially improved process; hopefully with only minor inconvenience to users.</p>
+</div>
+<div class="section level3">
 <h3 id="support">
 <strong>Support</strong><a class="anchor" aria-label="anchor" href="#support"></a>
 </h3>
-<p>Please note that this section is for package specific queries. If you have questions or comments about the related published articles, contact the authors.</p>
+<p>Please note that this section is for package-specific queries. If you have questions or comments about the related published articles, contact the authors.</p>
 <div class="section level4">
 <h4 id="have-an-error-and-cant-fix-it">Have an error and can’t fix it?<a class="anchor" aria-label="anchor" href="#have-an-error-and-cant-fix-it"></a>
 </h4>

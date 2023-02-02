@@ -44,10 +44,11 @@ Both SAMC and circuit theory use Markov chain theory to model movement based on 
 
 This section is for loading the packages and creating objects used in the examples. The resistance data has two low-resistance routes between the source and destinations. The absorption data has no background absorption, but does have a narrow strip of strong absorption that runs across most of the map, but not across the left route. This is the same example data used in the IALE workshop, where the absorption data was used to describe a hypothetical highway with a safe crossing area for the left route.
 
-```{r}
-library("samc")
+```{r, message = FALSE}
+library("terra")
 library("raster")
 library("gdistance")
+library("samc")
 library("viridisLite")
 
 # Create a landscape with two paths around an obstacle
@@ -67,15 +68,15 @@ abs_data = res_data * 0 # Create a baseline mortality or absorption level. To ex
 abs_data[6, c(1, 4:10)] = 0.1 # Create a "highway" with high absorption and a safe crossing point
 abs_data[is.na(res_data)] = NA
 
-res_data = raster(res_data, xmn = 0.5, xmx = ncol(res_data) + 0.5, ymn = 0.5, ymx = nrow(res_data) + 0.5)
-abs_data = raster(abs_data, xmn = 0.5, xmx = ncol(abs_data) + 0.5, ymn = 0.5, ymx = nrow(abs_data) + 0.5)
+res_data = samc::rasterize(res_data)
+abs_data = samc::rasterize(abs_data)
 
 plot(res_data, main = "Example Resistance Data", xlab = "x", ylab = "y", col = viridis(256))
 plot(abs_data, main = "Example Absorption Data", xlab = "x", ylab = "y", col = viridis(256))
 
-tr = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE)
+rw_model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE)
 
-samc_obj = samc(res_data, abs_data, tr_args = tr)
+samc_obj = samc(res_data, abs_data, model = rw_model)
 
 origin_coords = matrix(c(2, 2), ncol = 2)
 dest_coords = matrix(c(9, 9), ncol = 2)
@@ -83,7 +84,7 @@ dest_coords = matrix(c(9, 9), ncol = 2)
 origin_cell = locate(samc_obj, origin_coords)
 dest_cell = locate(samc_obj, dest_coords)
 
-gdist = transition(res_data, tr$fun, tr$dir)
+gdist = transition(raster::raster(res_data), rw_model$fun, rw_model$dir)
 gdist = geoCorrection(gdist)
 ```
 
@@ -110,11 +111,12 @@ plot(abs_data_i, main = "Source Absorption Map", col = viridis(256))
 abs_data_j = res_data * 0
 abs_data_j[cellFromXY(res_data, dest_coords)] = 1
 plot(abs_data_j, main = "Destination Absorption Map", col = viridis(256))
+```
 
-
+```{r}
 # Create samc objects for each direction
-samc_ij = samc(res_data, abs_data_j, tr_args = tr)
-samc_ji = samc(res_data, abs_data_i, tr_args = tr)
+samc_ij = samc(res_data, abs_data_j, model = rw_model)
+samc_ji = samc(res_data, abs_data_i, model = rw_model)
 
 # Calculate commute distance with samc
 hitting_ij = survival(samc_ij, abs_data_i) # Reusing the other abs layer as an occupancy input
@@ -128,7 +130,7 @@ hitting_ij + hitting_ji
 commuteDistance(gdist, rbind(origin_coords, dest_coords))
 ```
 
-There are a few key things to note here. First, the two results are slightly different. This is because SAMC is calculating the time to reach the destination plus one additional time step for absorption. In circuit theory, these two transitions are not considered separately; that is, reaching the destination is equivalent to going to the ground state (absorption). This occurs twice (once in each direction), which causes SAMC to have a commute distance that is `2` time steps higher than what gdistance calculates.
+There are a few key things to note here. First, the two commute distance results are slightly different. This is because SAMC is calculating the time to reach the destination plus one additional time step for absorption. In circuit theory, these two transitions are not considered separately; that is, reaching the destination is equivalent to going to the ground state (absorption). This occurs twice (once in each direction), which causes SAMC to have a commute distance that is `2` time steps higher than what gdistance calculates.
 
 The second thing to note is that the two hitting times produced by SAMC are also slightly different. In other words, movement in one direction between the two points is not equivalent to movement in the other direction. This extra information about the total commute distance can be useful in a real-world scenario. For example, gene flow between two populations may be different in both directions. In this case, the hitting times, rather than commute distance, may result in better models comparing gene flow to landscape connectivity.
 
@@ -137,8 +139,8 @@ The second and more flexible approach in SAMC is the `cond_passage()` function, 
 `cond_passage()` can be used in the same way described for the `survival()` metric previously, in which case an equivalent result to commute distance from circuit theory will be obtained. Unlike the `survival()` function, the result of `cond_passage()` does not include the extra absorption time step; it only calculates the time to reach the destination.
 
 ```{r}
-hitting_ij_cp = cond_passage(samc_ij, origin_cell, dest_cell)
-hitting_ji_cp = cond_passage(samc_ji, dest_cell, origin_cell)
+hitting_ij_cp = cond_passage(samc_ij, origin = origin_cell, dest = dest_cell)
+hitting_ji_cp = cond_passage(samc_ji, origin = dest_cell, dest = origin_cell)
 
 hitting_ij_cp
 hitting_ji_cp
@@ -149,8 +151,8 @@ More importantly, this is just a special case where we demonstrate the relations
 
 ```{r}
 # Calculate hitting times and commute distance for the original absorption data
-reg_hitting_ij = cond_passage(samc_obj, origin_cell, dest_cell)
-reg_hitting_ji = cond_passage(samc_obj, dest_cell, origin_cell)
+reg_hitting_ij = cond_passage(samc_obj, origin = origin_cell, dest = dest_cell)
+reg_hitting_ji = cond_passage(samc_obj, origin = dest_cell, dest = origin_cell)
 
 reg_hitting_ij
 reg_hitting_ji
@@ -175,7 +177,7 @@ total_gdist = passage(gdist, origin_coords, dest_coords, theta = 0, totalNet = "
 plot(total_gdist, main = "Total Movement Flow (gdistance)", col = viridis(256))
 
 # Equivalent total movement flow with SAMC
-total_samc = visitation(samc_ij, origin_cell)
+total_samc = visitation(samc_ij, origin = origin_cell)
 total_samc_ras = map(samc_ij, total_samc)
 plot(total_samc_ras, main = "Total Movement Flow (samc)", col = viridis(256))
 
@@ -188,6 +190,7 @@ With the total movement result and the $Q$ matrix from SAMC, it is possible to c
 ```{r}
 # Net movement flow with gdistance
 net_gdist = passage(gdist, origin_coords, dest_coords, theta = 0, totalNet = "net")
+net_gdist = rast(net_gdist)
 plot(net_gdist, main = "Net Movement Flow (gdistance)", col = viridis(256))
 
 
@@ -206,7 +209,7 @@ visitation_net <- function(samc_obj, origin, dest){
 }
 
 # Equivalent net movement flow with SAMC
-net_samc = visitation_net(samc_ij, origin_cell, dest_cell)
+net_samc = visitation_net(samc_ij, origin = origin_cell, dest = dest_cell)
 net_samc_ras = map(samc_obj, net_samc)
 plot(net_samc_ras,  main = "Net Movement Flow (samc)", col = viridis(256))
 

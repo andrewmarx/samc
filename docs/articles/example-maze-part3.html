@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2022-12-23</h4>
+            <h4 data-toc-skip class="date">2023-02-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/example-maze-part3.Rmd" class="external-link"><code>vignettes/example-maze-part3.Rmd</code></a></small>
       <div class="hidden name"><code>example-maze-part3.Rmd</code></div>
@@ -171,7 +171,7 @@ Marx</h4>
 </h2>
 <p>The third part of the series takes the perfect maze with only a
 single solution and modifies it so that it now has more than one
-solution. Afterwards, all of the changes introduced in the series are
+solution. Afterward, all of the changes introduced in the series are
 combined into a single complex example.</p>
 <p>The complete code for this series is available on <a href="https://github.com/andrewmarx/samc/blob/main/vignettes/scripts/example-maze.R" class="external-link">Github</a>.</p>
 </div>
@@ -189,7 +189,7 @@ cell bridging previously existing cells. The location was chosen so that
 it effectively acts as a shortcut to the previous solution. To make
 things more interesting, it will be treated as a secret passage by
 giving it a high resistance value so that it is only rarely utilized.
-This is effectively the same method used to model dead end avoidance in
+This is effectively the same method used to model dead-end avoidance in
 Part 2, but here the interpretation is different because of where the
 high resistance is located.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -201,15 +201,16 @@ high resistance is located.</p>
 <span><span class="va">lcd2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">points</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/xyCellFrom.html" class="external-link">xyFromCell</a></span><span class="op">(</span><span class="va">short_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">400</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/transition.html" class="external-link">transition</a></span><span class="op">(</span><span class="va">short_res</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span>  <span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/transition.html" class="external-link">transition</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html" class="external-link">raster</a></span><span class="op">(</span><span class="va">short_res</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span>  <span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/geoCorrection.html" class="external-link">geoCorrection</a></span><span class="op">(</span><span class="va">tr</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dist <span class="op">=</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/costDistance-methods.html" class="external-link">costDistance</a></span><span class="op">(</span><span class="va">tr</span>, <span class="va">points</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dist <span class="op">=</span> <span class="fu">gdistance</span><span class="fu">::</span><span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/costDistance-methods.html" class="external-link">costDistance</a></span><span class="op">(</span><span class="va">tr</span>, <span class="va">points</span><span class="op">)</span>,</span>
 <span>       path <span class="op">=</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/shortestPath.html" class="external-link">shortestPath</a></span><span class="op">(</span><span class="va">tr</span>, <span class="va">points</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, <span class="va">points</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span>, output<span class="op">=</span><span class="st">"SpatialLines"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
+<span></span>
 <span><span class="fu">plot_maze</span><span class="op">(</span><span class="va">short_res</span>, <span class="st">"Shortcut Maze"</span>, <span class="va">vir_col</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">lcd2</span><span class="op">$</span><span class="va">path</span>, col <span class="op">=</span> <span class="va">vir_col</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, lw <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">lcd2</span><span class="op">$</span><span class="va">path</span>, col <span class="op">=</span> <span class="va">vir_col</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, lw <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example-maze-part3_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Use <code>gdistance</code> to quickly verify the change in distance
 for the shortest solution:</p>
@@ -228,7 +229,7 @@ structure:</p>
 <p>With new resistance and absorption inputs, the samc object has to be
 recreated:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">short_samc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">short_res</span>, <span class="va">short_finish</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">short_samc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">short_res</span>, <span class="va">short_finish</span>, model <span class="op">=</span> <span class="va">rw_model</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Important: we have to rerun locate()</span></span>
 <span><span class="va">short_origin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/locate.html">locate</a></span><span class="op">(</span><span class="va">short_samc</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span>, y <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
@@ -239,7 +240,7 @@ results from <code><a href="../reference/locate.html">locate()</a></code> are no
 In this case, <code>start</code> is technically the same, but
 <code>finish</code> is not and will return incorrect results, or in
 special cases even lead to a crash.</p>
-<p>With that, lets begin exploring the different metrics and compare
+<p>With that, let’s begin exploring the different metrics and compare
 them to the results from Part 1. Starting with
 <code><a href="../reference/survival.html">survival()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -259,14 +260,14 @@ is drastically decreased for the starting point:</p>
 <span><span class="co">#&gt; [1] -4846.026</span></span></code></pre></div>
 <p>The second change is the overall increase in expected time to finish
 when an individual is in the bottom left region of the maze because the
-shortcut can actually lead them away from the finish point when they are
-in this region. If the shortcut was asymmetric (i.e., one way), there
-would still be a drastic decrease in the time to finish for the starting
+shortcut can lead them away from the finish point when they are in this
+region. If the shortcut was asymmetric (i.e., one way), there would
+still be a drastic decrease in the time to finish for the starting
 point, but then the bottom left region would remain unchanged from the
 original maze. This type of model setup is possible with the package,
 but not without directly providing the P matrix. Graph support in the
 future will make more complex scenarios like a one-way shortcut easier
-to setup.</p>
+to set up.</p>
 <p>Part 2 showed that the inclusion of additional absorbing states
 changes the relationship between <code><a href="../reference/survival.html">survival()</a></code> and
 <code><a href="../reference/cond_passage.html">cond_passage()</a></code>. Since this example is back to a single
@@ -274,8 +275,7 @@ absorbing state at the finish point, this relationship is restored:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">short_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">short_samc</span>, dest <span class="op">=</span> <span class="va">short_dest</span><span class="op">)</span></span>
 <span><span class="va">short_cond</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span></span>
-<span><span class="co">#&gt;        1 </span></span>
-<span><span class="co">#&gt; 9021.974</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 9021.974</span></span></code></pre></div>
 <p>Part 2 also showed that including additional absorbing states affects
 the probability of cells being visited. Modifying the maze to have
 multiple routes also has significant ramifications:</p>
@@ -294,8 +294,8 @@ multiple routes also has significant ramifications:</p>
 <p><img src="example-maze-part3_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Notably, it is again no longer possible to discern the optimal route
 through the maze by looking for cells with a probability of
-<code>1.0</code>. But, like Part 2, a partial path can still be can
-still be identified:</p>
+<code>1.0</code>. But, like Part 2, a partial path can still be
+identified:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Ideally, we would just use `as.numeric(short_disp == 1)`, but we have floating point precision issues here, so we will approximate it</span></span>
 <span><span class="va">short_disp_sol</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">short_disp</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">tolerance</span><span class="op">)</span></span>
@@ -314,7 +314,7 @@ complex model. First, the resistance and absorption inputs need to be
 updated:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Combine our previous resistance layers</span></span>
-<span><span class="va">all_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html" class="external-link">stack</a></span><span class="op">(</span><span class="va">short_res</span>, <span class="va">ints_res</span>, <span class="va">ends_res</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">all_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">short_res</span>, <span class="va">ints_res</span>, <span class="va">ends_res</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># For absorption, all we need is an updated version of our traps raster</span></span>
 <span><span class="va">all_traps</span> <span class="op">&lt;-</span> <span class="va">maze_traps</span></span>
@@ -340,13 +340,13 @@ having asymmetric transition probabilities would be a more ideal
 solution, but for simplicity, we will leave things as they are.</p>
 <p>Create the new samc object:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">all_samc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">all_res</span>, <span class="va">all_abs_total</span>, tr_args <span class="op">=</span> <span class="va">tr</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">all_samc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">all_res</span>, <span class="va">all_abs_total</span>, model <span class="op">=</span> <span class="va">rw_model</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># We can actually reuse the short_res locations in this case, but let's make new ones anyway</span></span>
 <span><span class="va">all_start</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/locate.html">locate</a></span><span class="op">(</span><span class="va">all_samc</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span>, y <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">all_finish</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/locate.html">locate</a></span><span class="op">(</span><span class="va">all_samc</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">20</span>, y <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Following the previous model changes, start with looking at expected
-time to absorption:</p>
+<p>Following the previous model changes, start by looking at the
+expected time to absorption:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">all_samc</span><span class="op">)</span></span>
 <span></span>
@@ -355,38 +355,37 @@ time to absorption:</p>
 <p><img src="example-maze-part3_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Similar to Part 2, the presence of additional absorbing states (the
 traps), drastically changes the result and interpretation of the
-<code><a href="../reference/survival.html">survival()</a></code> metric. The results are actually very similar to
-part 2, but the presence of a shortcut does increase access to both the
-bottom left trap and the finish point. The relative role of each isn’t
-clear, but it does overall seem to do decrease the time to
-absorption.</p>
+<code><a href="../reference/survival.html">survival()</a></code> metric. The results are very similar to part 2,
+but the presence of a shortcut does increase access to both the bottom
+left trap and the finish point. The relative role of each isn’t clear,
+but it does overall seem to decrease the time to absorption.</p>
 <p>Next is a complete overview of the different results for
 <code><a href="../reference/survival.html">survival()</a></code> and <code><a href="../reference/cond_passage.html">cond_passage()</a></code>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Original results (Part 1)</span></span>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">maze_samc</span><span class="op">)</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] 13869</span></span>
-<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">maze_samc</span>, <span class="va">maze_origin</span>, <span class="va">maze_dest</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">maze_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span>, dest <span class="op">=</span> <span class="va">maze_dest</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 13868</span></span>
 <span></span>
 <span><span class="co"># Results with traps (Part 2)</span></span>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">traps_samc</span><span class="op">)</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] 1330.26</span></span>
-<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">traps_samc</span>, <span class="va">maze_origin</span>, <span class="va">maze_dest</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">traps_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span>, dest <span class="op">=</span> <span class="va">maze_dest</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 3060.207</span></span>
 <span></span>
 <span><span class="co"># Results with a shortcut</span></span>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">short_samc</span><span class="op">)</span><span class="op">[</span><span class="va">short_origin</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] 9022.974</span></span>
-<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">short_samc</span>, <span class="va">short_origin</span>, <span class="va">short_dest</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">short_samc</span>, origin <span class="op">=</span> <span class="va">short_origin</span>, dest <span class="op">=</span> <span class="va">short_dest</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 9021.974</span></span>
 <span></span>
 <span><span class="co"># Results with everything</span></span>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">all_samc</span><span class="op">)</span><span class="op">[</span><span class="va">all_start</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] 968.4007</span></span>
-<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">all_samc</span>, <span class="va">all_start</span>, <span class="va">all_finish</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">all_samc</span>, origin <span class="op">=</span> <span class="va">all_start</span>, dest <span class="op">=</span> <span class="va">all_finish</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2000.364</span></span></code></pre></div>
-<p>The presence of both the traps and the shortcut have a cumulative
+<p>The presence of both the traps and the shortcut has a cumulative
 effect on both metrics; the time to absorption decreases, as does the
 time to conditional first passage (the time to finish assuming the
 individual is not absorbed elsewhere).</p>
@@ -396,20 +395,18 @@ shortcut affects the probability of finishing the maze vs being absorbed
 in the traps:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traps_mort</span><span class="op">[</span><span class="va">traps_mort</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span></span>
-<span><span class="co">#&gt;           5          65         170         215 </span></span>
-<span><span class="co">#&gt; 0.852084306 0.113761093 0.003940915 0.030213685</span></span>
+<span><span class="co">#&gt; [1] 0.852084306 0.113761093 0.003940915 0.030213685</span></span>
 <span></span>
 <span><span class="va">all_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">all_samc</span>, origin <span class="op">=</span> <span class="va">all_start</span><span class="op">)</span></span>
 <span><span class="va">all_mort</span><span class="op">[</span><span class="va">all_mort</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span></span>
-<span><span class="co">#&gt;          5         65        171        216 </span></span>
-<span><span class="co">#&gt; 0.81665446 0.08106988 0.05073905 0.05153661</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.81665446 0.08106988 0.05073905 0.05153661</span></span></code></pre></div>
 <p>With the introduction of the shortcut, the probability of absorption
 into the two top traps is reduced because less time is spent in the top
 portion of the maze relative to the now more accessible bottom portion.
 Also, the probability of absorption into the bottom left trap has
 increased by more than an order of magnitude, accounting for most of the
 decrease in the top two traps. Finally, an individual is somewhat more
-likely to survive and finish the maze. Note that the numeric index for
+likely to survive and finish the maze. Note that the numeric indexes for
 the later two points are shifted by one; this is due to changing a
 <code>NA</code> cell to non-<code>NA</code> for the shortcut, and it is
 related to why the <code><a href="../reference/locate.html">locate()</a></code> should be rerun when the
@@ -428,7 +425,8 @@ modifications to the model.</p>
 <p>Parts of this series may be rewritten, further expanded on, and/or
 reorganized in the future. Additionally, when igraph support is added to
 the package, the series will be expanded with an example illustrating
-construction of a maze using a graph rather than a matrix/raster.</p>
+the construction of a maze using a graph rather than a
+matrix/raster.</p>
 </div>
   </div>
 

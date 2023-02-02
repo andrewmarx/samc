@@ -1,23 +1,21 @@
+library(terra)
 library(samc)
-library(raster)
 
 
 # Load example data
-res_data <- samc::ex_res_data
-abs_data <- samc::ex_abs_data
-occ_data <- samc::ex_occ_data
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
 
 
 # Create samc-class object
 samc_obj <- samc(res_data, abs_data,
-                 tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
+                 model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 
-# We can use locate() to return a raster with the cell numbers encoded as data
+# We can use locate() to return an object with the cell numbers encoded as data
 # in the cells
 cell_raster <- locate(samc_obj)
-plot(cell_raster)
-
+print(cell_raster)
 
 # We can use a variety of spatial inputs to get cell numbers using locate()
 # The simplest is a two-column data.frame

@@ -29,7 +29,7 @@ for(test in testlist) {
   F_mat <- solve(I - Q)
 
   # Prepare the occupancy data
-  occ_ras <- raster::raster(test$occ)
+  occ_ras <- raster::raster(test$init)
   pv <- as.vector(occ_ras)
   pv <- pv[is.finite(pv)]
 
@@ -182,8 +182,8 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing mortality(samc, occ, time)", {
-    result <- mortality(samc_obj, occ = test$occ, time = time)
+  test_that("Testing mortality(samc, init, time)", {
+    result <- mortality(samc_obj, init = test$init, time = time)
 
     base_result <- I
 
@@ -200,8 +200,8 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result))
   })
 
-  test_that("Testing mortality(samc, occ, time_vec)", {
-    result <- mortality(samc_obj, occ = test$occ, time = time_vec)
+  test_that("Testing mortality(samc, init, time_vec)", {
+    result <- mortality(samc_obj, init = test$init, time = time_vec)
 
     for (i in 1:length(time_vec)) {
       base_result <- I
@@ -287,9 +287,9 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing mortality(samc, occ)", {
+  test_that("Testing mortality(samc, init)", {
     # Make sure absorption components add up
-    result <- mortality(samc_obj, occ = test$occ)
+    result <- mortality(samc_obj, init = test$init)
     expect_equal(as.vector(result[[1]]), as.vector(Reduce('+', result) - result[[1]]))
 
     # Make sure all absorption components match

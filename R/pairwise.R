@@ -27,7 +27,7 @@ NULL
 #' 'long' format data.frame. This data.frame can then be reshaped into a pairwise
 #' matrix or 'wide' format data.frame using tools like the reshape2 or tidyr packages.
 #'
-#' This function is not intended to be used with other inputs such as `occ` or `time`
+#' This function is not intended to be used with other inputs such as `init` or `time`
 #'
 #' @param fun A samc analytical function with signature fun(samc, origin, dest)
 #' @param samc A \code{\link{samc-class}} object

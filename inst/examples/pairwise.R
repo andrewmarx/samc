@@ -1,14 +1,13 @@
 library(samc)
 
 # Load example data
-res_data <- samc::ex_res_data
-abs_data <- samc::ex_abs_data
-occ_data <- samc::ex_occ_data
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
 
 
 # Create samc-class object
 samc_obj <- samc(res_data, abs_data,
-                 tr_args = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
+                 model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 # pairwise() example
 pw <- pairwise(cond_passage, samc_obj, origin = 1:4, dest = 5)

@@ -22,19 +22,32 @@ NULL
 setMethod("$", signature(x = "samc"), function(x, name) {
   if(name == "override"){
     return(x@override)
+  } else if (name == "names"){
+    return(x@names)
   } else if (name == "q_matrix"){
-    return(x@data@q)
+    q_mat = x@data@f
+
+    Matrix::diag(q_mat) <- Matrix::diag(q_mat) - 1
+    q_mat@x <- -q_mat@x
+
+    rownames(q_mat) = x$names
+    colnames(q_mat) = x$names
+    return(q_mat)
   } else if (name == "p_matrix") {
-    p <- cbind(x@data@q, x@data@t_abs)
+    p <- cbind(x$q_matrix, x@data@t_abs)
     p <- rbind(p, matrix(0, nrow = 1, ncol = ncol(p)))
     Matrix::diag(p)[ncol(p)] <- 1
 
-    colnames(p) <- c(colnames(x@data@q), "total")
-    rownames(p) <- colnames(p)
+    if (!is.null(x$names)) {
+      colnames(p) <- c(x$names, "total")
+      rownames(p) <- colnames(p)
+    }
 
     return(p)
   } else if (name == "threads"){
     return(x@threads)
+  } else if (name == "solver"){
+    return(x@solver)
   } else {
     warning("Invalid object specified.", call. = FALSE)
   }
@@ -67,6 +80,8 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
     } else {
       x@data@c_abs <- .process_abs_states(x, value)
     }
+  } else if (name == "names"){
+    warning("Cannot modify the transient state names.", call. = FALSE)
   } else if (name == "q_matrix"){
     warning("Cannot modify the Q matrix this way.", call. = FALSE)
   } else if (name == "p_matrix"){
@@ -79,6 +94,12 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
               "Specifying more threads than a machine supports in hardware will likely lead to lost performance.\n")
     } else {
       warning("Input must be a single positive integer.", call. = FALSE)
+    }
+  } else if (name == "solver"){
+    if (x %in% c("direct", "iter")) {
+      x@solver = value
+    } else {
+      warning("Valid inputs: \"direct\" \"iter\"", call. = FALSE)
     }
   } else {
     warning("Invalid object specified.", call. = FALSE)

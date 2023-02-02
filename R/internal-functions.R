@@ -5,6 +5,243 @@
 # be used by users.
 #
 
+#' Transition function
+#'
+#' An internal function for creating transition matrices
+#'
+#' @param data A SpatRaster
+#' @noRd
+.transition <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
+  if (is(fun, "character")) {
+    stop("Named transition functions not supported", call. = FALSE)
+  }
+
+  if (!(dir %in% c(4, 8))) {
+    stop("Invalid `dir` input", call. = FALSE)
+  }
+
+  lonlat = terra::is.lonlat(absorption)
+
+  #data_crs = terra::crs(resistance)
+  #ncells = terra::ncell(resistance)
+  nrows = terra::nrow(x)
+  ncols = terra::ncol(x)
+
+  cell_nums = terra::cells(x)
+  ncells = length(cell_nums)
+
+  cell_lookup = matrix(0, ncols, nrows) # Intentionally reversed for rast->mat
+  cell_lookup[cell_nums] = 1:length(cell_nums)
+
+  n_pair = 0
+
+
+  for (i in 1:(nrow(cell_lookup) - 1)) {
+    n_pair = n_pair + sum(cell_lookup[i, ] & cell_lookup[i+1, ])
+  }
+  gc()
+
+  for (i in 1:(ncol(cell_lookup) - 1)) {
+    n_pair = n_pair + sum(cell_lookup[, i] & cell_lookup[, i+1])
+  }
+  gc()
+
+  if (dir == 8) {
+    for (i in 1:(ncol(cell_lookup) - 1)) {
+      n_pair = n_pair + sum(cell_lookup[-nrow(cell_lookup), i] & cell_lookup[-1, i + 1])
+      n_pair = n_pair + sum(cell_lookup[-1, i] & cell_lookup[-nrow(cell_lookup), i + 1])
+    }
+  }
+  gc()
+
+  n_pair = n_pair*2 + ncells
+
+
+
+  mat = new("dgCMatrix")
+  mat@Dim = c(ncells, ncells)
+
+
+  x = terra::values(x)
+
+  if (dir == 4) {
+    offset_r = c(0, -1, 1, 0)
+    offset_c = c(-1, 0, 0, 1)
+
+    offset_n = c(-ncols, -1, 1, ncols)
+  } else if (dir == 8) {
+    offset_r = c(-1, 0, 1, -1, 1, -1, 0, 1)
+    offset_c = c(-1, -1, -1, 0, 0, 1, 1, 1)
+
+    offset_n = c(-ncols-1, -ncols, -ncols+1, -1, 1, ncols - 1, ncols, ncols+1) # ncols of raster = nrow() of matrix
+  } else {
+    stop("Issue with directions", call. = FALSE)
+  }
+
+  dir1 = 1:(dir/2)
+  dir2 = dir1 + (dir/2)
+
+  mat_p = integer(ncells+1)
+
+  mat_i = integer(n_pair)
+  i_index = 1
+
+  mat_x = numeric(n_pair)
+
+  row_sum = numeric(ncells)
+
+
+  row_count = 0L
+
+  # TODO Create tests to directly validate results for both directions options for planar and latlon
+
+  if (dir == 4) {
+    dist_lookup = c(1, 1, 1, 1)
+  } else if (dir == 8) {
+    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, 1, sqrt(2), 1, sqrt(2))
+  }
+
+  dist = function(x, dir) {
+    # x not used intentionally
+    dist_lookup[dir]
+  }
+
+  if(!is.na(lonlat)) {
+    if (lonlat) {
+      cn = (0:(nrow(absorption) - 1))*ncol(absorption) + 1
+
+      adj = terra::adjacent(absorption, cn, directions = 8, pairs = TRUE)
+
+      dist = terra::distance(
+        terra::xyFromCell(absorption, adj[, 1]),
+        terra::xyFromCell(absorption, adj[, 2]),
+        lonlat = TRUE, pairwise = TRUE)
+
+      adj = terra::adjacent(absorption, cn, directions = dir, pairs = FALSE)
+      adj = t(adj)
+
+      dist_lookup = adj
+      dist_lookup[!is.nan(dist_lookup)] = dist
+
+      if (dir == 4) {
+        dir_reindex = c(1, 3, 3, 4)
+      } else if (dir == 8) {
+        dir_reindex = c(3, 2, 3, 5, 5, 8, 7, 8)
+      }
+
+
+      dist <- function(x, dir) {
+        dir = dir_reindex[dir]
+
+        x = trunc((x - 1) / ncols) + 1
+
+        dist_lookup[dir, x]
+      }
+    }
+  }
+
+  nc = nrows
+  nr = ncols
+
+  fidelity = terra::values(fidelity)
+
+  for (i in 1:length(cell_nums)) {
+    num = cell_nums[i]
+
+    row = (num - 1) %% nr + 1
+    col = (num - 1) %/% nr + 1
+
+    #print(paste(row, col))
+    rows = row + offset_r
+    cols = col + offset_c
+    nums = num + offset_n
+
+    #xy = terra::xyFromCell(absorption, num)
+    #offset_xy = terra::xyFromCell(absorption, nums)
+
+    #dists = terra::distance(terra::xyFromCell(absorption, num), terra::xyFromCell(absorption, nums), lonlat)
+
+    rc = !(rows < 1 | rows > nr | cols < 1 | cols > nc)
+
+    for (d in dir1) {
+      #print(d)
+      if (rc[d]) {
+        mat_row = cell_lookup[nums[d]]
+
+        if (mat_row) {
+          row_count = row_count + 1L
+
+          result = fun(x[c(num, nums[d])]) / dist(num, d)
+
+          mat_i[i_index] = as.integer(mat_row - 1)
+          mat_x[i_index] = -result
+
+          row_sum[mat_row] = row_sum[mat_row] + result
+
+          i_index = i_index + 1
+        }
+      }
+    }
+
+
+    row_count = row_count + 1L
+
+    mat_row = cell_lookup[num]
+
+    mat_i[i_index] = as.integer(mat_row - 1)
+    mat_x[i_index] = 1 - fidelity[num]
+
+    i_index = i_index + 1
+
+
+    for (d in dir2) {
+      if (rc[d]) {
+        mat_row = cell_lookup[nums[d]]
+
+        if (mat_row) {
+          row_count = row_count + 1L
+
+          result = fun(x[c(num, nums[d])]) / dist(num, d)
+
+          mat_i[i_index] = as.integer(mat_row - 1)
+          mat_x[i_index] = -result
+
+          row_sum[mat_row] = row_sum[mat_row] + result
+
+          i_index = i_index + 1
+        }
+      }
+    }
+
+    mat_p[i+1] = row_count
+  }
+
+  tmp = 1 - terra::values(absorption) - fidelity
+
+  i_index = 1
+  for (p in 1:ncells) {
+    row_count = mat_p[p+1] - mat_p[p]
+    for (i in 1:row_count) {
+      row = mat_i[i_index] + 1
+      if (p != row) {
+        #mat_x[i_index] = i_index # useful for validation
+        #mat_x[i_index] = cell_nums[row] # useful for validation
+        #print(c(p, row))
+        #assign("ts", list(mat_p, mat_i), envir = globalenv())
+        mat_x[i_index] = mat_x[i_index]/row_sum[row] * tmp[cell_nums[row]]
+      }
+      i_index = i_index + 1
+    }
+  }
+
+  mat@p = mat_p
+  mat@i = mat_i
+  mat@x = mat_x
+
+  return(mat)
+}
+
+
 #' Validate time steps
 #'
 #' Performs several checks to make sure a vector of time steps is valid
@@ -79,19 +316,11 @@
 .validate_names <- function(vec, x) {
   invalid_names <- x[!(x %in% vec)]
 
-  if (length(invalid_names > 0))
+  if (length(invalid_names > 0)){
+    print(vec)
+    print(x)
     stop(paste("\nInvalid location name:", invalid_names), call. = FALSE)
-}
-
-
-#' Rasterize matrices
-#'
-#' Convert a matrix to a RasterLayer. Ensures consistency of conversion throughout the package
-#'
-#' @param x A matrix
-#' @noRd
-.rasterize <- function(x) {
-  return(raster::raster(x, xmn = 0.5, xmx = ncol(x) + 0.5, ymn = 0.5, ymx = nrow(x) + 0.5, crs = NA))
+  }
 }
 
 
@@ -121,10 +350,10 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "character"),
   function(samc, x) {
-    row_names <- rownames(samc$q_matrix)
-    .validate_names(row_names, x)
 
-    return(match(x, row_names))
+    .validate_names(samc$names, x)
+
+    return(match(x, samc$names))
   })
 
 
@@ -134,21 +363,21 @@ setMethod(
 #'
 #' @param x A list
 #' @noRd
-.validate_tr_args <- function(x) {
+.validate_model <- function(x) {
   args <- c("fun", "dir", "sym")
   names <- names(x)
 
   missing_args <- args[!(args %in% names)]
   if (length(missing_args) > 0)
-    stop(paste("Missing argument in tr_args:", missing_args), call. = FALSE)
+    stop(paste("Missing argument in model:", missing_args), call. = FALSE)
 
   unknown_args <- names[!(names %in% args)]
   if (length(unknown_args) > 0)
-    stop(paste("Unknown argument in tr_args:", unknown_args), call. = FALSE)
+    stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
 
   dup_args <- names[duplicated(names)]
   if (length(dup_args) > 0)
-    stop(paste("Duplicate argument in tr_args:", dup_args), call. = FALSE)
+    stop(paste("Duplicate argument in model:", dup_args), call. = FALSE)
 
   if (!is.function(x$fun)) {
     stop("`fun`` must be a function.", call. = FALSE)
@@ -176,23 +405,26 @@ setGeneric(
 #' @noRd
 setMethod(
   ".process_abs_states",
-  signature(samc = "samc", x = "Raster"),
+  signature(samc = "samc", x = "SpatRaster"),
   function(samc, x) {
-    check(samc, x)
 
-    if (raster::nlayers(x) == 0) {
+    x = rasterize(x)
+
+    check(samc@map, x)
+
+    if (terra::nlyr(x) == 0) {
      stop("Missing absorption data", call. = FALSE)
     }
 
-    abs_vec <- as.vector(x[[1]])
 
-    if (raster::nlayers(x) > 1) {
-      abs_mat <- raster::as.matrix(x)
-    } else {
-      abs_mat <- matrix(abs_vec, ncol = 1)
+    abs_mat <- terra::values(x)
+    abs_vec <- as.vector(abs_mat[, 1])
+
+    abs_minmax = terra::minmax(x)
+
+    if (min(abs_minmax["min", ]) < 0 || max(abs_minmax["max", ]) > 1) {
+      stop("Absorption values must be in range of 0-1", call. = FALSE)
     }
-
-    if(any(abs_mat > 1, na.rm = TRUE) || any(abs_mat < 0, na.rm = TRUE)) stop("", call. = FALSE)
 
     excl <- which(is.na(abs_vec))
     if (length(excl) > 0) {
@@ -211,60 +443,87 @@ setMethod(
 
 setMethod(
   ".process_abs_states",
+  signature(samc = "samc", x = "RasterStack"),
+  function(samc, x) {
+
+    return(.process_abs_states(samc, terra::rast(x)))
+  })
+
+setMethod(
+  ".process_abs_states",
+  signature(samc = "samc", x = "RasterLayer"),
+  function(samc, x) {
+
+    return(.process_abs_states(samc, terra::rast(x)))
+  })
+
+setMethod(
+  ".process_abs_states",
   signature(samc = "samc", x = "list"),
   function(samc, x) {
 
-    if (!all(sapply(x, is.matrix))) stop("List can only contain matrices. If using rasters, use raster::stack() instead.", call. = FALSE)
+    # TODO: check against output field
+    if (!all(sapply(x, is.matrix))) stop("List can only contain matrices. If using rasters, use raster::stack() or c() to combine terra SpatRasters instead.", call. = FALSE)
 
-    x <- lapply(x, .rasterize)
+    x <- lapply(x, rasterize)
 
-    return(.process_abs_states(samc, raster::stack(x)))
+    if(is.null(names(x))) names(x) = 1:length(x)
+
+    return(.process_abs_states(samc, terra::rast(x)))
   })
 
 
-#' Process occupancy input
+#' Process initial state input
 #'
-#' Process occupancy input
+#' Process initial state input
 #'
 #' @param samc A samc-class object
-#' @param x occupancy input
+#' @param x initial state input
 #' @noRd
 setGeneric(
-  ".process_occ",
+  ".process_init",
   function(samc, x) {
-    standardGeneric(".process_occ")
+    standardGeneric(".process_init")
   })
 
-# TODO: find a way to check the input type for `occ` to the input type to samc()
+# TODO: find a way to check the input type for `init` to the input type to samc()
 
 #' @noRd
 setMethod(
-  ".process_occ",
+  ".process_init",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
-    if (any(!is.finite(x)) || any(x < 0)) stop("`occ` input must only contain positive numeric values")
+    if (any(!is.finite(x)) || any(x < 0)) stop("`init` input must only contain positive numeric values")
 
-    if (length(x) != nrow(samc$q_matrix)) stop("`occ` input length does not match number of transient states")
+    if (length(x) != nrow(samc$q_matrix)) stop("`init` input length does not match number of transient states")
 
     return(x)
   })
 
 #' @noRd
 setMethod(
-  ".process_occ",
-  signature(samc = "samc", x = "Raster"),
+  ".process_init",
+  signature(samc = "samc", x = "SpatRaster"),
   function(samc, x) {
-    check(samc, x)
+    check(samc@map, x)
 
-    pv <- as.vector(x)
+    pv <- as.vector(terra::values(x))
     pv <- pv[is.finite(pv)]
 
-    return(.process_occ(samc, pv))
+    return(.process_init(samc, pv))
+  })
+
+#' @noRd
+setMethod(
+  ".process_init",
+  signature(samc = "samc", x = "RasterLayer"),
+  function(samc, x) {
+    return(.process_init(samc, rasterize(x)))
   })
 
 setMethod(
-  ".process_occ",
+  ".process_init",
   signature(samc = "samc", x = "matrix"),
   function(samc, x) {
-    return(.process_occ(samc, .rasterize(x)))
+    return(.process_init(samc, rasterize(x)))
   })

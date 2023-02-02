@@ -16,7 +16,7 @@ for(test in testlist) {
   I <- diag(nrow(Q))
 
   # Prepare the occupancy data
-  occ_ras <- raster::raster(test$occ)
+  occ_ras <- raster::raster(test$init)
   pv <- as.vector(occ_ras)
   pv <- pv[is.finite(pv)]
 
@@ -72,9 +72,9 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing dispersal(samc, occ, dest, time)", {
-    result <- dispersal(samc_obj, occ = test$occ, dest = col_vec[1], time = time)
-    result_char <- dispersal(samc_obj, occ = test$occ, dest = as.character(col_vec[1]), time = time)
+  test_that("Testing dispersal(samc, init, dest, time)", {
+    result <- dispersal(samc_obj, init = test$init, dest = col_vec[1], time = time)
+    result_char <- dispersal(samc_obj, init = test$init, dest = as.character(col_vec[1]), time = time)
     expect_equal(result, result_char)
 
     qj <- Q[-col_vec[1], col_vec[1]]
@@ -94,9 +94,9 @@ for(test in testlist) {
     expect_equal(result, as.numeric(base_result))
   })
 
-  test_that("Testing dispersal(samc, occ, dest, time_vec)", {
-    result <- dispersal(samc_obj, occ = test$occ, dest = col_vec[1], time = time_vec)
-    result_char <- dispersal(samc_obj, occ = test$occ, dest = as.character(col_vec[1]), time = time_vec)
+  test_that("Testing dispersal(samc, init, dest, time_vec)", {
+    result <- dispersal(samc_obj, init = test$init, dest = col_vec[1], time = time_vec)
+    result_char <- dispersal(samc_obj, init = test$init, dest = as.character(col_vec[1]), time = time_vec)
     expect_equal(result, result_char)
 
     qj <- Q[-col_vec[1], col_vec[1]]
@@ -171,11 +171,11 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing dispersal(samc, occ)", {
-    result <- dispersal(samc_obj, occ = test$occ)
+  test_that("Testing dispersal(samc, init)", {
+    result <- dispersal(samc_obj, init = test$init)
     samc_obj@.cache$dgf_exists <- FALSE
     samc_obj$threads <- 2
-    result_par <- dispersal(samc_obj, occ = test$occ)
+    result_par <- dispersal(samc_obj, init = test$init)
     samc_obj@.cache$dgf_exists <- FALSE
     samc_obj$threads <- 1
 
@@ -188,9 +188,9 @@ for(test in testlist) {
   })
 
 
-  test_that("Testing dispersal(samc, occ, dest)", {
-    result <- dispersal(samc_obj, occ = test$occ, dest = col_vec[1])
-    result_char <- dispersal(samc_obj, occ = test$occ, dest = as.character(col_vec[1]))
+  test_that("Testing dispersal(samc, init, dest)", {
+    result <- dispersal(samc_obj, init = test$init, dest = col_vec[1])
+    result_char <- dispersal(samc_obj, init = test$init, dest = as.character(col_vec[1]))
     expect_equal(result, result_char)
 
     base_result <- pv %*% (f - I) %*% fdg

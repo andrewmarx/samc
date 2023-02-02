@@ -4,12 +4,6 @@
 # }
 
 .onAttach <- function(libname, pkgname) {
-  msg <-paste("The following parameters have officially been removed from the samc() function in version 2:",
-              "\n1) `latlon`: Now handled automatically.",
-              "\n2) `resistance`: `data` should be used in its place.",
-              "\n3) `p_mat`: The P matrix is now provided via `data`.",
-              "\n4) `tr_fun`: See the samc() function documentation for the alternative.",
-              "\n5) `directions`: See the samc() function documentation for the alternative.",
-              "\n6) `override`: See the samc-class documentation for the alternative.")
+  msg <-paste("Version 2 and Version 3 had breaking changes. Check the package website for details.")
   packageStartupMessage(msg)
 }

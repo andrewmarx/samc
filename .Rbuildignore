@@ -16,4 +16,5 @@ other
 benchmark
 LICENSE
 index.md
+^CRAN-SUBMISSION$
 ^cran-comments\.md$

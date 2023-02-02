@@ -32,7 +32,7 @@ NULL
 #'
 #' \eqn{\psi^T A}
 #' \itemize{
-#'   \item \strong{absorption(samc, occ)}
+#'   \item \strong{absorption(samc, init)}
 #'
 #' The result is a vector \eqn{\mathbf{v}} where \eqn{\mathbf{v}_{k}} is the
 #' probability of absorption due to absorbing state \eqn{\mathit{k}} given an
@@ -42,7 +42,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @template param-occ
+#' @template param-init
 #' @template param-origin
 #'
 #' @return See Details
@@ -53,7 +53,7 @@ NULL
 
 setGeneric(
   "absorption",
-  function(samc, occ, origin) {
+  function(samc, init, origin) {
     standardGeneric("absorption")
   })
 
@@ -62,17 +62,12 @@ setGeneric(
 #' @rdname absorption
 setMethod(
   "absorption",
-  signature(samc = "samc", occ = "missing", origin = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing"),
   function(samc) {
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    q <- samc$q_matrix
-
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
-
     # TODO: possibly optimize using C++
-    abs_mat <- Matrix::solve(q, samc@data@c_abs)
+    abs_mat <- Matrix::solve(samc@data@f, samc@data@c_abs)
 
     abs_mat <- as.matrix(abs_mat)
 
@@ -85,7 +80,7 @@ setMethod(
 #' @rdname absorption
 setMethod(
   "absorption",
-  signature(samc = "samc", occ = "missing", origin = "location"),
+  signature(samc = "samc", init = "missing", origin = "location"),
   function(samc, origin) {
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
@@ -98,40 +93,22 @@ setMethod(
     return(result)
   })
 
-# absorption(samc, occ) ----
+# absorption(samc, init) ----
 #' @rdname absorption
 setMethod(
   "absorption",
-  signature(samc = "samc", occ = "RasterLayer", origin = "missing"),
-  function(samc, occ) {
+  signature(samc = "samc", init = "ANY", origin = "missing"),
+  function(samc, init) {
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    check(samc, occ)
+    check(samc, init)
 
-    pv <- as.vector(occ)
-    pv <- pv[is.finite(pv)]
+    pv <- .process_init(samc, init)
 
-    q <- samc$q_matrix
-
-    q@x <- -q@x
-    Matrix::diag(q) <- Matrix::diag(q) + 1
-
-    pf <- samc:::.psif(q, pv)
+    pf <-.psif(samc@data@f, pv, samc@.cache$sc)
 
     result <- as.vector(pf %*% samc@data@c_abs)
     names(result) <- colnames(samc@data@c_abs)
 
     return(result)
-  })
-
-#' @rdname absorption
-setMethod(
-  "absorption",
-  signature(samc = "samc", occ = "matrix", origin = "missing"),
-  function(samc, occ) {
-    if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
-
-    occ <- samc:::.rasterize(occ)
-
-    return(absorption(samc, occ))
   })
