@@ -1,15 +1,15 @@
-# samc 3.0.0
+# samc 3.0.2
 
 ## New Features
 
 - Added support for the terra package for raster data. Internally, the package now uses terra and converts RasterLayer objects to SpatRaster objects. It's recommended that users switch to the terra package for loading and preparing raster data for samc.
 - Made the `rasterize()` function publicly available. Mainly useful for converting matrices to a SpatRaster that matches the structure used internally by the package.
 - Added short-term versions of the `visitation()` function.
-- Breaking Added support for setting the initial state in the `visitation()` function
+- ***Breaking*** Added support for setting the initial state in the `visitation()` function
 
 ## Performance
 
-- (**Breaking**) Removed default naming of cells for samc objects created from rasters. This leads to substantially smaller samc objects, especially as raster inputs become larger.
+- ***Breaking*** Removed default naming of cells for samc objects created from rasters. This leads to substantially smaller samc objects, especially as raster inputs become larger.
 - Overhauled the samc object creation to be substantially more memory efficient. It is now feasible to create samc objects with 100+ million transient states with 32 GB of RAM. However, this memory efficiency comes with the tradeoff that samc objects can take significantly longer to create (~2x as long based on preliminary testing).
 - Added optional support for iterative solvers in metrics (where applicable). This greatly reduces the memory requirements of these metrics, but in general, will take longer to calculate. Initial tests indicate that the `visitation()` function is feasible for samc objects with 50 Million cells with 32 GB of RAM. Details about changing the solver can be found in the help documentation for the `samc-class`.
 - Added caching behavior for some metrics when using a direct solver. This can reduce run-time by over 95% when rerunning these metrics with the same arguments but different input values. Using different arguments or metrics may require rebuilding the cache, so it is best to keep specific usages of a metric grouped in code.
@@ -22,14 +22,14 @@
 
 ## Other
 
-- (**Breaking**) Combined the three original example data objects into a single list. Updated documentation accordingly.
+- ***Breaking*** Combined the three original example data objects into a single list. Updated documentation accordingly.
 - Moved the maze example vignette data into a built-in data object.
-- (**Breaking**) Removed support for TransitionLayer inputs to the `samc()` function so that gdistance can be removed as a dependency.
-- (**Breaking**) The `sym` option for creating the samc object is currently ignored.
-- (**Breaking**) The `map()` function was updated so that the output matches the input types used in the `samc()` function.
-- (**Breaking**) Rename the `tr_args` parameter to `model` to reflect future anticipated support for different types of models. Current usage will not change and assumes a default random-walk model.
-- (**Breaking**) Renamed the `occ` parameter in metrics to `init` (short for "initial state" or "initialize")
-- (**Breaking**) Added the parameter for setting the initial state in the `cond_passage()` function to match other metrics, but it is not currently used.
+- ***Breaking*** Removed support for TransitionLayer inputs to the `samc()` function so that gdistance can be removed as a dependency.
+- ***Breaking*** The `sym` option for creating the samc object is currently ignored.
+- ***Breaking*** The `map()` function was updated so that the output matches the input types used in the `samc()` function.
+- ***Breaking*** Rename the `tr_args` parameter to `model` to reflect future anticipated support for different types of models. Current usage will not change and assumes a default random-walk model.
+- ***Breaking*** Renamed the `occ` parameter in metrics to `init` (short for "initial state" or "initialize")
+- ***Breaking*** Added the parameter for setting the initial state in the `cond_passage()` function to match other metrics, but it is not currently used.
 - Bumped various package version requirements.
 
 # samc 2.0.1
