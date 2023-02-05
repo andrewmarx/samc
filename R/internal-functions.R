@@ -5,11 +5,28 @@
 # be used by users.
 #
 
+#' RW function
+#'
+#' An internal function for creating RW samc objects
+#'
+#' @noRd
+.rw <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
+
+}
+
+#' CRW function
+#'
+#' An internal function for creating RW samc objects
+#'
+#' @noRd
+.crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
+
+}
+
 #' Transition function
 #'
 #' An internal function for creating transition matrices
 #'
-#' @param data A SpatRaster
 #' @noRd
 .transition <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
   if (is(fun, "character")) {
@@ -367,6 +384,18 @@ setMethod(
   args <- c("fun", "dir", "sym")
   names <- names(x)
 
+  dup_args <- names[duplicated(names)]
+  if (length(dup_args) > 0)
+    stop(paste("Duplicate argument in model:", dup_args), call. = FALSE)
+
+  if (!("name" %in% names)) {
+    x$name = "RW"
+  }
+
+  if (x$name == "CRW") {
+    args = c(args, "dist")
+  }
+
   missing_args <- args[!(args %in% names)]
   if (length(missing_args) > 0)
     stop(paste("Missing argument in model:", missing_args), call. = FALSE)
@@ -375,10 +404,6 @@ setMethod(
   if (length(unknown_args) > 0)
     stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
 
-  dup_args <- names[duplicated(names)]
-  if (length(dup_args) > 0)
-    stop(paste("Duplicate argument in model:", dup_args), call. = FALSE)
-
   if (!is.function(x$fun)) {
     stop("`fun`` must be a function.", call. = FALSE)
   } else if (!(x$dir %in% c(4,8))) {
@@ -386,6 +411,45 @@ setMethod(
   } else if (!is.logical(x$sym)) {
     stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
   }
+
+  if (x$name == "CRW") {
+    dist = x$dist
+
+    dist_args = c("name")
+    dist_names = names(dist)
+
+    if (!("name" %in% dist_names)) {
+      stop("Missing distribution name.", call. = FALSE)
+    } else if (dist$name == "vonMises") {
+      dist_args = c(dist_args, "kappa")
+    } else {
+      stop(paste("Invalid distribution name:", dist$name), call. = FALSE)
+    }
+
+    missing_args <- dist_args[!(dist_args %in% dist_names)]
+    if (length(missing_args) > 0)
+      stop(paste("Missing argument in dist:", missing_args), call. = FALSE)
+
+    unknown_args <- dist_names[!(dist_names %in% dist_args)]
+    if (length(unknown_args) > 0)
+      stop(paste("Unknown argument in dist:", unknown_args), call. = FALSE)
+
+    if (dist$name == "vonMises") {
+      if (!is.numeric(dist$kappa))
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+
+      if (length(dist$kappa) != 1)
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+
+      if (!is.finite(dist$kappa))
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+
+      if (dist$kappa < 0)
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+    }
+  }
+
+  return(x)
 }
 
 

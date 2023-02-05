@@ -129,7 +129,7 @@ setMethod(
             fidelity = "SpatRaster",
             model = "list"),
   function(data, absorption, fidelity, model) {
-    .validate_model(model)
+    model = .validate_model(model)
 
     tr_fun <- model$fun
     directions <-model$dir
