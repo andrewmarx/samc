@@ -199,13 +199,17 @@ setMethod(
     rm(cl)
     gc()
 
-
     # Create the transition matrix
-    samc_obj@data@f = .transition(data, absorption, fidelity, tr_fun, directions, symm)
-    gc()
+    if (model$name == "RW") {
+      samc_obj@data@f = rw(data, absorption, fidelity, tr_fun, directions, symm)
+      gc()
 
-    samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
+      samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
+    } else {
+      stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
+    }
 
+    # TODO Update to terra
     if(is.na(raster::projection(data)) && raster::xres(data) != raster::yres(data)) {
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }

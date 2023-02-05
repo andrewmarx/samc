@@ -7,11 +7,11 @@
 
 #' RW function
 #'
-#' An internal function for creating RW samc objects
+#' An internal function for creating RW transition objects
 #'
 #' @noRd
-.rw <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
-
+.rw <- function(x, absorption, fidelity, fun, dir, sym) {
+  .transition(data, absorption, fidelity, tr_fun, directions, sym)
 }
 
 #' CRW function
