@@ -110,52 +110,8 @@
 
   row_count = 0L
 
-  # TODO Create tests to directly validate results for both directions options for planar and latlon
 
-  if (dir == 4) {
-    dist_lookup = c(1, 1, 1, 1)
-  } else if (dir == 8) {
-    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, 1, sqrt(2), 1, sqrt(2))
-  }
-
-  dist = function(x, dir) {
-    # x not used intentionally
-    dist_lookup[dir]
-  }
-
-  if(!is.na(lonlat)) {
-    if (lonlat) {
-      cn = (0:(nrow(absorption) - 1))*ncol(absorption) + 1
-
-      adj = terra::adjacent(absorption, cn, directions = 8, pairs = TRUE)
-
-      dist = terra::distance(
-        terra::xyFromCell(absorption, adj[, 1]),
-        terra::xyFromCell(absorption, adj[, 2]),
-        lonlat = TRUE, pairwise = TRUE)
-
-      adj = terra::adjacent(absorption, cn, directions = dir, pairs = FALSE)
-      adj = t(adj)
-
-      dist_lookup = adj
-      dist_lookup[!is.nan(dist_lookup)] = dist
-
-      if (dir == 4) {
-        dir_reindex = c(1, 3, 3, 4)
-      } else if (dir == 8) {
-        dir_reindex = c(3, 2, 3, 5, 5, 8, 7, 8)
-      }
-
-
-      dist <- function(x, dir) {
-        dir = dir_reindex[dir]
-
-        x = trunc((x - 1) / ncols) + 1
-
-        dist_lookup[dir, x]
-      }
-    }
-  }
+  dist = .build_lookup_function(absorption, dir)
 
   nc = nrows
   nr = ncols
@@ -256,6 +212,72 @@
   mat@x = mat_x
 
   return(mat)
+}
+
+
+#' Build direction lookup function
+#'
+#' TODO description here
+#'
+#' @param x A function
+#' @noRd
+
+.build_lookup_function <- function(rast, dir) {
+
+  # TODO Create tests to directly validate results for both directions options for planar and latlon
+
+  lonlat = terra::is.lonlat(rast)
+  nrows = terra::nrow(x)
+  ncols = terra::ncol(x)
+
+  if (dir == 4) {
+    dist_lookup = c(1, 1, 1, 1)
+  } else if (dir == 8) {
+    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, 1, sqrt(2), 1, sqrt(2))
+  }
+
+  dist = function(x, dir) {
+    # x not used intentionally
+    dist_lookup[dir]
+  }
+
+  if(!is.na(lonlat)) {
+    if (lonlat) {
+      cn = (0:(nrows - 1)) * ncols + 1
+
+      adj = terra::adjacent(rast, cn, directions = 8, pairs = TRUE)
+
+      dist = terra::distance(
+        terra::xyFromCell(rast, adj[, 1]),
+        terra::xyFromCell(rast, adj[, 2]),
+        lonlat = TRUE, pairwise = TRUE)
+
+      adj = terra::adjacent(rast, cn, directions = dir, pairs = FALSE)
+      adj = t(adj)
+
+      dist_lookup = adj
+      dist_lookup[!is.nan(dist_lookup)] = dist
+
+      if (dir == 4) {
+        dir_reindex = c(1, 3, 3, 4)
+      } else if (dir == 8) {
+        dir_reindex = c(3, 2, 3, 5, 5, 8, 7, 8)
+      } else {
+        stop("Invalid directions", call. = FALSE)
+      }
+
+
+      dist <- function(x, dir) {
+        dir = dir_reindex[dir]
+
+        x = trunc((x - 1) / ncols) + 1
+
+        dist_lookup[dir, x]
+      }
+    }
+  }
+
+  return(dist)
 }
 
 
