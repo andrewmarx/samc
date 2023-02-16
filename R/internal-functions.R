@@ -1,4 +1,4 @@
-# Copyright (c) 2020 Andrew Marx. All rights reserved.
+# Copyright (c) 2020-2023 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 #
 # This file is for internal functions. They are subject to change and should not
@@ -20,7 +20,41 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
+  lonlat = terra::is.lonlat(absorption)
 
+  #data_crs = terra::crs(resistance)
+  #ncells = terra::ncell(resistance)
+  nrows = terra::nrow(x)
+  ncols = terra::ncol(x)
+
+  n_cells = terra::global(x, fun = "notNA")
+
+  # Overprovisioning
+  mat_p = integer(ncells * dir)
+
+  mat_i = integer(ncells * dir * dir)
+  i_index = 1
+
+  mat_x = numeric(ncells * dir * dir)
+
+  row_sum = numeric(ncells * dir)
+
+
+
+  # Overprovisioning cleanup
+
+  # mat_p = mat_p[1: ]
+  # mat_i = mat_i[1: ]
+  # mat_x = mat_x[1: ]
+
+  mat = new("dgCMatrix")
+  #mat@Dim = c(ncells, ncells)
+
+  mat@p = mat_p
+  mat@i = mat_i
+  mat@x = mat_x
+
+  return(mat)
 }
 
 #' Transition function
@@ -99,7 +133,6 @@
   mat_x = numeric(n_pair)
 
   row_sum = numeric(ncells)
-
 
   row_count = 0L
 
