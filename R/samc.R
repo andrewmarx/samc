@@ -135,6 +135,14 @@ setMethod(
     directions <-model$dir
     symm <- model$sym
 
+    if (is(tr_fun, "character")) {
+      stop("Named transition functions not supported", call. = FALSE)
+    }
+
+    if (!(directions %in% c(4, 8))) {
+      stop("Invalid `dir` input", call. = FALSE)
+    }
+
     # Make sure the input data all aligns
     check(c(data, fidelity, absorption))
 

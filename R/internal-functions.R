@@ -29,13 +29,6 @@
 #'
 #' @noRd
 .transition <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
-  if (is(fun, "character")) {
-    stop("Named transition functions not supported", call. = FALSE)
-  }
-
-  if (!(dir %in% c(4, 8))) {
-    stop("Invalid `dir` input", call. = FALSE)
-  }
 
   lonlat = terra::is.lonlat(absorption)
 
