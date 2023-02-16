@@ -11,7 +11,7 @@
 #'
 #' @noRd
 .rw <- function(x, absorption, fidelity, fun, dir, sym) {
-  .transition(data, absorption, fidelity, tr_fun, directions, sym)
+  .transition(x, absorption, fidelity, fun, dir, sym)
 }
 
 #' CRW function

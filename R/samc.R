@@ -201,7 +201,7 @@ setMethod(
 
     # Create the transition matrix
     if (model$name == "RW") {
-      samc_obj@data@f = rw(data, absorption, fidelity, tr_fun, directions, symm)
+      samc_obj@data@f = .rw(data, absorption, fidelity, tr_fun, directions, symm)
       gc()
 
       samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
