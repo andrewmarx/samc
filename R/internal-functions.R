@@ -7,11 +7,41 @@
 
 #' RW function
 #'
-#' An internal function for creating RW transition objects
+#' An internal function for creating RW samc matrix
 #'
 #' @noRd
 .rw <- function(x, absorption, fidelity, fun, dir, sym) {
-  .transition(x, absorption, fidelity, fun, dir, sym)
+  tr = .transition(x, fun, dir, sym)
+
+  rs = Matrix::rowSums(tr)
+
+  tmp = 1 - terra::values(absorption) - terra::values(fidelity)
+
+
+  cell_nums = terra::cells(x)
+  ncells = length(cell_nums)
+
+  fidelity = terra::values(fidelity)
+
+  i_index = 1
+  for (p in 1:ncells) {
+    row_count = tr@p[p+1] - tr@p[p]
+    for (i in 1:row_count) {
+      row = tr@i[i_index] + 1
+      if (p != row) {
+        #mat_x[i_index] = i_index # useful for validation
+        #mat_x[i_index] = cell_nums[row] # useful for validation
+        #print(c(p, row))
+        #assign("ts", list(mat_p, mat_i), envir = globalenv())
+        tr@x[i_index] = -tr@x[i_index]/rs[row] * tmp[cell_nums[row]]
+      } else {
+        tr@x[i_index] = 1 - fidelity[cell_nums[row]]
+      }
+      i_index = i_index + 1
+    }
+  }
+
+  tr
 }
 
 #' CRW function
@@ -62,9 +92,9 @@
 #' An internal function for creating transition matrices
 #'
 #' @noRd
-.transition <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
+.transition <- function(x, fun, dir, sym = TRUE) {
 
-  lonlat = terra::is.lonlat(absorption)
+  lonlat = terra::is.lonlat(x)
 
   #data_crs = terra::crs(resistance)
   #ncells = terra::ncell(resistance)
@@ -100,13 +130,10 @@
 
   n_pair = n_pair*2 + ncells
 
-
-
   mat = new("dgCMatrix")
   mat@Dim = c(ncells, ncells)
 
 
-  x = terra::values(x)
 
   if (dir == 4) {
     offset_r = c(0, -1, 1, 0)
@@ -132,17 +159,15 @@
 
   mat_x = numeric(n_pair)
 
-  row_sum = numeric(ncells)
-
   row_count = 0L
 
 
-  dist = .build_lookup_function(absorption, dir)
+  dist = .build_lookup_function(x, dir)
 
   nc = nrows
   nr = ncols
 
-  fidelity = terra::values(fidelity)
+  x = terra::values(x)
 
   for (i in 1:length(cell_nums)) {
     num = cell_nums[i]
@@ -154,11 +179,6 @@
     rows = row + offset_r
     cols = col + offset_c
     nums = num + offset_n
-
-    #xy = terra::xyFromCell(absorption, num)
-    #offset_xy = terra::xyFromCell(absorption, nums)
-
-    #dists = terra::distance(terra::xyFromCell(absorption, num), terra::xyFromCell(absorption, nums), lonlat)
 
     rc = !(rows < 1 | rows > nr | cols < 1 | cols > nc)
 
@@ -173,9 +193,7 @@
           result = fun(x[c(num, nums[d])]) / dist(num, d)
 
           mat_i[i_index] = as.integer(mat_row - 1)
-          mat_x[i_index] = -result
-
-          row_sum[mat_row] = row_sum[mat_row] + result
+          mat_x[i_index] = result
 
           i_index = i_index + 1
         }
@@ -188,7 +206,7 @@
     mat_row = cell_lookup[num]
 
     mat_i[i_index] = as.integer(mat_row - 1)
-    mat_x[i_index] = 1 - fidelity[num]
+    mat_x[i_index] = 0
 
     i_index = i_index + 1
 
@@ -203,9 +221,7 @@
           result = fun(x[c(num, nums[d])]) / dist(num, d)
 
           mat_i[i_index] = as.integer(mat_row - 1)
-          mat_x[i_index] = -result
-
-          row_sum[mat_row] = row_sum[mat_row] + result
+          mat_x[i_index] = result
 
           i_index = i_index + 1
         }
@@ -213,24 +229,6 @@
     }
 
     mat_p[i+1] = row_count
-  }
-
-  tmp = 1 - terra::values(absorption) - fidelity
-
-  i_index = 1
-  for (p in 1:ncells) {
-    row_count = mat_p[p+1] - mat_p[p]
-    for (i in 1:row_count) {
-      row = mat_i[i_index] + 1
-      if (p != row) {
-        #mat_x[i_index] = i_index # useful for validation
-        #mat_x[i_index] = cell_nums[row] # useful for validation
-        #print(c(p, row))
-        #assign("ts", list(mat_p, mat_i), envir = globalenv())
-        mat_x[i_index] = mat_x[i_index]/row_sum[row] * tmp[cell_nums[row]]
-      }
-      i_index = i_index + 1
-    }
   }
 
   mat@p = mat_p
