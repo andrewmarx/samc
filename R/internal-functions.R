@@ -311,6 +311,17 @@
 }
 
 
+#' Build turning lookup function
+#'
+#' TODO description here
+#'
+#' @param x A function
+#' @noRd
+
+.build_turn_function <- function() {
+
+}
+
 #' Validate time steps
 #'
 #' Performs several checks to make sure a vector of time steps is valid
