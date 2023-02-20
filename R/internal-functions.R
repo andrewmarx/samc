@@ -253,8 +253,8 @@
   # TODO Create tests to directly validate results for both directions options for planar and latlon
 
   lonlat = terra::is.lonlat(rast)
-  nrows = terra::nrow(x)
-  ncols = terra::ncol(x)
+  nrows = terra::nrow(rast)
+  ncols = terra::ncol(rast)
 
   if (dir == 4) {
     dist_lookup = c(1, 1, 1, 1)
