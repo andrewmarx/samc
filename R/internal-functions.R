@@ -50,35 +50,41 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
-  lonlat = terra::is.lonlat(absorption)
 
-  #data_crs = terra::crs(resistance)
-  #ncells = terra::ncell(resistance)
-  nrows = terra::nrow(x)
-  ncols = terra::ncol(x)
+  tr = .transition(x, fun, dir, sym)
 
-  n_cells = terra::global(x, fun = "notNA")
+  cell_nums = terra::cells(x)
+  ncells = length(cell_nums)
 
-  # Overprovisioning
-  mat_p = integer(ncells * dir)
 
-  mat_i = integer(ncells * dir * dir)
+  edge_counts = Matrix::rowSums(tr > 0)
+
+  mat_p = integer(sum(edge_counts + 1) + 1)
+  mat_i = integer(sum(edge_counts^2 + 1))
+  mat_x = numeric(sum(edge_counts^2 + 1))
+
+  crw_map = matrix(0L, nrow = sum(edge_counts + 1), ncol = 2)
+
+
+
   i_index = 1
+  for (p in 1:ncells) {
+    row_count = tr@p[p+1] - tr@p[p]
+    for (i in 1:row_count) {
+      row = tr@i[i_index] + 1
+      if (p != row) {
 
-  mat_x = numeric(ncells * dir * dir)
 
-  row_sum = numeric(ncells * dir)
-
+      } else {
 
 
-  # Overprovisioning cleanup
-
-  # mat_p = mat_p[1: ]
-  # mat_i = mat_i[1: ]
-  # mat_x = mat_x[1: ]
+      }
+      i_index = i_index + 1
+    }
+  }
 
   mat = new("dgCMatrix")
-  #mat@Dim = c(ncells, ncells)
+  mat@Dim = c(sum(edge_counts + 1), sum(edge_counts + 1))
 
   mat@p = mat_p
   mat@i = mat_i
