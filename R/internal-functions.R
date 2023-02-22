@@ -50,12 +50,13 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
-
+{
   tr = .transition(x, fun, dir, sym)
 
+  nrows = terra::nrow(x)
+  ncols = terra::ncol(x)
   cell_nums = terra::cells(x)
   ncells = length(cell_nums)
-
 
   edge_counts = Matrix::rowSums(tr > 0)
 
@@ -63,33 +64,75 @@
   mat_i = integer(sum(edge_counts^2 + 1))
   mat_x = numeric(sum(edge_counts^2 + 1))
 
-  crw_map = matrix(0L, nrow = sum(edge_counts + 1), ncol = 2)
+  crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 3)
 
 
+  # Stuff for indexing things while looping by cols
+  row_offsets = numeric(ncells)
+  row_offset_sum = 0
 
+  for (i in 1:ncells) {
+    row_offsets[i] = row_offset_sum
+    row_offset_sum = row_offset_sum + edge_counts[i]
+  }
+  row_offsets = row_offsets + 1
+  rm(row_offset_sum)
+
+  row_accesses = numeric(ncells)
+
+  dir_lookup = matrix(c(1:4, NA, 5:8), nrow = 3, byrow = TRUE)
+
+  #
+
+  #fidelity = terra::values(fidelity)
+
+  result = 0
   i_index = 1
-  for (p in 1:ncells) {
-    row_count = tr@p[p+1] - tr@p[p]
+  for (col in 1:ncells) {
+    row_count = tr@p[col + 1] - tr@p[col]
     for (i in 1:row_count) {
       row = tr@i[i_index] + 1
-      if (p != row) {
+
+      src = cell_nums[row]
+      dst = cell_nums[col]
+
+      tr_val = tr@x[i_index]
+
+      if (col != row) {
+
+        row_count2 = tr@p[row + 1] - tr@p[row]
+        for (i2 in 1:row_count) {
+          row2 = tr@i[]
+        }
 
 
+        result = 0
+
+        crw_map[row_offsets[row] + row_accesses[row], ] =
+          c(row,
+            dir_lookup[((dst - 1) %/% ncols - (src - 1) %/% ncols) + 2,
+                       ((dst - 1) %% ncols - (src - 1) %% ncols) + 2],
+            result)
+
+        row_accesses[row] = row_accesses[row] + 1
       } else {
-
-
+        result = fidelity[src]
       }
+
+
       i_index = i_index + 1
     }
   }
 
   mat = new("dgCMatrix")
-  mat@Dim = c(sum(edge_counts + 1), sum(edge_counts + 1))
+  mat@Dim = as.integer(sum(edge_counts), sum(edge_counts))
 
   mat@p = mat_p
   mat@i = mat_i
   mat@x = mat_x
 
+  assign("tmp", crw_map, envir = globalenv())
+}
   return(mat)
 }
 
