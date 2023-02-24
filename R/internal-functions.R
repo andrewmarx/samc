@@ -59,12 +59,23 @@
   ncells = length(cell_nums)
 
   edge_counts = Matrix::rowSums(tr > 0)
+  edge_counts = tr@p[-1] - tr@p[-length(tr@p)] - 1
 
-  mat_p = integer(sum(edge_counts + 1) + 1)
-  mat_i = integer(sum(edge_counts^2 + 1))
-  mat_x = numeric(sum(edge_counts^2 + 1))
+  mat_p = integer(sum(edge_counts) + 1)
+  mat_i = integer(sum((edge_counts + 1) * edge_counts))
+  mat_x = numeric(sum((edge_counts + 1) * edge_counts))
 
-  crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 3)
+
+  # Fill out mat_i
+
+
+
+
+  # Fill out mat_x
+
+
+
+  crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 2)
 
 
   # Stuff for indexing things while looping by cols
@@ -86,8 +97,49 @@
 
   #fidelity = terra::values(fidelity)
 
-  result = 0
+  # Fill out mat_p
+  mat_p_counts = integer(sum(edge_counts))
+  sum = 0
+  index = 1
+  for (i in 1:ncells) {
+    print("")
+    for (x_pos in (tr@i[(tr@p[i] + 1) : tr@p[i+1]])+1) {
+      print(x_pos)
+      if (x_pos != i) {
+        mat_p_counts[index] = edge_counts[x_pos] + 1
+        sum = sum + edge_counts[x_pos] + 1
+        index = index + 1
+        mat_p[index] = as.integer(sum)
+      }
+    }
+  }
+
+  mat_p2 = integer(sum(edge_counts) + 1)
+  sum = 0
+  index = 1
+  for (e2 in 1:ncells) {
+    #print("")
+
+    e1s = tr@i[(tr@p[e2] + 1) : tr@p[e2 + 1]] + 1
+    #print(e1s)
+
+    offset = 2
+    for (e1i in 1:length(e1s)) {
+      e1 = e1s[e1i]
+      if (e1 != e2) {
+        sum = sum + edge_counts[e1] + 1
+        mat_p2[tr@p[e2] - e2 + offset + 1] = as.integer(sum)
+        offset = offset + 1
+
+      }
+    }
+  }
+
+  mat_p
+  mat_p2
+
   i_index = 1
+  test = 0
   for (col in 1:ncells) {
     row_count = tr@p[col + 1] - tr@p[col]
     for (i in 1:row_count) {
@@ -97,28 +149,34 @@
       dst = cell_nums[col]
 
       tr_val = tr@x[i_index]
+      dr = dir_lookup[((dst - 1) %/% ncols - (src - 1) %/% ncols) + 2,
+                       ((dst - 1) %% ncols - (src - 1) %% ncols) + 2]
 
-      if (col != row) {
 
-        row_count2 = tr@p[row + 1] - tr@p[row]
-        for (i2 in 1:row_count) {
-          row2 = tr@i[]
+      if (col != row) { # if an edge
+        p_offset = 1
+
+        srcs = tr@i[(tr@p[row] + 1) : tr@p[row + 1]] + 1
+
+        for (i2 in 1:row_count2) {
+
+          row2 = tr@i[tr@p[row] + i2]
+
+          if (row != row2) {
+            test = test + 1
+          } else {
+            mat_x[mat_p[row2] + p_offset] = mat_p[row2] + p_offset#fidelity[cell_nums[row2]]
+          }
         }
 
 
         result = 0
 
         crw_map[row_offsets[row] + row_accesses[row], ] =
-          c(row,
-            dir_lookup[((dst - 1) %/% ncols - (src - 1) %/% ncols) + 2,
-                       ((dst - 1) %% ncols - (src - 1) %% ncols) + 2],
-            result)
+          c(row, dr)
 
         row_accesses[row] = row_accesses[row] + 1
-      } else {
-        result = fidelity[src]
       }
-
 
       i_index = i_index + 1
     }
