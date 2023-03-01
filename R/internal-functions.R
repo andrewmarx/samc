@@ -138,7 +138,7 @@
 
             e1i = row_offsets[p1] + p2i - 1
 
-            mat_x[index] = tr[p2, p3] * dvonmises(circular(0), mu = circular(0), kappa = model$dist$kappa)
+            mat_x[index] = tr[p2, p3] * circular::dvonmises(circular::circular(0), mu = circular::circular(0), kappa = model$dist$kappa)
             mat_i[index] = e1i
           } else {
             mat_x[index] = 0 #fidelity[cell_nums[p1]]
@@ -157,7 +157,6 @@
   # mat_p
   # mat_x
   # mat_i
-
   {
     mat = new("dgCMatrix")
     mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
@@ -172,6 +171,7 @@
 
   # normalization
 
+  fidelity = terra::values(fidelity)
   tmp = 1 - terra::values(absorption) - fidelity
   rs = Matrix::rowSums(mat)
 
@@ -185,6 +185,7 @@
         #mat_x[i_index] = cell_nums[row] # useful for validation
         #print(c(p, row))
         #assign("ts", list(mat_p, mat_i), envir = globalenv())
+
         mat@x[i_index] = -mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
       } else {
         mat@x[i_index] =  1 - fidelity[cell_nums[crw_map[,1][row]]]
@@ -195,9 +196,9 @@
 
 
   return(
-    list(tr = NA,
-         map = NA,
-         abs = NA)
+    list(tr = mat,
+         map = crw_map,
+         abs = terra::values(absorption)[cell_nums[crw_map[,1]]])
   )
 }
 
