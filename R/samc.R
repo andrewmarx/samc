@@ -213,6 +213,14 @@ setMethod(
       gc()
 
       samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
+    } else if (model$name == "CRW") {
+
+      crw_list = .crw(data, absorption, fidelity, tr_fun, directions, symm, model)
+
+      #samc_obj@data@f =
+      gc()
+
+      #samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
     } else {
       stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
     }

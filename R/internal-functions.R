@@ -49,7 +49,7 @@
 #' An internal function for creating RW samc objects
 #'
 #' @noRd
-.crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
+.crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
   tr = .transition(x, fun, dir, sym)
 
   nrows = terra::nrow(x)
@@ -138,7 +138,7 @@
 
             e1i = row_offsets[p1] + p2i - 1
 
-            mat_x[index] = tr[p2, p3]
+            mat_x[index] = tr[p2, p3] * dvonmises(circular(0), mu = circular(0), kappa = model$dist$kappa)
             mat_i[index] = e1i
           } else {
             mat_x[index] = fidelity[cell_nums[p1]]
@@ -172,7 +172,11 @@
     View(mat)
   }
 
-  return(mat)
+  return(
+    list(tr = NA,
+         map = NA,
+         abs = NA)
+  )
 }
 
 #' Transition function
