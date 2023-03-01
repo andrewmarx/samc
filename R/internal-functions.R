@@ -50,7 +50,6 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
-{
   tr = .transition(x, fun, dir, sym)
 
   nrows = terra::nrow(x)
@@ -104,38 +103,6 @@
     }
   }
 
-
-
-  # CSC for just filling out mat_p
-  # mat_p = integer(sum(edge_counts) + 1)
-  #
-  # mat_p = integer(sum(edge_counts) + 1)
-  #
-  # sum = 0
-  # for (p1 in 1:ncells) {
-  #   p2s = tr@i[(tr@p[p1] + 1) : tr@p[p1 + 1]] + 1
-  #   p2i = 0
-  #   for (p2 in p2s) {
-  #     if (p1 != p2) {
-  #       e1i = row_offsets[p1] + p2i
-  #
-  #       sum = sum + edge_counts[p1] + 1
-  #
-  #       #print(paste(e1i, sum))
-  #
-  #       mat_p[e1i + 1] = as.integer(sum)
-  #
-  #       p2i = p2i + 1
-  #
-  #     }
-  #   }
-  # }
-  # mat_p
-
-
-
-
-
   # e2 then e1 for CSC for entire mat
   mat_p = integer(sum(edge_counts) + 1)
   mat_x = numeric(sum((edge_counts + 1) * edge_counts))
@@ -187,96 +154,24 @@
     }
 
   }
-  mat_p
-  mat_x
-  mat_i
-
-{
-  mat = new("dgCMatrix")
-  mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
-
-  mat@p = mat_p
-  mat@i = as.integer(mat_i - 1)
-  mat@x = mat_x
-
-  mat = as.matrix(mat)
-  mat[mat == 0] = NA
-
-  View(mat)
-}
-
-  NA
-
-  # Attempt going from e1 -> e2
-  # would be more appropriate for CSR
-  # Does not work. Needs to be modified like one prev
-  # mat_x = numeric(sum((edge_counts + 1) * edge_counts))
-  # mat_i = integer(sum((edge_counts + 1) * edge_counts))
-  # for (p1 in 1:ncells) {
-  #
-  #   p2s = tr@i[(tr@p[p1] + 1) : tr@p[p1 + 1]] + 1
-  #   p2i = 0
-  #   for (p2 in p2s) {
-  #     if (p1 != p2) {
-  #       fid_check = FALSE
-  #       fid_offset = 0
-  #
-  #       p3s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
-  #
-  #       #p2p = row_offsets[p2]
-  #       e1i = row_offsets[p1] + p2i
-  #       p3i = 0
-  #       for (p3 in p3s) {
-  #         if (p2 != p3) {
-  #           e2i = row_offsets[p2] + p3i
-  #           print(paste(e1i,e2i))
-  #
-  #
-  #           p1i =
-  #
-  #           if (!fid_check){
-  #             if (e2i >= e1i) {
-  #               #print(paste(p1i, p2i, p3i, e1i, e2i, mat_p[e1i] + p3i + 1))
-  #
-  #
-  #               mat_x[mat_p[e2i] + p1i + 1] = 1
-  #               mat_i[mat_p[e2i] + p1i + 1] = e1i
-  #
-  #               fid_check = TRUE
-  #               fid_offset = 1
-  #             }
-  #           }
-  #
-  #
-  #           #mat_x[mat_p[p2p] + tmp] = 2
-  #           #mat_i[mat_p[p2p] + tmp] = row_index
-  #           p3i = p3i + 1
-  #         }
-  #       }
-  #
-  #       p2i = p2i + 1
-  #     }
-  #   }
-  # }
+  # mat_p
   # mat_x
   # mat_i
-  # mat_p
-  # tr@p
 
-  mat = new("dgCMatrix")
-  mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
+  {
+    mat = new("dgCMatrix")
+    mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
-  mat@p = mat_p
-  mat@i = as.integer(mat_i - 1)
-  mat@x = mat_x
+    mat@p = mat_p
+    mat@i = as.integer(mat_i - 1)
+    mat@x = mat_x
 
-  mat = as.matrix(mat)
-  mat[mat == 0] = NA
+    mat = as.matrix(mat)
+    mat[mat == 0] = NA
 
-  View(mat)
+    View(mat)
+  }
 
-  assign("tmp", crw_map, envir = globalenv())
-}
   return(mat)
 }
 
