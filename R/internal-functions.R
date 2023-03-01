@@ -61,22 +61,6 @@
   edge_counts = Matrix::rowSums(tr > 0)
   edge_counts = tr@p[-1] - tr@p[-length(tr@p)] - 1
 
-  mat_p = integer(sum(edge_counts) + 1)
-  mat_i = integer(sum((edge_counts + 1) * edge_counts))
-  mat_x = numeric(sum((edge_counts + 1) * edge_counts))
-
-
-  # Fill out mat_i
-
-
-
-
-  # Fill out mat_x
-
-
-
-  crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 2)
-
 
   # Stuff for indexing things while looping by cols
   row_offsets = numeric(ncells)
@@ -89,38 +73,32 @@
   row_offsets = row_offsets + 1
   rm(row_offset_sum)
 
-  row_accesses = numeric(ncells)
-
-  dir_lookup = matrix(c(1:4, NA, 5:8), nrow = 3, byrow = TRUE)
-
-  #
 
   #fidelity = terra::values(fidelity)
 
-  sum = 0
-  for (e2 in 1:ncells) {
+
+  # Fill out CRW lookup
+  crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 2)
+  row_accesses = numeric(ncells)
+  dir_lookup = matrix(c(1:4, NA, 5:8), nrow = 3, byrow = TRUE)
+
+  for (p2 in 1:ncells) {
     #print("")
 
-    e1s = tr@i[(tr@p[e2] + 1) : tr@p[e2 + 1]] + 1
-    #print(e1s)
+    p1s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+    #print(p1s)
 
-    offset = 2 # +1 for skipping fidelity
-    for (e1 in e1s) {
-      if (e1 != e2) { # if an edge
-        # mat_p
-        sum = sum + edge_counts[e1] + 1
-        mat_p[tr@p[e2] - e2 + offset + 1] = as.integer(sum)
-        offset = offset + 1
-
+    for (p1 in p1s) {
+      if (p1 != p2) { # if an edge
         # crw_map
-        src = cell_nums[e1]
-        dst = cell_nums[e2]
+        src = cell_nums[p1]
+        dst = cell_nums[p2]
         dr = dir_lookup[((dst - 1) %/% ncols - (src - 1) %/% ncols) + 2,
                         ((dst - 1) %% ncols - (src - 1) %% ncols) + 2]
-        crw_map[row_offsets[e1] + row_accesses[e1], ] =
-          c(e1, dr)
+        crw_map[row_offsets[p1] + row_accesses[p1], ] =
+          c(p1, dr)
 
-        row_accesses[e1] = row_accesses[e1] + 1
+        row_accesses[p1] = row_accesses[p1] + 1
 
       }
     }
@@ -128,48 +106,90 @@
 
 
 
+  # CSC for just filling out mat_p
+  # mat_p = integer(sum(edge_counts) + 1)
+  #
+  # mat_p = integer(sum(edge_counts) + 1)
+  #
+  # sum = 0
+  # for (p1 in 1:ncells) {
+  #   p2s = tr@i[(tr@p[p1] + 1) : tr@p[p1 + 1]] + 1
+  #   p2i = 0
+  #   for (p2 in p2s) {
+  #     if (p1 != p2) {
+  #       e1i = row_offsets[p1] + p2i
+  #
+  #       sum = sum + edge_counts[p1] + 1
+  #
+  #       #print(paste(e1i, sum))
+  #
+  #       mat_p[e1i + 1] = as.integer(sum)
+  #
+  #       p2i = p2i + 1
+  #
+  #     }
+  #   }
+  # }
+  # mat_p
+
+
+
+
+
+  # e2 then e1 for CSC for entire mat
+  mat_p = integer(sum(edge_counts) + 1)
   mat_x = numeric(sum((edge_counts + 1) * edge_counts))
   mat_i = integer(sum((edge_counts + 1) * edge_counts))
 
-  row_index = 1
+  sum = 0
   index = 1
+  for (p2 in 1:ncells) {
+    p3s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+    p3i = 0
+    for (p3 in p3s) {
+      if (p2 != p3) {
+        e2i = row_offsets[p2] + p3i
 
-  for (e1 in 1:ncells) {
-    e2s = tr@i[(tr@p[e1] + 1) : tr@p[e1 + 1]] + 1
-    for (e2 in e2s) {
-      if (e1 != e2) {
-        fid_check = FALSE # For fidelity
-        e3s = tr@i[(tr@p[e2] + 1) : tr@p[e2 + 1]] + 1
-        for (e3 in e3s) {
-          if (e2 != e3) {
+        sum = sum + edge_counts[p2] + 1
+        mat_p[e2i + 1] = as.integer(sum)
 
 
+        p1s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+        p1i = 0
 
-            if (!fid_check){
-              if (e3 >= e1) {
-                fid_check = TRUE
-                print(paste(e1,e2,e3,index,row_index))
-                mat_x[index] = 1
-                mat_i[index] = row_index
+        fid_check = FALSE
+        fid_offset = 0
 
-                index = index + 1
-              }
-            }
+        count = 0
 
-            index = index + 1
+        for (p1 in p1s) {
+          if (p1 != p2) {
+
+            p2s = tr@i[(tr@p[p1] + 1) : tr@p[p1 + 1]] + 1
+            p2s = p2s[p2s != p1]
+            p2i = which(p2s == p2)
+
+            e1i = row_offsets[p1] + p2i - 1
+
+            mat_x[index] = e1i+ e2i/100
+            mat_i[index] = e1i
+          } else {
+            mat_x[index] = -1
+            mat_i[index] = e2i
           }
+          index = index + 1
+          p1i = p1i + 1
         }
 
-        row_index = row_index + 1
+        p3i = p3i + 1
+
       }
     }
+
   }
+  mat_p
   mat_x
   mat_i
-  mat_p
-  tr@p
-
-  tr@p[1] -1 + 1
 
 
   mat = new("dgCMatrix")
@@ -179,7 +199,79 @@
   mat@i = as.integer(mat_i - 1)
   mat@x = mat_x
 
-  View(as.matrix(mat))
+  mat = as.matrix(mat)
+  mat[mat == 0] = NA
+
+  View(mat)
+
+
+  # Attempt going from e1 -> e2
+  # would be more appropriate for CSR
+  # Does not work. Needs to be modified like one prev
+  # mat_x = numeric(sum((edge_counts + 1) * edge_counts))
+  # mat_i = integer(sum((edge_counts + 1) * edge_counts))
+  # for (p1 in 1:ncells) {
+  #
+  #   p2s = tr@i[(tr@p[p1] + 1) : tr@p[p1 + 1]] + 1
+  #   p2i = 0
+  #   for (p2 in p2s) {
+  #     if (p1 != p2) {
+  #       fid_check = FALSE
+  #       fid_offset = 0
+  #
+  #       p3s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+  #
+  #       #p2p = row_offsets[p2]
+  #       e1i = row_offsets[p1] + p2i
+  #       p3i = 0
+  #       for (p3 in p3s) {
+  #         if (p2 != p3) {
+  #           e2i = row_offsets[p2] + p3i
+  #           print(paste(e1i,e2i))
+  #
+  #
+  #           p1i =
+  #
+  #           if (!fid_check){
+  #             if (e2i >= e1i) {
+  #               #print(paste(p1i, p2i, p3i, e1i, e2i, mat_p[e1i] + p3i + 1))
+  #
+  #
+  #               mat_x[mat_p[e2i] + p1i + 1] = 1
+  #               mat_i[mat_p[e2i] + p1i + 1] = e1i
+  #
+  #               fid_check = TRUE
+  #               fid_offset = 1
+  #             }
+  #           }
+  #
+  #
+  #           #mat_x[mat_p[p2p] + tmp] = 2
+  #           #mat_i[mat_p[p2p] + tmp] = row_index
+  #           p3i = p3i + 1
+  #         }
+  #       }
+  #
+  #       p2i = p2i + 1
+  #     }
+  #   }
+  # }
+  # mat_x
+  # mat_i
+  # mat_p
+  # tr@p
+
+  mat = new("dgCMatrix")
+  mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
+
+  mat@p = mat_p
+  mat@i = as.integer(mat_i - 1)
+  mat@x = mat_x
+
+  mat = as.matrix(mat)
+  mat[mat == 0] = NA
+
+  View(mat)
 
   assign("tmp", crw_map, envir = globalenv())
 }
