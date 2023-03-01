@@ -171,10 +171,10 @@
 
             e1i = row_offsets[p1] + p2i - 1
 
-            mat_x[index] = e1i+ e2i/100
+            mat_x[index] = tr[p2, p3]
             mat_i[index] = e1i
           } else {
-            mat_x[index] = -1
+            mat_x[index] = fidelity[cell_nums[p1]]
             mat_i[index] = e2i
           }
           index = index + 1
@@ -191,7 +191,7 @@
   mat_x
   mat_i
 
-
+{
   mat = new("dgCMatrix")
   mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
@@ -203,7 +203,9 @@
   mat[mat == 0] = NA
 
   View(mat)
+}
 
+  NA
 
   # Attempt going from e1 -> e2
   # would be more appropriate for CSR
