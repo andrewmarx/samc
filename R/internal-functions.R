@@ -141,7 +141,7 @@
             mat_x[index] = tr[p2, p3] * dvonmises(circular(0), mu = circular(0), kappa = model$dist$kappa)
             mat_i[index] = e1i
           } else {
-            mat_x[index] = fidelity[cell_nums[p1]]
+            mat_x[index] = 0 #fidelity[cell_nums[p1]]
             mat_i[index] = e2i
           }
           index = index + 1
@@ -166,11 +166,33 @@
     mat@i = as.integer(mat_i - 1)
     mat@x = mat_x
 
-    mat = as.matrix(mat)
-    mat[mat == 0] = NA
-
-    View(mat)
+    #View(as.matrix(mat))
   }
+
+
+  # normalization
+
+  tmp = 1 - terra::values(absorption) - fidelity
+  rs = Matrix::rowSums(mat)
+
+  i_index = 1
+  for (p in 1:sum(edge_counts)) {
+    row_count = mat@p[p+1] - mat@p[p]
+    for (i in 1:row_count) {
+      row = mat@i[i_index] + 1
+      if (p != row) {
+        #mat_x[i_index] = i_index # useful for validation
+        #mat_x[i_index] = cell_nums[row] # useful for validation
+        #print(c(p, row))
+        #assign("ts", list(mat_p, mat_i), envir = globalenv())
+        mat@x[i_index] = -mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
+      } else {
+        mat@x[i_index] =  1 - fidelity[cell_nums[crw_map[,1][row]]]
+      }
+      i_index = i_index + 1
+    }
+  }
+
 
   return(
     list(tr = NA,
