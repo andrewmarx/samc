@@ -1,26 +1,215 @@
-# Copyright (c) 2020 Andrew Marx. All rights reserved.
+# Copyright (c) 2020-2023 Andrew Marx. All rights reserved.
 # Licensed under GPLv3.0. See LICENSE file in the project root for details.
 #
 # This file is for internal functions. They are subject to change and should not
 # be used by users.
 #
 
+#' RW function
+#'
+#' An internal function for creating RW samc matrix
+#'
+#' @noRd
+.rw <- function(x, absorption, fidelity, fun, dir, sym) {
+  tr = .transition(x, fun, dir, sym)
+
+  rs = Matrix::rowSums(tr)
+
+  tmp = 1 - terra::values(absorption) - terra::values(fidelity)
+
+
+  cell_nums = terra::cells(x)
+  ncells = length(cell_nums)
+
+  fidelity = terra::values(fidelity)
+
+  i_index = 1
+  for (p in 1:ncells) {
+    row_count = tr@p[p+1] - tr@p[p]
+    for (i in 1:row_count) {
+      row = tr@i[i_index] + 1
+      if (p != row) {
+        #mat_x[i_index] = i_index # useful for validation
+        #mat_x[i_index] = cell_nums[row] # useful for validation
+        #print(c(p, row))
+        #assign("ts", list(mat_p, mat_i), envir = globalenv())
+        tr@x[i_index] = -tr@x[i_index]/rs[row] * tmp[cell_nums[row]]
+      } else {
+        tr@x[i_index] = 1 - fidelity[cell_nums[row]]
+      }
+      i_index = i_index + 1
+    }
+  }
+
+  tr
+}
+
+#' CRW function
+#'
+#' An internal function for creating RW samc objects
+#'
+#' @noRd
+.crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
+  tr = .transition(x, fun, dir, sym)
+
+  nrows = terra::nrow(x)
+  ncols = terra::ncol(x)
+  cell_nums = terra::cells(x)
+  ncells = length(cell_nums)
+
+  edge_counts = Matrix::rowSums(tr > 0)
+  edge_counts = tr@p[-1] - tr@p[-length(tr@p)] - 1
+
+
+  # Stuff for indexing things while looping by cols
+  row_offsets = numeric(ncells)
+  row_offset_sum = 0
+
+  for (i in 1:ncells) {
+    row_offsets[i] = row_offset_sum
+    row_offset_sum = row_offset_sum + edge_counts[i]
+  }
+  row_offsets = row_offsets + 1
+  rm(row_offset_sum)
+
+
+  #fidelity = terra::values(fidelity)
+
+
+  # Fill out CRW lookup
+  crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 2)
+  row_accesses = numeric(ncells)
+  dir_lookup = matrix(c(1:4, NA, 5:8), nrow = 3, byrow = TRUE)
+
+  for (p2 in 1:ncells) {
+    #print("")
+
+    p1s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+    #print(p1s)
+
+    for (p1 in p1s) {
+      if (p1 != p2) { # if an edge
+        # crw_map
+        src = cell_nums[p1]
+        dst = cell_nums[p2]
+        dr = dir_lookup[((dst - 1) %/% ncols - (src - 1) %/% ncols) + 2,
+                        ((dst - 1) %% ncols - (src - 1) %% ncols) + 2]
+        crw_map[row_offsets[p1] + row_accesses[p1], ] =
+          c(p1, dr)
+
+        row_accesses[p1] = row_accesses[p1] + 1
+
+      }
+    }
+  }
+
+  # e2 then e1 for CSC for entire mat
+  mat_p = integer(sum(edge_counts) + 1)
+  mat_x = numeric(sum((edge_counts + 1) * edge_counts))
+  mat_i = integer(sum((edge_counts + 1) * edge_counts))
+
+  sum = 0
+  index = 1
+  for (p2 in 1:ncells) {
+    p3s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+    p3i = 0
+    for (p3 in p3s) {
+      if (p2 != p3) {
+        e2i = row_offsets[p2] + p3i
+
+        sum = sum + edge_counts[p2] + 1
+        mat_p[e2i + 1] = as.integer(sum)
+
+
+        p1s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+        p1i = 0
+
+        fid_check = FALSE
+        fid_offset = 0
+
+        count = 0
+
+        for (p1 in p1s) {
+          if (p1 != p2) {
+
+            p2s = tr@i[(tr@p[p1] + 1) : tr@p[p1 + 1]] + 1
+            p2s = p2s[p2s != p1]
+            p2i = which(p2s == p2)
+
+            e1i = row_offsets[p1] + p2i - 1
+
+            mat_x[index] = tr[p2, p3] * circular::dvonmises(circular::circular(0), mu = circular::circular(0), kappa = model$dist$kappa)
+            mat_i[index] = e1i
+          } else {
+            mat_x[index] = 0 #fidelity[cell_nums[p1]]
+            mat_i[index] = e2i
+          }
+          index = index + 1
+          p1i = p1i + 1
+        }
+
+        p3i = p3i + 1
+
+      }
+    }
+
+  }
+  # mat_p
+  # mat_x
+  # mat_i
+  {
+    mat = new("dgCMatrix")
+    mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
+
+    mat@p = mat_p
+    mat@i = as.integer(mat_i - 1)
+    mat@x = mat_x
+
+    #View(as.matrix(mat))
+  }
+
+
+  # normalization
+
+  fidelity = terra::values(fidelity)
+  tmp = 1 - terra::values(absorption) - fidelity
+  rs = Matrix::rowSums(mat)
+
+  i_index = 1
+  for (p in 1:sum(edge_counts)) {
+    row_count = mat@p[p+1] - mat@p[p]
+    for (i in 1:row_count) {
+      row = mat@i[i_index] + 1
+      if (p != row) {
+        #mat_x[i_index] = i_index # useful for validation
+        #mat_x[i_index] = cell_nums[row] # useful for validation
+        #print(c(p, row))
+        #assign("ts", list(mat_p, mat_i), envir = globalenv())
+
+        mat@x[i_index] = -mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
+      } else {
+        mat@x[i_index] =  1 - fidelity[cell_nums[crw_map[,1][row]]]
+      }
+      i_index = i_index + 1
+    }
+  }
+
+
+  return(
+    list(tr = mat,
+         crw = crw_map,
+         abs = terra::values(absorption)[cell_nums[crw_map[,1]]])
+  )
+}
+
 #' Transition function
 #'
 #' An internal function for creating transition matrices
 #'
-#' @param data A SpatRaster
 #' @noRd
-.transition <- function(x, absorption, fidelity, fun, dir, sym = TRUE) {
-  if (is(fun, "character")) {
-    stop("Named transition functions not supported", call. = FALSE)
-  }
+.transition <- function(x, fun, dir, sym = TRUE) {
 
-  if (!(dir %in% c(4, 8))) {
-    stop("Invalid `dir` input", call. = FALSE)
-  }
-
-  lonlat = terra::is.lonlat(absorption)
+  lonlat = terra::is.lonlat(x)
 
   #data_crs = terra::crs(resistance)
   #ncells = terra::ncell(resistance)
@@ -56,13 +245,10 @@
 
   n_pair = n_pair*2 + ncells
 
-
-
   mat = new("dgCMatrix")
   mat@Dim = c(ncells, ncells)
 
 
-  x = terra::values(x)
 
   if (dir == 4) {
     offset_r = c(0, -1, 1, 0)
@@ -88,62 +274,15 @@
 
   mat_x = numeric(n_pair)
 
-  row_sum = numeric(ncells)
-
-
   row_count = 0L
 
-  # TODO Create tests to directly validate results for both directions options for planar and latlon
 
-  if (dir == 4) {
-    dist_lookup = c(1, 1, 1, 1)
-  } else if (dir == 8) {
-    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, 1, sqrt(2), 1, sqrt(2))
-  }
-
-  dist = function(x, dir) {
-    # x not used intentionally
-    dist_lookup[dir]
-  }
-
-  if(!is.na(lonlat)) {
-    if (lonlat) {
-      cn = (0:(nrow(absorption) - 1))*ncol(absorption) + 1
-
-      adj = terra::adjacent(absorption, cn, directions = 8, pairs = TRUE)
-
-      dist = terra::distance(
-        terra::xyFromCell(absorption, adj[, 1]),
-        terra::xyFromCell(absorption, adj[, 2]),
-        lonlat = TRUE, pairwise = TRUE)
-
-      adj = terra::adjacent(absorption, cn, directions = dir, pairs = FALSE)
-      adj = t(adj)
-
-      dist_lookup = adj
-      dist_lookup[!is.nan(dist_lookup)] = dist
-
-      if (dir == 4) {
-        dir_reindex = c(1, 3, 3, 4)
-      } else if (dir == 8) {
-        dir_reindex = c(3, 2, 3, 5, 5, 8, 7, 8)
-      }
-
-
-      dist <- function(x, dir) {
-        dir = dir_reindex[dir]
-
-        x = trunc((x - 1) / ncols) + 1
-
-        dist_lookup[dir, x]
-      }
-    }
-  }
+  dist = .build_lookup_function(x, dir)
 
   nc = nrows
   nr = ncols
 
-  fidelity = terra::values(fidelity)
+  x = terra::values(x)
 
   for (i in 1:length(cell_nums)) {
     num = cell_nums[i]
@@ -155,11 +294,6 @@
     rows = row + offset_r
     cols = col + offset_c
     nums = num + offset_n
-
-    #xy = terra::xyFromCell(absorption, num)
-    #offset_xy = terra::xyFromCell(absorption, nums)
-
-    #dists = terra::distance(terra::xyFromCell(absorption, num), terra::xyFromCell(absorption, nums), lonlat)
 
     rc = !(rows < 1 | rows > nr | cols < 1 | cols > nc)
 
@@ -174,9 +308,7 @@
           result = fun(x[c(num, nums[d])]) / dist(num, d)
 
           mat_i[i_index] = as.integer(mat_row - 1)
-          mat_x[i_index] = -result
-
-          row_sum[mat_row] = row_sum[mat_row] + result
+          mat_x[i_index] = result
 
           i_index = i_index + 1
         }
@@ -189,7 +321,7 @@
     mat_row = cell_lookup[num]
 
     mat_i[i_index] = as.integer(mat_row - 1)
-    mat_x[i_index] = 1 - fidelity[num]
+    mat_x[i_index] = 0
 
     i_index = i_index + 1
 
@@ -204,9 +336,7 @@
           result = fun(x[c(num, nums[d])]) / dist(num, d)
 
           mat_i[i_index] = as.integer(mat_row - 1)
-          mat_x[i_index] = -result
-
-          row_sum[mat_row] = row_sum[mat_row] + result
+          mat_x[i_index] = result
 
           i_index = i_index + 1
         }
@@ -216,24 +346,6 @@
     mat_p[i+1] = row_count
   }
 
-  tmp = 1 - terra::values(absorption) - fidelity
-
-  i_index = 1
-  for (p in 1:ncells) {
-    row_count = mat_p[p+1] - mat_p[p]
-    for (i in 1:row_count) {
-      row = mat_i[i_index] + 1
-      if (p != row) {
-        #mat_x[i_index] = i_index # useful for validation
-        #mat_x[i_index] = cell_nums[row] # useful for validation
-        #print(c(p, row))
-        #assign("ts", list(mat_p, mat_i), envir = globalenv())
-        mat_x[i_index] = mat_x[i_index]/row_sum[row] * tmp[cell_nums[row]]
-      }
-      i_index = i_index + 1
-    }
-  }
-
   mat@p = mat_p
   mat@i = mat_i
   mat@x = mat_x
@@ -241,6 +353,83 @@
   return(mat)
 }
 
+
+#' Build direction lookup function
+#'
+#' TODO description here
+#'
+#' @param x A function
+#' @noRd
+
+.build_lookup_function <- function(rast, dir) {
+
+  # TODO Create tests to directly validate results for both directions options for planar and latlon
+
+  lonlat = terra::is.lonlat(rast)
+  nrows = terra::nrow(rast)
+  ncols = terra::ncol(rast)
+
+  if (dir == 4) {
+    dist_lookup = c(1, 1, 1, 1)
+  } else if (dir == 8) {
+    dist_lookup = c(sqrt(2), 1, sqrt(2), 1, 1, sqrt(2), 1, sqrt(2))
+  }
+
+  dist = function(x, dir) {
+    # x not used intentionally
+    dist_lookup[dir]
+  }
+
+  if(!is.na(lonlat)) {
+    if (lonlat) {
+      cn = (0:(nrows - 1)) * ncols + 1
+
+      adj = terra::adjacent(rast, cn, directions = 8, pairs = TRUE)
+
+      dist = terra::distance(
+        terra::xyFromCell(rast, adj[, 1]),
+        terra::xyFromCell(rast, adj[, 2]),
+        lonlat = TRUE, pairwise = TRUE)
+
+      adj = terra::adjacent(rast, cn, directions = dir, pairs = FALSE)
+      adj = t(adj)
+
+      dist_lookup = adj
+      dist_lookup[!is.nan(dist_lookup)] = dist
+
+      if (dir == 4) {
+        dir_reindex = c(1, 3, 3, 4)
+      } else if (dir == 8) {
+        dir_reindex = c(3, 2, 3, 5, 5, 8, 7, 8)
+      } else {
+        stop("Invalid directions", call. = FALSE)
+      }
+
+
+      dist <- function(x, dir) {
+        dir = dir_reindex[dir]
+
+        x = trunc((x - 1) / ncols) + 1
+
+        dist_lookup[dir, x]
+      }
+    }
+  }
+
+  return(dist)
+}
+
+
+#' Build turning lookup function
+#'
+#' TODO description here
+#'
+#' @param x A function
+#' @noRd
+
+.build_turn_function <- function() {
+
+}
 
 #' Validate time steps
 #'
@@ -342,7 +531,14 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
-    .validate_locations(samc, x)
+
+    if (samc@model$name == "CRW") {
+      .validate_locations(samc, x)
+      x = which(samc@crw_map[, 1] == x)[1]
+
+    } else {
+      .validate_locations(samc, x)
+    }
     return(x)
   })
 
@@ -364,8 +560,20 @@ setMethod(
 #' @param x A list
 #' @noRd
 .validate_model <- function(x) {
-  args <- c("fun", "dir", "sym")
+  args <- c("name", "fun", "dir", "sym")
   names <- names(x)
+
+  dup_args <- names[duplicated(names)]
+  if (length(dup_args) > 0)
+    stop(paste("Duplicate argument in model:", dup_args), call. = FALSE)
+
+  if (!("name" %in% names)) {
+    x$name = "RW"
+  }
+
+  if (x$name == "CRW") {
+    args = c(args, "dist")
+  }
 
   missing_args <- args[!(args %in% names)]
   if (length(missing_args) > 0)
@@ -375,10 +583,6 @@ setMethod(
   if (length(unknown_args) > 0)
     stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
 
-  dup_args <- names[duplicated(names)]
-  if (length(dup_args) > 0)
-    stop(paste("Duplicate argument in model:", dup_args), call. = FALSE)
-
   if (!is.function(x$fun)) {
     stop("`fun`` must be a function.", call. = FALSE)
   } else if (!(x$dir %in% c(4,8))) {
@@ -386,6 +590,45 @@ setMethod(
   } else if (!is.logical(x$sym)) {
     stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
   }
+
+  if (x$name == "CRW") {
+    dist = x$dist
+
+    dist_args = c("name")
+    dist_names = names(dist)
+
+    if (!("name" %in% dist_names)) {
+      stop("Missing distribution name.", call. = FALSE)
+    } else if (dist$name == "vonMises") {
+      dist_args = c(dist_args, "kappa")
+    } else {
+      stop(paste("Invalid distribution name:", dist$name), call. = FALSE)
+    }
+
+    missing_args <- dist_args[!(dist_args %in% dist_names)]
+    if (length(missing_args) > 0)
+      stop(paste("Missing argument in dist:", missing_args), call. = FALSE)
+
+    unknown_args <- dist_names[!(dist_names %in% dist_args)]
+    if (length(unknown_args) > 0)
+      stop(paste("Unknown argument in dist:", unknown_args), call. = FALSE)
+
+    if (dist$name == "vonMises") {
+      if (!is.numeric(dist$kappa))
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+
+      if (length(dist$kappa) != 1)
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+
+      if (!is.finite(dist$kappa))
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+
+      if (dist$kappa < 0)
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+    }
+  }
+
+  return(x)
 }
 
 

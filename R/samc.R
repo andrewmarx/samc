@@ -129,11 +129,19 @@ setMethod(
             fidelity = "SpatRaster",
             model = "list"),
   function(data, absorption, fidelity, model) {
-    .validate_model(model)
+    model = .validate_model(model)
 
     tr_fun <- model$fun
     directions <-model$dir
     symm <- model$sym
+
+    if (is(tr_fun, "character")) {
+      stop("Named transition functions not supported", call. = FALSE)
+    }
+
+    if (!(directions %in% c(4, 8))) {
+      stop("Invalid `dir` input", call. = FALSE)
+    }
 
     # Make sure the input data all aligns
     check(c(data, fidelity, absorption))
@@ -172,8 +180,10 @@ setMethod(
                              data = methods::new("samc_data",
                                                  f = new("dgCMatrix"),
                                                  t_abs = numeric(0)),
+                             model = model,
                              source = "SpatRaster",
                              map = data,
+                             crw_map = NULL,
                              names = NULL,
                              clumps = -1,
                              override = FALSE,
@@ -199,13 +209,27 @@ setMethod(
     rm(cl)
     gc()
 
-
     # Create the transition matrix
-    samc_obj@data@f = .transition(data, absorption, fidelity, tr_fun, directions, symm)
-    gc()
+    if (model$name == "RW") {
+      samc_obj@data@f = .rw(data, absorption, fidelity, tr_fun, directions, symm)
+      gc()
 
-    samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
+      samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
+    } else if (model$name == "CRW") {
 
+      crw_list = .crw(data, absorption, fidelity, tr_fun, directions, symm, model)
+      #assign("myvar", crw_list)
+      samc_obj@data@f = crw_list$tr
+      gc()
+
+      samc_obj@data@t_abs = crw_list$abs
+      samc_obj@crw_map = crw_list$crw
+
+    } else {
+      stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
+    }
+
+    # TODO Update to terra
     if(is.na(raster::projection(data)) && raster::xres(data) != raster::yres(data)) {
       warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
     }
@@ -364,6 +388,8 @@ setMethod(
                              data = methods::new("samc_data",
                                                  f = q_mat,
                                                  t_abs = abs_total),
+                             model = list(name = "RW"),
+                             crw_map = NULL,
                              source = "transition",
                              map = terra::rast(),
                              names = nm,
