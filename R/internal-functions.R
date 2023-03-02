@@ -560,7 +560,7 @@ setMethod(
 #' @param x A list
 #' @noRd
 .validate_model <- function(x) {
-  args <- c("fun", "dir", "sym")
+  args <- c("name", "fun", "dir", "sym")
   names <- names(x)
 
   dup_args <- names[duplicated(names)]
