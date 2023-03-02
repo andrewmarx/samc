@@ -45,6 +45,10 @@ setMethod(
   function(samc, vec){
     if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
 
+    if (samc@model$name == "CRW") {
+      vec = aggregate(vec ~ samc@crw_map[, 1], FUN = mean)$vec
+    }
+
     if (length(vec) != length(terra::cells(samc@map)))
       stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
 
