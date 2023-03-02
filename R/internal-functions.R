@@ -72,6 +72,27 @@
   row_offsets = row_offsets + 1
   rm(row_offset_sum)
 
+  # TODO make sure works for 4 directions
+  dir_vec = matrix(c(-1, 1,
+                      0, 1,
+                      1, 1,
+                     -1, 0,
+                      1, 0,
+                     -1, -1,
+                      0, -1,
+                      1, -1),
+                   nrow = 8, byrow = TRUE)
+
+  ang_mat = matrix(nrow = 8, ncol = 8)
+
+  for (r in 1:8) {
+    for (c in 1:8) {
+      mag_v1 = sqrt(sum(dir_vec[r, ]^2))
+      mag_v2 = sqrt(sum(dir_vec[c, ]^2))
+
+      ang_mat[r, c] = acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))
+    }
+  }
 
   #fidelity = terra::values(fidelity)
 
@@ -138,7 +159,7 @@
 
             e1i = row_offsets[p1] + p2i - 1
 
-            mat_x[index] = tr[p2, p3] * circular::dvonmises(circular::circular(0), mu = circular::circular(0), kappa = model$dist$kappa)
+            mat_x[index] = tr[p2, p3] * circular::dvonmises(circular::circular(ang_mat[crw_map[e1i, 2], crw_map[e2i, 2]]), mu = circular::circular(0), kappa = model$dist$kappa)
             mat_i[index] = e1i
           } else {
             mat_x[index] = 0 #fidelity[cell_nums[p1]]

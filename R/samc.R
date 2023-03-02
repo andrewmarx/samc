@@ -217,6 +217,8 @@ setMethod(
       samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
     } else if (model$name == "CRW") {
 
+      if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
+
       crw_list = .crw(data, absorption, fidelity, tr_fun, directions, symm, model)
       #assign("myvar", crw_list)
       samc_obj@data@f = crw_list$tr
