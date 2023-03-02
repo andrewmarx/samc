@@ -197,7 +197,7 @@
 
   return(
     list(tr = mat,
-         map = crw_map,
+         crw = crw_map,
          abs = terra::values(absorption)[cell_nums[crw_map[,1]]])
   )
 }
@@ -531,7 +531,14 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
-    .validate_locations(samc, x)
+
+    if (samc@model$name == "CRW") {
+      .validate_locations(samc, x)
+      x = which(samc@crw_map[, 1] == x)[1]
+
+    } else {
+      .validate_locations(samc, x)
+    }
     return(x)
   })
 

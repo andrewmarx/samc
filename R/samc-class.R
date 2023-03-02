@@ -93,8 +93,10 @@ setClass(
 
   # define the slots
   slots = list(data = "samc_data",
+               model = "list",
                source = "character",
                map = "SpatRaster",
+               crw_map = "mat_null",
                names = "char_null",
                clumps = "numeric",
                override = "logical",
