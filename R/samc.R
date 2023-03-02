@@ -223,7 +223,7 @@ setMethod(
       gc()
 
       samc_obj@data@t_abs = crw_list$abs
-      samc_obj@crw_map = crw_list$map
+      samc_obj@crw_map = crw_list$crw
 
     } else {
       stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
