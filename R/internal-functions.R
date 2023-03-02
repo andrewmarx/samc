@@ -565,6 +565,8 @@ setMethod(
 
       x = which(apply(samc@crw_map, 1, function(crw) return(all(crw == x))))
 
+      if (length(x) != 1) stop("The combination of location and direction is not valid", call. = FALSE)
+
     } else {
       stop(paste("Invalid location input for model", samc@model$name), call. = FALSE)
     }
