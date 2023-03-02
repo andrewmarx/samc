@@ -529,13 +529,35 @@ setGeneric(
 #' @noRd
 setMethod(
   ".process_locations",
+  signature(samc = "samc", x = "matrix"),
+  function(samc, x) {
+    if (samc@model$name == "CRW") {
+      if (nrow(x) > 1) {
+        stop("Multiple locations not supported yet. Matrix should only have 1 row/2 columns", call. = FALSE)
+      }
+
+      if (ncol(x) != 2) stop("Location should have 2 columns. The first for location and the second for direction.", call. = FALSE)
+
+      .validate_locations(samc, x[1, 1])
+
+      if (!(x[1, 2] %in% 1:8)) stop("Invalid direction. Must be a single integer from 1-8.", call. = FALSE)
+
+      x = which(apply(samc@crw_map, 1, function(crw) return(all(crw == x))))
+
+    } else {
+      stop(paste("Invalid location input for model", samc@model$name), call. = FALSE)
+    }
+    return(x)
+  })
+
+#' @noRd
+setMethod(
+  ".process_locations",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
 
     if (samc@model$name == "CRW") {
-      .validate_locations(samc, x)
-      x = which(samc@crw_map[, 1] == x)[1]
-
+      stop("CRW model requires a list with location and direction.", call. = FALSE)
     } else {
       .validate_locations(samc, x)
     }
