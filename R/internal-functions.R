@@ -170,7 +170,7 @@
 
             e1i = row_offsets[p1] + p2i - 1
 
-            mat_x[index] = tr[p2, p3] * ang_mat[crw_map[e1i, 2], crw_map[e2i, 2]]
+            mat_x[index] = tr[p2, p3] * ang_mat[crw_map[e1i, 2], crw_map[e2i, 2]] # TODO the sparse matrix access here is why the function is slow
             mat_i[index] = e1i
           } else {
             mat_x[index] = 0 #fidelity[cell_nums[p1]]
