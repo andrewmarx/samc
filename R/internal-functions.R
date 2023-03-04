@@ -179,7 +179,6 @@
   # mat_x
   # mat_i
 
-  # TODO This matrix is only used for rowSums and is recreated later for perf reasons. Clean up with manual row sum calc.
   mat = new("dgCMatrix")
   mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
@@ -196,6 +195,8 @@
   tmp = 1 - terra::values(absorption) - fidelity
   rs = Matrix::rowSums(mat)
 
+  crw_lookup = as.vector(crw_map[,1])
+
   i_index = 1
   for (p in 1:sum(edge_counts)) {
     row_count = mat_p[p+1] - mat_p[p]
@@ -207,19 +208,15 @@
         #print(c(p, row))
         #assign("ts", list(mat_p, mat_i), envir = globalenv())
 
-        mat_x[i_index] = 0#-mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
+        mat_x[i_index] = -mat_x[i_index]/rs[row] * tmp[cell_nums[crw_lookup[row]]]
       } else {
-        mat_x[i_index] =  0#1 - fidelity[cell_nums[crw_map[,1][row]]]
+        mat_x[i_index] =  1 - fidelity[cell_nums[crw_lookup[row]]]
       }
       i_index = i_index + 1
     }
   }
 
-  mat = new("dgCMatrix")
-  mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
-
-  mat@p = mat_p
-  mat@i = as.integer(mat_i - 1)
+  # For perf reasons
   mat@x = mat_x
 
   return(
