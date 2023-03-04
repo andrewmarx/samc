@@ -90,7 +90,7 @@
       mag_v1 = sqrt(sum(dir_vec[r, ]^2))
       mag_v2 = sqrt(sum(dir_vec[c, ]^2))
 
-      ang_mat[r, c] = acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))
+      ang_mat[r, c] = circular::dvonmises(circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))), mu = circular::circular(0), kappa = model$dist$kappa)
     }
   }
 
@@ -159,7 +159,7 @@
 
             e1i = row_offsets[p1] + p2i - 1
 
-            mat_x[index] = tr[p2, p3] * circular::dvonmises(circular::circular(ang_mat[crw_map[e1i, 2], crw_map[e2i, 2]]), mu = circular::circular(0), kappa = model$dist$kappa)
+            mat_x[index] = tr[p2, p3] * ang_mat[crw_map[e1i, 2], crw_map[e2i, 2]]
             mat_i[index] = e1i
           } else {
             mat_x[index] = 0 #fidelity[cell_nums[p1]]
@@ -178,16 +178,16 @@
   # mat_p
   # mat_x
   # mat_i
-  {
-    mat = new("dgCMatrix")
-    mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
-    mat@p = mat_p
-    mat@i = as.integer(mat_i - 1)
-    mat@x = mat_x
+  # TODO This matrix is only used for rowSums and is recreated later for perf reasons. Clean up with manual row sum calc.
+  mat = new("dgCMatrix")
+  mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
-    #View(as.matrix(mat))
-  }
+  mat@p = mat_p
+  mat@i = as.integer(mat_i - 1)
+  mat@x = mat_x
+
+  #View(as.matrix(mat))
 
 
   # normalization
@@ -198,23 +198,29 @@
 
   i_index = 1
   for (p in 1:sum(edge_counts)) {
-    row_count = mat@p[p+1] - mat@p[p]
+    row_count = mat_p[p+1] - mat_p[p]
     for (i in 1:row_count) {
-      row = mat@i[i_index] + 1
+      row = mat_i[i_index] + 1
       if (p != row) {
         #mat_x[i_index] = i_index # useful for validation
         #mat_x[i_index] = cell_nums[row] # useful for validation
         #print(c(p, row))
         #assign("ts", list(mat_p, mat_i), envir = globalenv())
 
-        mat@x[i_index] = -mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
+        mat_x[i_index] = 0#-mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
       } else {
-        mat@x[i_index] =  1 - fidelity[cell_nums[crw_map[,1][row]]]
+        mat_x[i_index] =  0#1 - fidelity[cell_nums[crw_map[,1][row]]]
       }
       i_index = i_index + 1
     }
   }
 
+  mat = new("dgCMatrix")
+  mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
+
+  mat@p = mat_p
+  mat@i = as.integer(mat_i - 1)
+  mat@x = mat_x
 
   return(
     list(tr = mat,
