@@ -283,8 +283,13 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin){
-    if (length(origin) != 1)
-      stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    if (is.matrix(origin)) {
+
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
+
 
     origin = .process_locations(samc, origin)
 
@@ -304,8 +309,12 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest){
-    if (length(dest) != 1)
-      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+    if (is.matrix(origin)) {
+
+    } else {
+      if (length(dest) != 1)
+        stop("dest can only contain a single location for this version of the function", call. = FALSE)
+    }
 
     dest <- .process_locations(samc, dest)
 

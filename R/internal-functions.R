@@ -15,6 +15,10 @@
 
   rs = Matrix::rowSums(tr)
 
+  tr_i = tr@i
+  tr_p = tr@p
+  tr_x = tr@x
+
   tmp = 1 - terra::values(absorption) - terra::values(fidelity)
 
 
@@ -25,21 +29,23 @@
 
   i_index = 1
   for (p in 1:ncells) {
-    row_count = tr@p[p+1] - tr@p[p]
+    row_count = tr_p[p+1] - tr_p[p]
     for (i in 1:row_count) {
-      row = tr@i[i_index] + 1
+      row = tr_i[i_index] + 1
       if (p != row) {
         #mat_x[i_index] = i_index # useful for validation
         #mat_x[i_index] = cell_nums[row] # useful for validation
         #print(c(p, row))
         #assign("ts", list(mat_p, mat_i), envir = globalenv())
-        tr@x[i_index] = -tr@x[i_index]/rs[row] * tmp[cell_nums[row]]
+        tr_x[i_index] = -tr_x[i_index]/rs[row] * tmp[cell_nums[row]]
       } else {
-        tr@x[i_index] = 1 - fidelity[cell_nums[row]]
+        tr_x[i_index] = 1 - fidelity[cell_nums[row]]
       }
       i_index = i_index + 1
     }
   }
+
+  tr@x = tr_x
 
   tr
 }
@@ -72,9 +78,35 @@
   row_offsets = row_offsets + 1
   rm(row_offset_sum)
 
+  # TODO make sure works for 4 directions
+  dir_vec = matrix(c(-1, 1,
+                      0, 1,
+                      1, 1,
+                     -1, 0,
+                      1, 0,
+                     -1, -1,
+                      0, -1,
+                      1, -1),
+                   nrow = 8, byrow = TRUE)
+
+  ang_mat = matrix(nrow = 8, ncol = 8)
+
+  for (r in 1:8) {
+    for (c in 1:8) {
+      mag_v1 = sqrt(sum(dir_vec[r, ]^2))
+      mag_v2 = sqrt(sum(dir_vec[c, ]^2))
+
+      ang_mat[r, c] = circular::dvonmises(circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))), mu = circular::circular(0), kappa = model$dist$kappa)
+    }
+  }
 
   #fidelity = terra::values(fidelity)
 
+
+
+  tr_i = tr@i
+  tr_p = tr@p
+  tr_x = tr@x
 
   # Fill out CRW lookup
   crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 2)
@@ -84,7 +116,7 @@
   for (p2 in 1:ncells) {
     #print("")
 
-    p1s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+    p1s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
     #print(p1s)
 
     for (p1 in p1s) {
@@ -111,7 +143,7 @@
   sum = 0
   index = 1
   for (p2 in 1:ncells) {
-    p3s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+    p3s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
     p3i = 0
     for (p3 in p3s) {
       if (p2 != p3) {
@@ -121,7 +153,7 @@
         mat_p[e2i + 1] = as.integer(sum)
 
 
-        p1s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+        p1s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
         p1i = 0
 
         fid_check = FALSE
@@ -132,13 +164,13 @@
         for (p1 in p1s) {
           if (p1 != p2) {
 
-            p2s = tr@i[(tr@p[p1] + 1) : tr@p[p1 + 1]] + 1
+            p2s = tr_i[(tr_p[p1] + 1) : tr_p[p1 + 1]] + 1
             p2s = p2s[p2s != p1]
             p2i = which(p2s == p2)
 
             e1i = row_offsets[p1] + p2i - 1
 
-            mat_x[index] = tr[p2, p3] * circular::dvonmises(circular::circular(0), mu = circular::circular(0), kappa = model$dist$kappa)
+            mat_x[index] = tr[p2, p3] * ang_mat[crw_map[e1i, 2], crw_map[e2i, 2]] # TODO the sparse matrix access here is why the function is slow
             mat_i[index] = e1i
           } else {
             mat_x[index] = 0 #fidelity[cell_nums[p1]]
@@ -157,16 +189,15 @@
   # mat_p
   # mat_x
   # mat_i
-  {
-    mat = new("dgCMatrix")
-    mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
-    mat@p = mat_p
-    mat@i = as.integer(mat_i - 1)
-    mat@x = mat_x
+  mat = new("dgCMatrix")
+  mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
-    #View(as.matrix(mat))
-  }
+  mat@p = mat_p
+  mat@i = as.integer(mat_i - 1)
+  mat@x = mat_x
+
+  #View(as.matrix(mat))
 
 
   # normalization
@@ -175,25 +206,29 @@
   tmp = 1 - terra::values(absorption) - fidelity
   rs = Matrix::rowSums(mat)
 
+  crw_lookup = as.vector(crw_map[,1])
+
   i_index = 1
   for (p in 1:sum(edge_counts)) {
-    row_count = mat@p[p+1] - mat@p[p]
+    row_count = mat_p[p+1] - mat_p[p]
     for (i in 1:row_count) {
-      row = mat@i[i_index] + 1
+      row = mat_i[i_index] + 1
       if (p != row) {
         #mat_x[i_index] = i_index # useful for validation
         #mat_x[i_index] = cell_nums[row] # useful for validation
         #print(c(p, row))
         #assign("ts", list(mat_p, mat_i), envir = globalenv())
 
-        mat@x[i_index] = -mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
+        mat_x[i_index] = -mat_x[i_index]/rs[row] * tmp[cell_nums[crw_lookup[row]]]
       } else {
-        mat@x[i_index] =  1 - fidelity[cell_nums[crw_map[,1][row]]]
+        mat_x[i_index] =  1 - fidelity[cell_nums[crw_lookup[row]]]
       }
       i_index = i_index + 1
     }
   }
 
+  # For perf reasons
+  mat@x = mat_x
 
   return(
     list(tr = mat,
@@ -529,13 +564,37 @@ setGeneric(
 #' @noRd
 setMethod(
   ".process_locations",
+  signature(samc = "samc", x = "matrix"),
+  function(samc, x) {
+    if (samc@model$name == "CRW") {
+      if (nrow(x) > 1) {
+        stop("Multiple locations not supported yet. Matrix should only have 1 row/2 columns", call. = FALSE)
+      }
+
+      if (ncol(x) != 2) stop("Location should have 2 columns. The first for location and the second for direction.", call. = FALSE)
+
+      .validate_locations(samc, x[1, 1])
+
+      if (!(x[1, 2] %in% 1:8)) stop("Invalid direction. Must be a single integer from 1-8.", call. = FALSE)
+
+      x = which(apply(samc@crw_map, 1, function(crw) return(all(crw == x))))
+
+      if (length(x) != 1) stop("The combination of location and direction is not valid", call. = FALSE)
+
+    } else {
+      stop(paste("Invalid location input for model", samc@model$name), call. = FALSE)
+    }
+    return(x)
+  })
+
+#' @noRd
+setMethod(
+  ".process_locations",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
 
     if (samc@model$name == "CRW") {
-      .validate_locations(samc, x)
-      x = which(samc@crw_map[, 1] == x)[1]
-
+      stop("CRW model requires a list with location and direction.", call. = FALSE)
     } else {
       .validate_locations(samc, x)
     }
