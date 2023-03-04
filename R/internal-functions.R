@@ -103,6 +103,11 @@
   #fidelity = terra::values(fidelity)
 
 
+
+  tr_i = tr@i
+  tr_p = tr@p
+  tr_x = tr@x
+
   # Fill out CRW lookup
   crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 2)
   row_accesses = numeric(ncells)
@@ -111,7 +116,7 @@
   for (p2 in 1:ncells) {
     #print("")
 
-    p1s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+    p1s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
     #print(p1s)
 
     for (p1 in p1s) {
@@ -138,7 +143,7 @@
   sum = 0
   index = 1
   for (p2 in 1:ncells) {
-    p3s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+    p3s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
     p3i = 0
     for (p3 in p3s) {
       if (p2 != p3) {
@@ -148,7 +153,7 @@
         mat_p[e2i + 1] = as.integer(sum)
 
 
-        p1s = tr@i[(tr@p[p2] + 1) : tr@p[p2 + 1]] + 1
+        p1s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
         p1i = 0
 
         fid_check = FALSE
@@ -159,7 +164,7 @@
         for (p1 in p1s) {
           if (p1 != p2) {
 
-            p2s = tr@i[(tr@p[p1] + 1) : tr@p[p1 + 1]] + 1
+            p2s = tr_i[(tr_p[p1] + 1) : tr_p[p1 + 1]] + 1
             p2s = p2s[p2s != p1]
             p2i = which(p2s == p2)
 
