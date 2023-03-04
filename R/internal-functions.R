@@ -15,6 +15,10 @@
 
   rs = Matrix::rowSums(tr)
 
+  tr_i = tr@i
+  tr_p = tr@p
+  tr_x = tr@x
+
   tmp = 1 - terra::values(absorption) - terra::values(fidelity)
 
 
@@ -25,21 +29,23 @@
 
   i_index = 1
   for (p in 1:ncells) {
-    row_count = tr@p[p+1] - tr@p[p]
+    row_count = tr_p[p+1] - tr_p[p]
     for (i in 1:row_count) {
-      row = tr@i[i_index] + 1
+      row = tr_i[i_index] + 1
       if (p != row) {
         #mat_x[i_index] = i_index # useful for validation
         #mat_x[i_index] = cell_nums[row] # useful for validation
         #print(c(p, row))
         #assign("ts", list(mat_p, mat_i), envir = globalenv())
-        tr@x[i_index] = -tr@x[i_index]/rs[row] * tmp[cell_nums[row]]
+        tr_x[i_index] = -tr_x[i_index]/rs[row] * tmp[cell_nums[row]]
       } else {
-        tr@x[i_index] = 1 - fidelity[cell_nums[row]]
+        tr_x[i_index] = 1 - fidelity[cell_nums[row]]
       }
       i_index = i_index + 1
     }
   }
+
+  tr@x = tr_x
 
   tr
 }
