@@ -628,6 +628,7 @@ setMethod(
 
   if (!("name" %in% names)) {
     x$name = "RW"
+    names = c(names, "name")
   }
 
   if (x$name == "CRW") {

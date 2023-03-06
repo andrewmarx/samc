@@ -309,7 +309,7 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest){
-    if (is.matrix(origin)) {
+    if (is.matrix(dest)) {
 
     } else {
       if (length(dest) != 1)
