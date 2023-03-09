@@ -52,6 +52,7 @@ setMethod(
   "survival",
   signature(samc = "samc", init = "missing"),
   function(samc) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
 
     if (samc@solver == "iter") {
       z = .f1_iter(samc@data@f)
@@ -68,13 +69,23 @@ setMethod(
   "survival",
   signature(samc = "samc", init = "ANY"),
   function(samc, init) {
-    check(samc, init)
 
-    pv <- .process_init(samc, init)
+    if (samc@solver %in% c("direct", "iter")) {
+      check(samc, init)
 
-    sv <- survival(samc)
+      pv <- .process_init(samc, init)
 
-    surv <- pv %*% sv
+      sv <- survival(samc)
 
-    return(as.numeric(surv))
+      surv <- pv %*% sv
+
+      return(as.numeric(surv))
+    } else if (samc@solver == "conv") {
+
+      res = visitation(samc, init)
+
+      return(sum(res))
+    } else {
+      stop("Invalid method attribute in samc object.")
+    }
   })

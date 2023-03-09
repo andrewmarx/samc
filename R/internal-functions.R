@@ -466,6 +466,51 @@
 
 }
 
+
+#' Convolution
+#'
+#' TODO description here
+#'
+#' @param x A function
+#' @noRd
+
+.convolution <- function(res, abso, fid, dir, sym, threads) {
+
+  if (directions == 4) {
+    kernel = matrix(
+      c(0, 1, 0,
+        1, 0, 1,
+        0, 1, 0), 3)
+  } else if (directions == 8) {
+    kernel = matrix(
+      c(1 / sqrt(2), 1, 1 / sqrt(2),
+        1.0000000, 0, 1.0000000,
+        1 / sqrt(2), 1, 1 / sqrt(2)
+      ), 3, 3
+    )
+  } else {
+    stop("'directions' must be equal to either 4 or 8")
+  }
+
+  nr = nrow(res)
+  nc = ncol(res)
+
+  res = as.matrix(res)
+  abso = as.matrix(abso)
+  fid = as.matrix(fid)
+
+  res[!is.finite(res)] = 0
+  abso[!is.finite(abso)] = 0
+  fid[!is.finite(fid)] = 0
+
+  dim(res) = c(nc, nr)
+  dim(abso) = c(nc, nr)
+  dim(fid) = c(nc, nr)
+
+  samc:::.build_convolution_cache(kernel, res, fid, abso, sym, threads)
+}
+
+
 #' Validate time steps
 #'
 #' Performs several checks to make sure a vector of time steps is valid
@@ -618,7 +663,7 @@ setMethod(
 #'
 #' @param x A list
 #' @noRd
-.validate_model <- function(x) {
+.validate_model <- function(x, method) {
   args <- c("name", "fun", "dir", "sym")
   names <- names(x)
 
@@ -628,7 +673,13 @@ setMethod(
 
   if (!("name" %in% names)) {
     x$name = "RW"
+    names = c(names, "name")
   }
+
+  if (method == "conv") {
+    if (x$name != "RW") stop("Convolution only supports RW model.")
+  }
+
 
   if (x$name == "CRW") {
     args = c(args, "dist")
@@ -688,6 +739,29 @@ setMethod(
   }
 
   return(x)
+}
+
+
+#' Validate options
+#'
+#' Validates the options args for the samc() function
+#'
+#' @param x A list
+#' @noRd
+.validate_options <- function(x) {
+  if (is.null(x)) {
+    x = list(
+      method = "direct",
+      threads = 1,
+      override = FALSE
+    )
+  } else if (is.list(x)) {
+    # TODO finish this
+  } else {
+    stop("options argument must be a list or left empty for default values", call. = FALSE)
+  }
+
+  x
 }
 
 
@@ -797,7 +871,7 @@ setMethod(
   function(samc, x) {
     if (any(!is.finite(x)) || any(x < 0)) stop("`init` input must only contain positive numeric values")
 
-    if (length(x) != nrow(samc$q_matrix)) stop("`init` input length does not match number of transient states")
+    if (length(x) != length(samc@data@t_abs)) stop("`init` input length does not match number of transient states")
 
     return(x)
   })

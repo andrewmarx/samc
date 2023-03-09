@@ -9,6 +9,22 @@
     .Call('_samc_cond_t_iter', PACKAGE = 'samc', IQ, qj)
 }
 
+.build_convolution_cache <- function(kernel, resistance, fidelity, absorption, symmetric, threads = 1L) {
+    .Call('_samc_build_convolution_cache', PACKAGE = 'samc', kernel, resistance, fidelity, absorption, symmetric, threads)
+}
+
+.get_convolution_list <- function(ca) {
+    .Call('_samc_get_convolution_list', PACKAGE = 'samc', ca)
+}
+
+.convolution_short <- function(steps, ca, pop_in, threads = 1L) {
+    .Call('_samc_convolution_short', PACKAGE = 'samc', steps, ca, pop_in, threads)
+}
+
+.convolution_long <- function(ca, pop_in, threads = 1L) {
+    .Call('_samc_convolution_long', PACKAGE = 'samc', ca, pop_in, threads)
+}
+
 .sum_qn_q <- function(M, M2, q, t) {
     .Call('_samc_sum_qn_q', PACKAGE = 'samc', M, M2, q, t)
 }

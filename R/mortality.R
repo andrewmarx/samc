@@ -147,6 +147,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
@@ -178,6 +180,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     mort = visitation(samc, origin = origin, time = time)
 
     rdg <- samc@data@t_abs
@@ -195,6 +199,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
@@ -226,6 +232,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     dest <- .process_locations(samc, dest)
 
     mort <- mortality(samc, origin = origin, time = time)
@@ -245,15 +253,28 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time) {
+    if (samc@solver %in% c("direct", "iter")) {
+      mort = visitation(samc, init = init, time = time)
 
-    mort = visitation(samc, init = init, time = time)
+      rdg <- samc@data@t_abs
 
-    rdg <- samc@data@t_abs
+      if (is.list(mort)) {
+        return(lapply(mort, function(x){as.vector(x * rdg)}))
+      } else {
+        return(as.vector(mort * rdg))
+      }
+    } else if (samc@solver == "conv") {
+      check(samc, init)
+      pv <- .process_init(samc, init)
+      .validate_time_steps(time)
 
-    if (is.list(mort)) {
-      return(lapply(mort, function(x){as.vector(x * rdg)}))
+      results_list = samc:::.convolution_short(time, samc@conv_cache, pv, samc@threads)
+
+      res = as.vector(results_list$mort[[1]])
+
+      return(res)
     } else {
-      return(as.vector(mort * rdg))
+      stop("Invalid method attribute in samc object.")
     }
   })
 
@@ -263,6 +284,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
@@ -301,6 +324,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     vis <- visitation(samc, origin = origin)
     names(vis) <- samc$names
 
@@ -322,6 +347,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     dest <- .process_locations(samc, dest)
 
     vis <- visitation(samc, dest = dest)
@@ -345,6 +372,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
@@ -378,26 +407,38 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init) {
+
     check(samc, init)
 
     pv <- .process_init(samc, init)
 
-    if (samc@solver == "iter") {
-      pf <- .psif_iter(samc@data@f, pv)
-    } else {
-      pf <- .psif(samc@data@f, pv, samc@.cache$sc)
-    }
-
-    names(pf) <- samc$names
-
-    mort <- pf * samc@data@t_abs
-
-    if (ncol(samc@data@c_abs) > 0) {
-      mort <- list(total = mort)
-      for (n in colnames(samc@data@c_abs)) {
-        mort[[n]] <- pf * samc@data@c_abs[, n]
+    if (samc@solver %in% c("direct", "iter")) {
+      if (samc@solver == "iter") {
+        pf <- .psif_iter(samc@data@f, pv)
+      } else {
+        pf <- .psif(samc@data@f, pv, samc@.cache$sc)
       }
-    }
 
-    return(mort)
+      names(pf) <- samc$names
+
+      mort <- pf * samc@data@t_abs
+
+      if (ncol(samc@data@c_abs) > 0) {
+        mort <- list(total = mort)
+        for (n in colnames(samc@data@c_abs)) {
+          mort[[n]] <- pf * samc@data@c_abs[, n]
+        }
+      }
+
+      return(mort)
+    } else if (samc@solver == "conv") {
+
+      results_list <- samc:::.convolution_long(samc@conv_cache, pv, samc@threads)
+
+      res = results_list$mort
+
+      return(res)
+    } else {
+      stop("Invalid method attribute in samc object.")
+    }
   })

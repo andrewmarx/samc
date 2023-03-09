@@ -98,6 +98,7 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
 
     if (!samc@override)
       stop("This version of the distribution() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -122,6 +123,8 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (length(origin) != 1)
       stop("origin can only contain a single location for this version of the function", call. = FALSE)
 
@@ -148,6 +151,8 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
@@ -174,6 +179,8 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
@@ -202,17 +209,27 @@ setMethod(
 
     .validate_time_steps(time)
 
-    q <- samc$q_matrix
+    if (samc@solver %in% c("direct", "iter")) {
+      q = samc$q_matrix
 
-    time <- c(0, time)
+      time = c(0, time)
 
-    res <- .psiq(q, pv, time)
+      res = .psiq(q, pv, time)
 
-    res <- lapply(res, as.vector)
+      res = lapply(res, as.vector)
 
-    if (length(res) == 1) {
-      return(res[[1]])
-    } else {
+      if (length(res) == 1) {
+        return(res[[1]])
+      } else {
+        return(res)
+      }
+    } else if (samc@solver == "conv") {
+      results_list <- samc:::.convolution_short(time, samc@conv_cache, pv, samc@threads)
+
+      res = as.vector(results_list$dist[[1]])
+
       return(res)
+    } else {
+      stop("Invalid method attribute in samc object.")
     }
   })
