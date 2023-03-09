@@ -107,6 +107,7 @@ NULL
 #' @param absorption A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param fidelity A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param model A list with args for constructing a transition matrix.
+#' @param method A character string.
 #'
 #' @return A \code{\link{samc-class}} object
 #'
@@ -116,7 +117,7 @@ NULL
 
 setGeneric(
   "samc",
-  function(data, absorption, fidelity, model) {
+  function(data, absorption, fidelity, model, options = NULL) {
     standardGeneric("samc")
   })
 
@@ -128,8 +129,9 @@ setMethod(
             absorption = "SpatRaster",
             fidelity = "SpatRaster",
             model = "list"),
-  function(data, absorption, fidelity, model) {
-    model = .validate_model(model)
+  function(data, absorption, fidelity, model, options = NULL) {
+    options = .validate_options(options)
+    model = .validate_model(model, options$method)
 
     tr_fun <- model$fun
     directions <-model$dir
@@ -180,15 +182,16 @@ setMethod(
                              data = methods::new("samc_data",
                                                  f = new("dgCMatrix"),
                                                  t_abs = numeric(0)),
+                             conv_cache = NULL,
                              model = model,
                              source = "SpatRaster",
                              map = data,
                              crw_map = NULL,
                              names = NULL,
                              clumps = -1,
-                             override = FALSE,
-                             solver = "direct",
-                             threads = 1,
+                             override = options$override,
+                             solver = options$method,
+                             threads = options$threads,
                              .cache = new.env())
 
     # Check for "clumps"
@@ -208,28 +211,39 @@ setMethod(
     }
     rm(cl)
     gc()
-
     # Create the transition matrix
-    if (model$name == "RW") {
-      samc_obj@data@f = .rw(data, absorption, fidelity, tr_fun, directions, symm)
-      gc()
+    if (options$method %in% c("direct", "iter")) {
+      if (model$name == "RW") {
+        samc_obj@data@f = .rw(data, absorption, fidelity, tr_fun, directions, symm)
+        gc()
 
+        samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
+      } else if (model$name == "CRW") {
+
+        if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
+
+        crw_list = .crw(data, absorption, fidelity, tr_fun, directions, symm, model)
+        #assign("myvar", crw_list)
+        samc_obj@data@f = crw_list$tr
+        gc()
+
+        samc_obj@data@t_abs = crw_list$abs
+        samc_obj@crw_map = crw_list$crw
+
+      } else {
+        stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
+      }
+    } else if (options$method == "conv") {
+      if (unlist(terra::global(data, "isNA")) > 0) stop("Convolution method does not support rasters with NA data currently.")
+
+      if (terra::is.lonlat(data)) warning("Convolution method does not properly correct directions for lonlat yet.")
+
+      if (model$name != "RW") stop("Convolution method only supports RW model", call. = FALSE)
+
+      samc_obj@conv_cache = .convolution(data, absorption, fidelity, directions, symm, options$threads)
       samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
-    } else if (model$name == "CRW") {
-
-      if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
-
-      crw_list = .crw(data, absorption, fidelity, tr_fun, directions, symm, model)
-      #assign("myvar", crw_list)
-      samc_obj@data@f = crw_list$tr
-      gc()
-
-      samc_obj@data@t_abs = crw_list$abs
-      samc_obj@crw_map = crw_list$crw
-
-    } else {
-      stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
     }
+
 
     # TODO Update to terra
     if(is.na(raster::projection(data)) && raster::xres(data) != raster::yres(data)) {
@@ -255,13 +269,13 @@ setMethod(
             absorption = "RasterLayer",
             fidelity = "RasterLayer",
             model = "list"),
-  function(data, absorption, fidelity, model) {
+  function(data, absorption, fidelity, model, options = NULL) {
 
     data = rasterize(data)
     absorption = rasterize(absorption)
     fidelity = rasterize(fidelity)
 
-    samc_obj = samc(data, absorption, fidelity, model = model)
+    samc_obj = samc(data, absorption, fidelity, model = model, options = options)
     samc_obj@source = "RasterLayer"
 
     return(samc_obj)
@@ -274,12 +288,12 @@ setMethod(
             absorption = "SpatRaster",
             fidelity = "missing",
             model = "list"),
-  function(data, absorption, model) {
+  function(data, absorption, model, options = NULL) {
 
     fidelity <- data
     fidelity[is.finite(fidelity)] <- 0
 
-    return(samc(data, absorption, fidelity, model))
+    return(samc(data, absorption, fidelity, model, options = options))
   })
 
 #' @rdname samc
@@ -289,12 +303,12 @@ setMethod(
             absorption = "RasterLayer",
             fidelity = "missing",
             model = "list"),
-  function(data, absorption, model) {
+  function(data, absorption, model,options = NULL) {
 
     data = rasterize(data)
     absorption = rasterize(absorption)
 
-    samc_obj = samc(data, absorption, model = model)
+    samc_obj = samc(data, absorption, model = model, options = options)
     samc_obj@source = "RasterLayer"
 
     return(samc_obj)
@@ -307,13 +321,13 @@ setMethod(
             absorption = "matrix",
             fidelity = "matrix",
             model = "list"),
-  function(data, absorption, fidelity, model) {
+  function(data, absorption, fidelity, model, options = NULL) {
 
     data <- rasterize(data)
     absorption <- rasterize(absorption)
     fidelity <- rasterize(fidelity)
 
-    samc_obj = samc(data, absorption, fidelity, model)
+    samc_obj = samc(data, absorption, fidelity, model, options = options)
     samc_obj@source = "matrix"
 
     return(samc_obj)
@@ -328,12 +342,12 @@ setMethod(
             absorption = "matrix",
             fidelity = "missing",
             model = "list"),
-  function(data, absorption, model) {
+  function(data, absorption, model, options = NULL) {
 
     data <- rasterize(data)
     absorption <- rasterize(absorption)
 
-    samc_obj = samc(data, absorption, model = model)
+    samc_obj = samc(data, absorption, model = model, options = options)
     samc_obj@source = "matrix"
 
     return(samc_obj)
@@ -351,7 +365,8 @@ setMethod(
             absorption = "missing",
             fidelity = "missing",
             model = "missing"),
-  function(data) {
+  function(data, options = NULL) {
+    options = .validate_options(options)
 
     r = nrow(data)
     c = ncol(data)
@@ -396,9 +411,9 @@ setMethod(
                              map = terra::rast(),
                              names = nm,
                              clumps = -1,
-                             threads = 1,
-                             override = FALSE,
-                             solver = "direct")
+                             threads = options$threads,
+                             override = options$override,
+                             solver = options$method)
 
     samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@f))
     samc_obj@.cache$dgf_exists = FALSE
@@ -415,8 +430,8 @@ setMethod(
             absorption = "missing",
             fidelity = "missing",
             model = "missing"),
-  function(data) {
+  function(data, options = NULL) {
     p <- methods::as(methods::as(data, "CsparseMatrix"), "generalMatrix")
 
-    return(samc(data = p))
+    return(samc(data = p), options = options)
   })

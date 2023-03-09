@@ -151,6 +151,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
@@ -175,6 +177,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (length(origin) != 1)
       stop("origin can only contain a single location for this version of the function", call. = FALSE)
 
@@ -200,6 +204,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
@@ -225,6 +231,7 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
 
     dest = .process_locations(samc, dest)
 
@@ -251,15 +258,25 @@ setMethod(
 
     pv <- .process_init(samc, init)
 
-    q <- samc$q_matrix
 
-    time <- c(1, time)
-    ft <- .sum_psiqpow(q, pv, time)
+    if (samc@solver %in% c("direct", "iter")) {
+      q <- samc$q_matrix
 
-    if (length(ft) == 1) {
-      return(ft[[1]])
+      time <- c(1, time)
+      ft <- .sum_psiqpow(q, pv, time)
+
+      if (length(ft) == 1) {
+        return(ft[[1]])
+      } else {
+        return(ft)
+      }
+    } else if (samc@solver == "conv") {
+
+      res = mortality(samc, init, time = time)
+
+      return(res / samc@data@t_abs)
     } else {
-      return(ft)
+      stop("Invalid method attribute in samc object.")
     }
   })
 
@@ -270,6 +287,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
@@ -283,6 +302,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (is.matrix(origin)) {
 
     } else {
@@ -309,6 +330,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (is.matrix(dest)) {
 
     } else {
@@ -333,6 +356,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
 
@@ -357,17 +382,26 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init){
 
-    check(samc, init)
+    if (samc@solver %in% c("direct", "iter")) {
+      check(samc, init)
 
-    pv <- .process_init(samc, init)
+      pv <- .process_init(samc, init)
 
-    if (samc@solver == "iter") {
-      r <- .psif_iter(samc@data@f, pv)
+      if (samc@solver == "iter") {
+        r <- .psif_iter(samc@data@f, pv)
+      } else {
+        r <- .psif(samc@data@f, pv, samc@.cache$sc)
+      }
+
+      return(as.vector(r))
+    } else if (samc@solver == "conv") {
+
+      res = mortality(samc, init)
+
+      return(res / samc@data@t_abs)
     } else {
-      r <- .psif(samc@data@f, pv, samc@.cache$sc)
+      stop("Invalid method attribute in samc object.")
     }
-
-    return(as.vector(r))
   })
 
 
@@ -377,6 +411,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, init, dest){
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     check(samc, init)
 
     pv <- .process_init(samc, init)

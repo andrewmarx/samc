@@ -117,6 +117,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
@@ -161,6 +163,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "numeric"),
   function(samc, init, dest, time) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
@@ -188,6 +192,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (!samc@override)
       stop("This version of the dispersal() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
@@ -212,6 +218,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     origin <- .process_locations(samc, origin)
 
     if (!samc@.cache$dgf_exists) {
@@ -240,6 +248,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     dest <- .process_locations(samc, dest)
 
     f_col <- visitation(samc, dest = dest)
@@ -258,6 +268,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
 
@@ -281,6 +293,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     check(samc, init)
 
     pv <- .process_init(samc, init)
@@ -312,6 +326,8 @@ setMethod(
   "dispersal",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, init, dest) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     check(samc, init)
 
     pv <- .process_init(samc, init)

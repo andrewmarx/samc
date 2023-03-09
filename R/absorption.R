@@ -64,6 +64,8 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "missing", origin = "missing"),
   function(samc) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
     # TODO: possibly optimize using C++
@@ -82,6 +84,8 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "missing", origin = "location"),
   function(samc, origin) {
+    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
     vis <- visitation(samc, origin = origin)
@@ -99,16 +103,23 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "ANY", origin = "missing"),
   function(samc, init) {
+
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    check(samc, init)
+    if (samc@solver %in% c("direct", "iter")) {
+      check(samc, init)
 
-    pv <- .process_init(samc, init)
+      pv = .process_init(samc, init)
 
-    pf <-.psif(samc@data@f, pv, samc@.cache$sc)
+      pf = .psif(samc@data@f, pv, samc@.cache$sc)
+    } else if (samc@solver == "conv") {
+      pf = visitation(samc, init)
+    } else {
+      stop("Invalid method attribute in samc object.")
+    }
 
-    result <- as.vector(pf %*% samc@data@c_abs)
-    names(result) <- colnames(samc@data@c_abs)
+    result = as.vector(pf %*% samc@data@c_abs)
+    names(result) = colnames(samc@data@c_abs)
 
     return(result)
   })

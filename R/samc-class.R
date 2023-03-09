@@ -78,6 +78,7 @@ NULL
 #' }
 #'
 #' @slot data Data associated with different components of the P matrix
+#' @slot conv_cache Convolution cache
 #' @slot source Information about the data source for the P matrix
 #' @slot map Used to verify landscape inputs and mapping of vector data
 #' @slot names Names of the transient states
@@ -93,6 +94,7 @@ setClass(
 
   # define the slots
   slots = list(data = "samc_data",
+               conv_cache = "ANY",
                model = "list",
                source = "character",
                map = "SpatRaster",
