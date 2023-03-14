@@ -206,29 +206,50 @@
   tmp = 1 - terra::values(absorption) - fidelity
   rs = Matrix::rowSums(mat)
 
-  crw_lookup = as.vector(crw_map[,1])
+  # TODO figure out where bug is in this optimization
+  # crw_lookup = as.vector(crw_map[,1])
+  #
+  # i_index = 1
+  # for (p in 1:sum(edge_counts)) {
+  #   row_count = mat_p[p+1] - mat_p[p]
+  #   for (i in 1:row_count) {
+  #     row = mat_i[i_index] + 1
+  #     if (p != row) {
+  #       #mat_x[i_index] = i_index # useful for validation
+  #       #mat_x[i_index] = cell_nums[row] # useful for validation
+  #       #print(c(p, row))
+  #       #assign("ts", list(mat_p, mat_i), envir = globalenv())
+  #
+  #       mat_x[i_index] = -mat_x[i_index]/rs[row] * tmp[cell_nums[crw_lookup[row]]]
+  #     } else {
+  #       mat_x[i_index] =  1 - fidelity[cell_nums[crw_lookup[row]]]
+  #     }
+  #     i_index = i_index + 1
+  #   }
+  # }
+  #
+  # # For perf reasons
+  # mat@x = mat_x
+
 
   i_index = 1
   for (p in 1:sum(edge_counts)) {
-    row_count = mat_p[p+1] - mat_p[p]
+    row_count = mat@p[p+1] - mat@p[p]
     for (i in 1:row_count) {
-      row = mat_i[i_index] + 1
+      row = mat@i[i_index] + 1
       if (p != row) {
         #mat_x[i_index] = i_index # useful for validation
         #mat_x[i_index] = cell_nums[row] # useful for validation
         #print(c(p, row))
         #assign("ts", list(mat_p, mat_i), envir = globalenv())
 
-        mat_x[i_index] = -mat_x[i_index]/rs[row] * tmp[cell_nums[crw_lookup[row]]]
+        mat@x[i_index] = -mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
       } else {
-        mat_x[i_index] =  1 - fidelity[cell_nums[crw_lookup[row]]]
+        mat@x[i_index] =  1 - fidelity[cell_nums[crw_map[,1][row]]]
       }
       i_index = i_index + 1
     }
   }
-
-  # For perf reasons
-  mat@x = mat_x
 
   return(
     list(tr = mat,
