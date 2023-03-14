@@ -68,6 +68,7 @@ samc_obj$method = "direct"
 
 - Generally slow long-term metric calculations
 - Little to no benefit from caching behavior
+- Technically produces an approximate result, but the difference is not noticeable (within machine precision)
 
 The main benefit of the iterative linear algebra solver is that it can be used for any metric while being memory efficient. The downside is that it will generally be the slowest option for real-world data.
 
