@@ -1,0 +1,51 @@
+---
+title: "Models"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Background
+
+The samc package currently supports two different models: random-walk (RW) and correlated random-walk (CRW). The random-walk is the default model that always has been used by the package. Version 3 made breaking changes to the samc() function to setup a structure for specifying different models, and the correlated random-walk model is the first alternative to make use of this starting with version 3.1.
+
+## Models
+
+Models in the samc package are defined as a list with various components depending on the context:
+
+```
+list(name, fun, dir, sym, dist)
+```
+
+### Random-Walk
+
+The basic random-walk is the default model used by the package and uses the following properties:
+
+- `name`: can be omitted or set to `"RW"`
+- `fun`: a function for calculating transition probabilities from the data input. The convolution algorithm does not allow for custom functions, so this should be omitted in that context.
+- `dir` can be either `4` or `8`
+- `sym` can be either `TRUE` or `FALSE`, and is used as an optimization when calculating transition probabilities.
+
+
+### Correlated Random-Walk
+
+The correlated random-walk uses the following properties:
+
+- `name`: must be set to `"CRW"`
+- `fun`: a function for calculating transition probabilities from the data input.
+- `dir` can be either `4` or `8`
+- `sym` can be either `TRUE` or `FALSE`, and is used as an optimization when calculating transition probabilities.
+- `dist` is used to set the turning properties in the CRW model. It is a list with the following properties:
+  - `name` specifies the name of a distribution or function. Currently, only `"vonMises"` is supported.
+  - Other properties are parameters for the named distribution. For the von Mises distribution the `kappa` parameter is a single number greater than or equal to `0`.

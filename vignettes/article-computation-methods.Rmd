@@ -1,0 +1,155 @@
+---
+title: "Computation Methods"
+author: "Andrew Marx"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Computation Methods}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Background
+
+There are multiple approaches to calculating the results of samc metrics. Initially, the package only provided one, but two others have been added since, with the original remaining the default. These approaches have tradeoffs in speed, memory usage, and supported features, which means that the "best" one depends on the user's data, goals, and computing resources.
+
+
+## Methods
+
+### Linear Algebra Solvers
+
+
+Linear algebra solvers take the transition matrix and calculate the results for the metrics as a system of linear equations. Currently, the samc package supports two different linear algebra solvers. These solvers only affect the behavior for the long-term metrics; the short-term metrics are calculated directly using linear algebra in a loop, so they do not use the solvers. Additionally, the base data requirements for the different solvers are the same, so a samc object can be switched from one to the other without recreating the transition matrix.
+
+
+#### Direct Solver
+
+*Strengths:*
+
+- Supports all metrics and models
+- Intermediate speed during initial long-term metric calculations
+- Caching behavior makes reruns of long-term metric calculations with different inputs nearly instantaneous.
+
+*Weaknesses:*
+
+- Extremely high memory consumption during long-term metric calculations
+- Difficult to parallelize
+
+The main benefit of the direct linear algebra behavior is that its caching behavior makes for very fast repeated runs of long-term metrics. However, the downside is that it is the most memory-constrained approach when calculating these metrics.
+
+The direct solver is used by default but can be manually specified during the creation of the samc object:
+
+```
+samc(..., options = list(method = "direct"))
+```
+
+It can also be set after the samc object has been created as long as long as the samc object is built with a transition matrix:
+
+```
+samc_obj$method = "direct"
+```
+
+#### Iterative Solver
+
+*Strengths:*
+
+- Supports all metrics and models
+- Moderately memory-efficient long-term metric calculations
+- Potentially some future parallelization with extensive code rewrites
+
+*Weaknesses:*
+
+- Generally slow long-term metric calculations
+- Little to no benefit from caching behavior
+
+The main benefit of the iterative linear algebra solver is that it can be used for any metric while being memory efficient. The downside is that it will generally be the slowest option for real-world data.
+
+The iterative solver can be manually specified during the creation of the samc object:
+
+```
+samc(..., options = list(method = "iter"))
+```
+
+It can also be set after the samc object has been created as long as long as the samc object is built with a transition matrix:
+
+```
+samc_obj$method = "iter"
+```
+
+### Convolution
+
+*Strengths:*
+
+- Very fast samc object creation
+- Very memory efficient during short- and long-term metric calculations
+- Very fast short-term metric calculations
+- Easily scalable to multiple computational cores
+- Potential for different computational kernels in the future
+
+*Weaknesses:*
+
+- Not supported for all metrics
+- Can only be calculated using `init` map inputs (not `origin` or `dest` inputs, but this will be partially addressed in the future)
+- `NA` values not supported in map inputs
+- Cannot define custom transition functions
+- Not supported for correlated random-walk (addressable in the future)
+- Cannot calculate long-term metrics directly
+
+The convolution method is an entirely different approach from using linear algebra solvers. The convolution algorithm does not use the transition matrix, but instead calculates the result using a moving window across the data. Creation of the samc object with the convolution method is significantly faster and somewhat more memory efficient as a result. However, it cannot be switched to a different method after creation like with the linear algebra solvers.
+
+The convolution algorithm can only calculate results for metrics one time step or iteration at a time, so calculating long-term metrics requires running the algorithm long enough for the results to converge on total absorption. This can be either really fast or slow, depending on the data distribution in the raster inputs. The convolution algorithm does benefit from parallelization but currently has significant diminishing returns after two threads.
+
+When calculating all metrics, the algorithm is very memory efficient, potentially making it the best (or only) choice when the datasets are large enough to be memory-constrained. Additionally, for short-term metrics where the goal is analyses with a specific number of time steps, the calculations are moderately faster than the linear algebra approach.
+
+To use the convolution method, it must be specified during the creation of the samc object:
+
+```
+samc(..., options = list(method = "conv"))
+```
+
+It cannot be switched to other methods after creating the samc object.
+
+## Compatibility Tables
+
+| Model | Direct | Iterative | Convolution |
+|:-----------|:-----|:-----|:-----|
+| Random Walk | ✓ | ✓ | ✓$^1$ |
+| Correlated RW | ✓ | ✓ |  |
+
+$^1$ See above for limitations of the convolution random walk.
+
+
+
+| Function | Equation | Direct | Iterative | Convolution |
+|:-----|:-----------|:-----|:-----|:-----|
+| `absorption()` | $A = F R$ | ✓ | ✓$^2$ |  |
+| | $\psi^T A$ | ✓ | ✓ | ✓$^2$ |
+| `cond_passage()` | $\tilde{t} = \tilde{B}_j^{-1}\tilde{F}\tilde{B}_j{\cdot}1$ | ✓ | ✓ |  |
+| `dispersal()` | $\tilde{D}_{jt}=({\sum}_{n=0}^{t-1}\tilde{Q}^n)\tilde{q}_j$ | ✓$^1$ | ✓$^1$ |  |
+| | $\psi^T\tilde{D}_{jt}$ | ✓$^1$ | ✓$^1$ |  |
+| | $D=(F-I)diag(F)^{-1}$ | ✓ | ✓ |  |
+| | $\psi^TD$ | ✓ | ✓ |  |
+| `distribution()` | $Q^t$ | ✓$^1$ | ✓$^1$ |  |
+| | $\psi^TQ^t$ | ✓$^1$ | ✓$^1$ | ✓ |
+| `mortality()` | $\tilde{B}_t = (\sum_{n=0}^{t-1} Q^n) \tilde{R}$ | ✓$^1$ | ✓$^1$ |  |
+| | $\psi^T \tilde{B}_t$ | ✓$^1$ | ✓$^1$ | ✓ |
+| | $B = F \tilde{R}$ | ✓ | ✓ |  |
+| | $\psi^T B$ | ✓ | ✓ | ✓$^2$ |
+| `survival()` | $z=(I-Q)^{-1}{\cdot}1=F{\cdot}1$ | ✓ | ✓ |  |
+| | ${\psi}^Tz$ | ✓ | ✓ | ✓$^2$ |
+| `visitation()` | $\tilde{F}_t = \sum_{n=0}^{t-1} Q^n$ | ✓$^1$ | ✓$^1$ |  |
+| | ${\psi}^T \tilde{F}_t$ | ✓$^1$ | ✓$^1$ | ✓ |
+| | $F = (I-Q)^{-1}$ | ✓ | ✓ |  |
+| | ${\psi}^T F$ | ✓ | ✓ | ✓$^2$ |
+
+$^1$ Short-term metrics do not use linear algebra solvers. Instead, they calculate the results directly in a loop. This is the same regardless of whether a direct or an iterative solver is used. It will not necessarily have the same performance characteristics as the long-term metrics.
+
+$^2$ The number of iterations or steps to convergence for the long-term metrics under the convolution method depends on the input data. A hard limit of 1,000,000 iterations is implemented, and if reached, a warning will be issued to indicate that the results may not have fully converged.
+
