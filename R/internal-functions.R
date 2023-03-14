@@ -476,12 +476,12 @@
 
 .convolution <- function(res, abso, fid, dir, sym, threads) {
 
-  if (directions == 4) {
+  if (dir == 4) {
     kernel = matrix(
       c(0, 1, 0,
         1, 0, 1,
         0, 1, 0), 3)
-  } else if (directions == 8) {
+  } else if (dir == 8) {
     kernel = matrix(
       c(1 / sqrt(2), 1, 1 / sqrt(2),
         1.0000000, 0, 1.0000000,
@@ -536,17 +536,17 @@
   if (sum(duplicated(x) > 0))
     stop("Duplicate time steps are not allowed in the time argument", call. = FALSE)
 
-  if (any(x > 10000))
-    stop("Due to how the short-term metrics are calculated and the way that
-  decimal numbers are handled by computers, numerical issues related to
-  precision arise when a time step value is too high. Currently, a hard
-  limit of 10000 time steps is enforced to encourage users to more
-  seriously consider how many time steps are relevant to their use case.
-  For example, if a single time step represents 1 day, then the current
-  limit represents 24.7 years. There is flexibility to increase the limit
-  if a justification can be made for it, but it's far more likely that
-  users will generally want far fewer time steps for ecologically relevant
-  results and to avoid the cummulative precision issues.", call. = FALSE)
+  # if (any(x > 10000))
+  #   stop("Due to how the short-term metrics are calculated and the way that
+  # decimal numbers are handled by computers, numerical issues related to
+  # precision arise when a time step value is too high. Currently, a hard
+  # limit of 10000 time steps is enforced to encourage users to more
+  # seriously consider how many time steps are relevant to their use case.
+  # For example, if a single time step represents 1 day, then the current
+  # limit represents 24.7 years. There is flexibility to increase the limit
+  # if a justification can be made for it, but it's far more likely that
+  # users will generally want far fewer time steps for ecologically relevant
+  # results and to avoid the cummulative precision issues.", call. = FALSE)
 }
 
 
