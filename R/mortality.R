@@ -264,15 +264,11 @@ setMethod(
         return(as.vector(mort * rdg))
       }
     } else if (samc@solver == "conv") {
-      check(samc, init)
-      pv <- .process_init(samc, init)
-      .validate_time_steps(time)
 
-      results_list = samc:::.convolution_short(time, samc@conv_cache, pv, samc@threads)
+      res = visitation(samc, init, time = time)
 
-      res = as.vector(results_list$mort[[1]])
 
-      return(res)
+      return(res * samc@data@t_abs)
     } else {
       stop("Invalid method attribute in samc object.")
     }
@@ -433,11 +429,9 @@ setMethod(
       return(mort)
     } else if (samc@solver == "conv") {
 
-      results_list <- samc:::.convolution_long(samc@conv_cache, pv, samc@threads)
+      res = visitation(samc, init)
 
-      res = results_list$mort
-
-      return(res)
+      return(res *  samc@data@t_abs)
     } else {
       stop("Invalid method attribute in samc object.")
     }

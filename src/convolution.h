@@ -18,6 +18,7 @@ struct kernel_point_t{
 struct convolution_cache{
   std::size_t ncol;
   std::size_t nrow;
+  std::size_t cell_count;
   std::size_t kernel_size;
   std::size_t left_extra_cols;
   std::size_t right_extra_cols;

@@ -272,9 +272,12 @@ setMethod(
       }
     } else if (samc@solver == "conv") {
 
-      res = mortality(samc, init, time = time)
 
-      return(res / samc@data@t_abs)
+      results_list = samc:::.convolution_short(time, samc@conv_cache, pv, samc@threads)
+
+      res = as.vector(results_list$vis[[1]])
+
+      return(res)
     } else {
       stop("Invalid method attribute in samc object.")
     }
@@ -396,9 +399,9 @@ setMethod(
       return(as.vector(r))
     } else if (samc@solver == "conv") {
 
-      res = mortality(samc, init)
+      results_list = samc:::.convolution_long(samc@conv_cache, pv, samc@threads)
 
-      return(res / samc@data@t_abs)
+      return(results_list$vis)
     } else {
       stop("Invalid method attribute in samc object.")
     }

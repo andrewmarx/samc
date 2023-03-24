@@ -28,6 +28,8 @@ inline void construct_cache(
   ca.nrow = resistance.nrow();
   ca.ncol = resistance.ncol();
 
+  ca.cell_count = ca.ncol * ca.nrow;
+
   ca.movement_rate.clear();
   ca.movement_rate.resize(ca.kernel_size*ca.nrow*ca.ncol, {0});
 
@@ -138,30 +140,30 @@ Rcpp::XPtr<convolution_cache> build_convolution_cache(
 inline void convolution_one_step(
     const convolution_cache& ca,
     const double* const pop_in,
-    const double* const dead_in,
     double* const pop_out,
-    double* const dead_out,
+    double* const vis,
+    double &pop,
     const int threads = 1){
 
   const double* const p_in = pop_in;// + (ca.nrow * ca.left_extra_cols);
-  const double* const d_in = dead_in;
-
   double* const p_out = pop_out;// + (ca.nrow * ca.left_extra_cols);
-  double* const d_out = dead_out;
+
+  //std::vector<double> temp(threads);
 
   auto fun = [&] (unsigned int i){
-    //RcppThread::checkUserInterrupt(); // Seems to cause 10-20% increase in runtime. The check per timestep has no noticeable cost instead.
-
-    d_out[i] = d_in[i]+ca.absorption[i]*p_in[i];
     double acc = 0;
     for(std::size_t con = 0; con < ca.kernel_size; con++){
-      //Rcpp::Rcout << i << ", " << i%ca.nrow << ", " << i/ca.nrow << ", " << con << ", " << i*ca.kernel_size+con << ", " << i+ca.kernel[con] << ", " << ca.movement_rate[i*ca.kernel_size+con] << '\n';
       acc += ca.movement_rate[i*ca.kernel_size+con]*p_in[i+ca.kernel[con]];
     }
     p_out[i] = acc;
+    vis[i] = vis[i] + p_in[i];
+
+    //temp[(i * threads) / ca.kernel_size] = temp[(i * threads) / ca.kernel_size] + acc;
   };
 
   RcppThread::parallelFor(0, ca.absorption.size(), fun, threads, threads);
+
+  //pop = std::reduce(temp.begin(), temp.end());
 }
 
 
@@ -192,52 +194,47 @@ Rcpp::List convolution_short(
     const Rcpp::NumericVector& pop_in,
     const int threads = 1){
 
+  double pop = 0.0;
+
   std::vector<double> pop_a(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
   std::vector<double> pop_b(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
+  std::vector<double> vis(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
 
   std::memcpy(&pop_a[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
-
-  Rcpp::NumericVector dead_in(int(ca->nrow) * int(ca->ncol));
-
-  std::vector<double> dead_b(ca->nrow*ca->ncol, 0.0);
+  //std::memcpy(&vis[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
 
   std::vector<Rcpp::NumericVector> pops{};
-  std::vector<Rcpp::NumericVector> deads{};
+  std::vector<Rcpp::NumericVector> visits{};
 
+  // TODO replace pointer "views" with spans from C++20 when it becomes the standard for the package
   double* const p_a = &pop_a[ca->nrow*ca->left_extra_cols];
   double* const p_b = &pop_b[ca->nrow*ca->left_extra_cols];
-  double* const d_a = &dead_in[0];
-  double* const d_b = &dead_b[0];
+  double* const vis_ptr = &vis[ca->nrow*ca->left_extra_cols];
 
   const double* p_in = p_a;
-  const double* d_in = d_a;
   double* p_out = p_b;
-  double* d_out = d_b;
 
   long last_i = 0;
   for(long i : steps){
     for(long j=0; j<i-last_i; j++){
-      //step once
-      convolution_one_step(*ca, p_in, d_in, p_out, d_out, threads);
-
+      convolution_one_step(*ca, p_in, p_out, vis_ptr, pop, threads);
       p_in = p_out;
-      d_in = d_out;
       if(p_out == p_a){
         p_out = p_b;
-        d_out = d_b;
       }else{
         p_out = p_a;
-        d_out = d_a;
       }
     }
-    pops.emplace_back(int(ca->nrow) * int(ca->ncol));
-    deads.emplace_back(int(ca->nrow) * int(ca->ncol));
 
-    std::memcpy(&pops.back()[0], p_in, ca->nrow*ca->ncol*sizeof(double));
-    std::memcpy(&deads.back()[0], d_in, ca->nrow*ca->ncol*sizeof(double));
+    pops.emplace_back(int(ca->nrow) * int(ca->ncol));
+    visits.emplace_back(int(ca->cell_count));
+
+    std::memcpy(&pops.back()[0], p_in, ca->nrow*ca->ncol * sizeof(double));
+    std::memcpy(&visits.back()[0], vis_ptr, ca->nrow*ca->ncol * sizeof(double));
+
   }
 
-  return Rcpp::List::create(Rcpp::Named("time") = steps, Rcpp::Named("dist") = pops, Rcpp::Named("mort") = deads);
+  return Rcpp::List::create(Rcpp::Named("time") = steps, Rcpp::Named("dist") = pops, Rcpp::Named("vis") = visits);
 }
 
 
@@ -247,31 +244,26 @@ Rcpp::List convolution_long(
     const Rcpp::NumericVector& pop_in,
     const int threads = 1){
 
-  const double total_pop = Rcpp::sum(pop_in);
-  double death_total = 0.0;
-  double EPSILON = total_pop/1000000000.0;
+  double pop = 1.0;
+  double EPSILON = 0.00001;
 
   std::vector<double> pop_a(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
   std::vector<double> pop_b(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
+  std::vector<double> vis(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
 
   std::memcpy(&pop_a[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
-
-  Rcpp::NumericVector dead_in(int(ca->nrow) * int(ca->ncol));
-
-  std::vector<double> dead_b(ca->nrow*ca->ncol, 0.0);
+  std::memcpy(&vis[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
 
   Rcpp::NumericVector pops (int(ca->nrow) * int(ca->ncol));
-  Rcpp::NumericVector deads (int(ca->nrow) * int(ca->ncol));
+  Rcpp::NumericVector visits (int(ca->nrow) * int(ca->ncol));
 
+  // TODO replace pointer "views" with spans from C++20 when it becomes the standard for the package
   double* const p_a = &pop_a[ca->nrow*ca->left_extra_cols];
   double* const p_b = &pop_b[ca->nrow*ca->left_extra_cols];
-  double* const d_a = &dead_in[0];
-  double* const d_b = &dead_b[0];
+  double* const vis_ptr = &vis[ca->nrow*ca->left_extra_cols];
 
   const double* p_in = p_a;
-  const double* d_in = d_a;
   double* p_out = p_b;
-  double* d_out = d_b;
 
   std::size_t count = 0;
   std::size_t count_limit = 1000000;
@@ -279,33 +271,30 @@ Rcpp::List convolution_long(
   do {
     count++;
 
-    convolution_one_step(*ca, p_in, d_in, p_out, d_out, threads);
+//    convolution_one_step(*ca, p_in, p_out, pop, threads);
+    convolution_one_step(*ca, p_in, p_out, vis_ptr, pop, threads);
 
     p_in = p_out;
-    d_in = d_out;
     if(p_out == p_a){
       p_out = p_b;
-      d_out = d_b;
     }else{
       p_out = p_a;
-      d_out = d_a;
     }
-
 
     if(count % 100 == 0) {
-      std::memcpy(&deads[0], d_in, ca->nrow*ca->ncol*sizeof(double));
+      std::memcpy(&visits[0], vis_ptr, ca->nrow*ca->ncol*sizeof(double));
 
-      death_total = Rcpp::sum(deads);
+      pop = Rcpp::sum(visits);
     }
-
     Rcpp::checkUserInterrupt();
-  } while(total_pop - death_total > EPSILON & count < count_limit);
+  } while(pop > EPSILON & count < count_limit);
 
   if (count == count_limit) {
     Rcpp::Rcout << "\nConvolution iteration limit reached. Results may not be accurate.\n";
   }
 
   std::memcpy(&pops[0], p_in, ca->nrow*ca->ncol*sizeof(double));
+//  std::memcpy(&visits[0], vis.data(), ca->nrow*ca->ncol*sizeof(double));
 
-  return Rcpp::List::create(Rcpp::Named("time") = count, Rcpp::Named("dist") = pops, Rcpp::Named("mort") = deads);
+  return Rcpp::List::create(Rcpp::Named("time") = count, Rcpp::Named("dist") = pops, Rcpp::Named("vis") = vis);
 }
