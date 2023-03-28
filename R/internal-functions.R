@@ -56,7 +56,7 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
-  tr = tr_vals_res(x, dir)
+  tr = .tr_vals_res(x, dir)
   edge_counts = sum(is.finite(tr))
   edge_nums = tr
   edge_nums[is.finite(edge_nums)] = 1:edge_counts
@@ -125,7 +125,6 @@
             for (dv in dir_vec) {
               if (dv) {
                 e2 = p2 + dv
-                print(1)
                 if (!is.na(tr[e2])) {
                   mat_p[edge_nums[e2] + 1] = mat_p[edge_nums[e2] + 1] + 1
                 }
@@ -194,7 +193,7 @@
                   rs = rs + res
 
                   row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]
-                  mat_x[mat_p[e2_num] + mat_p_count[e2_num]] = res * vals[c]
+                  mat_x[mat_p[e2_num] + mat_p_count[e2_num]] = -res * vals[c]
                   mat_i[mat_p[e2_num] + mat_p_count[e2_num]] = e1_num
                 }
               } else {
@@ -222,7 +221,7 @@
   mat@i = as.integer(mat_i)
   mat@x = mat_x
 
-  temp = round(as.matrix(mat), 3)
+  #View(as.matrix(mat))
 
   return(
     list(tr = mat,
@@ -383,7 +382,7 @@
 }
 
 
-tr_vals = function(data, fun, dir) {
+.tr_vals = function(data, fun, dir) {
 
   nrows = terra::nrow(data)
   ncols = terra::ncol(data)
@@ -417,7 +416,7 @@ tr_vals = function(data, fun, dir) {
 }
 
 
-tr_vals_res = function(data, dir) {
+.tr_vals_res = function(data, dir) {
 
   nrows = terra::nrow(data)
   ncols = terra::ncol(data)
@@ -690,8 +689,8 @@ tr_vals_res = function(data, dir) {
   invalid_names <- x[!(x %in% vec)]
 
   if (length(invalid_names > 0)){
-    print(vec)
-    print(x)
+    #print(vec)
+    #print(x)
     stop(paste("\nInvalid location name:", invalid_names), call. = FALSE)
   }
 }
