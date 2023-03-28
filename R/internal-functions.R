@@ -56,28 +56,20 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
-  tr = .transition(x, fun, dir, sym)
+  tr = tr_vals_res(x, dir)
+  edge_counts = sum(is.finite(tr))
+  edge_nums = tr
+  edge_nums[is.finite(edge_nums)] = 1:edge_counts
+
 
   nrows = terra::nrow(x)
   ncols = terra::ncol(x)
   cell_nums = terra::cells(x)
   ncells = length(cell_nums)
 
-  edge_counts = Matrix::rowSums(tr > 0)
-  edge_counts = tr@p[-1] - tr@p[-length(tr@p)] - 1
+  edge_counts = sum(is.finite(tr))
 
-
-  # Stuff for indexing things while looping by cols
-  row_offsets = numeric(ncells)
-  row_offset_sum = 0
-
-  for (i in 1:ncells) {
-    row_offsets[i] = row_offset_sum
-    row_offset_sum = row_offset_sum + edge_counts[i]
-  }
-  row_offsets = row_offsets + 1
-  rm(row_offset_sum)
-
+  # Angle matrix
   # TODO make sure works for 4 directions
   dir_vec = matrix(c(-1, 1,
                       0, 1,
@@ -100,156 +92,137 @@
     }
   }
 
-  #fidelity = terra::values(fidelity)
 
-
-
-  tr_i = tr@i
-  tr_p = tr@p
-  tr_x = tr@x
-
-  # Fill out CRW lookup
-  crw_map = matrix(0L, nrow = sum(edge_counts), ncol = 2)
-  row_accesses = numeric(ncells)
-  dir_lookup = matrix(c(1:4, NA, 5:8), nrow = 3, byrow = TRUE)
-
-  for (p2 in 1:ncells) {
-    #print("")
-
-    p1s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
-    #print(p1s)
-
-    for (p1 in p1s) {
-      if (p1 != p2) { # if an edge
-        # crw_map
-        src = cell_nums[p1]
-        dst = cell_nums[p2]
-        dr = dir_lookup[((dst - 1) %/% ncols - (src - 1) %/% ncols) + 2,
-                        ((dst - 1) %% ncols - (src - 1) %% ncols) + 2]
-        crw_map[row_offsets[p1] + row_accesses[p1], ] =
-          c(p1, dr)
-
-        row_accesses[p1] = row_accesses[p1] + 1
-
-      }
-    }
+  # tr offset vars
+  if (dir == 4) {
+    dir_vec = c(1:2, 0, 3:4)
+    offsets = c(-ncols, -1, 1, ncols) * 4
+  } else if (dir == 8) {
+    dir_vec = c(1:4, 0, 5:8)
+    offsets = c(-ncols - 1, -ncols, -ncols + 1, -1, 1, ncols - 1, ncols, ncols + 1) * 8
   }
 
-  # e2 then e1 for CSC for entire mat
-  mat_p = integer(sum(edge_counts) + 1)
-  mat_x = numeric(sum((edge_counts + 1) * edge_counts))
-  mat_i = integer(sum((edge_counts + 1) * edge_counts))
 
-  sum = 0
-  index = 1
-  for (p2 in 1:ncells) {
-    p3s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
-    p3i = 0
-    for (p3 in p3s) {
-      if (p2 != p3) {
-        e2i = row_offsets[p2] + p3i
+  # Fill out mat_p
+  mat_p = integer(edge_counts + 1)
+  cell = 0
 
-        sum = sum + edge_counts[p2] + 1
-        mat_p[e2i + 1] = as.integer(sum)
+  for (r in 1:nrows) {
+    vals = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
+    for (c in 1:ncols) {
+      cell = cell + 1
+      if (is.finite(vals[c])) {
+        p1 = (cell - 1) * dir
 
+        # loop through valid edges
+        for (d in 1:dir) {
+          e1 = p1 + d
 
-        p1s = tr_i[(tr_p[p2] + 1) : tr_p[p2 + 1]] + 1
-        p1i = 0
+          if (!is.na(tr[e1])) {
+            p2 = p1 + offsets[d]
 
-        fid_check = FALSE
-        fid_offset = 0
-
-        count = 0
-
-        for (p1 in p1s) {
-          if (p1 != p2) {
-
-            p2s = tr_i[(tr_p[p1] + 1) : tr_p[p1 + 1]] + 1
-            p2s = p2s[p2s != p1]
-            p2i = which(p2s == p2)
-
-            e1i = row_offsets[p1] + p2i - 1
-
-            mat_x[index] = tr[p2, p3] * ang_mat[crw_map[e1i, 2], crw_map[e2i, 2]] # TODO the sparse matrix access here is why the function is slow
-            mat_i[index] = e1i
-          } else {
-            mat_x[index] = 0 #fidelity[cell_nums[p1]]
-            mat_i[index] = e2i
+            # loop through valid secondary edges
+            for (dv in dir_vec) {
+              if (dv) {
+                e2 = p2 + dv
+                print(1)
+                if (!is.na(tr[e2])) {
+                  mat_p[edge_nums[e2] + 1] = mat_p[edge_nums[e2] + 1] + 1
+                }
+              } else {
+                mat_p[edge_nums[e1] + 1] = mat_p[edge_nums[e1] + 1] + 1
+              }
+            }
           }
-          index = index + 1
-          p1i = p1i + 1
         }
-
-        p3i = p3i + 1
-
       }
     }
-
   }
-  # mat_p
-  # mat_x
-  # mat_i
+
+  for (i in 2:length(mat_p)) {
+    mat_p[i] = mat_p[i] + mat_p[i - 1]
+  }
+
+
+
+  mat_p_count = integer(edge_counts)
+
+  mat_x = numeric(mat_p[length(mat_p)])
+  mat_i = integer(mat_p[length(mat_p)])
+
+  crw_map = matrix(0L, nrow = edge_counts, ncol = 2)
+
+
+  cell = 0
+  index = 0
+
+  # Loop through cells with values
+  for (r in 1:nrows) {
+    fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
+    vals = 1 - fid - terra::values(absorption, mat = FALSE, row = r, nrows = 1)
+    for (c in 1:ncols) {
+      cell = cell + 1
+      if (is.finite(vals[c])) {
+        p1 = (cell - 1) * dir
+
+        # loop through valid edges
+        for (d in 1:dir) {
+          e1 = p1 + d
+          if (!is.na(tr[e1])) {
+            p2 = p1 + offsets[d]
+            e1_num = edge_nums[e1]
+
+            index = index + 1
+            crw_map[index, ] = c(cell, d)
+
+            rs = 0
+            fid_index = NA
+
+            row_indices = numeric(dir)
+            row_indices[] = NA
+
+            # loop through valid secondary edges
+            for (dv in dir_vec) {
+              if (dv) {
+                e2 = p2 + dv
+
+                if (!is.na(tr[e2])) {
+                  e2_num = edge_nums[e2]
+                  mat_p_count[e2_num] = mat_p_count[e2_num] + 1
+
+                  res = tr[e2] * ang_mat[d, dv]
+                  rs = rs + res
+
+                  row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]
+                  mat_x[mat_p[e2_num] + mat_p_count[e2_num]] = res * vals[c]
+                  mat_i[mat_p[e2_num] + mat_p_count[e2_num]] = e1_num
+                }
+              } else {
+                mat_p_count[e1_num] = mat_p_count[e1_num] + 1
+
+                fid_index = mat_p[e1_num] + mat_p_count[e1_num]
+                mat_x[fid_index] = 1 - fid[c]
+                mat_i[fid_index] = e1_num
+              }
+            }
+            row_indices = row_indices[!is.na(row_indices)]
+            mat_x[row_indices] = mat_x[row_indices]/rs
+          }
+        }
+      }
+    }
+  }
+
+  mat_i = mat_i - 1
 
   mat = new("dgCMatrix")
   mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
-  mat@p = mat_p
-  mat@i = as.integer(mat_i - 1)
+  mat@p = as.integer(mat_p)
+  mat@i = as.integer(mat_i)
   mat@x = mat_x
 
-  #View(as.matrix(mat))
-
-
-  # normalization
-
-  fidelity = terra::values(fidelity)
-  tmp = 1 - terra::values(absorption) - fidelity
-  rs = Matrix::rowSums(mat)
-
-  # TODO figure out where bug is in this optimization
-  # crw_lookup = as.vector(crw_map[,1])
-  #
-  # i_index = 1
-  # for (p in 1:sum(edge_counts)) {
-  #   row_count = mat_p[p+1] - mat_p[p]
-  #   for (i in 1:row_count) {
-  #     row = mat_i[i_index] + 1
-  #     if (p != row) {
-  #       #mat_x[i_index] = i_index # useful for validation
-  #       #mat_x[i_index] = cell_nums[row] # useful for validation
-  #       #print(c(p, row))
-  #       #assign("ts", list(mat_p, mat_i), envir = globalenv())
-  #
-  #       mat_x[i_index] = -mat_x[i_index]/rs[row] * tmp[cell_nums[crw_lookup[row]]]
-  #     } else {
-  #       mat_x[i_index] =  1 - fidelity[cell_nums[crw_lookup[row]]]
-  #     }
-  #     i_index = i_index + 1
-  #   }
-  # }
-  #
-  # # For perf reasons
-  # mat@x = mat_x
-
-
-  i_index = 1
-  for (p in 1:sum(edge_counts)) {
-    row_count = mat@p[p+1] - mat@p[p]
-    for (i in 1:row_count) {
-      row = mat@i[i_index] + 1
-      if (p != row) {
-        #mat_x[i_index] = i_index # useful for validation
-        #mat_x[i_index] = cell_nums[row] # useful for validation
-        #print(c(p, row))
-        #assign("ts", list(mat_p, mat_i), envir = globalenv())
-
-        mat@x[i_index] = -mat@x[i_index]/rs[row] * tmp[cell_nums[crw_map[,1][row]]]
-      } else {
-        mat@x[i_index] =  1 - fidelity[cell_nums[crw_map[,1][row]]]
-      }
-      i_index = i_index + 1
-    }
-  }
+  temp = round(as.matrix(mat), 3)
 
   return(
     list(tr = mat,
@@ -410,6 +383,74 @@
 }
 
 
+tr_vals = function(data, fun, dir) {
+
+  nrows = terra::nrow(data)
+  ncols = terra::ncol(data)
+
+  result = numeric(nrows * ncols * dir)
+  index = 0
+
+  dist = .build_lookup_mat(data, dir)
+
+  if (dir == 4) {
+    dir = c(2, 4, 6, 8)
+  } else if (dir == 8) {
+    dir = c(1:4, 6:9)
+  }
+
+  for (r in 1:nrows) {
+    vals = terra::focalValues(data, 3, r,1)
+
+    for (c in 1:ncols) {
+      v = vals[c, 5]
+      for (d in dir) {
+        index = index + 1
+
+        result[index] = fun(c(v, vals[c, d])) / dist[r, d]
+
+      }
+    }
+  }
+
+  result
+}
+
+
+tr_vals_res = function(data, dir) {
+
+  nrows = terra::nrow(data)
+  ncols = terra::ncol(data)
+
+  result = numeric(nrows * ncols * dir)
+  index = 0
+
+  dist = .build_lookup_mat(data, dir)
+
+  if (dir == 4) {
+    dir = c(2, 4, 6, 8)
+  } else if (dir == 8) {
+    dir = c(1:4, 6:9)
+  }
+
+  for (r in 1:nrows) {
+    vals = terra::focalValues(data, 3, r,1)
+
+    for (c in 1:ncols) {
+      v = vals[c, 5]
+      for (d in dir) {
+        index = index + 1
+
+        result[index] = 2 / ((v + vals[c, d]) * dist[r, d])
+
+      }
+    }
+  }
+
+  result
+}
+
+
 #' Build direction lookup function
 #'
 #' TODO description here
@@ -475,6 +516,48 @@
   return(dist)
 }
 
+.build_lookup_mat <- function(rast, dir) {
+
+  # TODO Create tests to directly validate results for both directions options for planar and latlon
+
+  lonlat = terra::is.lonlat(rast)
+  nrows = terra::nrow(rast)
+  ncols = terra::ncol(rast)
+
+  mat = matrix(nrow = nrows, ncol = 9)
+  mat[, c(2, 4, 6, 8)] = 1
+
+  if (dir == 8) {
+    mat[, c(1, 3, 7, 9)] = sqrt(2)
+  }
+
+
+  if(!is.na(lonlat)) {
+    if (lonlat) {
+      cn = (0:(nrows - 1)) * ncols + 1
+
+      adj = terra::adjacent(rast, cn, directions = 8, pairs = TRUE)
+
+      dist = terra::distance(
+        terra::xyFromCell(rast, adj[, 1]),
+        terra::xyFromCell(rast, adj[, 2]),
+        lonlat = TRUE, pairwise = TRUE)
+
+      adj = terra::adjacent(rast, cn, directions = dir, pairs = FALSE)
+      adj = t(adj)
+
+      adj[!is.nan(adj)] = dist
+      adj = t(adj)
+
+      mat[, c(1:4, 6:9)] = adj
+      mat[, 1] = mat[, 3]
+      mat[, 4] = mat[, 6]
+      mat[, 7] = mat[, 9]
+    }
+  }
+
+  return(mat)
+}
 
 #' Build turning lookup function
 #'
