@@ -137,14 +137,6 @@ setMethod(
     directions <-model$dir
     symm <- model$sym
 
-    if (is(tr_fun, "character")) {
-      stop("Named transition functions not supported", call. = FALSE)
-    }
-
-    if (!(directions %in% c(4, 8))) {
-      stop("Invalid `dir` input", call. = FALSE)
-    }
-
     # Make sure the input data all aligns
     check(c(data, fidelity, absorption))
 
@@ -219,6 +211,7 @@ setMethod(
 
         samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
       } else if (model$name == "CRW") {
+        warning("CRW support is currently experimental and may see input changes")
 
         if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
 
@@ -234,11 +227,9 @@ setMethod(
         stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
       }
     } else if (options$method == "conv") {
-      if (unlist(terra::global(data, "isNA")) > 0) stop("Convolution method does not support rasters with NA data currently.")
+      if (unlist(terra::global(data, "isNA")) > 0) stop("Convolution method currently does not support rasters with NA data")
 
-      if (terra::is.lonlat(data)) warning("Convolution method does not properly correct directions for lonlat yet.")
-
-      if (model$name != "RW") stop("Convolution method only supports RW model", call. = FALSE)
+      if (terra::is.lonlat(data)) warning("Convolution method currently does not properly correct directions for lonlat")
 
       samc_obj@conv_cache = .convolution(data, absorption, fidelity, directions, symm, options$threads)
       samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]

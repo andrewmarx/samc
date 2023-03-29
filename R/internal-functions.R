@@ -56,7 +56,11 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
-  tr = .tr_vals_res(x, dir)
+  if (model$fun == "res") {
+    tr = .tr_vals_res(x, dir)
+  } else {
+    tr = .tr_vals(x, fun, dir)
+  }
   edge_counts = sum(is.finite(tr))
   edge_nums = tr
   edge_nums[is.finite(edge_nums)] = 1:edge_counts
@@ -88,7 +92,7 @@
       mag_v1 = sqrt(sum(dir_vec[r, ]^2))
       mag_v2 = sqrt(sum(dir_vec[c, ]^2))
 
-      ang_mat[r, c] = circular::dvonmises(circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))), mu = circular::circular(0), kappa = model$dist$kappa)
+      ang_mat[r, c] = circular::dvonmises(circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))), mu = circular::circular(0), kappa = model$kappa)
     }
   }
 
@@ -779,65 +783,54 @@ setMethod(
     names = c(names, "name")
   }
 
-  if (method == "conv") {
-    if (x$name != "RW") stop("Convolution only supports RW model.")
-  }
-
-
-  if (x$name == "CRW") {
-    args = c(args, "dist")
-  }
+  if (!x$name %in% c("RW", "CRW")) stop("Invalid model name", call. = FALSE)
 
   missing_args <- args[!(args %in% names)]
   if (length(missing_args) > 0)
     stop(paste("Missing argument in model:", missing_args), call. = FALSE)
 
+  if (!(is(x$fun, "function") || is(x$fun, "character"))) {
+    stop("'fun' must be a supported named function or a user defined function")
+  } else if (!(x$dir %in% c(4, 8))) {
+    stop("`dir` must be set to either 4 or 8", call. = FALSE)
+  } else if (!is(x$sym, "logical")) {
+    stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
+  }
+
+  if (method == "conv") {
+    if (x$name != "RW") stop("Convolution currently only supports the 'RW' model.")
+    if (!is(x$fun, "character")) {
+      stop("Convolution currently only supports the 'res' named function.")
+    } else if (x$fun != "res") {
+      stop("Convolution currently only supports the 'res' named function.")
+    }
+  }
+
+
+  if (x$name == "CRW") {
+    args = c(args, "dist", "kappa")
+  }
+
+
   unknown_args <- names[!(names %in% args)]
   if (length(unknown_args) > 0)
     stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
 
-  if (!is.function(x$fun)) {
-    stop("`fun`` must be a function.", call. = FALSE)
-  } else if (!(x$dir %in% c(4,8))) {
-    stop("`dir` must be set to either 4 or 8", call. = FALSE)
-  } else if (!is.logical(x$sym)) {
-    stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
-  }
-
   if (x$name == "CRW") {
-    dist = x$dist
+    if (x$dist == "vonMises") {
+      if (!is(x$kappa, "numeric"))
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
 
-    dist_args = c("name")
-    dist_names = names(dist)
+      if (length(x$kappa) != 1)
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
 
-    if (!("name" %in% dist_names)) {
-      stop("Missing distribution name.", call. = FALSE)
-    } else if (dist$name == "vonMises") {
-      dist_args = c(dist_args, "kappa")
+      if (!is.finite(x$kappa))
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+
+      if (x$kappa < 0)
+        stop("kappa must be single non-negative numeric value.", call. = FALSE)
     } else {
-      stop(paste("Invalid distribution name:", dist$name), call. = FALSE)
-    }
-
-    missing_args <- dist_args[!(dist_args %in% dist_names)]
-    if (length(missing_args) > 0)
-      stop(paste("Missing argument in dist:", missing_args), call. = FALSE)
-
-    unknown_args <- dist_names[!(dist_names %in% dist_args)]
-    if (length(unknown_args) > 0)
-      stop(paste("Unknown argument in dist:", unknown_args), call. = FALSE)
-
-    if (dist$name == "vonMises") {
-      if (!is.numeric(dist$kappa))
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (length(dist$kappa) != 1)
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (!is.finite(dist$kappa))
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (dist$kappa < 0)
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
+      stop(paste("Invalid distribution name:", x$dist), call. = FALSE)
     }
   }
 
