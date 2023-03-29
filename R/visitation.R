@@ -384,12 +384,11 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init){
+    check(samc, init)
+
+    pv <- .process_init(samc, init)
 
     if (samc@solver %in% c("direct", "iter")) {
-      check(samc, init)
-
-      pv <- .process_init(samc, init)
-
       if (samc@solver == "iter") {
         r <- .psif_iter(samc@data@f, pv)
       } else {

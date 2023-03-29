@@ -245,7 +245,7 @@ Rcpp::List convolution_long(
     const int threads = 1){
 
   double pop = 1.0;
-  double EPSILON = 0.00001;
+  double EPSILON = 0.0000000001;
 
   std::vector<double> pop_a(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
   std::vector<double> pop_b(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
@@ -282,19 +282,21 @@ Rcpp::List convolution_long(
     }
 
     if(count % 100 == 0) {
-      std::memcpy(&visits[0], vis_ptr, ca->nrow*ca->ncol*sizeof(double));
 
-      pop = Rcpp::sum(visits);
+      std::memcpy(&pops[0], p_in, ca->nrow*ca->ncol*sizeof(double));
+
+      pop = Rcpp::sum(pops);
     }
     Rcpp::checkUserInterrupt();
   } while(pop > EPSILON & count < count_limit);
 
   if (count == count_limit) {
-    Rcpp::Rcout << "\nConvolution iteration limit reached. Results may not be accurate.\n";
+    Rcpp::Rcout << "\nConvolution iteration limit reached. Results may not have fully converged.\n";
   }
 
-  std::memcpy(&pops[0], p_in, ca->nrow*ca->ncol*sizeof(double));
+  std::memcpy(&visits[0], vis_ptr, ca->nrow*ca->ncol*sizeof(double));
+
 //  std::memcpy(&visits[0], vis.data(), ca->nrow*ca->ncol*sizeof(double));
 
-  return Rcpp::List::create(Rcpp::Named("time") = count, Rcpp::Named("dist") = pops, Rcpp::Named("vis") = vis);
+  return Rcpp::List::create(Rcpp::Named("time") = count, Rcpp::Named("dist") = pops, Rcpp::Named("vis") = visits);
 }
