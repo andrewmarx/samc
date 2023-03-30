@@ -201,7 +201,6 @@ Rcpp::List convolution_short(
   std::vector<double> vis(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
 
   std::memcpy(&pop_a[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
-  //std::memcpy(&vis[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
 
   std::vector<Rcpp::NumericVector> pops{};
   std::vector<Rcpp::NumericVector> visits{};
@@ -252,7 +251,6 @@ Rcpp::List convolution_long(
   std::vector<double> vis(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
 
   std::memcpy(&pop_a[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
-  std::memcpy(&vis[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
 
   Rcpp::NumericVector pops (int(ca->nrow) * int(ca->ncol));
   Rcpp::NumericVector visits (int(ca->nrow) * int(ca->ncol));
