@@ -11,33 +11,35 @@
 #'
 #' @noRd
 .rw <- function(x, absorption, fidelity, fun, dir, sym) {
-  if (model$fun == "res") {
+  if (is(fun, "function")) {
+    tr = .tr_vals(x, fun, dir)
+  } else if (fun == "res") {
     tr = .tr_vals_res(x, dir)
   } else {
-    tr = .tr_vals(x, fun, dir)
+    stop("Invalid transition function defined", call. = FALSE)
   }
+
   nedges = sum(is.finite(tr))
-  edge_nums = tr
-  edge_nums[is.finite(edge_nums)] = 1:nedges
 
   nrows = terra::nrow(x)
   ncols = terra::ncol(x)
   cell_nums = terra::cells(x)
   ncells = length(cell_nums)
 
-  lonlat = terra::is.lonlat(x)
+  cell_lookup = matrix(0, ncols, nrows) # Intentionally reversed for rast->mat
+  cell_lookup[cell_nums] = 1:length(cell_nums)
 
   # tr offset vars
   if (dir == 4) {
     dir_vec = c(1:2, 0, 3:4)
-    offsets = c(-ncols, -1, 1, ncols) * 4
+    offsets = c(-ncols, -1, 1, ncols)
   } else if (dir == 8) {
     dir_vec = c(1:4, 0, 5:8)
-    offsets = c(-ncols - 1, -ncols, -ncols + 1, -1, 1, ncols - 1, ncols, ncols + 1) * 8
+    offsets = c(-ncols - 1, -ncols, -ncols + 1, -1, 1, ncols - 1, ncols, ncols + 1)
   }
 
   # Fill out mat_p
-  mat_p = integer(nedges + 1)
+  mat_p = integer(ncells + 1)
   mat_p[] = 1 # every column will have a fidelity value
   mat_p[1] = 0 # except first entry of mat_p does not refer to a column
   cell = 0
@@ -47,17 +49,19 @@
     for (c in 1:ncols) {
       cell = cell + 1
       if (is.finite(vals[c])) {
-        p1 = (cell - 1) * dir
-
+        p1 = cell_lookup[cell]
+        p1i = (cell - 1) * dir
 
         # loop through valid edges
-        for (d in 1:dir) {
-          e1 = p1 + d
+        for (d in dir_vec) {
+          if (d) {
+            p2i = p1i + d
 
-          if (!is.na(tr[e1])) {
-            p2 = p1 + offsets[d]
+            if (!is.na(tr[p2i])) {
+              p2 = cell_lookup[cell + offsets[d]]
 
-            mat_p[p2 + 1] = mat_p[p2 + 1] + 1
+              mat_p[p2 + 1] = mat_p[p2 + 1] + 1
+            }
           }
         }
       }
@@ -68,13 +72,14 @@
     mat_p[i] = mat_p[i] + mat_p[i - 1]
   }
 
-  mat_p_count = integer(nedges)
+  mat_p_count = integer(ncells + 1)
 
   mat_x = numeric(nedges + ncells)
   mat_i = integer(nedges + ncells)
 
   cell = 0
 
+  row_indices = numeric(dir)
 
   for (r in 1:nrows) {
     fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
@@ -83,28 +88,28 @@
     for (c in 1:ncols) {
       cell = cell + 1
       if (is.finite(vals[c])) {
-        p1 = (cell - 1) * dir
+        p1 = cell_lookup[cell]
+        p1i = (cell - 1) * dir
 
         # loop through valid edges
         rs = 0
         fid_index = NA
 
-        row_indices = numeric(dir)
         row_indices[] = NA
 
-        for (dv in dir_vec) {
-          if (dv) {
-            e1 = p1 + dv
+        for (d in dir_vec) {
+          if (d) {
+            p2i = p1i + d
 
-            if (!is.na(tr[e1])) {
-              p2 = p1 + offsets[d]
+            if (!is.na(tr[p2i])) {
+              p2 = cell_lookup[cell + offsets[d]]
 
               mat_p_count[p2] = mat_p_count[p2] + 1
 
-              res = tr[p2]
+              res = tr[p2i]
               rs = rs + res
 
-              row_indices[dv] = mat_p[p2] + mat_p_count[p2]
+              row_indices[d] = mat_p[p2] + mat_p_count[p2]
               mat_x[mat_p[p2] + mat_p_count[p2]] = -res * vals[c]
               mat_i[mat_p[p2] + mat_p_count[p2]] = p1
             }
@@ -125,7 +130,7 @@
   mat_i = mat_i - 1
 
   mat = new("dgCMatrix")
-  mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
+  mat@Dim = c(as.integer(ncells), as.integer(ncells))
 
   mat@p = as.integer(mat_p)
   mat@i = as.integer(mat_i)
@@ -140,11 +145,14 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
-  if (model$fun == "res") {
+  if (is(fun, "function")) {
+    tr = .tr_vals(x, fun, dir)
+  } else if (fun == "res") {
     tr = .tr_vals_res(x, dir)
   } else {
-    tr = .tr_vals(x, fun, dir)
+    stop("Invalid transition function defined", call. = FALSE)
   }
+
   edge_counts = sum(is.finite(tr))
   edge_nums = tr
   edge_nums[is.finite(edge_nums)] = 1:edge_counts
