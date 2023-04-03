@@ -20,3 +20,12 @@
 #'
 #' @source Generated for Maze Example vignettes
 "example_maze"
+
+#' Toy resistance data
+#'
+#' Toy resistance data used in a workshop at IALE 2021
+#'
+#' @format A 10x10 matrix.
+#'
+#' @source IALE 2021 workshop
+"example_toy_res"
