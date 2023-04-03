@@ -13,7 +13,7 @@
 .rw <- function(x, absorption, fidelity, fun, dir, sym) {
   if (is(fun, "function")) {
     tr = .tr_vals(x, fun, dir)
-  } else if (fun == "res") {
+  } else if (fun == "1/mean(x)") {
     tr = .tr_vals_res(x, dir)
   } else {
     stop("Invalid transition function defined", call. = FALSE)
@@ -147,7 +147,7 @@
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
   if (is(fun, "function")) {
     tr = .tr_vals(x, fun, dir)
-  } else if (fun == "res") {
+  } else if (fun == "1/mean(x)") {
     tr = .tr_vals_res(x, dir)
   } else {
     stop("Invalid transition function defined", call. = FALSE)
@@ -741,9 +741,9 @@ setMethod(
   if (method == "conv") {
     if (x$name != "RW") stop("Convolution currently only supports the 'RW' model.")
     if (!is(x$fun, "character")) {
-      stop("Convolution currently only supports the 'res' named function.")
-    } else if (x$fun != "res") {
-      stop("Convolution currently only supports the 'res' named function.")
+      stop("Convolution currently only supports the '1/mean(x)' named function.")
+    } else if (x$fun != "1/mean(x)") {
+      stop("Convolution currently only supports the '1/mean(x)' named function.")
     }
   }
 

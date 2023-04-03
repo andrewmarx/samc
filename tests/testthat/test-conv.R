@@ -4,7 +4,7 @@ context("Convolution")
 conv_samc = samc(testlist[[1]]$res,
                  pmax(testlist[[1]]$abs, 0.00001),
                  testlist[[1]]$fid,
-                 model = list(fun = "res", dir = 8, sym = TRUE),
+                 model = list(fun = "1/mean(x)", dir = 8, sym = TRUE),
                  options = list(threads = 1,
                                 method = "conv",
                                 override = FALSE))
