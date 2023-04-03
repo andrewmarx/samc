@@ -249,6 +249,7 @@
 
 
   cell = 0
+  crw_index = 0
   index = 0
 
   # Loop through cells with values
@@ -259,6 +260,7 @@
       cell = cell + 1
       if (is.finite(vals[c])) {
         p1 = (cell - 1) * dir
+        index = index + 1
 
         # loop through valid edges
         for (d in 1:dir) {
@@ -267,8 +269,8 @@
             p2 = p1 + offsets[d]
             e1_num = edge_nums[e1]
 
-            index = index + 1
-            crw_map[index, ] = c(cell, d)
+            crw_index = crw_index + 1
+            crw_map[crw_index, ] = c(index, d)
 
             rs = 0
             fid_index = NA
