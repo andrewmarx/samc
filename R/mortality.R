@@ -147,7 +147,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
 
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -180,7 +180,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
 
     mort = visitation(samc, origin = origin, time = time)
 
@@ -199,7 +199,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
+    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -232,7 +233,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
+    .disable_crw(samc)
 
     dest <- .process_locations(samc, dest)
 
@@ -253,6 +255,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time) {
+    .disable_crw(samc)
+
     if (samc@solver %in% c("direct", "iter")) {
       mort = visitation(samc, init = init, time = time)
 
@@ -280,7 +284,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
 
     if (!samc@override)
       stop("This version of the mortality() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -320,7 +324,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
 
     vis <- visitation(samc, origin = origin)
     names(vis) <- samc$names
@@ -343,7 +347,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
+    .disable_crw(samc)
 
     dest <- .process_locations(samc, dest)
 
@@ -368,7 +373,8 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
+    .disable_crw(samc)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
@@ -403,6 +409,7 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init) {
+    .disable_crw(samc)
 
     check(samc, init)
 

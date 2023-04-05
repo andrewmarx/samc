@@ -52,7 +52,7 @@ setMethod(
   "survival",
   signature(samc = "samc", init = "missing"),
   function(samc) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
 
     if (samc@solver == "iter") {
       z = .f1_iter(samc@data@f)
@@ -69,6 +69,7 @@ setMethod(
   "survival",
   signature(samc = "samc", init = "ANY"),
   function(samc, init) {
+    .disable_crw(samc)
 
     if (samc@solver %in% c("direct", "iter")) {
       check(samc, init)

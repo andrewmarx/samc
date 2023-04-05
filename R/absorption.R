@@ -64,7 +64,7 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "missing", origin = "missing"),
   function(samc) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
 
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
@@ -84,7 +84,14 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "missing", origin = "location"),
   function(samc, origin) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
+
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
 
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
@@ -103,6 +110,7 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "ANY", origin = "missing"),
   function(samc, init) {
+    .disable_crw(samc)
 
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 

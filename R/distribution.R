@@ -98,7 +98,7 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
 
     if (!samc@override)
       stop("This version of the distribution() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
@@ -123,10 +123,14 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
 
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
 
     origin <- .process_locations(samc, origin)
 
@@ -151,7 +155,8 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
+    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -179,7 +184,8 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
-    if (samc@solver == "conv") stop("Metric not setup for the convolution method", call. = FALSE)
+    .disable_conv(samc)
+    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -204,6 +210,7 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time) {
     check(samc, init)
+    .disable_crw(samc)
 
     pv <- .process_init(samc, init)
 
