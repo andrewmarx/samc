@@ -557,7 +557,7 @@
   dim(abso) = c(nc, nr)
   dim(fid) = c(nc, nr)
 
-  samc:::.build_convolution_cache(kernel, res, fid, abso, sym, threads)
+  .build_convolution_cache(kernel, res, fid, abso, sym, threads)
 }
 
 
