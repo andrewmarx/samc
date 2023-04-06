@@ -25,7 +25,6 @@ There are multiple approaches to calculating the results of samc metrics. Initia
 
 ### Linear Algebra Solvers
 
-
 Linear algebra solvers take the transition matrix and calculate the results for the metrics as a system of linear equations. Currently, the samc package supports two different linear algebra solvers. These solvers only affect the behavior for the long-term metrics; the short-term metrics are calculated directly using linear algebra in a loop, so they do not use the solvers. Additionally, the base data requirements for the different solvers are the same, so a samc object can be switched from one to the other without recreating the transition matrix.
 
 
@@ -97,7 +96,7 @@ samc_obj$method = "iter"
 *Weaknesses:*
 
 - Not supported for all metrics
-- Can only be calculated using `init` map inputs (not `origin` or `dest` inputs, but this will be partially addressed in the future)
+- Metrics can only be calculated using the `init` parameter (not `origin` or `dest` inputs, but this will be partially addressed in the future)
 - `NA` values not supported in map inputs
 - Cannot define custom transition functions
 - Not supported for correlated random-walk (addressable in the future)
