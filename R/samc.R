@@ -424,5 +424,5 @@ setMethod(
   function(data, options = NULL) {
     p <- methods::as(methods::as(data, "CsparseMatrix"), "generalMatrix")
 
-    return(samc(data = p), options = options)
+    return(samc(data = p, options = options))
   })
