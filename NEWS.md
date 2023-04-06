@@ -1,3 +1,29 @@
+# samc 3.1.0
+
+## New Features
+
+- Added support for the convolution algorithm described by Hughes et al. (2023, DOI: [10.1007/s10980-023-01619-9](https://doi.org/10.1007/s10980-023-01619-9)):
+  - This algorithm is very memory efficient and fast, making it a good choice in memory-constrained scenarios.
+  - Not currently supported for all metrics.
+  - Only supported with metrics that use the `init` parameter.
+  - Long-term metrics have indeterminate run times that can be either really fast or really slow, depending on the data used to setup the model.
+  - Does not currently support `NA` values in landscape data.
+  - Only relevant for creating `samc-class` objects from raster/map data; does not work with manually constructed transition matrices.
+- Added experimental support for correlated random-walk (CRW) models:
+  - Users should generally assume that the CRW walk requires an order of magnitude more memory than the default random-walk model.
+  - The current implementation relies on the von Mises distribution and allows users to specify a single global value for kappa as a turning probability. Future versions of the package will expand on this to support cell specific turning probabilities and directional bias.
+  - Currently only supports metrics with an `origin` input. It does not support the `init` or `dest` inputs. The `origin` input for CRW is a matrix with the cell number and a direction
+  - The `map()` function averages the results for all directions. This could change in the future to allow for more flexibility.
+
+## Performance
+
+- Added support for built-in named transition functions, which results in significantly faster `samc-class` object creation by eliminating overhead associated with user-defined functions. Currently, only `"1/mean(x)"` is supported, but others can be added in the future.
+
+## Other
+
+- Added the toy resistance data used for a workshop at the IALE 2021 conference.
+
+
 # samc 3.0.2
 
 ## New Features
