@@ -286,7 +286,7 @@ Rcpp::List convolution_long(
       pop = Rcpp::sum(pops);
     }
     Rcpp::checkUserInterrupt();
-  } while(pop > EPSILON & count < count_limit);
+  } while((pop > EPSILON) & (count < count_limit));
 
   if (count == count_limit) {
     Rcpp::Rcout << "\nConvolution iteration limit reached. Results may not have fully converged.\n";
