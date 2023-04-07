@@ -107,7 +107,7 @@ NULL
 #' @param absorption A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param fidelity A \code{\link[terra]{SpatRaster-class}} or \code{\link[raster]{RasterLayer-class}} or \code{\link[base]{matrix}}
 #' @param model A list with args for constructing a transition matrix.
-#' @param method A character string.
+#' @param options A list of options that changes how the samc behaves computationally.
 #'
 #' @return A \code{\link{samc-class}} object
 #'

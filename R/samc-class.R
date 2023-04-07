@@ -79,8 +79,10 @@ NULL
 #'
 #' @slot data Data associated with different components of the P matrix
 #' @slot conv_cache Convolution cache
+#' @slot model List containing model info used to build the samc object
 #' @slot source Information about the data source for the P matrix
 #' @slot map Used to verify landscape inputs and mapping of vector data
+#' @slot crw_map Matrix used to map location and direction to edges description
 #' @slot names Names of the transient states
 #' @slot clumps Number of discontinuous regions in data
 #' @slot override Used to prevent accidental use of memory intensive functions
