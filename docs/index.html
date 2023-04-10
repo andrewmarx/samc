@@ -41,7 +41,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.1.0</span>
       </span>
     </div>
 
@@ -59,6 +59,12 @@
     </li>
     <li>
       <a href="articles/article-circuit-theory.html">Circuit Theory</a>
+    </li>
+    <li>
+      <a href="articles/article-computation-methods.html">Computation Methods</a>
+    </li>
+    <li>
+      <a href="articles/article-models.html">Models</a>
     </li>
     <li>
       <a href="articles/performance.html">Performance</a>
@@ -170,7 +176,8 @@
 <h3 id="introduction">
 <strong>Introduction</strong><a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h3>
-<p>This is an R package that implements functions for working with absorbing Markov chains using theorems described in the book “Finite Markov Chains” by Kemeny and Snell. The design of this package is based on the implementation of these theorems in the framework described by Fletcher et al. in <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333" class="external-link"><em>Toward a unified framework for connectivity that disentangles movement and mortality in space and time</em></a> (Ecology Letters, 2019; DOI: <a href="https://doi.org/10.1111/ele.13333" class="external-link">10.1111/ele.13333</a>), which applies them to spatial ecology. This framework incorporates both resistance and absorption (or mortality) using spatial absorbing Markov chains to provide several short- and long-term predictions for metrics related to connectivity in landscapes. These metrics are listed in Table 1 of Fletcher et al. (2019), as well as the <a href="articles/overview.html">Overview</a> vignette. Despite the ecological context of the package, these functions can be used in any application of absorbing Markov chains.</p>
+<p>This is an R package that implements functions for working with absorbing Markov chains using theorems described in the book “Finite Markov Chains” by Kemeny and Snell. The design of this package is based on the implementation of these theorems in the framework described by Fletcher et al. (2019), which applies them to spatial ecology. This framework incorporates both resistance and absorption (or mortality) using spatial absorbing Markov chains to provide several short- and long-term predictions for metrics related to connectivity in landscapes. These metrics are listed in Table 1 of Fletcher et al. (2019), as well as the <a href="articles/overview.html">Overview</a> vignette. Despite the ecological context of the package, these functions can be used in any application of absorbing Markov chains.</p>
+<p>As of version 3.1.0, this package also supports use of the convolution algorithm described by Hughes et al. (2023). This algorithm uses a moving window approach to calculate many of the same metrics iteratively in a fast and memory efficient manner.</p>
 </div>
 <div class="section level3">
 <h3 id="installation">
@@ -184,6 +191,7 @@
 <h3 id="citation">
 <strong>Citation</strong><a class="anchor" aria-label="anchor" href="#citation"></a>
 </h3>
+<p>When using the package, please cite it using:</p>
 <p>Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020), samc: an R package for connectivity modeling with spatial absorbing Markov chains. Ecography, 43: 518-527. <a href="https://doi.org/10.1111/ecog.04891" class="external-link">doi:10.1111/ecog.04891</a></p>
 </div>
 <div class="section level3">
@@ -236,6 +244,12 @@
 </h4>
 <p>We have a Github discussions page for anything and everything related to the package here: <a href="https://github.com/andrewmarx/samc/discussions" class="external-link">Github Discussions</a></p>
 </div>
+</div>
+<div class="section level3">
+<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h3>
+<p>Fletcher, R.J., Jr., Sefair, J.A., Wang, C., Poli, C.L., Smith, T.A.H., Bruna, E.M., Holt, R.D., Barfield, M., Marx, A.J. and Acevedo, M.A. (2019), Towards a unified framework for connectivity that disentangles movement and mortality in space and time. Ecol Lett, 22: 1680-1689. <a href="https://doi.org/10.1111/ele.13333" class="external-link uri">https://doi.org/10.1111/ele.13333</a></p>
+<p>Hughes, J., Lucet, V., Barrett, G. et al. Comparison and parallel implementation of alternative moving-window metrics of the connectivity of protected areas across large landscapes. Landsc Ecol (2023). <a href="https://doi.org/10.1007/s10980-023-01619-9" class="external-link uri">https://doi.org/10.1007/s10980-023-01619-9</a></p>
 </div>
 </div>
   </div>

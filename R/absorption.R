@@ -64,6 +64,8 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "missing", origin = "missing"),
   function(samc) {
+    .disable_conv(samc)
+
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
     # TODO: possibly optimize using C++
@@ -82,6 +84,15 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "missing", origin = "location"),
   function(samc, origin) {
+    .disable_conv(samc)
+
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
+
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
     vis <- visitation(samc, origin = origin)
@@ -99,16 +110,24 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "ANY", origin = "missing"),
   function(samc, init) {
+    .disable_crw(samc)
+
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    check(samc, init)
+    if (samc@solver %in% c("direct", "iter")) {
+      check(samc, init)
 
-    pv <- .process_init(samc, init)
+      pv = .process_init(samc, init)
 
-    pf <-.psif(samc@data@f, pv, samc@.cache$sc)
+      pf = .psif(samc@data@f, pv, samc@.cache$sc)
+    } else if (samc@solver == "conv") {
+      pf = visitation(samc, init)
+    } else {
+      stop("Invalid method attribute in samc object.")
+    }
 
-    result <- as.vector(pf %*% samc@data@c_abs)
-    names(result) <- colnames(samc@data@c_abs)
+    result = as.vector(pf %*% samc@data@c_abs)
+    names(result) = colnames(samc@data@c_abs)
 
     return(result)
   })

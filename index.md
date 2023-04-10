@@ -6,7 +6,9 @@
 
 ### **Introduction**
 
-This is an R package that implements functions for working with absorbing Markov chains using theorems described in the book "Finite Markov Chains" by Kemeny and Snell. The design of this package is based on the implementation of these theorems in the framework described by Fletcher et al. in [*Toward a unified framework for connectivity that disentangles movement and mortality in space and time*](https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.13333) (Ecology Letters, 2019; DOI: [10.1111/ele.13333](https://doi.org/10.1111/ele.13333)), which applies them to spatial ecology. This framework incorporates both resistance and absorption (or mortality) using spatial absorbing Markov chains to provide several short- and long-term predictions for metrics related to connectivity in landscapes. These metrics are listed in Table 1 of Fletcher et al. (2019), as well as the [Overview](articles/overview.html) vignette. Despite the ecological context of the package, these functions can be used in any application of absorbing Markov chains.
+This is an R package that implements functions for working with absorbing Markov chains using theorems described in the book "Finite Markov Chains" by Kemeny and Snell. The design of this package is based on the implementation of these theorems in the framework described by Fletcher et al. (2019), which applies them to spatial ecology. This framework incorporates both resistance and absorption (or mortality) using spatial absorbing Markov chains to provide several short- and long-term predictions for metrics related to connectivity in landscapes. These metrics are listed in Table 1 of Fletcher et al. (2019), as well as the [Overview](articles/overview.html) vignette. Despite the ecological context of the package, these functions can be used in any application of absorbing Markov chains.
+
+As of version 3.1.0, this package also supports use of the convolution algorithm described by Hughes et al. (2023). This algorithm uses a moving window approach to calculate many of the same metrics iteratively in a fast and memory efficient manner.
 
 
 ### **Installation**
@@ -19,6 +21,8 @@ install.packages("samc")
 
 
 ### **Citation**
+
+When using the package, please cite it using:
 
 Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020), samc: an R package for connectivity modeling with spatial absorbing Markov chains. Ecography, 43: 518-527. [doi:10.1111/ecog.04891](https://doi.org/10.1111/ecog.04891)
 
@@ -60,3 +64,10 @@ If you have an error, make sure you are using the newest version of the package.
 #### Not sure how to do something? Found a bug? Have a feature request? Still can't solve your error? Want to show off your project?
 
 We have a Github discussions page for anything and everything related to the package here: [Github Discussions](https://github.com/andrewmarx/samc/discussions)
+
+
+### References
+
+Fletcher, R.J., Jr., Sefair, J.A., Wang, C., Poli, C.L., Smith, T.A.H., Bruna, E.M., Holt, R.D., Barfield, M., Marx, A.J. and Acevedo, M.A. (2019), Towards a unified framework for connectivity that disentangles movement and mortality in space and time. Ecol Lett, 22: 1680-1689. https://doi.org/10.1111/ele.13333
+
+Hughes, J., Lucet, V., Barrett, G. et al. Comparison and parallel implementation of alternative moving-window metrics of the connectivity of protected areas across large landscapes. Landsc Ecol (2023). https://doi.org/10.1007/s10980-023-01619-9

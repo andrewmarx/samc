@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.1.0</span>
       </span>
     </div>
 
@@ -51,6 +51,12 @@
     </li>
     <li>
       <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
+    </li>
+    <li>
+      <a href="../articles/article-computation-methods.html">Computation Methods</a>
+    </li>
+    <li>
+      <a href="../articles/article-models.html">Models</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -157,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-02-01</h4>
+            <h4 data-toc-skip class="date">2023-04-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/overview.Rmd" class="external-link"><code>vignettes/overview.Rmd</code></a></small>
       <div class="hidden name"><code>overview.Rmd</code></div>
@@ -333,13 +339,14 @@ start and end locations.</li>
 <h2 id="analytical-functions">Analytical Functions<a class="anchor" aria-label="anchor" href="#analytical-functions"></a>
 </h2>
 <p>The package implements functions for the formulas provided in Table 1
-of Fletcher et al. (<a href="https://onlinelibrary.wiley.com/doi/full/10.1111/ele.13333" class="external-link">2019</a>),
-as well as other new ones since that publication. Many of the formulas
-are related conceptually and are grouped into single functions with
-multiple parameter signatures to reduce the number of unique function
-names needed. Note that the descriptions assume <span class="math inline">\(\psi\)</span> contains probabilities (see above).
-The following descriptions were written in an ecological context; the
-function reference pages provide mathematically formal descriptions.</p>
+of Fletcher et al. (2019), as well as other new ones since that
+publication. Many of the formulas are related conceptually and are
+grouped into single functions with multiple parameter signatures to
+reduce the number of unique function names needed. Note that the
+descriptions assume <span class="math inline">\(\psi\)</span> contains
+probabilities (see above). The following descriptions were written in an
+ecological context; the function reference pages provide mathematically
+formal descriptions.</p>
 <table class="table">
 <colgroup>
 <col width="30%">
@@ -492,7 +499,8 @@ this, many equations have multiple associated function signatures that
 allow users to calculate individual portions of the result rather than
 the entire result. This opens up multiple optimizations that make
 calculating many of the metrics more practical. More specific details
-about performance considerations can be found in the <a href="performance.html">Performance</a> vignette.</p>
+about performance considerations can be found in the Performance
+vignette.</p>
 <div class="section level4">
 <h4 id="initial-state-data">Initial State Data<a class="anchor" aria-label="anchor" href="#initial-state-data"></a>
 </h4>

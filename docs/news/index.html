@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.1.0</span>
       </span>
     </div>
 
@@ -33,6 +33,12 @@
     </li>
     <li>
       <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
+    </li>
+    <li>
+      <a href="../articles/article-computation-methods.html">Computation Methods</a>
+    </li>
+    <li>
+      <a href="../articles/article-models.html">Models</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -127,6 +133,34 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="3.1.0" id="samc-310">samc 3.1.0<small>2023-04-07</small><a class="anchor" aria-label="anchor" href="#samc-310"></a></h2>
+<div class="section level3">
+<h3 id="new-features-3-1-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-3-1-0"></a></h3>
+<ul><li>Added support for the convolution algorithm described by Hughes et al. (2023, DOI: 10.1007/s10980-023-01619-9):
+<ul><li>This algorithm is very memory efficient and fast, making it a good choice in memory-constrained scenarios.</li>
+<li>Not currently supported for all metrics.</li>
+<li>Only supported with metrics that use the <code>init</code> parameter.</li>
+<li>Long-term metrics have indeterminate run times that can be either really fast or really slow, depending on the data used to setup the model.</li>
+<li>Does not currently support <code>NA</code> values in landscape data.</li>
+<li>Only relevant for creating <code>samc-class</code> objects from raster/map data; does not work with manually constructed transition matrices.</li>
+</ul></li>
+<li>Added experimental support for correlated random-walk (CRW) models:
+<ul><li>Users should generally assume that the CRW walk requires an order of magnitude more memory than the default random-walk model.</li>
+<li>The current implementation relies on the von Mises distribution and allows users to specify a single global value for kappa as a turning probability. Future versions of the package will expand on this to support cell specific turning probabilities and directional bias.</li>
+<li>Currently only supports metrics with an <code>origin</code> input. It does not support the <code>init</code> or <code>dest</code> inputs. The <code>origin</code> input for CRW is a matrix with the cell number and a direction</li>
+<li>The <code><a href="../reference/map.html">map()</a></code> function averages the results for all directions. This could change in the future to allow for more flexibility.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="performance-3-1-0">Performance<a class="anchor" aria-label="anchor" href="#performance-3-1-0"></a></h3>
+<ul><li>Added support for built-in named transition functions, which results in significantly faster <code>samc-class</code> object creation by eliminating overhead associated with user-defined functions. Currently, only <code>"1/mean(x)"</code> is supported, but others can be added in the future.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-3-1-0">Other<a class="anchor" aria-label="anchor" href="#other-3-1-0"></a></h3>
+<ul><li>Added the toy resistance data used for a workshop at the IALE 2021 conference.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="3.0.2" id="samc-302">samc 3.0.2<small>2023-02-01</small><a class="anchor" aria-label="anchor" href="#samc-302"></a></h2>
 <div class="section level3">
 <h3 id="new-features-3-0-2">New Features<a class="anchor" aria-label="anchor" href="#new-features-3-0-2"></a></h3>
@@ -193,8 +227,7 @@
 <li>Added an initial vignette discussing <em>Disconnected Data</em>. The current contents are only slightly modified from an email discussion; they will be rewritten and expanded upon in the future. The <em>Troubleshooting</em> vignette has had an error message and a warning message related to the topic added to it.</li>
 <li>Added a Rcpp related error to the <em>Troubleshooting</em> vignette.</li>
 <li>Bumped version requirements for R to 3.6.0, Rcpp to 1.0.5, RcppEigen to 0.3.3.9.1, and set C++14 as the standard to use in Makevars.</li>
-<li>Enabled the Github discussions page as a replacement for Gitter: <a href="https://github.com/andrewmarx/samc/discussions" class="external-link uri">https://github.com/andrewmarx/samc/discussions</a>
-</li>
+<li>Enabled the Github discussions page as a replacement for Gitter</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.4.0" id="samc-140">samc 1.4.0<small>2021-06-27</small><a class="anchor" aria-label="anchor" href="#samc-140"></a></h2>
@@ -253,8 +286,8 @@
 </ul></li>
 <li>Updated the map() function to support list inputs generated by the short-term metrics. The result is a list of RasterLayers</li>
 <li>Updated the <em>Temporal Analysis</em> and <em>Animations</em> vignettes to incorporate time step vectors</li>
-<li>Created a <a href="https://gitter.im/samc-package/community" class="external-link">Gitter community</a> for package support. Gitter badges on the README and home pages can be used to access it.</li>
-<li>Updated the package citation info to refer to Marx et al. (2020, DOI: <a href="https://doi.org/10.1111/ecog.04891" class="external-link">10.1111/ecog.04891</a>)</li>
+<li>Created a Gitter community for package support. Gitter badges on the README and home pages can be used to access it.</li>
+<li>Updated the package citation info to refer to Marx et al. (2020, DOI: 10.1111/ecog.04891)</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.0.4" id="samc-104">samc 1.0.4<small>2020-01-08</small><a class="anchor" aria-label="anchor" href="#samc-104"></a></h2>
@@ -270,7 +303,7 @@
 <ul><li>Complete package rewrite (code dependent on v0.1.0 will not work)</li>
 <li>samc-class for managing SAMC data</li>
 <li>Utility functions for creating samc-class objects, checking inputs, and mapping data</li>
-<li>Heavily optimized analytical functions for all metrics described in Fletcher et al. (2019, DOI: <a href="https://doi.org/10.1111/ele.13333" class="external-link">10.1111/ele.13333</a>)
+<li>Heavily optimized analytical functions for all metrics described in Fletcher et al. (2019, DOI: 10.1111/ele.13333)
 <ul><li>Utilizing sparse matrices</li>
 <li>Eigen C++ implementation via Rcpp and RcppEigen</li>
 </ul></li>
@@ -280,7 +313,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.0" id="samc-010">samc 0.1.0<a class="anchor" aria-label="anchor" href="#samc-010"></a></h2>
-<ul><li>Created crude functions for calculating metrics in Fletcher et al. (2019, DOI: <a href="https://doi.org/10.1111/ele.13333" class="external-link">10.1111/ele.13333</a>)</li>
+<ul><li>Created crude functions for calculating metrics in Fletcher et al. (2019, DOI: 10.1111/ele.13333)</li>
 <li>Included example data</li>
 </ul></div>
   </div>

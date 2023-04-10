@@ -1,9 +1,7 @@
-## Resubmission 3.0.2
+## 3.1.0 (Submission)
 
-> Note (Debian): Specified C++14: please update to current default of C++17
+### Notes
 
-Fixed.
-
-> Note: Found the following (possibly) invalid URLs: ...
+> Note: Found the following (possibly) invalid URLs/DOIs: ...
 
 These URLs are valid and work as intended.

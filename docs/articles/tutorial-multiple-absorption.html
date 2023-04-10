@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.1.0</span>
       </span>
     </div>
 
@@ -51,6 +51,12 @@
     </li>
     <li>
       <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
+    </li>
+    <li>
+      <a href="../articles/article-computation-methods.html">Computation Methods</a>
+    </li>
+    <li>
+      <a href="../articles/article-models.html">Models</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -157,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-02-01</h4>
+            <h4 data-toc-skip class="date">2023-04-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/tutorial-multiple-absorption.Rmd" class="external-link"><code>vignettes/tutorial-multiple-absorption.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-multiple-absorption.Rmd</code></div>
@@ -277,8 +283,8 @@ parts of the results.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">mort_multiple</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 3</span></span>
 <span><span class="co">#&gt;  $ total: num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span>
-<span><span class="co">#&gt;  $ abs1 : num [1:2624] 5.33e-05 5.36e-05 4.79e-05 4.45e-05 4.23e-05 ...</span></span>
-<span><span class="co">#&gt;  $ abs2 : num [1:2624] 0.00073 0.000734 0.000656 0.00061 0.000579 ...</span></span>
+<span><span class="co">#&gt;  $ abs1 : num [1:2624] 0.000155 0.000155 0.000139 0.000129 0.000123 ...</span></span>
+<span><span class="co">#&gt;  $ abs2 : num [1:2624] 0.000629 0.000632 0.000565 0.000526 0.000499 ...</span></span>
 <span></span>
 <span><span class="co"># Let's visualize it</span></span>
 <span><span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_multiple</span><span class="op">)</span></span>

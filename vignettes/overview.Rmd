@@ -87,7 +87,7 @@ In addition to the `samc()` function, the package has other utility functions th
 
 ## Analytical Functions
 
-The package implements functions for the formulas provided in Table 1 of Fletcher et al. ([2019](https://onlinelibrary.wiley.com/doi/full/10.1111/ele.13333)), as well as other new ones since that publication. Many of the formulas are related conceptually and are grouped into single functions with multiple parameter signatures to reduce the number of unique function names needed. Note that the descriptions assume $\psi$ contains probabilities (see above). The following descriptions were written in an ecological context; the function reference pages provide mathematically formal descriptions.
+The package implements functions for the formulas provided in Table 1 of Fletcher et al. (2019), as well as other new ones since that publication. Many of the formulas are related conceptually and are grouped into single functions with multiple parameter signatures to reduce the number of unique function names needed. Note that the descriptions assume $\psi$ contains probabilities (see above). The following descriptions were written in an ecological context; the function reference pages provide mathematically formal descriptions.
 
 
 | Function | Equation | Description |
@@ -113,7 +113,7 @@ The package implements functions for the formulas provided in Table 1 of Fletche
 | | ${\psi}^T F$ | Expected number of times an individual visits a location, given an initial state $\psi$ |
 
 
-Depending on the combination of inputs used, a function might return a single value, a vector, a matrix, or a list. In some cases, the calculations will be impractical with sufficiently large landscape datasets due to memory and other performance constraints. To work around this, many equations have multiple associated function signatures that allow users to calculate individual portions of the result rather than the entire result. This opens up multiple optimizations that make calculating many of the metrics more practical. More specific details about performance considerations can be found in the [Performance](performance.html) vignette.
+Depending on the combination of inputs used, a function might return a single value, a vector, a matrix, or a list. In some cases, the calculations will be impractical with sufficiently large landscape datasets due to memory and other performance constraints. To work around this, many equations have multiple associated function signatures that allow users to calculate individual portions of the result rather than the entire result. This opens up multiple optimizations that make calculating many of the metrics more practical. More specific details about performance considerations can be found in the Performance vignette.
 
 #### Initial State Data
 

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.1.0</span>
       </span>
     </div>
 
@@ -51,6 +51,12 @@
     </li>
     <li>
       <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
+    </li>
+    <li>
+      <a href="../articles/article-computation-methods.html">Computation Methods</a>
+    </li>
+    <li>
+      <a href="../articles/article-models.html">Models</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -157,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-02-01</h4>
+            <h4 data-toc-skip class="date">2023-04-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/tutorial-basic.Rmd" class="external-link"><code>vignettes/tutorial-basic.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-basic.Rmd</code></div>
@@ -234,8 +240,8 @@ et al. (2019).</p>
 <span><span class="co"># cells in your data +1. In this case, our data has 2624 non-NA cells, so the</span></span>
 <span><span class="co"># matrix should be 2625 x 2625</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">samc_obj</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Formal class 'samc' [package "samc"] with 9 slots</span></span>
-<span><span class="co">#&gt;   ..@ data    :Formal class 'samc_data' [package "samc"] with 3 slots</span></span>
+<span><span class="co">#&gt; Formal class 'samc' [package "samc"] with 12 slots</span></span>
+<span><span class="co">#&gt;   ..@ data      :Formal class 'samc_data' [package "samc"] with 3 slots</span></span>
 <span><span class="co">#&gt;   .. .. ..@ f    :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots</span></span>
 <span><span class="co">#&gt;   .. .. .. .. ..@ i       : int [1:21612] 0 1 115 116 117 0 1 2 116 117 ...</span></span>
 <span><span class="co">#&gt;   .. .. .. .. ..@ p       : int [1:2625] 0 5 11 17 23 29 35 41 47 53 ...</span></span>
@@ -247,14 +253,23 @@ et al. (2019).</p>
 <span><span class="co">#&gt;   .. .. .. .. ..@ factors : list()</span></span>
 <span><span class="co">#&gt;   .. .. ..@ t_abs: num [1:2624] 2e-04 2e-04 2e-04 2e-04 2e-04 ...</span></span>
 <span><span class="co">#&gt;   .. .. ..@ c_abs: num[0 , 0 ] </span></span>
-<span><span class="co">#&gt;   ..@ source  : chr "SpatRaster"</span></span>
-<span><span class="co">#&gt;   ..@ map     :S4 class 'SpatRaster' [package "terra"]</span></span>
-<span><span class="co">#&gt;   ..@ names   : NULL</span></span>
-<span><span class="co">#&gt;   ..@ clumps  : int 1</span></span>
-<span><span class="co">#&gt;   ..@ override: logi FALSE</span></span>
-<span><span class="co">#&gt;   ..@ solver  : chr "direct"</span></span>
-<span><span class="co">#&gt;   ..@ threads : num 1</span></span>
-<span><span class="co">#&gt;   ..@ .cache  :&lt;environment: 0x55ed6b5480b8&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;   ..@ conv_cache: NULL</span></span>
+<span><span class="co">#&gt;   ..@ model     :List of 4</span></span>
+<span><span class="co">#&gt;   .. ..$ fun :function (x)  </span></span>
+<span><span class="co">#&gt;   .. .. ..- attr(*, "srcref")= 'srcref' int [1:8] 2 24 2 44 24 44 2 2</span></span>
+<span><span class="co">#&gt;   .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' &lt;environment: 0x55b6c77e93f8&gt; </span></span>
+<span><span class="co">#&gt;   .. ..$ dir : num 8</span></span>
+<span><span class="co">#&gt;   .. ..$ sym : logi TRUE</span></span>
+<span><span class="co">#&gt;   .. ..$ name: chr "RW"</span></span>
+<span><span class="co">#&gt;   ..@ source    : chr "SpatRaster"</span></span>
+<span><span class="co">#&gt;   ..@ map       :S4 class 'SpatRaster' [package "terra"]</span></span>
+<span><span class="co">#&gt;   ..@ crw_map   : NULL</span></span>
+<span><span class="co">#&gt;   ..@ names     : NULL</span></span>
+<span><span class="co">#&gt;   ..@ clumps    : int 1</span></span>
+<span><span class="co">#&gt;   ..@ override  : logi FALSE</span></span>
+<span><span class="co">#&gt;   ..@ solver    : chr "direct"</span></span>
+<span><span class="co">#&gt;   ..@ threads   : num 1</span></span>
+<span><span class="co">#&gt;   ..@ .cache    :&lt;environment: 0x55b6c15cfe10&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="basic-analysis">Basic Analysis<a class="anchor" aria-label="anchor" href="#basic-analysis"></a>
@@ -272,10 +287,12 @@ et al. (2019).</p>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Performing setup. This can take several minutes... Complete.</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Calculating matrix inverse diagonal...</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>Computing<span class="sc">:</span> <span class="dv">100</span>% (done)                         </span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>Complete                                                      </span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span></code></pre></div>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>Computing<span class="sc">:</span> <span class="dv">49</span>%  (<span class="sc">~</span>10s remaining)       </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>Computing<span class="sc">:</span> <span class="dv">97</span>%  (<span class="sc">~</span>0s remaining)       </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>Computing<span class="sc">:</span> <span class="dv">100</span>% (done)                         </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>Complete                                                      </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>

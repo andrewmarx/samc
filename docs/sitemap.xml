@@ -10,6 +10,12 @@
     <loc>/articles/article-circuit-theory.html</loc>
   </url>
   <url>
+    <loc>/articles/article-computation-methods.html</loc>
+  </url>
+  <url>
+    <loc>/articles/article-models.html</loc>
+  </url>
+  <url>
     <loc>/articles/code-snippets.html</loc>
   </url>
   <url>
@@ -88,19 +94,13 @@
     <loc>/reference/distribution.html</loc>
   </url>
   <url>
-    <loc>/reference/ex_abs_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ex_occ_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ex_res_data.html</loc>
-  </url>
-  <url>
     <loc>/reference/example_maze.html</loc>
   </url>
   <url>
     <loc>/reference/example_split_corridor.html</loc>
+  </url>
+  <url>
+    <loc>/reference/example_toy_res.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -113,6 +113,9 @@
   </url>
   <url>
     <loc>/reference/map.html</loc>
+  </url>
+  <url>
+    <loc>/reference/mat_null-class.html</loc>
   </url>
   <url>
     <loc>/reference/mortality.html</loc>

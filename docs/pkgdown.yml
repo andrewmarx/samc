@@ -3,6 +3,8 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   article-circuit-theory: article-circuit-theory.html
+  article-computation-methods: article-computation-methods.html
+  article-models: article-models.html
   code-snippets: code-snippets.html
   data-disconnected: data-disconnected.html
   example-coinflip: example-coinflip.html
@@ -19,5 +21,5 @@ articles:
   tutorial-locations: tutorial-locations.html
   tutorial-multiple-absorption: tutorial-multiple-absorption.html
   tutorial-temporal: tutorial-temporal.html
-last_built: 2023-02-01T22:12Z
+last_built: 2023-04-10T03:07Z
 

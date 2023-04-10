@@ -151,6 +151,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, time){
+    .disable_conv(samc)
+
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
@@ -175,8 +177,14 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time){
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+    .disable_conv(samc)
+
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
 
     origin = .process_locations(samc, origin)
     .validate_time_steps(time)
@@ -200,6 +208,9 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time){
+    .disable_conv(samc)
+    .disable_crw(samc)
+
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
@@ -225,6 +236,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time){
+    .disable_conv(samc)
+    .disable_crw(samc)
 
     dest = .process_locations(samc, dest)
 
@@ -245,21 +258,36 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time){
+    .disable_crw(samc)
+
     .validate_time_steps(time)
 
     check(samc, init)
 
     pv <- .process_init(samc, init)
 
-    q <- samc$q_matrix
 
-    time <- c(1, time)
-    ft <- .sum_psiqpow(q, pv, time)
+    if (samc@solver %in% c("direct", "iter")) {
+      q <- samc$q_matrix
 
-    if (length(ft) == 1) {
-      return(ft[[1]])
+      time <- c(1, time)
+      ft <- .sum_psiqpow(q, pv, time)
+
+      if (length(ft) == 1) {
+        return(ft[[1]])
+      } else {
+        return(ft)
+      }
+    } else if (samc@solver == "conv") {
+
+
+      results_list = samc:::.convolution_short(time, samc@conv_cache, pv, samc@threads)
+
+      res = as.vector(results_list$vis[[1]])
+
+      return(res)
     } else {
-      return(ft)
+      stop("Invalid method attribute in samc object.")
     }
   })
 
@@ -270,6 +298,8 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "missing", time = "missing"),
   function(samc){
+    .disable_conv(samc)
+
     if (!samc@override)
       stop("This version of the visitation() method produces a large dense matrix.\nSee the documentation for details.", call. = FALSE)
 
@@ -283,8 +313,15 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin){
-    if (length(origin) != 1)
-      stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    .disable_conv(samc)
+
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
+
 
     origin = .process_locations(samc, origin)
 
@@ -304,8 +341,15 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest){
-    if (length(dest) != 1)
-      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+    .disable_conv(samc)
+    .disable_crw(samc)
+
+    if (is.matrix(dest)) {
+
+    } else {
+      if (length(dest) != 1)
+        stop("dest can only contain a single location for this version of the function", call. = FALSE)
+    }
 
     dest <- .process_locations(samc, dest)
 
@@ -324,6 +368,9 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest){
+    .disable_conv(samc)
+    .disable_crw(samc)
+
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
 
@@ -347,18 +394,27 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init){
-
     check(samc, init)
+    .disable_crw(samc)
 
     pv <- .process_init(samc, init)
 
-    if (samc@solver == "iter") {
-      r <- .psif_iter(samc@data@f, pv)
-    } else {
-      r <- .psif(samc@data@f, pv, samc@.cache$sc)
-    }
+    if (samc@solver %in% c("direct", "iter")) {
+      if (samc@solver == "iter") {
+        r <- .psif_iter(samc@data@f, pv)
+      } else {
+        r <- .psif(samc@data@f, pv, samc@.cache$sc)
+      }
 
-    return(as.vector(r))
+      return(as.vector(r))
+    } else if (samc@solver == "conv") {
+
+      results_list = samc:::.convolution_long(samc@conv_cache, pv, samc@threads)
+
+      return(results_list$vis)
+    } else {
+      stop("Invalid method attribute in samc object.")
+    }
   })
 
 
@@ -368,6 +424,9 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, init, dest){
+    .disable_crw(samc)
+    .disable_conv(samc)
+
     check(samc, init)
 
     pv <- .process_init(samc, init)
