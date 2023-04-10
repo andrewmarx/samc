@@ -55,7 +55,17 @@ To describe the correlated random-walk behavior, additional parameters are neede
 
 As the capabilities of the correlated random-walk are expanded in future updates, additional options will be documented here.
 
-To run metrics using the CRW, a single origin and direction value must be supplied in a 1x2 matrix (this may change in the next version of the package). Support for multiple `origin` values, `init` maps, and `dest` values is being explored for future releases.
+To run metrics using the CRW, a single origin and direction value must be supplied in a 1x2 matrix (subject to change). The direction is an integer in the range 1-8 with the directions illustrated as follows:
+
+```
+1 2 3
+4   5
+6 7 8
+```
+
+For example, `1` is up and left, while `6` is down and left.
+
+Support for multiple `origin` values, `init` maps, and `dest` values is not currently implemented, but will be available future releases once the CRW implementation details are finalized.
 
 ## Examples
 
@@ -81,8 +91,8 @@ samc_crw1 <- samc(res_data, abs_data, model = crw_model1)
 samc_crw2 <- samc(res_data, abs_data, model = crw_model2)
 samc_crw8 <- samc(res_data, abs_data, model = crw_model8)
 
-origin = 85
-dir = 1
+origin = 85 # Centered near the bottom
+dir = 1 # Up and left
 
 vis_rw <- as.vector(visitation(samc_rw, origin = origin))
 vis_crw0 <- as.vector(visitation(samc_crw0, origin = matrix(c(origin, dir), 1)))
