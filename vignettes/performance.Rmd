@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
 library(samc)
 ```
 
+*Note: This document has not been updated with information on the convolution method*
+
 ## Introduction
 
 This document provides details about the different performance aspects of the package. There are two general issues users should be aware of: computation time and memory (RAM) usage.

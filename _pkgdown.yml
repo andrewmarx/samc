@@ -8,6 +8,10 @@ navbar:
         href: articles/overview.html
       - text: "Circuit Theory"
         href: articles/article-circuit-theory.html
+      - text: "Computation Methods"
+        href: articles/article-computation-methods.html
+      - text: "Models"
+        href: articles/article-models.html
       - text: "Performance"
         href: articles/performance.html
       - text: "Parallel Computing"
