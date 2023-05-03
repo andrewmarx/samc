@@ -78,6 +78,7 @@ reference:
       - mortality
       - survival
       - visitation
+      - visitation_net
   - title: "Built-in Data"
     contents:
       - example_maze

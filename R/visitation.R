@@ -435,3 +435,52 @@ setMethod(
 
     return(as.numeric(pv %*% fj))
   })
+
+
+#' Calculate net visitation
+#'
+#' Calculates the net number of times that transient states are visited before absorption.
+#'
+#' The \code{\link{visitation}} function calculates the
+#'
+#' @template section-perf
+#'
+#' @template param-samc
+#' @template param-init
+#' @template param-origin
+#' @template param-dest
+#'
+#' @return See Details
+#'
+#' @example inst/examples/example.R
+#'
+#' @export
+
+setGeneric(
+  "visitation_net",
+  function(samc, init, origin, dest) {
+    standardGeneric("visitation_net")
+  })
+
+# visitation_net(samc, origin, dest) ----
+#' @rdname visitation_net
+setMethod(
+  "visitation_net",
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
+  function(samc, origin, dest) {
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    vis = visitation(samc, origin = origin)
+
+    vq = vis*samc$q_matrix
+
+    n_net = abs(Matrix::skewpart(vq))
+    visit_net = pmax(Matrix::rowSums(n_net), Matrix::colSums(n_net))
+    visit_net[c(origin, dest)] = 2 * visit_net[c(origin, dest)]
+
+    return(visit_net)
+  })

@@ -1,3 +1,9 @@
+# samc 3.2.0
+
+## New Features
+
+- Added the `visitation_net()` function for calculating net movement flow (vs total from `visitation()`)
+
 # samc 3.1.0
 
 ## New Features
