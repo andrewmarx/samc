@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.2.0</span>
       </span>
     </div>
 
@@ -163,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-04-09</h4>
+            <h4 data-toc-skip class="date">2023-05-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/article-circuit-theory.Rmd" class="external-link"><code>vignettes/article-circuit-theory.Rmd</code></a></small>
       <div class="hidden name"><code>article-circuit-theory.Rmd</code></div>
@@ -428,11 +428,11 @@ identify movement corridors and pinch points that may occur in
 landscapes.</p>
 <p>Current maps produced by Circuitscape model the net flow, and the
 gdistance package can model both with the <code><a href="https://AgrDataSci.github.io/gdistance/reference/passage.html" class="external-link">passage()</a></code>
-function. SAMC does not currently have a metric for directly calculating
-net flow, but it can calculate the total movement directly using the
-<code><a href="../reference/visitation.html">visitation()</a></code> metric. To get equivalent results between
-gdistance and SAMC, we must again disregard absorption outside the
-destination.</p>
+function. The <code>samc</code> package can calculate the total movement
+directly using the <code><a href="../reference/visitation.html">visitation()</a></code> metric and the net movement
+flow using the <code><a href="../reference/visitation_net.html">visitation_net()</a></code> function. To get equivalent
+results between gdistance and SAMC, we must again disregard absorption
+outside the destination.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Total movement flow with gdistance</span></span>
 <span><span class="va">total_gdist</span> <span class="op">=</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/passage.html" class="external-link">passage</a></span><span class="op">(</span><span class="va">gdist</span>, <span class="va">origin_coords</span>, <span class="va">dest_coords</span>, theta <span class="op">=</span> <span class="fl">0</span>, totalNet <span class="op">=</span> <span class="st">"total"</span><span class="op">)</span></span>
@@ -446,53 +446,34 @@ destination.</p>
 <span><span class="co"># Verify that they have the same values</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">total_gdist</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">total_samc_ras</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Attributes: &lt; target is NULL, current is list &gt;"</span></span>
-<span><span class="co">#&gt; [2] "target is numeric, current is matrix"</span></span></code></pre></div>
-<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;"></p>
-<p>With the total movement result and the <span class="math inline">\(Q\)</span> matrix from SAMC, it is possible to
-calculate the net movement result and the <span class="math inline">\(Q\)</span> matrix. Currently, this is not a
-built-in metric of the samc package, but a custom function can be
-written to calculate it:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Net movement flow with gdistance</span></span>
+<span><span class="co">#&gt; [2] "target is numeric, current is matrix"</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Net movement flow with gdistance</span></span>
 <span><span class="va">net_gdist</span> <span class="op">=</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/passage.html" class="external-link">passage</a></span><span class="op">(</span><span class="va">gdist</span>, <span class="va">origin_coords</span>, <span class="va">dest_coords</span>, theta <span class="op">=</span> <span class="fl">0</span>, totalNet <span class="op">=</span> <span class="st">"net"</span><span class="op">)</span></span>
 <span><span class="va">net_gdist</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">net_gdist</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_gdist</span>, main <span class="op">=</span> <span class="st">"Net Movement Flow (gdistance)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span></span>
-<span><span class="co"># This function may not be optimized for large landscapes and lacks safety checks</span></span>
-<span><span class="va">visitation_net</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">origin</span>, <span class="va">dest</span><span class="op">)</span><span class="op">{</span></span>
-<span></span>
-<span>  <span class="va">vis</span> <span class="op">=</span> <span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="va">origin</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">vq</span> <span class="op">=</span> <span class="va">vis</span><span class="op">*</span><span class="va">samc_obj</span><span class="op">$</span><span class="va">q_matrix</span></span>
-<span></span>
-<span>  <span class="va">n_net</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/symmpart.html" class="external-link">skewpart</a></span><span class="op">(</span><span class="va">vq</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">visit_net</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/rowSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">n_net</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/raster/man/rowSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">n_net</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">visit_net</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">origin</span>, <span class="va">dest</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fl">2</span><span class="op">*</span><span class="va">visit_net</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">origin</span>, <span class="va">dest</span><span class="op">)</span><span class="op">]</span></span>
-<span>  </span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">visit_net</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
 <span><span class="co"># Equivalent net movement flow with SAMC</span></span>
-<span><span class="va">net_samc</span> <span class="op">=</span> <span class="fu">visitation_net</span><span class="op">(</span><span class="va">samc_ij</span>, origin <span class="op">=</span> <span class="va">origin_cell</span>, dest <span class="op">=</span> <span class="va">dest_cell</span><span class="op">)</span></span>
+<span><span class="va">net_samc</span> <span class="op">=</span> <span class="fu"><a href="../reference/visitation_net.html">visitation_net</a></span><span class="op">(</span><span class="va">samc_ij</span>, origin <span class="op">=</span> <span class="va">origin_cell</span>, dest <span class="op">=</span> <span class="va">dest_cell</span><span class="op">)</span></span>
 <span><span class="va">net_samc_ras</span> <span class="op">=</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">net_samc</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_samc_ras</span>,  main <span class="op">=</span> <span class="st">"Net Movement Flow (samc)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
 <span></span>
 <span><span class="co"># Verify that they have the same values</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">net_gdist</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">net_samc_ras</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Attributes: &lt; Component \"dimnames\": Component 2: 1 string mismatch &gt;"</span></span></code></pre></div>
-<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-3.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-4.png" width="672" style="display: block; margin: auto;"></p>
 <p>As with commute distance, SAMC is not limited to calculating the
 total and net movement flows for landscapes without absorption.
-<code><a href="../reference/visitation.html">visitation()</a></code> and the net visitation calculations are
+<code><a href="../reference/visitation.html">visitation()</a></code> and <code><a href="../reference/visitation_net.html">visitation_net()</a></code> are
 perfectly valid for our original samc object with broader landscape
 absorption.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">reg_net_samc</span> <span class="op">=</span> <span class="fu">visitation_net</span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">origin_cell</span>, <span class="va">dest_cell</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">reg_net_samc</span> <span class="op">=</span> <span class="fu"><a href="../reference/visitation_net.html">visitation_net</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="va">origin_cell</span>, dest <span class="op">=</span> <span class="va">dest_cell</span><span class="op">)</span></span>
 <span><span class="va">reg_samc_ras</span> <span class="op">=</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">reg_net_samc</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">reg_samc_ras</span>,  main <span class="op">=</span> <span class="st">"Net Movement Flow (samc with absorption)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Overall, incorporating absorption more broadly has reduced the net
 movement flow because a portion of the individuals is now being removed
 before reaching the destination. More importantly, the incorporation of
@@ -500,15 +481,15 @@ absorption now means the destination is not guaranteed to be reached,
 leading to a dramatic drop in the net movement at the destination cell.
 We can subtract the absorption model from the non-absorption model to
 see how much net movement flow has decreased.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_gdist</span> <span class="op">-</span> <span class="va">reg_samc_ras</span>, main <span class="op">=</span> <span class="st">"Effect of Absorption on Net Movement Flow"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>This shows a nearly imperceptible effect of the absorption layer on
 the net movement flow below the strip of absorption, but as individuals
 encounter absorption, the net movement flow in the top half of the map
 drops dramatically. We can see that the presence of the absorption strip
 has decreased the net movement flow at the destination over 97%:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">net_samc_ras</span><span class="op">[</span><span class="va">dest_cell</span><span class="op">]</span> <span class="co"># Net movement flow at destination w/o absorption</span></span>
 <span><span class="co">#&gt;   lyr.1</span></span>
 <span><span class="co">#&gt; 1     1</span></span>

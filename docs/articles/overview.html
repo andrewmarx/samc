@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.2.0</span>
       </span>
     </div>
 
@@ -163,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-04-09</h4>
+            <h4 data-toc-skip class="date">2023-05-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/overview.Rmd" class="external-link"><code>vignettes/overview.Rmd</code></a></small>
       <div class="hidden name"><code>overview.Rmd</code></div>
@@ -541,6 +541,10 @@ data.</li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/example_split_corridor.html">example_split_corridor</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 3</span></span>
+<span><span class="co">#&gt;  $ res : num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span></span>
+<span><span class="co">#&gt;  $ abs : num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span></span>
+<span><span class="co">#&gt;  $ init: num [1:34, 1:202] NA NA NA NA NA NA NA NA NA NA ...</span></span>
 <span></span>
 <span><span class="va">res_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/example_split_corridor.html">example_split_corridor</a></span><span class="op">$</span><span class="va">res</span></span>
 <span><span class="va">abs_data</span> <span class="op">&lt;-</span> <span class="fu">samc</span><span class="fu">::</span><span class="va"><a href="../reference/example_split_corridor.html">example_split_corridor</a></span><span class="op">$</span><span class="va">abs</span></span>
@@ -549,6 +553,7 @@ data.</li>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/rasterize.html">rasterize</a></span><span class="op">(</span><span class="va">res_data</span><span class="op">)</span>, main <span class="op">=</span> <span class="st">"Example Resistance Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/rasterize.html">rasterize</a></span><span class="op">(</span><span class="va">abs_data</span><span class="op">)</span>, main <span class="op">=</span> <span class="st">"Example Absorption Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/rasterize.html">rasterize</a></span><span class="op">(</span><span class="va">init_data</span><span class="op">)</span>, main <span class="op">=</span> <span class="st">"Example Starting Location Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="overview_files/figure-html/unnamed-chunk-1-1.png" width="700"><img src="overview_files/figure-html/unnamed-chunk-1-2.png" width="700"><img src="overview_files/figure-html/unnamed-chunk-1-3.png" width="700"></p>
 </div>
   </div>
 
