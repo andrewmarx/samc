@@ -108,4 +108,7 @@ for(test in testlist) {
       expect_equal(r, base_result[row_vec[i], col_vec[i]], check.names = FALSE)
     }
   })
+
+
+  # TODO visitation_net() tests
 }

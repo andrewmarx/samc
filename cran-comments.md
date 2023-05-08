@@ -1,4 +1,4 @@
-## 3.1.0 (Submission)
+## 3.2.0 (Submission)
 
 ### Notes
 
