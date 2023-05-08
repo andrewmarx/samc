@@ -211,5 +211,5 @@ setMethod(
 
     if (any(!is.finite(b)) || any(b < 0)) stop("Input must only contain positive numeric values", call. = FALSE)
 
-    if (length(b) != nrow(a$q_matrix)) stop("Input length does not match number of transient states", call. = FALSE)
+    if (length(b) != length(a@data@t_abs)) stop("Input length does not match number of transient states", call. = FALSE)
   })
