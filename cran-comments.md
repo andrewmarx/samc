@@ -1,4 +1,6 @@
-## 3.2.0 (Submission)
+## 3.2.1 (Submission)
+
+Apologies for submitting so soon after the last release. This release fixes an issue that impacts the material for a soon to presented workshop.
 
 ### Notes
 

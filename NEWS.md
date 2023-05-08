@@ -1,3 +1,9 @@
+# samc 3.2.1
+
+## Bug fix
+
+- Fixed a minor issue in `check()` that was preventing use of the `init` parameter for samc objects created directly from a matrix.
+
 # samc 3.2.0
 
 ## New Features
