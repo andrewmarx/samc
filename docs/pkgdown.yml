@@ -1,0 +1,25 @@
+pandoc: 2.19.2
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  article-circuit-theory: article-circuit-theory.html
+  article-computation-methods: article-computation-methods.html
+  article-models: article-models.html
+  code-snippets: code-snippets.html
+  data-disconnected: data-disconnected.html
+  example-coinflip: example-coinflip.html
+  example-maze-part1: example-maze-part1.html
+  example-maze-part2: example-maze-part2.html
+  example-maze-part3: example-maze-part3.html
+  overview: overview.html
+  parallel: parallel.html
+  performance: performance.html
+  troubleshooting: troubleshooting.html
+  tutorial-animations: tutorial-animations.html
+  tutorial-basic: tutorial-basic.html
+  tutorial-ggplot: tutorial-ggplot.html
+  tutorial-locations: tutorial-locations.html
+  tutorial-multiple-absorption: tutorial-multiple-absorption.html
+  tutorial-temporal: tutorial-temporal.html
+last_built: 2023-05-12T12:44Z
+
