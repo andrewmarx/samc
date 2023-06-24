@@ -46,22 +46,47 @@ setMethod(
     if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
 
     if (samc@model$name == "CRW") {
-      vec = aggregate(vec ~ samc@crw_map[, 1], FUN = mean)$vec
+      if (length(vec) != nrow(samc@crw_map))
+        stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
+
+      df = data.frame(samc@crw_map, vec)
+      print(colnames(df))
+      df = reshape(df, idvar = "X1", timevar = "X2", direction = "wide")
+    } else {
+      if (length(vec) != length(terra::cells(samc@map)))
+        stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
+
+      df = data.frame(cell = terra::cells(samc@map),
+                      vec = vec)
     }
 
-    if (length(vec) != length(terra::cells(samc@map)))
-      stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
+    ras_base = as.numeric(samc@map)
 
-    ras <- as.numeric(samc@map)
+    ras_list = lapply(sort(colnames(df)[-1]), function (x) {
+      ras = ras_base
+      ras[terra::cells(ras)] = df[x]
 
-    ras[terra::cells(ras)] <- vec
+      return(ras)
+    })
+
+    ras = rast(ras_list)
 
     if (samc@source == "SpatRaster") {
       return(ras)
     } else if (samc@source == "RasterLayer") {
-      return(raster::raster(ras))
+      if (terra::nlyr(ras) > 1) {
+        return(raster::stack(ras))
+      } else {
+        return(raster::raster(ras))
+      }
     } else if (samc@source == "matrix") {
-      return(as.matrix(ras, wide = TRUE))
+      if (terra::nlyr(ras) > 1) {
+        return(lapply(test, function(x) {
+          as.matrix(x, wide = TRUE)
+        }))
+      } else {
+        return(as.matrix(ras, wide = TRUE))
+      }
     } else {
       stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
     }
