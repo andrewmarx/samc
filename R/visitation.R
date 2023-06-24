@@ -479,7 +479,7 @@ setMethod(
     vq = vis*samc$q_matrix
 
     n_net = abs(Matrix::skewpart(vq))
-    visit_net = pmax(Matrix::rowSums(n_net), Matrix::colSums(n_net))
+    visit_net = as.vector(Matrix::colSums(n_net))
     visit_net[c(origin, dest)] = 2 * visit_net[c(origin, dest)]
 
     return(visit_net)
