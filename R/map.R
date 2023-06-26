@@ -50,7 +50,6 @@ setMethod(
         stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
 
       df = data.frame(samc@crw_map, vec)
-      print(colnames(df))
       df = reshape(df, idvar = "X1", timevar = "X2", direction = "wide")
     } else {
       if (length(vec) != length(terra::cells(samc@map)))
@@ -81,7 +80,7 @@ setMethod(
       }
     } else if (samc@source == "matrix") {
       if (terra::nlyr(ras) > 1) {
-        return(lapply(test, function(x) {
+        return(lapply(ras, function(x) {
           as.matrix(x, wide = TRUE)
         }))
       } else {
@@ -97,30 +96,8 @@ setMethod(
   "map",
   signature(samc = "samc", vec = "list"),
   function(samc, vec){
-    if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
 
     lapply(vec, function(x){
-      if (!inherits(x, "numeric"))
-        stop("List contains invalid item(s); all entries must be numeric vectors.", call. = FALSE)
-      if (length(x) != length(terra::cells(samc@map)))
-        stop("The length of one or more vectors in the list does not match the number of non-NA cells in the landscape data", call. = FALSE)
+      map(samc, x)
     })
-
-    res <- lapply(vec, function(x){
-      ras <- samc@map
-
-      ras[terra::cells(ras)] <- x
-
-      if (samc@source == "SpatRaster") {
-        return(ras)
-      } else if (samc@source == "RasterLayer") {
-        return(raster::raster(ras))
-      } else if (samc@source == "matrix") {
-        return(as.matrix(ras, wide = TRUE))
-      } else {
-        stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
-      }
-    })
-
-    return(res)
   })
