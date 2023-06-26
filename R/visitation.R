@@ -476,7 +476,7 @@ setMethod(
 
     vis = visitation(samc, origin = origin)
 
-    vq = vis*samc$q_matrix
+    vq = vis * samc@data@f
 
     n_net = abs(Matrix::skewpart(vq))
     visit_net = as.vector(Matrix::colSums(n_net))
