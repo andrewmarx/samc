@@ -101,10 +101,17 @@ vis_crw2 <- as.vector(visitation(samc_crw2, origin = matrix(c(origin, dir), 1)))
 vis_crw8 <- as.vector(visitation(samc_crw8, origin = matrix(c(origin, dir), 1)))
 
 
+# Note that when mapping CRW results the map() function breaks out the results for each direction.
+# The specific results depends on the original data types and will be a list of matrices, a RasterStack, or a multi-layered SpatRaster
+plot(map(samc_crw0, vis_crw0), col = viridis(1024), main = paste("Direction:", 1:length(vis_crw0)))
+
+# The RW results
 plot(map(samc_rw, vis_rw), col = viridis(1024), main = "RW")
-plot(map(samc_crw0, vis_crw0), col = viridis(1024), main = "CRW (kappa=0)")
-plot(map(samc_crw1, vis_crw1), col = viridis(1024), main = "CRW (kappa=1)")
-plot(map(samc_crw2, vis_crw2), col = viridis(1024), main = "CRW (kappa=2)")
-plot(map(samc_crw8, vis_crw8), col = viridis(1024), main = "CRW (kappa=8)")
+
+# The CRW results using mean() to combine the results for each direction into a single map.
+plot(mean(map(samc_crw0, vis_crw0), na.rm = TRUE), col = viridis(1024), main = "CRW (kappa=0)")
+plot(mean(map(samc_crw1, vis_crw1), na.rm = TRUE), col = viridis(1024), main = "CRW (kappa=1)")
+plot(mean(map(samc_crw2, vis_crw2), na.rm = TRUE), col = viridis(1024), main = "CRW (kappa=2)")
+plot(mean(map(samc_crw8, vis_crw8), na.rm = TRUE), col = viridis(1024), main = "CRW (kappa=8)")
 
 ```
