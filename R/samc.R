@@ -223,6 +223,11 @@ setMethod(
         samc_obj@data@t_abs = crw_list$abs
         samc_obj@crw_map = crw_list$crw
 
+      } else if (model$name == "SSF") {
+        samc_obj@data@f = .ssf(data, absorption, fidelity, tr_fun, directions, symm, model$ssc)
+        gc()
+
+        samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
       } else {
         stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
       }

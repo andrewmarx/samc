@@ -139,6 +139,142 @@
   mat
 }
 
+
+#' SSF function
+#'
+#' An internal function for creating SSF samc matrix
+#'
+#' @noRd
+.ssf <- function(x, absorption, fidelity, fun, dir, sym, ssc) {
+  if (is(fun, "function")) {
+    tr = .tr_vals_ssf(x, fun, dir, ssc)
+  } else if (fun == "x[2]") {
+    tr = .tr_vals_ssf_x2(x, dir, ssc)
+  } else {
+    stop("Invalid transition function defined", call. = FALSE)
+  }
+
+  nedges = sum(is.finite(tr))
+
+  nrows = terra::nrow(x)
+  ncols = terra::ncol(x)
+  cell_nums = terra::cells(x)
+  ncells = length(cell_nums)
+
+  cell_lookup = matrix(0, ncols, nrows) # Intentionally reversed for rast->mat
+  cell_lookup[cell_nums] = 1:length(cell_nums)
+
+  # tr offset vars
+  if (dir == 4) {
+    dir_vec = c(1:2, 0, 3:4)
+    offsets = c(-ncols, -1, 1, ncols)
+  } else if (dir == 8) {
+    dir_vec = c(1:4, 0, 5:8)
+    offsets = c(-ncols - 1, -ncols, -ncols + 1, -1, 1, ncols - 1, ncols, ncols + 1)
+  }
+
+  # Fill out mat_p
+  mat_p = integer(ncells + 1)
+  mat_p[] = 1 # every column will have a fidelity value
+  mat_p[1] = 0 # except first entry of mat_p does not refer to a column
+  cell = 0
+
+  for (r in 1:nrows) {
+    vals = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
+    for (c in 1:ncols) {
+      cell = cell + 1
+      if (is.finite(vals[c])) {
+        p1 = cell_lookup[cell]
+        p1i = (cell - 1) * dir
+
+        # loop through valid edges
+        for (d in dir_vec) {
+          if (d) {
+            p2i = p1i + d
+
+            if (!is.na(tr[p2i])) {
+              p2 = cell_lookup[cell + offsets[d]]
+
+              mat_p[p2 + 1] = mat_p[p2 + 1] + 1
+            }
+          }
+        }
+      }
+    }
+  }
+
+  for (i in 2:length(mat_p)) {
+    mat_p[i] = mat_p[i] + mat_p[i - 1]
+  }
+
+  mat_p_count = integer(ncells + 1)
+
+  mat_x = numeric(nedges + ncells)
+  mat_i = integer(nedges + ncells)
+
+  cell = 0
+
+  row_indices = numeric(dir)
+
+  for (r in 1:nrows) {
+    fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
+    vals = 1 - fid - terra::values(absorption, mat = FALSE, row = r, nrows = 1)
+
+    for (c in 1:ncols) {
+      cell = cell + 1
+      if (is.finite(vals[c])) {
+        p1 = cell_lookup[cell]
+        p1i = (cell - 1) * dir
+
+        # loop through valid edges
+        rs = 0
+        fid_index = NA
+
+        row_indices[] = NA
+
+        for (d in dir_vec) {
+          if (d) {
+            p2i = p1i + d
+
+            if (!is.na(tr[p2i])) {
+              p2 = cell_lookup[cell + offsets[d]]
+
+              mat_p_count[p2] = mat_p_count[p2] + 1
+
+              res = tr[p2i]
+              rs = rs + res
+
+              row_indices[d] = mat_p[p2] + mat_p_count[p2]
+              mat_x[mat_p[p2] + mat_p_count[p2]] = -res * vals[c]
+              mat_i[mat_p[p2] + mat_p_count[p2]] = p1
+            }
+          } else {
+            mat_p_count[p1] = mat_p_count[p1] + 1
+
+            fid_index = mat_p[p1] + mat_p_count[p1]
+            mat_x[fid_index] = 1 - fid[c]
+            mat_i[fid_index] = p1
+          }
+        }
+        row_indices = row_indices[!is.na(row_indices)]
+        mat_x[row_indices] = mat_x[row_indices]/rs
+      }
+    }
+  }
+
+  mat_i = mat_i - 1
+
+  mat = new("dgCMatrix")
+  mat@Dim = c(as.integer(ncells), as.integer(ncells))
+
+  mat@p = as.integer(mat_p)
+  mat@i = as.integer(mat_i)
+  mat@x = mat_x
+
+  mat
+}
+
+
 #' CRW function
 #'
 #' An internal function for creating RW samc objects
@@ -388,7 +524,69 @@
         index = index + 1
 
         result[index] = 2 / ((v + vals[c, d]) * dist[r, d])
+      }
+    }
+  }
 
+  result
+}
+
+.tr_vals_ssf = function(data, fun, dir, ssc) {
+
+  nrows = terra::nrow(data)
+  ncols = terra::ncol(data)
+
+  result = numeric(nrows * ncols * dir)
+  index = 0
+
+  dist = .build_lookup_mat(data, dir)^(ssc - 1)
+
+  if (dir == 4) {
+    dir = c(2, 4, 6, 8)
+  } else if (dir == 8) {
+    dir = c(1:4, 6:9)
+  }
+
+  for (r in 1:nrows) {
+    vals = terra::focalValues(data, 3, r,1)
+
+    for (c in 1:ncols) {
+      v = vals[c, 5]
+      for (d in dir) {
+        index = index + 1
+
+        result[index] = fun(c(v, vals[c, d])) * dist[r, d]
+      }
+    }
+  }
+
+  result
+}
+
+.tr_vals_ssf_x2 = function(data, dir, ssc) {
+
+  nrows = terra::nrow(data)
+  ncols = terra::ncol(data)
+
+  result = numeric(nrows * ncols * dir)
+  index = 0
+
+  dist = .build_lookup_mat(data, dir)^(ssc - 1)
+
+  if (dir == 4) {
+    dir = c(2, 4, 6, 8)
+  } else if (dir == 8) {
+    dir = c(1:4, 6:9)
+  }
+
+  for (r in 1:nrows) {
+    vals = terra::focalValues(data, 3, r,1)
+
+    for (c in 1:ncols) {
+      for (d in dir) {
+        index = index + 1
+
+        result[index] = vals[c, d] * dist[r, d]
       }
     }
   }
@@ -705,80 +903,6 @@ setMethod(
 
     return(match(x, samc$names))
   })
-
-
-#' Validate transition args
-#'
-#' Validates the transition args for the samc() function
-#'
-#' @param x A list
-#' @noRd
-.validate_model <- function(x, method) {
-  args <- c("name", "fun", "dir", "sym")
-  names <- names(x)
-
-  dup_args <- names[duplicated(names)]
-  if (length(dup_args) > 0)
-    stop(paste("Duplicate argument in model:", dup_args), call. = FALSE)
-
-  if (!("name" %in% names)) {
-    x$name = "RW"
-    names = c(names, "name")
-  }
-
-  if (!x$name %in% c("RW", "CRW")) stop("Invalid model name", call. = FALSE)
-
-  missing_args <- args[!(args %in% names)]
-  if (length(missing_args) > 0)
-    stop(paste("Missing argument in model:", missing_args), call. = FALSE)
-
-  if (!(is(x$fun, "function") || is(x$fun, "character"))) {
-    stop("'fun' must be a supported named function or a user defined function")
-  } else if (!(x$dir %in% c(4, 8))) {
-    stop("`dir` must be set to either 4 or 8", call. = FALSE)
-  } else if (!is(x$sym, "logical")) {
-    stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
-  }
-
-  if (method == "conv") {
-    if (x$name != "RW") stop("Convolution currently only supports the 'RW' model.")
-    if (!is(x$fun, "character")) {
-      stop("Convolution currently only supports the '1/mean(x)' named function.")
-    } else if (x$fun != "1/mean(x)") {
-      stop("Convolution currently only supports the '1/mean(x)' named function.")
-    }
-  }
-
-
-  if (x$name == "CRW") {
-    args = c(args, "dist", "kappa")
-  }
-
-
-  unknown_args <- names[!(names %in% args)]
-  if (length(unknown_args) > 0)
-    stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
-
-  if (x$name == "CRW") {
-    if (x$dist == "vonMises") {
-      if (!is(x$kappa, "numeric"))
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (length(x$kappa) != 1)
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (!is.finite(x$kappa))
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (x$kappa < 0)
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-    } else {
-      stop(paste("Invalid distribution name:", x$dist), call. = FALSE)
-    }
-  }
-
-  return(x)
-}
 
 
 #' Validate options
