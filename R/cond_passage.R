@@ -88,22 +88,22 @@ setMethod(
 
     dest <- .process_locations(samc, dest)
 
-    Q <- samc$q_matrix
+    Q = samc$q_matrix
 
-    qj <- Q[, dest]
-    qj[dest] = 0
+    qj = Q[, dest]
+    qj[dest] = 1
+
+    Q[dest, ] = 0
+    Q[, dest] = 0
+    Q[dest, dest] = 0
 
     Q@x <- -Q@x
     Matrix::diag(Q) <- Matrix::diag(Q) + 1
-    Q[dest, ] = 0
-    Q[, dest] = 0
-    Q[dest, dest] = 1
-
 
     if (samc@solver == "iter") {
-      t <- as.numeric(.cond_t_iter(Qj, qj))
+      t <- as.numeric(.cond_t_iter(Q, qj))
     } else {
-      t <- as.numeric(.cond_t(Qj, qj))
+      t <- as.numeric(.cond_t(Q, qj))
     }
     names(t) <- samc$names
 
