@@ -10,137 +10,18 @@
 #' An internal function for creating RW samc matrix
 #'
 #' @noRd
-.rw <- function(x, absorption, fidelity, fun, dir, sym) {
-  tr = .tr_vals(x, fun, dir)
+.rw <- function(x, absorption, fidelity, model) {
+  dir = model$dir
+  fun = model$fun
+  sym = model$sym
 
-  nedges = sum(is.finite(tr))
-
-  nrows = terra::nrow(x)
-  ncols = terra::ncol(x)
-  cell_nums = terra::cells(x)
-  ncells = length(cell_nums)
-
-  cell_lookup = matrix(0, ncols, nrows) # Intentionally reversed for rast->mat
-  cell_lookup[cell_nums] = 1:length(cell_nums)
-
-  # tr offset vars
-  if (dir == 4) {
-    dir_vec = c(1:2, 0, 3:4)
-    offsets = c(-ncols, -1, 1, ncols)
-  } else if (dir == 8) {
-    dir_vec = c(1:4, 0, 5:8)
-    offsets = c(-ncols - 1, -ncols, -ncols + 1, -1, 1, ncols - 1, ncols, ncols + 1)
+  if (model$name == "RW") {
+    tr = .tr_vals(x, fun, dir)
+  } else if (model$name == "SSF") {
+    tr = .tr_vals_ssf(x, fun, dir, model$ssc)
+  } else {
+    stop("", call. = FALSE)
   }
-
-  # Fill out mat_p
-  mat_p = integer(ncells + 1)
-  mat_p[] = 1 # every column will have a fidelity value
-  mat_p[1] = 0 # except first entry of mat_p does not refer to a column
-  cell = 0
-
-  for (r in 1:nrows) {
-    vals = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
-    for (c in 1:ncols) {
-      cell = cell + 1
-      if (is.finite(vals[c])) {
-        p1 = cell_lookup[cell]
-        p1i = (cell - 1) * dir
-
-        # loop through valid edges
-        for (d in dir_vec) {
-          if (d) {
-            p2i = p1i + d
-
-            if (!is.na(tr[p2i])) {
-              p2 = cell_lookup[cell + offsets[d]]
-
-              mat_p[p2 + 1] = mat_p[p2 + 1] + 1
-            }
-          }
-        }
-      }
-    }
-  }
-
-  for (i in 2:length(mat_p)) {
-    mat_p[i] = mat_p[i] + mat_p[i - 1]
-  }
-
-  mat_p_count = integer(ncells + 1)
-
-  mat_x = numeric(nedges + ncells)
-  mat_i = integer(nedges + ncells)
-
-  cell = 0
-
-  row_indices = numeric(dir)
-
-  for (r in 1:nrows) {
-    fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
-    vals = 1 - fid - terra::values(absorption, mat = FALSE, row = r, nrows = 1)
-
-    for (c in 1:ncols) {
-      cell = cell + 1
-      if (is.finite(vals[c])) {
-        p1 = cell_lookup[cell]
-        p1i = (cell - 1) * dir
-
-        # loop through valid edges
-        rs = 0
-        fid_index = NA
-
-        row_indices[] = NA
-
-        for (d in dir_vec) {
-          if (d) {
-            p2i = p1i + d
-
-            if (!is.na(tr[p2i])) {
-              p2 = cell_lookup[cell + offsets[d]]
-
-              mat_p_count[p2] = mat_p_count[p2] + 1
-
-              res = tr[p2i]
-              rs = rs + res
-
-              row_indices[d] = mat_p[p2] + mat_p_count[p2]
-              mat_x[mat_p[p2] + mat_p_count[p2]] = -res * vals[c]
-              mat_i[mat_p[p2] + mat_p_count[p2]] = p1
-            }
-          } else {
-            mat_p_count[p1] = mat_p_count[p1] + 1
-
-            fid_index = mat_p[p1] + mat_p_count[p1]
-            mat_x[fid_index] = 1 - fid[c]
-            mat_i[fid_index] = p1
-          }
-        }
-        row_indices = row_indices[!is.na(row_indices)]
-        mat_x[row_indices] = mat_x[row_indices]/rs
-      }
-    }
-  }
-
-  mat_i = mat_i - 1
-
-  mat = new("dgCMatrix")
-  mat@Dim = c(as.integer(ncells), as.integer(ncells))
-
-  mat@p = as.integer(mat_p)
-  mat@i = as.integer(mat_i)
-  mat@x = mat_x
-
-  mat
-}
-
-
-#' SSF function
-#'
-#' An internal function for creating SSF samc matrix
-#'
-#' @noRd
-.ssf <- function(x, absorption, fidelity, fun, dir, sym, ssc) {
-  tr = .tr_vals_ssf(x, fun, dir, ssc)
 
   nedges = sum(is.finite(tr))
 
@@ -269,13 +150,7 @@
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
-  if (is(fun, "function")) {
-    tr = .tr_vals(x, fun, dir)
-  } else if (fun == "1/mean(x)") {
-    tr = .tr_vals_res(x, dir)
-  } else {
-    stop("Invalid transition function defined", call. = FALSE)
-  }
+  tr = .tr_vals(x, fun, dir)
 
   edge_counts = sum(is.finite(tr))
   edge_nums = tr

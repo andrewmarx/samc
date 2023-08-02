@@ -133,7 +133,6 @@ setMethod(
     options = .validate_options(options)
     model = .validate_model(model, options$method)
 
-    tr_fun <- model$fun
     directions <-model$dir
     symm <- model$sym
 
@@ -205,8 +204,8 @@ setMethod(
     gc()
     # Create the transition matrix
     if (options$method %in% c("direct", "iter")) {
-      if (model$name == "RW") {
-        samc_obj@data@f = .rw(data, absorption, fidelity, tr_fun, directions, symm)
+      if (model$name %in% c("RW", "SSF")) {
+        samc_obj@data@f = .rw(data, absorption, fidelity, model)
         gc()
 
         samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
@@ -215,7 +214,7 @@ setMethod(
 
         if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
 
-        crw_list = .crw(data, absorption, fidelity, tr_fun, directions, symm, model)
+        crw_list = .crw(data, absorption, fidelity, model$fun, directions, symm, model)
         #assign("myvar", crw_list)
         samc_obj@data@f = crw_list$tr
         gc()
@@ -223,11 +222,6 @@ setMethod(
         samc_obj@data@t_abs = crw_list$abs
         samc_obj@crw_map = crw_list$crw
 
-      } else if (model$name == "SSF") {
-        samc_obj@data@f = .ssf(data, absorption, fidelity, tr_fun, directions, symm, model$ssc)
-        gc()
-
-        samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
       } else {
         stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
       }
