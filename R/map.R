@@ -50,7 +50,7 @@ setMethod(
         stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
 
       df = data.frame(samc@crw_map, vec)
-      df = reshape(df, idvar = "X1", timevar = "X2", direction = "wide")
+      df = stats::reshape(df, idvar = "X1", timevar = "X2", direction = "wide")
     } else {
       if (length(vec) != length(terra::cells(samc@map)))
         stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
@@ -68,7 +68,7 @@ setMethod(
       return(ras)
     })
 
-    ras = rast(ras_list)
+    ras = terra::rast(ras_list)
 
     if (samc@source == "SpatRaster") {
       return(ras)
