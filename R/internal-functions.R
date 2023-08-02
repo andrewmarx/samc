@@ -11,13 +11,7 @@
 #'
 #' @noRd
 .rw <- function(x, absorption, fidelity, fun, dir, sym) {
-  if (is(fun, "function")) {
-    tr = .tr_vals(x, fun, dir)
-  } else if (fun == "1/mean(x)") {
-    tr = .tr_vals_res(x, dir)
-  } else {
-    stop("Invalid transition function defined", call. = FALSE)
-  }
+  tr = .tr_vals(x, fun, dir)
 
   nedges = sum(is.finite(tr))
 
@@ -146,13 +140,7 @@
 #'
 #' @noRd
 .ssf <- function(x, absorption, fidelity, fun, dir, sym, ssc) {
-  if (is(fun, "function")) {
-    tr = .tr_vals_ssf(x, fun, dir, ssc)
-  } else if (fun == "x[2]") {
-    tr = .tr_vals_ssf_x2(x, dir, ssc)
-  } else {
-    stop("Invalid transition function defined", call. = FALSE)
-  }
+  tr = .tr_vals_ssf(x, fun, dir, ssc)
 
   nedges = sum(is.finite(tr))
 
@@ -481,55 +469,40 @@
     dir = c(1:4, 6:9)
   }
 
-  for (r in 1:nrows) {
-    vals = terra::focalValues(data, 3, r,1)
+  if (is(fun, "function")) {
+    for (r in 1:nrows) {
+      vals = terra::focalValues(data, 3, r,1)
 
-    for (c in 1:ncols) {
-      v = vals[c, 5]
-      for (d in dir) {
-        index = index + 1
+      for (c in 1:ncols) {
+        v = vals[c, 5]
+        for (d in dir) {
+          index = index + 1
 
-        result[index] = fun(c(v, vals[c, d])) / dist[r, d]
+          result[index] = fun(c(v, vals[c, d])) / dist[r, d]
 
+        }
       }
     }
+  } else if (fun == "1/mean(x)") {
+    for (r in 1:nrows) {
+      vals = terra::focalValues(data, 3, r,1)
+
+      for (c in 1:ncols) {
+        v = vals[c, 5]
+        for (d in dir) {
+          index = index + 1
+
+          result[index] = 2 / ((v + vals[c, d]) * dist[r, d])
+        }
+      }
+    }
+  } else {
+    stop("Invalid transition function defined", call. = FALSE)
   }
 
   result
 }
 
-
-.tr_vals_res = function(data, dir) {
-
-  nrows = terra::nrow(data)
-  ncols = terra::ncol(data)
-
-  result = numeric(nrows * ncols * dir)
-  index = 0
-
-  dist = .build_lookup_mat(data, dir)
-
-  if (dir == 4) {
-    dir = c(2, 4, 6, 8)
-  } else if (dir == 8) {
-    dir = c(1:4, 6:9)
-  }
-
-  for (r in 1:nrows) {
-    vals = terra::focalValues(data, 3, r,1)
-
-    for (c in 1:ncols) {
-      v = vals[c, 5]
-      for (d in dir) {
-        index = index + 1
-
-        result[index] = 2 / ((v + vals[c, d]) * dist[r, d])
-      }
-    }
-  }
-
-  result
-}
 
 .tr_vals_ssf = function(data, fun, dir, ssc) {
 
@@ -547,48 +520,33 @@
     dir = c(1:4, 6:9)
   }
 
-  for (r in 1:nrows) {
-    vals = terra::focalValues(data, 3, r,1)
+  if (is(fun, "function")) {
+    for (r in 1:nrows) {
+      vals = terra::focalValues(data, 3, r,1)
 
-    for (c in 1:ncols) {
-      v = vals[c, 5]
-      for (d in dir) {
-        index = index + 1
+      for (c in 1:ncols) {
+        v = vals[c, 5]
+        for (d in dir) {
+          index = index + 1
 
-        result[index] = fun(c(v, vals[c, d])) * dist[r, d]
+          result[index] = fun(c(v, vals[c, d])) * dist[r, d]
+        }
       }
     }
-  }
+  } else if (fun == "x[2]") {
+    for (r in 1:nrows) {
+      vals = terra::focalValues(data, 3, r,1)
 
-  result
-}
+      for (c in 1:ncols) {
+        for (d in dir) {
+          index = index + 1
 
-.tr_vals_ssf_x2 = function(data, dir, ssc) {
-
-  nrows = terra::nrow(data)
-  ncols = terra::ncol(data)
-
-  result = numeric(nrows * ncols * dir)
-  index = 0
-
-  dist = .build_lookup_mat(data, dir)^(ssc - 1)
-
-  if (dir == 4) {
-    dir = c(2, 4, 6, 8)
-  } else if (dir == 8) {
-    dir = c(1:4, 6:9)
-  }
-
-  for (r in 1:nrows) {
-    vals = terra::focalValues(data, 3, r,1)
-
-    for (c in 1:ncols) {
-      for (d in dir) {
-        index = index + 1
-
-        result[index] = vals[c, d] * dist[r, d]
+          result[index] = vals[c, d] * dist[r, d]
+        }
       }
     }
+  } else {
+    stop("Invalid transition function defined", call. = FALSE)
   }
 
   result
