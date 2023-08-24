@@ -320,9 +320,15 @@
 
   #View(as.matrix(mat))
 
+
+  dim(tr) = c(dir, length(tr)/dir)
+  tr = scale(tr, FALSE, colSums(tr, na.rm = TRUE))
+  attr(tr, 'scaled:scale') = NULL
+
   return(
     list(tr = mat,
          crw = crw_map,
+         prob = tr,
          abs = terra::values(absorption)[cell_nums[crw_map[,1]]])
   )
 }

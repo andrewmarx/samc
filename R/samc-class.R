@@ -101,6 +101,7 @@ setClass(
                source = "character",
                map = "SpatRaster",
                crw_map = "mat_null",
+               prob_mat = "mat_null",
                names = "char_null",
                clumps = "numeric",
                override = "logical",
