@@ -401,9 +401,9 @@ setMethod(
 
     if (samc@solver %in% c("direct", "iter")) {
       if (samc@solver == "iter") {
-        r <- .psif_iter(samc@data@f, pv)
+        r <- .f_row_iter(samc@data@f, pv)
       } else {
-        r <- .psif(samc@data@f, pv, samc@.cache$sc)
+        r <- .f_row(samc@data@f, pv, samc@.cache$sc)
       }
 
       return(as.vector(r))

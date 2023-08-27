@@ -83,32 +83,23 @@ Rcpp::List sum_psiqpow(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen:
 }
 
 // [[Rcpp::export(".f_row")]]
-Rcpp::NumericVector f_row(const Eigen::SparseMatrix<double> &M, const int row, Rcpp::XPtr<SolverCache> &SC)
+Rcpp::NumericVector f_row(const Eigen::SparseMatrix<double> &M, const Eigen::VectorXd &vec, Rcpp::XPtr<SolverCache> &SC)
 {
-  int sz = M.rows();
-
   SC->buildSolver(M.transpose(), "mt");
 
-  Eigen::VectorXd row_vec = Eigen::VectorXd::Zero(sz);
-  row_vec(row-1) = 1;
-
-  Eigen::VectorXd res = SC->solver().solve(row_vec);
+  Eigen::VectorXd res = SC->solver().solve(vec);
 
   return Rcpp::wrap(res);
 }
 
 // [[Rcpp::export(".f_row_iter")]]
-Rcpp::NumericVector f_row_iter(Eigen::SparseMatrix<double> &M, const int row)
+Rcpp::NumericVector f_row_iter(Eigen::SparseMatrix<double> &M, const Eigen::VectorXd &vec)
 {
-  int sz = M.rows();
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   solver.compute(M.transpose());
 
-  Eigen::VectorXd row_vec = Eigen::VectorXd::Zero(sz);
-  row_vec(row-1) = 1;
-
-  Eigen::VectorXd res = solver.solve(row_vec);
+  Eigen::VectorXd res = solver.solve(vec);
 
   return Rcpp::wrap(res);
 }
@@ -163,24 +154,4 @@ Rcpp::NumericVector f_col_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, cons
   return Rcpp::wrap(res);
 }
 
-// [[Rcpp::export(".psif")]]
-Rcpp::NumericVector psif(Eigen::Map<Eigen::SparseMatrix<double> > &M, Eigen::VectorXd &psi, Rcpp::XPtr<SolverCache> &SC)
-{
-  SC->buildSolver(M.transpose(), "mt");
 
-  Eigen::VectorXd res = SC->solver().solve(psi);
-
-  return Rcpp::wrap(res);
-}
-
-// [[Rcpp::export(".psif_iter")]]
-Rcpp::NumericVector psif_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, Eigen::VectorXd &psi)
-{
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
-
-  solver.compute(M.transpose());
-
-  Eigen::VectorXd res = solver.solve(psi);
-
-  return Rcpp::wrap(res);
-}

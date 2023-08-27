@@ -417,9 +417,9 @@ setMethod(
 
     if (samc@solver %in% c("direct", "iter")) {
       if (samc@solver == "iter") {
-        pf <- .psif_iter(samc@data@f, pv)
+        pf <- .f_row_iter(samc@data@f, pv)
       } else {
-        pf <- .psif(samc@data@f, pv, samc@.cache$sc)
+        pf <- .f_row(samc@data@f, pv, samc@.cache$sc)
       }
 
       names(pf) <- samc$names

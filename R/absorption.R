@@ -119,7 +119,7 @@ setMethod(
 
       pv = .process_init(samc, init)
 
-      pf = .psif(samc@data@f, pv, samc@.cache$sc)
+      pf = .f_row(samc@data@f, pv, samc@.cache$sc)
     } else if (samc@solver == "conv") {
       pf = visitation(samc, init)
     } else {
