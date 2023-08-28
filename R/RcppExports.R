@@ -77,16 +77,12 @@
     .Call('_samc_f1_iter', PACKAGE = 'samc', M)
 }
 
-.sum_qpow_row <- function(M, row, steps) {
-    .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, row, steps)
+.sum_qpow_row <- function(M, vec, steps) {
+    .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, vec, steps)
 }
 
 .sum_qpow_col <- function(M, col, steps) {
     .Call('_samc_sum_qpow_col', PACKAGE = 'samc', M, col, steps)
-}
-
-.sum_psiqpow <- function(M, psi, steps) {
-    .Call('_samc_sum_psiqpow', PACKAGE = 'samc', M, psi, steps)
 }
 
 .f_row <- function(M, vec, SC) {

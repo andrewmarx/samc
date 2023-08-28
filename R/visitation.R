@@ -177,29 +177,17 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time){
-    .disable_conv(samc)
 
     if (is(origin, "matrix")) {
       if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
     } else {
-      if (length(origin) != 1)
-        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+      if (length(origin) != 1) stop("origin can only contain a single value for this version of the function", call. = FALSE)
     }
 
-    origin = .process_locations(samc, origin)
+    init = .process_locations(samc, origin)
     .validate_time_steps(time)
 
-    q = samc$q_matrix
-
-    time = c(1, time)
-
-    ft = .sum_qpow_row(q, origin, time)
-
-    if (length(ft) == 1) {
-      return(ft[[1]])
-    } else {
-      return(ft)
-    }
+    return(visitation(samc, init, time = time))
   })
 
 # visitation(samc, dest, time) ----
@@ -266,12 +254,11 @@ setMethod(
 
     pv <- .process_init(samc, init)
 
-
     if (samc@solver %in% c("direct", "iter")) {
       q <- samc$q_matrix
 
       time <- c(1, time)
-      ft <- .sum_psiqpow(q, pv, time)
+      ft <- .sum_qpow_row(q, pv, time)
 
       if (length(ft) == 1) {
         return(ft[[1]])
@@ -279,8 +266,6 @@ setMethod(
         return(ft)
       }
     } else if (samc@solver == "conv") {
-
-
       results_list = samc:::.convolution_short(time, samc@conv_cache, pv, samc@threads)
 
       res = as.vector(results_list$vis[[1]])
@@ -386,7 +371,6 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init){
     check(samc, init)
-    .disable_crw(samc)
 
     pv <- .process_init(samc, init)
 
