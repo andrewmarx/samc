@@ -657,6 +657,7 @@
   if (any(x < 1))
     stop("All location values must be positive (greater than 0)", call. = FALSE)
 
+  # TODO this only works correctly for RW. In CRW, nrow does not correspond to number of locations
   if (any(x > nrow(samc$q_matrix)))
     stop("Location values cannot exceed the number of nodes in the landscape", call. = FALSE)
 }
@@ -724,13 +725,14 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
+    .validate_locations(samc, x)
 
-    if (samc@model$name == "CRW") {
-      stop("CRW model requires a list with location and direction.", call. = FALSE)
-    } else {
-      .validate_locations(samc, x)
-    }
-    return(x)
+    df = data.frame(cell = terra::cells(samc@map),
+                    vec = numeric(samc@nodes))
+    df$vec[x] = 1
+
+    # TODO fix for multiple x like previous version
+    return(.build_map(samc, df))
   })
 
 setMethod(
@@ -873,7 +875,14 @@ setMethod(
   function(samc, x) {
     if (any(!is.finite(x)) || any(x < 0)) stop("`init` input must only contain positive numeric values")
 
-    if (length(x) != length(samc@data@t_abs)) stop("`init` input length does not match number of transient states")
+    if (length(x) != samc@nodes) stop("`init` input length does not match number of nodes")
+
+
+    if (samc@model$name == "CRW") {
+      x = sweep(samc@prob_mat, 2, x, "*")
+      dim(x) = NULL
+      x = x[!is.na(x)]
+    }
 
     return(x)
   })

@@ -313,7 +313,6 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "missing"),
   function(samc, origin){
-    .disable_conv(samc)
 
     if (is(origin, "matrix")) {
       if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
@@ -322,17 +321,9 @@ setMethod(
         stop("origin can only contain a single value for this version of the function", call. = FALSE)
     }
 
-
     origin = .process_locations(samc, origin)
 
-    if (samc@solver == "iter") {
-      r <- .f_row_iter(samc@data@f, origin)
-    } else {
-      r <- .f_row(samc@data@f, origin, samc@.cache$sc)
-    }
-
-
-    return(as.vector(r))
+    return(visitation(samc, init = origin))
   })
 
 # visitation(samc, dest) ----
