@@ -42,7 +42,8 @@ setGeneric(
 setMethod(
   "map",
   signature(samc = "samc", vec = "numeric"),
-  function(samc, vec){
+  function(samc, vec) {
+    # TODO make work for transition matrices
     if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
 
     if (samc@model$name == "CRW") {
@@ -59,36 +60,7 @@ setMethod(
                       vec = vec)
     }
 
-    ras_base = as.numeric(samc@map)
-
-    ras_list = lapply(sort(colnames(df)[-1]), function (x) {
-      ras = ras_base
-      ras[terra::cells(ras)] = df[x]
-
-      return(ras)
-    })
-
-    ras = terra::rast(ras_list)
-
-    if (samc@source == "SpatRaster") {
-      return(ras)
-    } else if (samc@source == "RasterLayer") {
-      if (terra::nlyr(ras) > 1) {
-        return(raster::stack(ras))
-      } else {
-        return(raster::raster(ras))
-      }
-    } else if (samc@source == "matrix") {
-      if (terra::nlyr(ras) > 1) {
-        return(lapply(ras, function(x) {
-          as.matrix(x, wide = TRUE)
-        }))
-      } else {
-        return(as.matrix(ras, wide = TRUE))
-      }
-    } else {
-      stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
-    }
+    .build_map(samc, df)
   })
 
 #' @rdname map
@@ -101,3 +73,44 @@ setMethod(
       map(samc, x)
     })
   })
+
+
+#' Build map
+#'
+#' Internal function to map a df to various objects
+#'
+#' @param samc samc
+#' @param df df
+#' @noRd
+.build_map = function(samc, df) {
+  ras_base = as.numeric(samc@map)
+
+  ras_list = lapply(sort(colnames(df)[-1]), function (x) {
+    ras = ras_base
+    ras[terra::cells(ras)] = df[x]
+
+    return(ras)
+  })
+
+  ras = terra::rast(ras_list)
+
+  if (samc@source == "SpatRaster") {
+    return(ras)
+  } else if (samc@source == "RasterLayer") {
+    if (terra::nlyr(ras) > 1) {
+      return(raster::stack(ras))
+    } else {
+      return(raster::raster(ras))
+    }
+  } else if (samc@source == "matrix") {
+    if (terra::nlyr(ras) > 1) {
+      return(lapply(ras, function(x) {
+        as.matrix(x, wide = TRUE)
+      }))
+    } else {
+      return(as.matrix(ras, wide = TRUE))
+    }
+  } else {
+    stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
+  }
+}
