@@ -246,8 +246,6 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time){
-    .disable_crw(samc)
-
     .validate_time_steps(time)
 
     check(samc, init)
