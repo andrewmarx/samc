@@ -146,7 +146,7 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    dest <- .process_locations(samc, dest)
+    dest <- .process_locations(samc, dest, map = FALSE)
     .validate_time_steps(time)
 
     q <- samc$q_matrix
@@ -175,7 +175,7 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    dest <- .process_locations(samc, dest)
+    dest <- .process_locations(samc, dest, map = FALSE)
 
     mov <- distribution(samc, origin = origin, time = time)
 

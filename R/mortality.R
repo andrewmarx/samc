@@ -205,7 +205,7 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    dest = .process_locations(samc, dest)
+    dest = .process_locations(samc, dest, map = FALSE)
     .validate_time_steps(time)
 
     q <- samc$q_matrix
@@ -236,7 +236,7 @@ setMethod(
     .disable_conv(samc)
     .disable_crw(samc)
 
-    dest <- .process_locations(samc, dest)
+    dest <- .process_locations(samc, dest, map = FALSE)
 
     mort <- mortality(samc, origin = origin, time = time)
 
@@ -350,7 +350,7 @@ setMethod(
     .disable_conv(samc)
     .disable_crw(samc)
 
-    dest <- .process_locations(samc, dest)
+    dest <- .process_locations(samc, dest, map = FALSE)
 
     vis <- visitation(samc, dest = dest)
     names(vis) <- samc$names
@@ -379,8 +379,8 @@ setMethod(
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
-    origin <- .process_locations(samc, origin)
-    dest <- .process_locations(samc, dest)
+    origin <- .process_locations(samc, origin, map = FALSE)
+    dest <- .process_locations(samc, dest, map = FALSE)
 
     results <- vector(mode = "numeric", length = length(origin))
 

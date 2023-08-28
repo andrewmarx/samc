@@ -123,7 +123,7 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    dest <- .process_locations(samc, dest)
+    dest <- .process_locations(samc, dest, map = FALSE)
     .validate_time_steps(time)
 
     q <- samc$q_matrix
@@ -172,7 +172,7 @@ setMethod(
 
     check(samc, init)
 
-    dest <- .process_locations(samc, dest)
+    dest <- .process_locations(samc, dest, map = FALSE)
 
     pv <- .process_init(samc, init)
 
@@ -226,7 +226,7 @@ setMethod(
       if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
     }
 
-    origin <- .process_locations(samc, origin)
+    origin <- .process_locations(samc, origin, map = FALSE)
 
     if (!samc@.cache$dgf_exists) {
       if (samc@solver == "iter") {
@@ -257,7 +257,7 @@ setMethod(
     .disable_conv(samc)
     .disable_crw(samc)
 
-    dest <- .process_locations(samc, dest)
+    dest <- .process_locations(samc, dest, map = FALSE)
 
     f_col <- visitation(samc, dest = dest)
     fjj <- f_col[dest]
@@ -278,8 +278,8 @@ setMethod(
     .disable_conv(samc)
     .disable_crw(samc)
 
-    origin <- .process_locations(samc, origin)
-    dest <- .process_locations(samc, dest)
+    origin <- .process_locations(samc, origin, map = FALSE)
+    dest <- .process_locations(samc, dest, map = FALSE)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
