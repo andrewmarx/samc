@@ -255,7 +255,6 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time) {
-    .disable_crw(samc)
 
     if (samc@solver %in% c("direct", "iter")) {
       mort = visitation(samc, init = init, time = time)
@@ -409,8 +408,6 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init) {
-    .disable_crw(samc)
-
     check(samc, init)
 
     pv <- .process_init(samc, init)

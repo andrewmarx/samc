@@ -302,7 +302,6 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     check(samc, init)
 

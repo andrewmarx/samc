@@ -110,8 +110,6 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "ANY", origin = "missing"),
   function(samc, init) {
-    .disable_crw(samc)
-
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
     if (samc@solver %in% c("direct", "iter")) {

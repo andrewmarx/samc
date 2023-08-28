@@ -69,8 +69,6 @@ setMethod(
   "survival",
   signature(samc = "samc", init = "ANY"),
   function(samc, init) {
-    .disable_crw(samc)
-
     if (samc@solver %in% c("direct", "iter")) {
       check(samc, init)
 
