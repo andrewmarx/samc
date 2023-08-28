@@ -99,6 +99,7 @@ setClass(
                conv_cache = "ANY",
                model = "list",
                source = "character",
+               nodes = "integer",
                map = "SpatRaster",
                crw_map = "mat_null",
                prob_mat = "mat_null",
