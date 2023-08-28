@@ -401,7 +401,7 @@ setMethod(
                              model = list(name = "RW"),
                              crw_map = NULL,
                              source = "transition",
-                             nodes = r - 1,
+                             nodes = as.integer(r - 1),
                              map = terra::rast(),
                              names = nm,
                              clumps = -1,
