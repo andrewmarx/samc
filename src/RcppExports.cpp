@@ -171,15 +171,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // qpow_row
-Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int row, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_qpow_row(SEXP MSEXP, SEXP rowSEXP, SEXP stepsSEXP) {
+Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, Rcpp::NumericVector steps);
+RcppExport SEXP _samc_qpow_row(SEXP MSEXP, SEXP vecSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const int >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type vec(vecSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(qpow_row(M, row, steps));
+    rcpp_result_gen = Rcpp::wrap(qpow_row(M, vec, steps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -193,19 +193,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type col(colSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
     rcpp_result_gen = Rcpp::wrap(qpow_col(M, col, steps));
-    return rcpp_result_gen;
-END_RCPP
-}
-// psiq
-Rcpp::List psiq(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& psi, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_psiq(SEXP MSEXP, SEXP psiSEXP, SEXP stepsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type psi(psiSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(psiq(M, psi, steps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -347,7 +334,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_samc_psid_long_iter", (DL_FUNC) &_samc_psid_long_iter, 3},
     {"_samc_qpow_row", (DL_FUNC) &_samc_qpow_row, 3},
     {"_samc_qpow_col", (DL_FUNC) &_samc_qpow_col, 3},
-    {"_samc_psiq", (DL_FUNC) &_samc_psiq, 3},
     {"_samc_sum_qpowrv", (DL_FUNC) &_samc_sum_qpowrv, 3},
     {"_samc_solver_cache", (DL_FUNC) &_samc_solver_cache, 0},
     {"_samc_f1", (DL_FUNC) &_samc_f1, 2},

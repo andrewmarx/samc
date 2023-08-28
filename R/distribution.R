@@ -123,30 +123,15 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "missing", origin = "location", dest = "missing", time = "numeric"),
   function(samc, origin, time) {
-    .disable_conv(samc)
-
     if (is(origin, "matrix")) {
       if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
     } else {
-      if (length(origin) != 1)
-        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+      if (length(origin) != 1) stop("origin can only contain a single value for this version of the function", call. = FALSE)
     }
 
-    origin <- .process_locations(samc, origin)
+    init = .process_locations(samc, origin)
 
-    .validate_time_steps(time)
-
-    q <- samc$q_matrix
-
-    time <- c(1, time)
-
-    mov <- .qpow_row(q, origin, time)
-    mov <- lapply(mov, as.vector)
-    if (length(mov) == 1) {
-      return((mov[[1]]))
-    } else {
-      return(mov)
-    }
+    return(distribution(samc, init, time = time))
   })
 
 # distribution(samc, dest, time) ----
@@ -210,7 +195,6 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time) {
     check(samc, init)
-    .disable_crw(samc)
 
     pv <- .process_init(samc, init)
 
@@ -221,7 +205,7 @@ setMethod(
 
       time = c(0, time)
 
-      res = .psiq(q, pv, time)
+      res = .qpow_row(q, pv, time)
 
       res = lapply(res, as.vector)
 
