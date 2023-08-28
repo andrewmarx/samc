@@ -295,27 +295,27 @@ BEGIN_RCPP
 END_RCPP
 }
 // f_row
-Rcpp::NumericVector f_row(const Eigen::SparseMatrix<double>& M, const int row, Rcpp::XPtr<SolverCache>& SC);
-RcppExport SEXP _samc_f_row(SEXP MSEXP, SEXP rowSEXP, SEXP SCSEXP) {
+Rcpp::NumericVector f_row(const Eigen::SparseMatrix<double>& M, const Eigen::VectorXd& vec, Rcpp::XPtr<SolverCache>& SC);
+RcppExport SEXP _samc_f_row(SEXP MSEXP, SEXP vecSEXP, SEXP SCSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const int >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type vec(vecSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<SolverCache>& >::type SC(SCSEXP);
-    rcpp_result_gen = Rcpp::wrap(f_row(M, row, SC));
+    rcpp_result_gen = Rcpp::wrap(f_row(M, vec, SC));
     return rcpp_result_gen;
 END_RCPP
 }
 // f_row_iter
-Rcpp::NumericVector f_row_iter(Eigen::SparseMatrix<double>& M, const int row);
-RcppExport SEXP _samc_f_row_iter(SEXP MSEXP, SEXP rowSEXP) {
+Rcpp::NumericVector f_row_iter(Eigen::SparseMatrix<double>& M, const Eigen::VectorXd& vec);
+RcppExport SEXP _samc_f_row_iter(SEXP MSEXP, SEXP vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const int >::type row(rowSEXP);
-    rcpp_result_gen = Rcpp::wrap(f_row_iter(M, row));
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type vec(vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(f_row_iter(M, vec));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -341,31 +341,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const int >::type col(colSEXP);
     rcpp_result_gen = Rcpp::wrap(f_col_iter(M, col));
-    return rcpp_result_gen;
-END_RCPP
-}
-// psif
-Rcpp::NumericVector psif(Eigen::Map<Eigen::SparseMatrix<double> >& M, Eigen::VectorXd& psi, Rcpp::XPtr<SolverCache>& SC);
-RcppExport SEXP _samc_psif(SEXP MSEXP, SEXP psiSEXP, SEXP SCSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type psi(psiSEXP);
-    Rcpp::traits::input_parameter< Rcpp::XPtr<SolverCache>& >::type SC(SCSEXP);
-    rcpp_result_gen = Rcpp::wrap(psif(M, psi, SC));
-    return rcpp_result_gen;
-END_RCPP
-}
-// psif_iter
-Rcpp::NumericVector psif_iter(Eigen::Map<Eigen::SparseMatrix<double> >& M, Eigen::VectorXd& psi);
-RcppExport SEXP _samc_psif_iter(SEXP MSEXP, SEXP psiSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type psi(psiSEXP);
-    rcpp_result_gen = Rcpp::wrap(psif_iter(M, psi));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -397,8 +372,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_samc_f_row_iter", (DL_FUNC) &_samc_f_row_iter, 2},
     {"_samc_f_col", (DL_FUNC) &_samc_f_col, 3},
     {"_samc_f_col_iter", (DL_FUNC) &_samc_f_col_iter, 2},
-    {"_samc_psif", (DL_FUNC) &_samc_psif, 3},
-    {"_samc_psif_iter", (DL_FUNC) &_samc_psif_iter, 2},
     {NULL, NULL, 0}
 };
 
