@@ -690,7 +690,7 @@
 #' @noRd
 setGeneric(
   ".process_locations",
-  function(samc, x) {
+  function(samc, x, map = NULL) {
     standardGeneric(".process_locations")
   })
 
@@ -698,7 +698,7 @@ setGeneric(
 setMethod(
   ".process_locations",
   signature(samc = "samc", x = "matrix"),
-  function(samc, x) {
+  function(samc, x, map = NULL) {
     if (samc@model$name == "CRW") {
       if (nrow(x) > 1) {
         stop("Multiple locations not supported yet. Matrix should only have 1 row/2 columns", call. = FALSE)
@@ -724,25 +724,30 @@ setMethod(
 setMethod(
   ".process_locations",
   signature(samc = "samc", x = "numeric"),
-  function(samc, x) {
+  function(samc, x, map = TRUE) {
     .validate_locations(samc, x)
 
-    df = data.frame(cell = terra::cells(samc@map),
-                    vec = numeric(samc@nodes))
-    df$vec[x] = 1
+    if (map) {
+      df = data.frame(cell = terra::cells(samc@map),
+                      vec = numeric(samc@nodes))
+      df$vec[x] = 1
 
-    # TODO fix for multiple x like previous version
-    return(.build_map(samc, df))
+      # TODO fix for multiple x like previous version
+      if (length(x) > 1) stop("Multiple locations temporarily does not work", call. = FALSE)
+
+      return(.build_map(samc, df))
+    } else {
+      return(x)
+    }
   })
 
 setMethod(
   ".process_locations",
   signature(samc = "samc", x = "character"),
-  function(samc, x) {
-
+  function(samc, x, map = TRUE) {
     .validate_names(samc$names, x)
 
-    return(match(x, samc$names))
+    return(.process_locations(samc, match(x, samc$names), map))
   })
 
 
