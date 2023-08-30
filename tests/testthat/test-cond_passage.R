@@ -62,8 +62,6 @@ for(test in testlist) {
   })
 
   test_that(paste("Testing cond_passage(samc, origin, dest)", test_num), {
-    # TODO fix multi-location inputs
-    skip("Skip dues to multi-location input")
     vector_result <- cond_passage(samc_p, origin = row_vec, dest = col_vec)
     vector_result_char <- cond_passage(samc_p, origin = as.character(row_vec), dest = as.character(col_vec))
 

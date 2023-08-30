@@ -183,9 +183,10 @@ setMethod(
     } else {
       if (length(origin) != 1) stop("origin can only contain a single value for this version of the function", call. = FALSE)
     }
-
-    init = .process_locations(samc, origin)
     .validate_time_steps(time)
+
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
 
     return(visitation(samc, init, time = time))
   })
@@ -202,7 +203,7 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    dest = .process_locations(samc, dest, map = FALSE)
+    dest = .process_locations(samc, dest)
     .validate_time_steps(time)
 
     q = samc$q_matrix
@@ -227,7 +228,7 @@ setMethod(
     .disable_conv(samc)
     .disable_crw(samc)
 
-    dest = .process_locations(samc, dest, map = FALSE)
+    dest = .process_locations(samc, dest)
 
     ft <- visitation(samc, origin = origin, time = time)
 
@@ -305,8 +306,9 @@ setMethod(
     }
 
     origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
 
-    return(visitation(samc, init = origin))
+    return(visitation(samc, init = init))
   })
 
 # visitation(samc, dest) ----
@@ -325,7 +327,7 @@ setMethod(
         stop("dest can only contain a single location for this version of the function", call. = FALSE)
     }
 
-    dest <- .process_locations(samc, dest, map = FALSE)
+    dest <- .process_locations(samc, dest)
 
     if (samc@solver == "iter") {
       r <- .f_col_iter(samc@data@f, dest);
@@ -346,7 +348,7 @@ setMethod(
     .disable_crw(samc)
 
     origin <- .process_locations(samc, origin)
-    dest <- .process_locations(samc, dest, map = FALSE)
+    dest <- .process_locations(samc, dest)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)

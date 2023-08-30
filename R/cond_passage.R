@@ -86,7 +86,7 @@ setMethod(
     if (length(dest) != 1)
       stop("dest must be a single location that refers to a cell in the landscape", call. = FALSE)
 
-    dest = .process_locations(samc, dest, map = FALSE)
+    dest = .process_locations(samc, dest)
 
     Q = samc$q_matrix
 
@@ -123,7 +123,7 @@ setMethod(
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
     origin <- .process_locations(samc, origin)
-    dest <- .process_locations(samc, dest, map = FALSE)
+    dest <- .process_locations(samc, dest)
 
     result <- vector(mode = "numeric", length = length(origin))
 

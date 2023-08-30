@@ -633,7 +633,7 @@
   # limit represents 24.7 years. There is flexibility to increase the limit
   # if a justification can be made for it, but it's far more likely that
   # users will generally want far fewer time steps for ecologically relevant
-  # results and to avoid the cummulative precision issues.", call. = FALSE)
+  # results and to avoid the cumulative precision issues.", call. = FALSE)
 }
 
 
@@ -690,7 +690,7 @@
 #' @noRd
 setGeneric(
   ".process_locations",
-  function(samc, x, map = NULL) {
+  function(samc, x) {
     standardGeneric(".process_locations")
   })
 
@@ -698,7 +698,7 @@ setGeneric(
 setMethod(
   ".process_locations",
   signature(samc = "samc", x = "matrix"),
-  function(samc, x, map = NULL) {
+  function(samc, x) {
     if (samc@model$name == "CRW") {
       if (nrow(x) > 1) {
         stop("Multiple locations not supported yet. Matrix should only have 1 row/2 columns", call. = FALSE)
@@ -724,31 +724,35 @@ setMethod(
 setMethod(
   ".process_locations",
   signature(samc = "samc", x = "numeric"),
-  function(samc, x, map = TRUE) {
+  function(samc, x) {
     .validate_locations(samc, x)
 
-    if (map) {
-      df = data.frame(cell = terra::cells(samc@map),
-                      vec = numeric(samc@nodes))
-      df$vec[x] = 1
-
-      # TODO fix for multiple x like previous version
-      if (length(x) > 1) stop("Multiple locations temporarily does not work", call. = FALSE)
-
-      return(.build_map(samc, df))
-    } else {
-      return(x)
-    }
+    return(x)
   })
 
 setMethod(
   ".process_locations",
   signature(samc = "samc", x = "character"),
-  function(samc, x, map = TRUE) {
+  function(samc, x) {
     .validate_names(samc$names, x)
 
-    return(.process_locations(samc, match(x, samc$names), map))
+    return(.process_locations(samc, match(x, samc$names)))
   })
+
+
+#' Map Location
+#'
+#' Map a location
+#'
+#' @param x A list
+#' @noRd
+.map_location <- function(samc, x) {
+  df = data.frame(cell = terra::cells(samc@map),
+                  vec = numeric(samc@nodes))
+  df$vec[x] = 1
+
+  return(.build_map(samc, df))
+}
 
 
 #' Validate options
