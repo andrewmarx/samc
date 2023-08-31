@@ -657,8 +657,7 @@
   if (any(x < 1))
     stop("All location values must be positive (greater than 0)", call. = FALSE)
 
-  # TODO this only works correctly for RW. In CRW, nrow does not correspond to number of locations
-  if (any(x > nrow(samc$q_matrix)))
+  if (any(x > samc@nodes))
     stop("Location values cannot exceed the number of nodes in the landscape", call. = FALSE)
 }
 
