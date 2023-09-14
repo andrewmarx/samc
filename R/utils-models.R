@@ -149,16 +149,13 @@
     stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
 
   if (!is(x$ssc, "numeric"))
-    stop("ssc must be single positive numeric value.", call. = FALSE)
+    stop("ssc must be single numeric value.", call. = FALSE)
 
   if (length(x$ssc) != 1)
-    stop("ssc must be single positive numeric value.", call. = FALSE)
+    stop("ssc must be single numeric value.", call. = FALSE)
 
   if (!is.finite(x$ssc))
-    stop("ssc must be single positive numeric value.", call. = FALSE)
-
-  if (x$ssc <= 0)
-    stop("ssc must be single positive numeric value.", call. = FALSE)
+    stop("ssc must be single numeric value.", call. = FALSE)
 }
 
 

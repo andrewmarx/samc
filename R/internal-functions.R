@@ -393,7 +393,7 @@
   result = numeric(nrows * ncols * dir)
   index = 0
 
-  dist = .build_lookup_mat(data, dir)^(ssc - 1)
+  dist = .build_lookup_mat(data, dir)^(ssc)
 
   if (dir == 4) {
     dir = c(2, 4, 6, 8)
