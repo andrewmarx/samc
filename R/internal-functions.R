@@ -942,3 +942,17 @@ setMethod(
 .disable_conv <- function(samc) {
   if (samc@solver == "conv") stop("Metric/parameter combinaton not currently supported for the convolution algorithm", call. = FALSE)
 }
+
+
+#' Summarize CRW
+#'
+#' Summarize CRW
+#'
+#' @param samc samc model
+#' @noRd
+.summarize_crw <- function(samc, vec, fun) {
+  if (length(vec) != nrow(samc@crw_map))
+    stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
+
+  aggregate(vec ~ samc@crw_map[, 1], FUN = fun)$vec
+}

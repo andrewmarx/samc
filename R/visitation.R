@@ -259,6 +259,8 @@ setMethod(
       time <- c(1, time)
       ft <- .sum_qpow_row(q, pv, time)
 
+      if (samc@model$name == "CRW") lapply(ft, function(x) .summarize_crw(samc, x, sum))
+
       if (length(ft) == 1) {
         return(ft[[1]])
       } else {
@@ -381,7 +383,11 @@ setMethod(
         r <- .f_row(samc@data@f, pv, samc@.cache$sc)
       }
 
-      return(as.vector(r))
+      r = as.vector(r)
+
+      if (samc@model$name == "CRW") r = .summarize_crw(samc, r, sum)
+
+      return(r)
     } else if (samc@solver == "conv") {
 
       results_list = samc:::.convolution_long(samc@conv_cache, pv, samc@threads)

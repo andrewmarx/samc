@@ -46,19 +46,11 @@ setMethod(
     # TODO make work for transition matrices
     if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
 
-    if (samc@model$name == "CRW") {
-      if (length(vec) != nrow(samc@crw_map))
-        stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
+    if (length(vec) != length(terra::cells(samc@map)))
+      stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
 
-      df = data.frame(samc@crw_map, vec)
-      df = stats::reshape(df, idvar = "X1", timevar = "X2", direction = "wide")
-    } else {
-      if (length(vec) != length(terra::cells(samc@map)))
-        stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
-
-      df = data.frame(cell = terra::cells(samc@map),
-                      vec = vec)
-    }
+    df = data.frame(cell = terra::cells(samc@map),
+                    vec = vec)
 
     .build_map(samc, df)
   })

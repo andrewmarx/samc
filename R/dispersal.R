@@ -224,28 +224,15 @@ setMethod(
 
     if (is(origin, "matrix")) {
       if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
     }
 
-    origin <- .process_locations(samc, origin)
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
 
-    if (!samc@.cache$dgf_exists) {
-      if (samc@solver == "iter") {
-        dg <- samc:::.diagf_par_iter(samc@data@f, samc@threads)
-      } else {
-        dg <- samc:::.diagf_par(samc@data@f, samc@threads)
-      }
-
-      samc@.cache$dgf <- dg
-      samc@.cache$dgf_exists <- TRUE
-    }
-
-    f_row <- visitation(samc, origin = origin)
-    f_row[origin] <- f_row[origin] - 1
-
-    result <- as.vector(f_row/samc@.cache$dgf)
-    names(result) <- colnames(samc$q_matrix) # TODO update based on names changes? Check for other similiar situations
-
-    return(result)
+    return(dispersal(samc, init))
   })
 
 # dispersal(samc, dest) ----
@@ -305,8 +292,6 @@ setMethod(
 
     check(samc, init)
 
-    pv <- .process_init(samc, init)
-
     if (!samc@.cache$dgf_exists) {
       if (samc@solver == "iter") {
         dg <- samc:::.diagf_par_iter(samc@data@f, samc@threads)
@@ -318,13 +303,17 @@ setMethod(
       samc@.cache$dgf_exists <- TRUE
     }
 
-    if (samc@solver == "iter") {
-      disp <- .psid_long_iter(samc@data@f, pv, samc@.cache$dgf)
-    } else {
-      disp <- .psid_long(samc@data@f, pv, samc@.cache$dgf, samc@.cache$sc)
+    vis = visitation(samc, init)
+
+    dg = samc@.cache$dgf
+    init = .process_init(samc, init)
+
+    if (samc@model$name == "CRW") {
+      dg = .summarize_crw(samc, dg, sum) - .summarize_crw(samc, dg, length) + 1
+      init = .summarize_crw(samc, init, sum)
     }
 
-    return(as.vector(disp))
+    return((vis - init)/dg)
   })
 
 

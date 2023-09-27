@@ -170,28 +170,3 @@ Rcpp::NumericVector diagf_par_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, 
 
   return Rcpp::wrap(dg);
 }
-
-
-// [[Rcpp::export(".psid_long")]]
-Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M,
-                              const Eigen::VectorXd &psi, const Eigen::VectorXd &dg,
-                              Rcpp::XPtr<SolverCache> &SC)
-{
-  SC->buildSolver(M.transpose(), "mt");
-
-  Eigen::VectorXd psiF = SC->solver().solve(psi) - psi;
-
-  return Rcpp::wrap(psiF.cwiseQuotient(dg));
-}
-
-// [[Rcpp::export(".psid_long_iter")]]
-Rcpp::NumericVector psid_long_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::VectorXd &psi, const Eigen::VectorXd &dg)
-{
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
-
-  solver.compute(M.transpose());
-
-  Eigen::VectorXd psiF = solver.solve(psi) - psi;
-
-  return Rcpp::wrap(psiF.cwiseQuotient(dg));
-}

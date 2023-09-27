@@ -41,14 +41,6 @@
     .Call('_samc_diagf_par_iter', PACKAGE = 'samc', M, threads)
 }
 
-.psid_long <- function(M, psi, dg, SC) {
-    .Call('_samc_psid_long', PACKAGE = 'samc', M, psi, dg, SC)
-}
-
-.psid_long_iter <- function(M, psi, dg) {
-    .Call('_samc_psid_long_iter', PACKAGE = 'samc', M, psi, dg)
-}
-
 .qpow_row <- function(M, vec, steps) {
     .Call('_samc_qpow_row', PACKAGE = 'samc', M, vec, steps)
 }

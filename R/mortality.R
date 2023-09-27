@@ -270,8 +270,12 @@ setMethod(
 
       res = visitation(samc, init, time = time)
 
+      t_abs = samc@data@t_abs
 
-      return(res * samc@data@t_abs)
+      if (samc@model$name == "CRW") t_abs = .summarize_crw(samc, t_abs, mean)
+
+
+      return(res * t_abs)
     } else {
       stop("Invalid method attribute in samc object.")
     }
@@ -325,19 +329,17 @@ setMethod(
   function(samc, origin) {
     .disable_conv(samc)
 
-    vis <- visitation(samc, origin = origin)
-    names(vis) <- samc$names
-
-    mort <- vis * samc@data@t_abs
-
-    if (ncol(samc@data@c_abs) > 0) {
-      mort <- list(total = mort)
-      for (n in colnames(samc@data@c_abs)) {
-        mort[[n]] <- vis * samc@data@c_abs[, n]
-      }
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
     }
 
-    return(mort)
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    return(mortality(samc, init))
   })
 
 # mortality(samc, dest) ----
@@ -410,33 +412,20 @@ setMethod(
   function(samc, init) {
     check(samc, init)
 
-    pv <- .process_init(samc, init)
+    res = visitation(samc, init)
+    t_abs = samc@data@t_abs
 
-    if (samc@solver %in% c("direct", "iter")) {
-      if (samc@solver == "iter") {
-        pf <- .f_row_iter(samc@data@f, pv)
-      } else {
-        pf <- .f_row(samc@data@f, pv, samc@.cache$sc)
+    if (samc@model$name == "CRW") t_abs = .summarize_crw(samc, t_abs, mean)
+
+    mort = res * t_abs
+
+    # TODO aggregate c_abs for CRW like t_abs above
+    if (ncol(samc@data@c_abs) > 0) {
+      mort = list(total = mort)
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] = res * samc@data@c_abs[, n]
       }
-
-      names(pf) <- samc$names
-
-      mort <- pf * samc@data@t_abs
-
-      if (ncol(samc@data@c_abs) > 0) {
-        mort <- list(total = mort)
-        for (n in colnames(samc@data@c_abs)) {
-          mort[[n]] <- pf * samc@data@c_abs[, n]
-        }
-      }
-
-      return(mort)
-    } else if (samc@solver == "conv") {
-
-      res = visitation(samc, init)
-
-      return(res *  samc@data@t_abs)
-    } else {
-      stop("Invalid method attribute in samc object.")
     }
+
+    return(mort)
   })

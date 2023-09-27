@@ -42,7 +42,7 @@ NULL
 
 setGeneric(
   "survival",
-  function(samc, init) {
+  function(samc, init, origin) {
     standardGeneric("survival")
   })
 
@@ -50,7 +50,7 @@ setGeneric(
 #' @rdname survival
 setMethod(
   "survival",
-  signature(samc = "samc", init = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing"),
   function(samc) {
     .disable_conv(samc)
 
@@ -60,14 +60,40 @@ setMethod(
       z = .f1(samc@data@f, samc@.cache$sc)
     }
 
-    return(as.vector(z))
+    z = as.vector(z)
+
+    if (samc@model$name == "CRW") {
+      z = .summarize_crw(samc, z, sum) # TODO figure out why this produces slightly incorrect results
+      warning("survival() CRW results can be incorrect by up to 0.5%") # TODO fix issue and remove warning
+    }
+
+    return(z)
+  })
+
+# survival(samc, origin) ----
+#' @rdname survival
+setMethod(
+  "survival",
+  signature(samc = "samc", init = "missing", origin = "location"),
+  function(samc, origin) {
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
+
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    return(survival(samc, init = init))
   })
 
 # survival(samc, init) ----
 #' @rdname survival
 setMethod(
   "survival",
-  signature(samc = "samc", init = "ANY"),
+  signature(samc = "samc", init = "ANY", origin = "missing"),
   function(samc, init) {
     if (samc@solver %in% c("direct", "iter")) {
       check(samc, init)
@@ -75,6 +101,11 @@ setMethod(
       pv <- .process_init(samc, init)
 
       sv <- survival(samc)
+
+      if (samc@model$name == "CRW") {
+        pv = .summarize_crw(samc, pv, sum)
+        warning("survival() CRW results can be incorrect by up to 0.5%") # TODO fix issue and remove warning
+      }
 
       surv <- pv %*% sv
 

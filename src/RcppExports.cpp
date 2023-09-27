@@ -143,33 +143,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// psid_long
-Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& psi, const Eigen::VectorXd& dg, Rcpp::XPtr<SolverCache>& SC);
-RcppExport SEXP _samc_psid_long(SEXP MSEXP, SEXP psiSEXP, SEXP dgSEXP, SEXP SCSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type psi(psiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type dg(dgSEXP);
-    Rcpp::traits::input_parameter< Rcpp::XPtr<SolverCache>& >::type SC(SCSEXP);
-    rcpp_result_gen = Rcpp::wrap(psid_long(M, psi, dg, SC));
-    return rcpp_result_gen;
-END_RCPP
-}
-// psid_long_iter
-Rcpp::NumericVector psid_long_iter(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& psi, const Eigen::VectorXd& dg);
-RcppExport SEXP _samc_psid_long_iter(SEXP MSEXP, SEXP psiSEXP, SEXP dgSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type psi(psiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type dg(dgSEXP);
-    rcpp_result_gen = Rcpp::wrap(psid_long_iter(M, psi, dg));
-    return rcpp_result_gen;
-END_RCPP
-}
 // qpow_row
 Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, Rcpp::NumericVector steps);
 RcppExport SEXP _samc_qpow_row(SEXP MSEXP, SEXP vecSEXP, SEXP stepsSEXP) {
@@ -330,8 +303,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_samc_sum_qn_q_iter", (DL_FUNC) &_samc_sum_qn_q_iter, 4},
     {"_samc_diagf_par", (DL_FUNC) &_samc_diagf_par, 2},
     {"_samc_diagf_par_iter", (DL_FUNC) &_samc_diagf_par_iter, 2},
-    {"_samc_psid_long", (DL_FUNC) &_samc_psid_long, 4},
-    {"_samc_psid_long_iter", (DL_FUNC) &_samc_psid_long_iter, 3},
     {"_samc_qpow_row", (DL_FUNC) &_samc_qpow_row, 3},
     {"_samc_qpow_col", (DL_FUNC) &_samc_qpow_col, 3},
     {"_samc_sum_qpowrv", (DL_FUNC) &_samc_sum_qpowrv, 3},
