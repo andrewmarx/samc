@@ -60,11 +60,12 @@ setMethod(
       z = .f1(samc@data@f, samc@.cache$sc)
     }
 
-    z = as.vector(z)
-
     if (samc@model$name == "CRW") {
-      z = .summarize_crw(samc, z, sum) # TODO figure out why this produces slightly incorrect results
-      warning("survival() CRW results can be incorrect by up to 0.5%") # TODO fix issue and remove warning
+      vec = as.vector(samc@prob_mat)
+      vec = vec[!is.na(vec)]
+
+      z = vec * z
+      z = .summarize_crw(samc, z, sum)
     }
 
     return(z)
@@ -95,27 +96,5 @@ setMethod(
   "survival",
   signature(samc = "samc", init = "ANY", origin = "missing"),
   function(samc, init) {
-    if (samc@solver %in% c("direct", "iter")) {
-      check(samc, init)
-
-      pv <- .process_init(samc, init)
-
-      sv <- survival(samc)
-
-      if (samc@model$name == "CRW") {
-        pv = .summarize_crw(samc, pv, sum)
-        warning("survival() CRW results can be incorrect by up to 0.5%") # TODO fix issue and remove warning
-      }
-
-      surv <- pv %*% sv
-
-      return(as.numeric(surv))
-    } else if (samc@solver == "conv") {
-
-      res = visitation(samc, init)
-
-      return(sum(res))
-    } else {
-      stop("Invalid method attribute in samc object.")
-    }
+    sum(visitation(samc, init))
   })
