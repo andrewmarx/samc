@@ -57,6 +57,7 @@ setGeneric(
     standardGeneric("absorption")
   })
 
+# TODO Add unit tests
 
 # absorption(samc) ----
 #' @rdname absorption
