@@ -320,7 +320,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest){
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (is.matrix(dest)) {
 
@@ -329,15 +328,31 @@ setMethod(
         stop("dest can only contain a single location for this version of the function", call. = FALSE)
     }
 
-    dest <- .process_locations(samc, dest)
+    dest = .process_locations(samc, dest)
 
-    if (samc@solver == "iter") {
-      r <- .f_col_iter(samc@data@f, dest);
+    if (samc@model$name == "RW") {
+      vec = numeric(samc@nodes)
+      vec[dest] = 1
+    } else if (samc@model$name == "CRW") {
+      vec = as.numeric(samc@crw_map[,1] == dest)
     } else {
-      r <- .f_col(samc@data@f, dest, samc@.cache$sc);
+      stop("Unexpected model", call. = FALSE)
     }
 
-    return(as.vector(r))
+    if (samc@solver == "iter") {
+      r = .f_col_iter(samc@data@f, vec)
+    } else {
+      r = .f_col(samc@data@f, vec, samc@.cache$sc)
+    }
+
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      r = .summarize_crw(samc, pv * r, sum)
+    }
+
+    return(r)
   })
 
 # visitation(samc, origin, dest) ----
@@ -347,7 +362,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest){
     .disable_conv(samc)
-    .disable_crw(samc)
 
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)

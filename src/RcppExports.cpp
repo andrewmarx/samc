@@ -267,27 +267,27 @@ BEGIN_RCPP
 END_RCPP
 }
 // f_col
-Rcpp::NumericVector f_col(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int col, Rcpp::XPtr<SolverCache>& SC);
-RcppExport SEXP _samc_f_col(SEXP MSEXP, SEXP colSEXP, SEXP SCSEXP) {
+Rcpp::NumericVector f_col(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& vec, Rcpp::XPtr<SolverCache>& SC);
+RcppExport SEXP _samc_f_col(SEXP MSEXP, SEXP vecSEXP, SEXP SCSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const int >::type col(colSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type vec(vecSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<SolverCache>& >::type SC(SCSEXP);
-    rcpp_result_gen = Rcpp::wrap(f_col(M, col, SC));
+    rcpp_result_gen = Rcpp::wrap(f_col(M, vec, SC));
     return rcpp_result_gen;
 END_RCPP
 }
 // f_col_iter
-Rcpp::NumericVector f_col_iter(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int col);
-RcppExport SEXP _samc_f_col_iter(SEXP MSEXP, SEXP colSEXP) {
+Rcpp::NumericVector f_col_iter(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& vec);
+RcppExport SEXP _samc_f_col_iter(SEXP MSEXP, SEXP vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const int >::type col(colSEXP);
-    rcpp_result_gen = Rcpp::wrap(f_col_iter(M, col));
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type vec(vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(f_col_iter(M, vec));
     return rcpp_result_gen;
 END_RCPP
 }

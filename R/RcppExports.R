@@ -81,11 +81,11 @@
     .Call('_samc_f_row_iter', PACKAGE = 'samc', M, vec)
 }
 
-.f_col <- function(M, col, SC) {
-    .Call('_samc_f_col', PACKAGE = 'samc', M, col, SC)
+.f_col <- function(M, vec, SC) {
+    .Call('_samc_f_col', PACKAGE = 'samc', M, vec, SC)
 }
 
-.f_col_iter <- function(M, col) {
-    .Call('_samc_f_col_iter', PACKAGE = 'samc', M, col)
+.f_col_iter <- function(M, vec) {
+    .Call('_samc_f_col_iter', PACKAGE = 'samc', M, vec)
 }
 
