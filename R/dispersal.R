@@ -111,6 +111,25 @@ setGeneric(
     standardGeneric("dispersal")
   })
 
+# dispersal(samc, origin, dest, time) ----
+#' @rdname dispersal
+setMethod(
+  "dispersal", # TODO add unit tests
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
+  function(samc, origin, dest, time) {
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
+
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    return(dispersal(samc, init, dest=dest, time = time))
+  })
+
 # dispersal(samc, dest, time) ----
 #' @rdname dispersal
 setMethod(
