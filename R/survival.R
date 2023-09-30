@@ -54,6 +54,7 @@ setMethod(
   function(samc) {
     .disable_conv(samc)
 
+    # TODO If multiple dest becomes supported, this can be replaced with visitation(dest)
     if (samc@solver == "iter") {
       z = .f1_iter(samc@data@f)
     } else {
