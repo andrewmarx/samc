@@ -229,15 +229,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // sum_qpow_col
-Rcpp::List sum_qpow_col(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int& col, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_qpow_col(SEXP MSEXP, SEXP colSEXP, SEXP stepsSEXP) {
+Rcpp::List sum_qpow_col(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, Rcpp::NumericVector steps);
+RcppExport SEXP _samc_sum_qpow_col(SEXP MSEXP, SEXP vecSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const int& >::type col(colSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type vec(vecSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(sum_qpow_col(M, col, steps));
+    rcpp_result_gen = Rcpp::wrap(sum_qpow_col(M, vec, steps));
     return rcpp_result_gen;
 END_RCPP
 }

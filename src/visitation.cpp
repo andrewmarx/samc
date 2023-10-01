@@ -32,17 +32,14 @@ Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen
 }
 
 // [[Rcpp::export(".sum_qpow_col")]]
-Rcpp::List sum_qpow_col(Eigen::Map<Eigen::SparseMatrix<double> > &M, const int &col, Rcpp::NumericVector steps)
+Rcpp::List sum_qpow_col(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &vec, Rcpp::NumericVector steps)
 {
   int n = steps.size();
 
   Rcpp::List res = Rcpp::List::create();
 
-  Eigen::VectorXd col_vec = Eigen::VectorXd::Zero(M.rows());
-  col_vec(col-1) = 1;
-
-  Eigen::VectorXd qc = col_vec;
-  Eigen::VectorXd time_res = col_vec;
+  Eigen::VectorXd qc = vec;
+  Eigen::VectorXd time_res = vec;
 
   for(int i = 1; i < n; i++) {
     for (int j = steps[i - 1]; j < steps[i]; j++) {

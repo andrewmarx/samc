@@ -69,8 +69,8 @@
     .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, vec, steps)
 }
 
-.sum_qpow_col <- function(M, col, steps) {
-    .Call('_samc_sum_qpow_col', PACKAGE = 'samc', M, col, steps)
+.sum_qpow_col <- function(M, vec, steps) {
+    .Call('_samc_sum_qpow_col', PACKAGE = 'samc', M, vec, steps)
 }
 
 .f_row <- function(M, vec, SC) {
