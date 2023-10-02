@@ -45,8 +45,8 @@
     .Call('_samc_qpow_row', PACKAGE = 'samc', M, vec, steps)
 }
 
-.qpow_col <- function(M, col, steps) {
-    .Call('_samc_qpow_col', PACKAGE = 'samc', M, col, steps)
+.qpow_col <- function(M, vec, steps) {
+    .Call('_samc_qpow_col', PACKAGE = 'samc', M, vec, steps)
 }
 
 .sum_qpowrv <- function(M, rv, steps) {

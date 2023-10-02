@@ -114,6 +114,16 @@ setMethod(
       res <- res %*% q
     }
 
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      res = diag(pv) %*% res
+
+      res = apply(res, 1, function(x) samc:::.summarize_crw(samc_crw, x, sum))
+      res = apply(res, 1, function(x) samc:::.summarize_crw(samc_crw, x, sum)) # Same margin because results of last are transposed
+    }
+
     return(res)
   })
 
@@ -142,7 +152,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -150,17 +159,33 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc$q_matrix
+    q = samc$q_matrix
 
-    time <- c(1, time)
+    time = c(1, time)
 
-    mov <- .qpow_col(q, dest, time)
-    mov <- lapply(mov, as.vector)
-
-    if (length(mov) == 1) {
-      return((mov[[1]]))
+    if (samc@model$name == "RW") {
+      vec = numeric(samc@nodes)
+      vec[dest] = 1
+    } else if (samc@model$name == "CRW") {
+      vec = as.numeric(samc@crw_map[,1] == dest)
     } else {
-      return(mov)
+      stop("Unexpected model", call. = FALSE)
+    }
+
+    res = .qpow_col(q, vec, time)
+    res = lapply(res, as.vector)
+
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      res = lapply(res, function(x) .summarize_crw(samc, pv * x, sum))
+    }
+
+    if (length(res) == 1) {
+      return((res[[1]]))
+    } else {
+      return(res)
     }
   })
 
@@ -171,22 +196,14 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    dest <- .process_locations(samc, dest)
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
 
-    mov <- distribution(samc, origin = origin, time = time)
-
-    if (is.list(mov)){
-      return(lapply(mov, "[", dest))
-    } else if (is.vector(mov)) {
-      return(mov[dest])
-    } else {
-      stop("This should not have been possible. Please submit a report with a fully reproducible and simplified example.", call. = FALSE)
-    }
+    return(distribution(samc, init, dest = dest, time = time))
   })
 
 # distribution(samc, init, time) ----
@@ -210,6 +227,8 @@ setMethod(
 
       res = lapply(res, as.vector)
 
+      if (samc@model$name == "CRW") res = lapply(res, function(x) .summarize_crw(samc, x, sum))
+
       if (length(res) == 1) {
         return(res[[1]])
       } else {
@@ -223,5 +242,29 @@ setMethod(
       return(res)
     } else {
       stop("Invalid method attribute in samc object.")
+    }
+  })
+
+# distribution(samc, init, dest, time) ----
+#' @rdname distribution
+setMethod(
+  "distribution",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "numeric"),
+  function(samc, init, dest, time) {
+    .disable_conv(samc)
+
+    if (length(dest) != 1)
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    dest = .process_locations(samc, dest)
+
+    res = distribution(samc, init, time = time)
+
+    if (is.list(res)){
+      return(lapply(res, "[", dest))
+    } else if (is.vector(res)) {
+      return(res[dest])
+    } else {
+      stop("This should not have been possible. Please submit a report with a fully reproducible and simplified example.", call. = FALSE)
     }
   })

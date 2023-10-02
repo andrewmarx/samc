@@ -26,13 +26,13 @@ Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Ma
 }
 
 // [[Rcpp::export(".qpow_col")]]
-Rcpp::List qpow_col(Eigen::Map<Eigen::SparseMatrix< double> > &M, const int col, Rcpp::NumericVector steps)
+Rcpp::List qpow_col(Eigen::Map<Eigen::SparseMatrix< double> > &M, const Eigen::Map<Eigen::VectorXd> &vec, Rcpp::NumericVector steps)
 {
   int n = steps.size();
 
   Rcpp::List res = Rcpp::List::create();
 
-  Eigen::VectorXd time_res = M.col(col-1);
+  Eigen::VectorXd time_res = M * vec;
 
   for(int i = 1; i < n; i++) {
     for (int j = steps[i - 1]; j < steps[i]; j++) {
