@@ -261,7 +261,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     dest <- .process_locations(samc, dest)
 
@@ -282,7 +281,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
@@ -343,13 +341,16 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, init, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     check(samc, init)
 
     pv <- .process_init(samc, init)
 
     dj <- dispersal(samc, dest = dest)
+
+    if (samc@model$name == "CRW") {
+      pv = .summarize_crw(samc, pv, sum)
+    }
 
     return(as.numeric(pv %*% dj))
   })
