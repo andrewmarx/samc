@@ -297,6 +297,9 @@ setMethod(
     dimnames(f) <- dimnames(samc$q_matrix) # Not sure why dimnames aren't carrying through later calculations
 
     rdg <- samc@data@t_abs
+
+    if (samc@model$name == "CRW") rdg = .summarize_crw(samc, rdg, mean)
+
     r <- Matrix::sparseMatrix(i = 1:length(rdg),
                               j = 1:length(rdg),
                               x = rdg,
@@ -349,14 +352,16 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     dest <- .process_locations(samc, dest)
 
     vis <- visitation(samc, dest = dest)
     names(vis) <- samc$names
 
-    mort <- vis * samc@data@t_abs[dest]
+    t_abs = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+      else { samc@data@t_abs }
+
+    mort <- vis * t_abs[dest]
 
     if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
@@ -375,7 +380,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
@@ -391,8 +395,10 @@ setMethod(
     }
     names(results) <- samc$names[dest]
 
+    t_abs = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+      else { samc@data@t_abs }
 
-    mort <- results * samc@data@t_abs[dest]
+    mort <- results * t_abs[dest]
 
     if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
@@ -419,12 +425,37 @@ setMethod(
 
     mort = res * t_abs
 
-    # TODO aggregate c_abs for CRW like t_abs above
     if (ncol(samc@data@c_abs) > 0) {
       mort = list(total = mort)
       for (n in colnames(samc@data@c_abs)) {
         mort[[n]] = res * samc@data@c_abs[, n]
       }
+    }
+
+    return(mort)
+  })
+
+# TODO: make work with mulstiple dest and it can be used for mortality(samc, origin, dest)
+# mortality(samc, init, dest) ----
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
+  function(samc, init, dest) {
+    .disable_conv(samc)
+
+    dest = .process_locations(samc, dest)
+
+    vis = visitation(samc, init)
+
+    t_abs = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+    else { samc@data@t_abs }
+
+    mort = vis[dest] * t_abs[dest]
+
+    if (ncol(samc@data@c_abs) > 0) {
+      mort = append(mort, as.list(vis[dest] * samc@data@c_abs[dest, ]))
+      names(mort) = c("total", colnames(samc@data@c_abs))
     }
 
     return(mort)
