@@ -305,6 +305,21 @@ setMethod(
     }
   })
 
+# mortality(samc, init, dest, time) ----
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "numeric"),
+  function(samc, init, dest, time) {
+    .disable_conv(samc)
+
+    dest = .process_locations(samc, dest)
+
+    res = mortality(samc, init, time = time)
+
+    return(res[dest])
+  })
+
 # mortality(samc) ----
 #' @rdname mortality
 setMethod(
