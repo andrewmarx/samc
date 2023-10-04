@@ -171,6 +171,17 @@ setMethod(
     q_n <- solve(qi - q) %*% (qi - qt)
 
     bt <- q_n %*% r
+
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      bt = diag(pv) %*% bt
+
+      bt = apply(bt, 1, function(x) samc:::.summarize_crw(samc_crw, x, sum))
+      bt = apply(bt, 1, function(x) samc:::.summarize_crw(samc_crw, x, sum)) # Same margin because results of last are transposed
+    }
+
     return(bt)
   })
 
@@ -184,7 +195,8 @@ setMethod(
 
     mort = visitation(samc, origin = origin, time = time)
 
-    rdg <- samc@data@t_abs
+    rdg = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+      else { samc@data@t_abs }
 
     if (is.list(mort)) {
       return(lapply(mort, function(x){as.vector(x * rdg)}))
@@ -200,7 +212,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -212,13 +223,29 @@ setMethod(
 
     rdg <- samc@data@t_abs
 
-    rdg[-dest] <- 0
+    if (samc@model$name == "RW") {
+      vec = logical(samc@nodes)
+      vec[dest] = TRUE
+    } else if (samc@model$name == "CRW") {
+      vec = (samc@crw_map[,1] == dest)
+    } else {
+      stop("Unexpected model", call. = FALSE)
+    }
+
+    rdg[!vec] <- 0
 
     time <- c(1, time)
 
     mort <- .sum_qpowrv(q, rdg, time)
 
     mort <- lapply(mort, as.vector)
+
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      mort = lapply(mort, function(x) .summarize_crw(samc, pv * x, sum))
+    }
 
     if (length(mort) == 1) {
       return(mort[[1]])
@@ -234,7 +261,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     dest <- .process_locations(samc, dest)
 
@@ -259,7 +285,8 @@ setMethod(
     if (samc@solver %in% c("direct", "iter")) {
       mort = visitation(samc, init = init, time = time)
 
-      rdg <- samc@data@t_abs
+      rdg = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+        else { samc@data@t_abs }
 
       if (is.list(mort)) {
         return(lapply(mort, function(x){as.vector(x * rdg)}))
@@ -271,9 +298,6 @@ setMethod(
       res = visitation(samc, init, time = time)
 
       t_abs = samc@data@t_abs
-
-      if (samc@model$name == "CRW") t_abs = .summarize_crw(samc, t_abs, mean)
-
 
       return(res * t_abs)
     } else {
