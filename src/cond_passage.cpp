@@ -13,12 +13,9 @@ Rcpp::NumericVector cond_t(Eigen::Map<Eigen::SparseMatrix<double> > &IQ, Eigen::
   solver.compute(IQ);
 
   Eigen::VectorXd b = solver.solve(qj);
-
-  solver.compute(IQ * b.asDiagonal());
-
   Eigen::VectorXd res = solver.solve(b);
 
-  return Rcpp::wrap(res);
+  return Rcpp::wrap(res.array() / b.array());
 }
 
 // [[Rcpp::export(".cond_t_iter")]]
@@ -29,10 +26,7 @@ Rcpp::NumericVector cond_t_iter(Eigen::Map<Eigen::SparseMatrix<double> > &IQ, Ei
   solver.compute(IQ);
 
   Eigen::VectorXd b = solver.solve(qj);
-
-  solver.compute(IQ * b.asDiagonal());
-
   Eigen::VectorXd res = solver.solve(b);
 
-  return Rcpp::wrap(res);
+  return Rcpp::wrap(res.array() / b.array());
 }
