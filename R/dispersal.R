@@ -137,7 +137,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -145,30 +144,44 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc$q_matrix
-    qv <- q[, dest]
-    qv <- qv[-dest]
-    q <- q[-dest, -dest]
+    if (samc@model$name == "RW") {
+      vec = logical(samc@nodes)
+      vec[dest] = TRUE
+    } else if (samc@model$name == "CRW") {
+      vec = (samc@crw_map[,1] == dest)
+    } else {
+      stop("Unexpected model", call. = FALSE)
+    }
+
+    q = samc$q_matrix
+
+    qv = q[, vec, drop = FALSE]
+    qv[vec ,] = 0
+    qv = Matrix::rowSums(qv)
+
+    q[, vec] = 0
+    q[vec, ] = 0
 
     q2 = q
-    q2@x <- -q2@x
-    Matrix::diag(q2) <- Matrix::diag(q2) + 1
+    q2@x = -q2@x
+    Matrix::diag(q2) = Matrix::diag(q2) + 1
 
     time <- c(0, time)
 
     if (samc@solver == "iter") {
-      res <- .sum_qn_q_iter(q, q2, qv, time)
+      res = .sum_qn_q_iter(q, q2, qv, time)
     } else {
-      res <- .sum_qn_q(q, q2, qv, time)
+      res = .sum_qn_q(q, q2, qv, time)
     }
 
-    res <- lapply(res, as.vector)
+    res = lapply(res, as.vector)
 
-    # Element for i=j is missing, so fill in with NA
-    res <- lapply(res, function(x) {
-      lx <- length(x)
-      y <- c(x[0:(dest-1)], NA, x[dest:(lx + 1)])
-      return(y[1:(lx + 1)])})
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      res = lapply(res, function(x) .summarize_crw(samc, pv * x, sum))
+    }
 
     if (length(res) == 1) {
       return(res[[1]])
@@ -184,7 +197,6 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "numeric"),
   function(samc, init, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -194,6 +206,8 @@ setMethod(
     dest <- .process_locations(samc, dest)
 
     pv <- .process_init(samc, init)
+
+    if (samc@model$name == "CRW") pv = .summarize_crw(samc, pv, sum)
 
     d <- dispersal(samc, dest = dest, time = time)
 
