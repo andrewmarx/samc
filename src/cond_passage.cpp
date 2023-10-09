@@ -6,27 +6,31 @@
 
 
 // [[Rcpp::export(".cond_t")]]
-Rcpp::NumericVector cond_t(Eigen::Map<Eigen::SparseMatrix<double> > &IQ, Eigen::VectorXd &qj)
+Rcpp::List cond_t(Eigen::Map<Eigen::SparseMatrix<double> > &IQ, Eigen::VectorXd &qj)
 {
   Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
 
   solver.compute(IQ);
 
   Eigen::VectorXd b = solver.solve(qj);
-  Eigen::VectorXd res = solver.solve(b);
+  Eigen::VectorXd fb = solver.solve(b);
 
-  return Rcpp::wrap(res.array() / b.array());
+  Rcpp::List res = Rcpp::List::create(Rcpp::Named("b") = b, Rcpp::Named("fb") = fb);
+
+  return res;
 }
 
 // [[Rcpp::export(".cond_t_iter")]]
-Rcpp::NumericVector cond_t_iter(Eigen::Map<Eigen::SparseMatrix<double> > &IQ, Eigen::VectorXd &qj)
+Rcpp::List cond_t_iter(Eigen::Map<Eigen::SparseMatrix<double> > &IQ, Eigen::VectorXd &qj)
 {
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   solver.compute(IQ);
 
   Eigen::VectorXd b = solver.solve(qj);
-  Eigen::VectorXd res = solver.solve(b);
+  Eigen::VectorXd fb = solver.solve(b);
 
-  return Rcpp::wrap(res.array() / b.array());
+  Rcpp::List res = Rcpp::List::create(Rcpp::Named("b") = b, Rcpp::Named("fb") = fb);
+
+  return res;
 }

@@ -14,7 +14,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // cond_t
-Rcpp::NumericVector cond_t(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
+Rcpp::List cond_t(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
 RcppExport SEXP _samc_cond_t(SEXP IQSEXP, SEXP qjSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -26,7 +26,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // cond_t_iter
-Rcpp::NumericVector cond_t_iter(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
+Rcpp::List cond_t_iter(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
 RcppExport SEXP _samc_cond_t_iter(SEXP IQSEXP, SEXP qjSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

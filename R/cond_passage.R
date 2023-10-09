@@ -75,7 +75,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location"),
   function(samc, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (samc@clumps == -1)
       warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
@@ -88,26 +87,45 @@ setMethod(
 
     dest = .process_locations(samc, dest)
 
+    if (samc@model$name == "RW") {
+      vec = logical(samc@nodes)
+      vec[dest] = TRUE
+    } else if (samc@model$name == "CRW") {
+      vec = (samc@crw_map[,1] == dest)
+    } else {
+      stop("Unexpected model", call. = FALSE)
+    }
+
     Q = samc$q_matrix
 
-    qj = Q[, dest]
-    qj[dest] = 1
+    q = Q[, vec, drop = FALSE]
+    q = Matrix::rowSums(q)
+    q[vec] = 1
 
-    Q[dest, ] = 0
-    Q[, dest] = 0
-    Q[dest, dest] = 0
+    Q[vec, ] = 0
+    Q[, vec] = 0
 
-    Q@x <- -Q@x
-    Matrix::diag(Q) <- Matrix::diag(Q) + 1
+    Q@x = -Q@x
+    Matrix::diag(Q) = Matrix::diag(Q) + 1
 
     if (samc@solver == "iter") {
-      t <- as.numeric(.cond_t_iter(Q, qj))
+      t = .cond_t_iter(Q, q)
     } else {
-      t <- as.numeric(.cond_t(Q, qj))
+      t = .cond_t(Q, q)
     }
-    names(t) <- samc$names
 
-    return(t)
+    if (samc@model$name == "RW") {
+      res = t$fb / t$b
+    } else if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      res = .summarize_crw(samc, (pv * t$fb), sum) / .summarize_crw(samc, pv * t$b, sum) # Works
+    }
+
+    names(res) = samc$names
+
+    return(res)
   })
 
 # cond_passage(samc, origin, dest) ----
@@ -117,7 +135,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
   function(samc, origin, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
