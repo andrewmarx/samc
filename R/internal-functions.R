@@ -887,7 +887,7 @@ setMethod(
 
 
     if (samc@model$name == "CRW") {
-      x = sweep(samc@prob_mat, 2, x, "*")
+      x = sweep(samc@prob_mat[, terra::cells(samc@map)], 2, x, "*")
       dim(x) = NULL
       x = x[!is.na(x)]
     }
