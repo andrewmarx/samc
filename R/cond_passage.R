@@ -155,3 +155,31 @@ setMethod(
 
     return(result)
   })
+
+# cond_passage(samc, init, dest) ----
+#' @rdname cond_passage
+setMethod(
+  "cond_passage",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location"),
+  function(samc, init, dest) {
+    .disable_conv(samc)
+
+    if(length(origin) != length(dest))
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
+
+    result <- vector(mode = "numeric", length = length(origin))
+
+    unique_dest <- unique(dest)
+
+    for (d in unique_dest) {
+      t <- cond_passage(samc, dest = d)
+      #      adj_origin <- origin
+      #      adj_origin[origin > d] <- adj_origin[origin > d] - 1
+      result[dest == d] <- t[origin[dest == d]]
+    }
+
+    return(result)
+  })
