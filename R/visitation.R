@@ -507,7 +507,33 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    vis = visitation(samc, origin = origin)
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    check(samc, init)
+
+    pv <- .process_init(samc, init)
+
+    if (samc@solver %in% c("direct", "iter")) {
+      if (samc@solver == "iter") {
+        r <- .f_row_iter(samc@data@f, pv)
+      } else {
+        r <- .f_row(samc@data@f, pv, samc@.cache$sc)
+      }
+
+      r = as.vector(r)
+
+      # if (samc@model$name == "CRW") r = .summarize_crw(samc, r, sum)
+
+      vis = r
+    } else if (samc@solver == "conv") {
+
+      results_list = samc:::.convolution_long(samc@conv_cache, pv, samc@threads)
+
+      vis = results_list$vis
+    } else {
+      stop("Invalid method attribute in samc object.")
+    }
 
     vq = vis * samc@data@f
 
