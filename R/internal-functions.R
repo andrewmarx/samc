@@ -164,6 +164,8 @@
 
   edge_counts = sum(is.finite(tr))
 
+  mu = circular::circular(0)
+
   # Angle matrix
   # TODO make sure works for 4 directions
   dir_vec = matrix(c(-1, 1,
@@ -183,7 +185,7 @@
       mag_v1 = sqrt(sum(dir_vec[r, ]^2))
       mag_v2 = sqrt(sum(dir_vec[c, ]^2))
 
-      ang_mat[r, c] = circular::dvonmises(circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))), mu = circular::circular(0), kappa = model$kappa)
+      ang_mat[r, c] = circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2)))
     }
   }
 
@@ -255,6 +257,7 @@
   for (r in 1:nrows) {
     fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
     vals = 1 - fid - terra::values(absorption, mat = FALSE, row = r, nrows = 1)
+    kappa_vals = terra::values(model$kappa, mat = FALSE, row = r, nrows = 1)
     for (c in 1:ncols) {
       cell = cell + 1
       if (is.finite(vals[c])) {
@@ -286,7 +289,7 @@
                   e2_num = edge_nums[e2]
                   mat_p_count[e2_num] = mat_p_count[e2_num] + 1
 
-                  res = tr[e2] * ang_mat[d, dv]
+                  res = tr[e2] * circular::dvonmises(ang_mat[d, dv], mu = mu, kappa = kappa_vals[c])
                   rs = rs + res
 
                   row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]

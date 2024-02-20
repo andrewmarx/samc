@@ -215,6 +215,14 @@ setMethod(
 
         if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
 
+        if (is(model$kappa, "SpatRaster")) {
+          check(c(data, model$kappa))
+        } else if (is.numeric(model$kappa)) {
+          model$kappa = data * 0 + model$kappa
+        } else {
+          stop("Invalid kappa")
+        }
+
         crw_list = .crw(data, absorption, fidelity, model$fun, directions, symm, model)
         #assign("myvar", crw_list)
         samc_obj@data@f = crw_list$tr
