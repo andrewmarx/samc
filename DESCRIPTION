@@ -32,7 +32,7 @@ Description: Implements functions for working with absorbing Markov chains. The
     short-term and long-term predictions for metrics related to connectivity in 
     landscapes. Despite the ecological context of the framework, this package
     can be used in any application of absorbing Markov chains.
-License: GPL (>=3)
+License: AGPL (>= 3)
 URL: https://andrewmarx.github.io/samc/
 BugReports: https://github.com/andrewmarx/samc/issues/
 Encoding: UTF-8

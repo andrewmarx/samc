@@ -19,3 +19,4 @@ index.md
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
 ^vignettes/(?!overview.Rmd)
+^LICENSE\.md$
