@@ -2,6 +2,7 @@
 title: "Maze Part 3"
 author: "Andrew Marx"
 date: "`r Sys.Date()`"
+license: "CC BY-NC-SA 4.0"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Maze Part 3}

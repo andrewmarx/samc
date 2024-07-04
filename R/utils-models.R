@@ -1,3 +1,6 @@
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
+
 #' Validate model
 #'
 #' Validates the model for the samc() function

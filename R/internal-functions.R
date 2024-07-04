@@ -1,9 +1,9 @@
-# Copyright (c) 2020-2023 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
-#
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
+
 # This file is for internal functions. They are subject to change and should not
 # be used by users.
-#
+
 
 #' RW function
 #'

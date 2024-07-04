@@ -71,6 +71,12 @@ If you have an error, make sure you are using the newest version of the package.
 We have a Github discussions page for anything and everything related to the package here: [Github Discussions](https://github.com/andrewmarx/samc/discussions)
 
 
+### **License**
+
+By default, package code is licensed under AGPLv3. Some code files derived from 3rd party sources may be licensed under GPLv3 and will have a comment to indicate this is the case.
+
+Website materials are licensed under CC BY-NC-SA 4.0.
+
 ### References
 
 Fletcher, R.J., Jr., Sefair, J.A., Wang, C., Poli, C.L., Smith, T.A.H., Bruna, E.M., Holt, R.D., Barfield, M., Marx, A.J. and Acevedo, M.A. (2019), Towards a unified framework for connectivity that disentangles movement and mortality in space and time. Ecol Lett, 22: 1680-1689. https://doi.org/10.1111/ele.13333
