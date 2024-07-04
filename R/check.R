@@ -119,7 +119,7 @@ setMethod(
       data = terra::values(a, row = r, nrows = 1)
 
       if (any(is.infinite(data))) stop("Data contains Inf or -Inf", call. = FALSE)
-      if (any(is.nan(data))) stop("Data contains Inf or -Inf", call. = FALSE)
+      if (any(is.nan(data))) stop("Data contains NaN", call. = FALSE)
 
       data = rowSums(is.finite(data))
       if (any(data > 0 & data < n)) stop("NA mismatch in input data", call. = FALSE)
