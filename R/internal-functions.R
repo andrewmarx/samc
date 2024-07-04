@@ -749,9 +749,17 @@ setMethod(
 #' @param x A list
 #' @noRd
 .map_location <- function(samc, x) {
-  df = data.frame(cell = terra::cells(samc@map),
-                  vec = numeric(samc@nodes))
-  df$vec[x] = 1
+  if (samc@source == "transition") {
+    vec = numeric(samc@nodes)
+    vec[x] = 1
+    names(vec) = samc@names
+
+    return(vec)
+  } else {
+    df = data.frame(cell = terra::cells(samc@map),
+                    vec = numeric(samc@nodes))
+    df$vec[x] = 1
+  }
 
   return(.build_map(samc, df))
 }
