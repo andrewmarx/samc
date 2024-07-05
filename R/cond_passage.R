@@ -52,7 +52,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @param init Placeholder/not currently implemented.
+#' @template param-init
 #' @template param-origin
 #' @template param-dest
 #'

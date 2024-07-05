@@ -44,7 +44,7 @@ Imports:
     raster,
     terra (>= 1.7-3),
     circular
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests: knitr,
     rmarkdown,
     testthat,

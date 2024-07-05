@@ -33,6 +33,7 @@ NULL
 #'
 #' @template param-samc
 #' @template param-init
+#' @template param-origin
 #'
 #' @return See Details
 #'

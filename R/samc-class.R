@@ -84,6 +84,7 @@ NULL
 #' @slot nodes The number of nodes in the graph
 #' @slot map Used to verify landscape inputs and mapping of vector data
 #' @slot crw_map Matrix used to map location and direction to edges description
+#' @slot prob_mat Matric for CRW probabilities
 #' @slot names Names of the transient states
 #' @slot clumps Number of discontinuous regions in data
 #' @slot override Used to prevent accidental use of memory intensive functions

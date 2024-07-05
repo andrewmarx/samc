@@ -120,8 +120,8 @@ setMethod(
 
       res = diag(pv) %*% res
 
-      res = apply(res, 1, function(x) samc:::.summarize_crw(samc_crw, x, sum))
-      res = apply(res, 1, function(x) samc:::.summarize_crw(samc_crw, x, sum)) # Same margin because results of last are transposed
+      res = apply(res, 1, function(x) samc:::.summarize_crw(samc, x, sum))
+      res = apply(res, 1, function(x) samc:::.summarize_crw(samc, x, sum)) # Same margin because results of last are transposed
     }
 
     return(res)
