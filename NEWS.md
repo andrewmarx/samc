@@ -1,3 +1,21 @@
+# samc 3.3.0
+
+## New features
+
+- New input options for metrics
+  - cond_passage(samc, init, dest)
+  - dispersal(samc, origin, dest, time)
+  - distribution(samc, init, dest, time)
+  - mortality(samc, init, dest, time)
+
+## Other
+
+- Lot's of internal refactoring and consolidation.
+- Various small memory and speed optimizations.
+- Various small fixes
+- License update
+
+
 # samc 3.2.1
 
 ## Bug fix
