@@ -1,5 +1,5 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details..
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R
 NULL
@@ -119,7 +119,7 @@ setMethod(
       data = terra::values(a, row = r, nrows = 1)
 
       if (any(is.infinite(data))) stop("Data contains Inf or -Inf", call. = FALSE)
-      if (any(is.nan(data))) stop("Data contains Inf or -Inf", call. = FALSE)
+      if (any(is.nan(data))) stop("Data contains NaN", call. = FALSE)
 
       data = rowSums(is.finite(data))
       if (any(data > 0 & data < n)) stop("NA mismatch in input data", call. = FALSE)
@@ -209,7 +209,9 @@ setMethod(
 
     if (!isTRUE(all.equal(names(b), a@names))) stop("Names of the vector must match the names of the transient states in the P matrix", call. = FALSE)
 
-    if (any(!is.finite(b)) || any(b < 0)) stop("Input must only contain positive numeric values", call. = FALSE)
+    if (any(!is.finite(b)) || any(b < 0) || any(is.na(b))) stop("Input must only contain positive numeric values", call. = FALSE)
 
     if (length(b) != length(a@data@t_abs)) stop("Input length does not match number of transient states", call. = FALSE)
+
+    if (sum(b) <= 0) stop("Input must contain at least one positive numeric value", call. = FALSE)
   })

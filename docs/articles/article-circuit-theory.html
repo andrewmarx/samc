@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Circuit Theory • samc</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.3.0</span>
       </span>
     </div>
 
@@ -163,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-05-12</h4>
+            <h4 data-toc-skip class="date">2024-07-25</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/article-circuit-theory.Rmd" class="external-link"><code>vignettes/article-circuit-theory.Rmd</code></a></small>
       <div class="hidden name"><code>article-circuit-theory.Rmd</code></div>
@@ -216,7 +216,7 @@ example data used in the IALE workshop, where the absorption data was
 used to describe a hypothetical highway with a safe crossing area for
 the left route.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/terra/" class="external-link">"terra"</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/" class="external-link">"terra"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/raster" class="external-link">"raster"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://AgrDataSci.github.io/gdistance/" class="external-link">"gdistance"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://andrewmarx.github.io/samc/" class="external-link">"samc"</a></span><span class="op">)</span></span>
@@ -242,10 +242,10 @@ the left route.</p>
 <span><span class="va">res_data</span> <span class="op">=</span> <span class="fu">samc</span><span class="fu">::</span><span class="fu"><a href="../reference/rasterize.html">rasterize</a></span><span class="op">(</span><span class="va">res_data</span><span class="op">)</span></span>
 <span><span class="va">abs_data</span> <span class="op">=</span> <span class="fu">samc</span><span class="fu">::</span><span class="fu"><a href="../reference/rasterize.html">rasterize</a></span><span class="op">(</span><span class="va">abs_data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_data</span>, main <span class="op">=</span> <span class="st">"Example Resistance Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">abs_data</span>, main <span class="op">=</span> <span class="st">"Example Absorption Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_data</span>, main <span class="op">=</span> <span class="st">"Example Resistance Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">abs_data</span>, main <span class="op">=</span> <span class="st">"Example Absorption Data"</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">rw_model</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">rw_model</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">samc_obj</span> <span class="op">=</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, model <span class="op">=</span> <span class="va">rw_model</span><span class="op">)</span></span>
 <span></span>
@@ -303,14 +303,14 @@ absorption occurring outside the destination nodes (<span class="math inline">\(
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Absorption only at the origin i</span></span>
 <span><span class="va">abs_data_i</span> <span class="op">=</span> <span class="va">res_data</span> <span class="op">*</span> <span class="fl">0</span></span>
-<span><span class="va">abs_data_i</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/xyCellFrom.html" class="external-link">cellFromXY</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">origin_coords</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">abs_data_i</span>, main <span class="op">=</span> <span class="st">"Source Absorption Map"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">abs_data_i</span><span class="op">[</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/xyCellFrom.html" class="external-link">cellFromXY</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">origin_coords</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">abs_data_i</span>, main <span class="op">=</span> <span class="st">"Source Absorption Map"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="co"># Absorption only at the destination j</span></span>
 <span><span class="va">abs_data_j</span> <span class="op">=</span> <span class="va">res_data</span> <span class="op">*</span> <span class="fl">0</span></span>
-<span><span class="va">abs_data_j</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/xyCellFrom.html" class="external-link">cellFromXY</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">dest_coords</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">abs_data_j</span>, main <span class="op">=</span> <span class="st">"Destination Absorption Map"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">abs_data_j</span><span class="op">[</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/xyCellFrom.html" class="external-link">cellFromXY</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">dest_coords</span><span class="op">)</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">abs_data_j</span>, main <span class="op">=</span> <span class="st">"Destination Absorption Map"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create samc objects for each direction</span></span>
@@ -322,12 +322,15 @@ absorption occurring outside the destination nodes (<span class="math inline">\(
 <span><span class="va">hitting_ji</span> <span class="op">=</span> <span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">samc_ji</span>, <span class="va">abs_data_j</span><span class="op">)</span> <span class="co"># Reusing the other abs layer as an occupancy input</span></span>
 <span></span>
 <span><span class="va">hitting_ij</span></span>
-<span><span class="co">#&gt; [1] 210.222</span></span>
-<span><span class="va">hitting_ji</span></span>
-<span><span class="co">#&gt; [1] 293.0998</span></span>
-<span><span class="va">hitting_ij</span> <span class="op">+</span> <span class="va">hitting_ji</span></span>
-<span><span class="co">#&gt; [1] 503.3218</span></span>
-<span></span>
+<span><span class="co">#&gt; [1] 210.222</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hitting_ji</span></span>
+<span><span class="co">#&gt; [1] 293.0998</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hitting_ij</span> <span class="op">+</span> <span class="va">hitting_ji</span></span>
+<span><span class="co">#&gt; [1] 503.3218</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Calculate commute distance with gdistance</span></span>
 <span><span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/commuteDistance-methods.html" class="external-link">commuteDistance</a></span><span class="op">(</span><span class="va">gdist</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">origin_coords</span>, <span class="va">dest_coords</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          1</span></span>
@@ -362,30 +365,34 @@ equivalent result to commute distance from circuit theory will be
 obtained. Unlike the <code><a href="../reference/survival.html">survival()</a></code> function, the result of
 <code><a href="../reference/cond_passage.html">cond_passage()</a></code> does not include the extra absorption time
 step; it only calculates the time to reach the destination.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hitting_ij_cp</span> <span class="op">=</span> <span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">samc_ij</span>, origin <span class="op">=</span> <span class="va">origin_cell</span>, dest <span class="op">=</span> <span class="va">dest_cell</span><span class="op">)</span></span>
 <span><span class="va">hitting_ji_cp</span> <span class="op">=</span> <span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">samc_ji</span>, origin <span class="op">=</span> <span class="va">dest_cell</span>, dest <span class="op">=</span> <span class="va">origin_cell</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">hitting_ij_cp</span></span>
-<span><span class="co">#&gt; [1] 209.222</span></span>
-<span><span class="va">hitting_ji_cp</span></span>
-<span><span class="co">#&gt; [1] 292.0998</span></span>
-<span><span class="va">hitting_ij_cp</span> <span class="op">+</span> <span class="va">hitting_ji_cp</span></span>
+<span><span class="co">#&gt; [1] 209.222</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hitting_ji_cp</span></span>
+<span><span class="co">#&gt; [1] 292.0998</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hitting_ij_cp</span> <span class="op">+</span> <span class="va">hitting_ji_cp</span></span>
 <span><span class="co">#&gt; [1] 501.3218</span></span></code></pre></div>
 <p>More importantly, this is just a special case where we demonstrate
 the relationship between circuit theory and SAMC. For more generic
 scenarios, only a single normal <code>samc</code> object is required for
 calculating the hitting times:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate hitting times and commute distance for the original absorption data</span></span>
 <span><span class="va">reg_hitting_ij</span> <span class="op">=</span> <span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="va">origin_cell</span>, dest <span class="op">=</span> <span class="va">dest_cell</span><span class="op">)</span></span>
 <span><span class="va">reg_hitting_ji</span> <span class="op">=</span> <span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="va">dest_cell</span>, dest <span class="op">=</span> <span class="va">origin_cell</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">reg_hitting_ij</span></span>
-<span><span class="co">#&gt; [1] 128.2726</span></span>
-<span><span class="va">reg_hitting_ji</span></span>
-<span><span class="co">#&gt; [1] 127.6531</span></span>
-<span><span class="va">reg_hitting_ij</span> <span class="op">+</span> <span class="va">reg_hitting_ji</span></span>
+<span><span class="co">#&gt; [1] 128.2726</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">reg_hitting_ji</span></span>
+<span><span class="co">#&gt; [1] 127.6531</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">reg_hitting_ij</span> <span class="op">+</span> <span class="va">reg_hitting_ji</span></span>
 <span><span class="co">#&gt; [1] 255.9258</span></span></code></pre></div>
 <p>In this case, the resulting commute distance is much lower because
 absorption occurs throughout the landscape. In the simplified scenario,
@@ -433,35 +440,36 @@ directly using the <code><a href="../reference/visitation.html">visitation()</a>
 flow using the <code><a href="../reference/visitation_net.html">visitation_net()</a></code> function. To get equivalent
 results between gdistance and SAMC, we must again disregard absorption
 outside the destination.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Total movement flow with gdistance</span></span>
 <span><span class="va">total_gdist</span> <span class="op">=</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/passage.html" class="external-link">passage</a></span><span class="op">(</span><span class="va">gdist</span>, <span class="va">origin_coords</span>, <span class="va">dest_coords</span>, theta <span class="op">=</span> <span class="fl">0</span>, totalNet <span class="op">=</span> <span class="st">"total"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">total_gdist</span>, main <span class="op">=</span> <span class="st">"Total Movement Flow (gdistance)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">total_gdist</span>, main <span class="op">=</span> <span class="st">"Total Movement Flow (gdistance)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Equivalent total movement flow with SAMC</span></span>
 <span><span class="va">total_samc</span> <span class="op">=</span> <span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_ij</span>, origin <span class="op">=</span> <span class="va">origin_cell</span><span class="op">)</span></span>
 <span><span class="va">total_samc_ras</span> <span class="op">=</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_ij</span>, <span class="va">total_samc</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">total_samc_ras</span>, main <span class="op">=</span> <span class="st">"Total Movement Flow (samc)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">total_samc_ras</span>, main <span class="op">=</span> <span class="st">"Total Movement Flow (samc)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Verify that they have the same values</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">total_gdist</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">total_samc_ras</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">total_gdist</span><span class="op">)</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">total_samc_ras</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Attributes: &lt; target is NULL, current is list &gt;"</span></span>
-<span><span class="co">#&gt; [2] "target is numeric, current is matrix"</span></span>
-<span></span>
+<span><span class="co">#&gt; [2] "target is numeric, current is matrix"</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span></span>
 <span></span>
 <span><span class="co"># Net movement flow with gdistance</span></span>
 <span><span class="va">net_gdist</span> <span class="op">=</span> <span class="fu"><a href="https://AgrDataSci.github.io/gdistance/reference/passage.html" class="external-link">passage</a></span><span class="op">(</span><span class="va">gdist</span>, <span class="va">origin_coords</span>, <span class="va">dest_coords</span>, theta <span class="op">=</span> <span class="fl">0</span>, totalNet <span class="op">=</span> <span class="st">"net"</span><span class="op">)</span></span>
-<span><span class="va">net_gdist</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">net_gdist</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_gdist</span>, main <span class="op">=</span> <span class="st">"Net Movement Flow (gdistance)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">net_gdist</span> <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">net_gdist</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_gdist</span>, main <span class="op">=</span> <span class="st">"Net Movement Flow (gdistance)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Equivalent net movement flow with SAMC</span></span>
 <span><span class="va">net_samc</span> <span class="op">=</span> <span class="fu"><a href="../reference/visitation_net.html">visitation_net</a></span><span class="op">(</span><span class="va">samc_ij</span>, origin <span class="op">=</span> <span class="va">origin_cell</span>, dest <span class="op">=</span> <span class="va">dest_cell</span><span class="op">)</span></span>
 <span><span class="va">net_samc_ras</span> <span class="op">=</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">net_samc</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_samc_ras</span>,  main <span class="op">=</span> <span class="st">"Net Movement Flow (samc)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_samc_ras</span>,  main <span class="op">=</span> <span class="st">"Net Movement Flow (samc)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Verify that they have the same values</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">net_gdist</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">net_samc_ras</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">net_gdist</span><span class="op">)</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">net_samc_ras</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Attributes: &lt; Component \"dimnames\": Component 2: 1 string mismatch &gt;"</span></span></code></pre></div>
 <p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-3.png" width="672" style="display: block; margin: auto;"><img src="article-circuit-theory_files/figure-html/unnamed-chunk-6-4.png" width="672" style="display: block; margin: auto;"></p>
 <p>As with commute distance, SAMC is not limited to calculating the
@@ -469,10 +477,10 @@ total and net movement flows for landscapes without absorption.
 <code><a href="../reference/visitation.html">visitation()</a></code> and <code><a href="../reference/visitation_net.html">visitation_net()</a></code> are
 perfectly valid for our original samc object with broader landscape
 absorption.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">reg_net_samc</span> <span class="op">=</span> <span class="fu"><a href="../reference/visitation_net.html">visitation_net</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="va">origin_cell</span>, dest <span class="op">=</span> <span class="va">dest_cell</span><span class="op">)</span></span>
 <span><span class="va">reg_samc_ras</span> <span class="op">=</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">reg_net_samc</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">reg_samc_ras</span>,  main <span class="op">=</span> <span class="st">"Net Movement Flow (samc with absorption)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">reg_samc_ras</span>,  main <span class="op">=</span> <span class="st">"Net Movement Flow (samc with absorption)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Overall, incorporating absorption more broadly has reduced the net
 movement flow because a portion of the individuals is now being removed
@@ -481,19 +489,20 @@ absorption now means the destination is not guaranteed to be reached,
 leading to a dramatic drop in the net movement at the destination cell.
 We can subtract the absorption model from the non-absorption model to
 see how much net movement flow has decreased.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_gdist</span> <span class="op">-</span> <span class="va">reg_samc_ras</span>, main <span class="op">=</span> <span class="st">"Effect of Absorption on Net Movement Flow"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_gdist</span> <span class="op">-</span> <span class="va">reg_samc_ras</span>, main <span class="op">=</span> <span class="st">"Effect of Absorption on Net Movement Flow"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="article-circuit-theory_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>This shows a nearly imperceptible effect of the absorption layer on
 the net movement flow below the strip of absorption, but as individuals
 encounter absorption, the net movement flow in the top half of the map
 drops dramatically. We can see that the presence of the absorption strip
 has decreased the net movement flow at the destination over 97%:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">net_samc_ras</span><span class="op">[</span><span class="va">dest_cell</span><span class="op">]</span> <span class="co"># Net movement flow at destination w/o absorption</span></span>
 <span><span class="co">#&gt;   lyr.1</span></span>
-<span><span class="co">#&gt; 1     1</span></span>
-<span><span class="va">reg_net_samc</span><span class="op">[</span><span class="va">dest_cell</span><span class="op">]</span> <span class="co"># With absorption</span></span>
+<span><span class="co">#&gt; 1     1</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">reg_net_samc</span><span class="op">[</span><span class="va">dest_cell</span><span class="op">]</span> <span class="co"># With absorption</span></span>
 <span><span class="co">#&gt; [1] 0.02681907</span></span></code></pre></div>
 </div>
   </div>
@@ -515,7 +524,7 @@ has decreased the net movement flow at the destination over 97%:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>

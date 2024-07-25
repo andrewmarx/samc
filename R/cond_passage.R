@@ -1,5 +1,5 @@
-# Copyright (c) 2020 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R location-class.R
 NULL
@@ -52,7 +52,7 @@ NULL
 #' @template section-perf
 #'
 #' @template param-samc
-#' @param init Placeholder/not currently implemented.
+#' @template param-init
 #' @template param-origin
 #' @template param-dest
 #'
@@ -75,7 +75,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location"),
   function(samc, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (samc@clumps == -1)
       warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
@@ -86,36 +85,47 @@ setMethod(
     if (length(dest) != 1)
       stop("dest must be a single location that refers to a cell in the landscape", call. = FALSE)
 
-    dest <- .process_locations(samc, dest)
+    dest = .process_locations(samc, dest)
 
-    Q <- samc$q_matrix
-    qj <- Q[-dest, dest]
-    Qj <- Q[-dest, -dest]
+    if (samc@model$name == "RW") {
+      vec = logical(samc@nodes)
+      vec[dest] = TRUE
+    } else if (samc@model$name == "CRW") {
+      vec = (samc@crw_map[,1] == dest)
+    } else {
+      stop("Unexpected model", call. = FALSE)
+    }
 
-    Qj@x <- -Qj@x
-    Matrix::diag(Qj) <- Matrix::diag(Qj) + 1
+    Q = samc$q_matrix
+
+    q = Q[, vec, drop = FALSE]
+    q = Matrix::rowSums(q)
+    q[vec] = 1
+
+    Q[vec, ] = 0
+    Q[, vec] = 0
+
+    Q@x = -Q@x
+    Matrix::diag(Q) = Matrix::diag(Q) + 1
 
     if (samc@solver == "iter") {
-      t <- as.numeric(.cond_t_iter(Qj, qj))
+      t = .cond_t_iter(Q, q)
     } else {
-      t <- as.numeric(.cond_t(Qj, qj))
+      t = .cond_t(Q, q)
     }
 
-    # insert 0 element back into vector so output length is same original data
-    final <- 1:(length(t) + 1)
-    names(final) <- samc$names
+    if (samc@model$name == "RW") {
+      res = t$fb / t$b
+    } else if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
 
-    j <- 1
-    for (i in 1:length(final)) {
-      if (final[dest] == i) {
-        final[dest] <- 0
-        next
-      }
-      final[i] <- t[j]
-      j <- j + 1
+      res = .summarize_crw(samc, (pv * t$fb), sum) / .summarize_crw(samc, pv * t$b, sum) # Works
     }
 
-    return(final)
+    names(res) = samc$names
+
+    return(res)
   })
 
 # cond_passage(samc, origin, dest) ----
@@ -125,7 +135,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
   function(samc, origin, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
@@ -141,6 +150,34 @@ setMethod(
       t <- cond_passage(samc, dest = d)
 #      adj_origin <- origin
 #      adj_origin[origin > d] <- adj_origin[origin > d] - 1
+      result[dest == d] <- t[origin[dest == d]]
+    }
+
+    return(result)
+  })
+
+# cond_passage(samc, init, dest) ----
+#' @rdname cond_passage
+setMethod(
+  "cond_passage",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location"),
+  function(samc, init, dest) {
+    .disable_conv(samc)
+
+    if(length(origin) != length(dest))
+      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+
+    origin <- .process_locations(samc, origin)
+    dest <- .process_locations(samc, dest)
+
+    result <- vector(mode = "numeric", length = length(origin))
+
+    unique_dest <- unique(dest)
+
+    for (d in unique_dest) {
+      t <- cond_passage(samc, dest = d)
+      #      adj_origin <- origin
+      #      adj_origin[origin > d] <- adj_origin[origin > d] - 1
       result[dest == d] <- t[origin[dest == d]]
     }
 

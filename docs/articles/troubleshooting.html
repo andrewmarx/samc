@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Troubleshooting • samc</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.3.0</span>
       </span>
     </div>
 
@@ -163,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-05-12</h4>
+            <h4 data-toc-skip class="date">2024-07-25</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/troubleshooting.Rmd" class="external-link"><code>vignettes/troubleshooting.Rmd</code></a></small>
       <div class="hidden name"><code>troubleshooting.Rmd</code></div>
@@ -195,8 +195,9 @@ part of the creation of the <code>samc-class</code> object.</p>
 <span><span class="va">r1</span> <span class="op">&lt;-</span> <span class="va">res_data</span></span>
 <span><span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">res_data</span></span>
 <span><span class="fu"><a href="../reference/check.html">check</a></span><span class="op">(</span><span class="va">r1</span>, <span class="va">r2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span></span>
 <span><span class="co"># Remove the NA's in r2 by overwriting all the elements with the number 1.</span></span>
 <span><span class="co"># check() doesn't check the actual values of the data, but it does check the</span></span>
@@ -205,8 +206,9 @@ part of the creation of the <code>samc-class</code> object.</p>
 <span><span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">res_data</span></span>
 <span><span class="va">r2</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="../reference/check.html">check</a></span><span class="op">(</span><span class="va">r1</span>, <span class="va">r2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error: NA mismatch in input data</span></span>
-<span></span>
+<span><span class="co">#&gt; Error: NA mismatch in input data</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span></span>
 <span><span class="co"># Change the dimensions of r2 by subsetting it. check() ensures that the data</span></span>
 <span><span class="co"># inputs have the same number of rows and columns</span></span>
@@ -231,27 +233,29 @@ argument names for the subsequent arguments. The second is that a user
 is passing the wrong type of data to an argument (e.g., passing a
 <code>numeric</code> when the function expects a
 <code>RasterLayer</code> or a <code>matrix</code>).</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Example: Skipping optional arguments. In this case, the `fidelity` argument is</span></span>
 <span><span class="co"># optional, so we skip it. The model argument, however, is always required, </span></span>
 <span><span class="co"># so we pass the relevant to it. But because we don't specify which</span></span>
 <span><span class="co"># argument it is, R is trying to find a version of the function that expects it</span></span>
 <span><span class="co"># as the third argument, but this version does not exist.</span></span>
-<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'samc' for signature '"matrix", "matrix", "list", "missing"'</span></span>
-<span></span>
+<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error: unable to find an inherited method for function 'samc' for signature 'data = "matrix", absorption = "matrix", fidelity = "list", model = "missing"'</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Solution</span></span>
-<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="co"># Example: Incorrect input types. In this case, we are attempting to pass a</span></span>
 <span><span class="co"># single numeric value as absorption data. However, the absorption data must </span></span>
 <span><span class="co"># always be in a matrix or RasterLayer object</span></span>
-<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="fl">0.01</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'samc' for signature '"matrix", "numeric", "missing", "list"'</span></span>
-<span></span>
+<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="fl">0.01</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error: unable to find an inherited method for function 'samc' for signature 'data = "matrix", absorption = "numeric", fidelity = "missing", model = "list"'</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Solution</span></span>
-<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">samc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">res_data</span>, <span class="va">abs_data</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, dir <span class="op">=</span> <span class="fl">8</span>, sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="error-all-disconnected-regions-must-have-at-least-one-non-zero-absorption-value">Error: All disconnected regions must have at least one non-zero
@@ -294,7 +298,7 @@ packages and reload them again. You do not need to load the Rcpp package
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>

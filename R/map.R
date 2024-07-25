@@ -1,5 +1,5 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include check.R samc-class.R
 NULL
@@ -42,29 +42,17 @@ setGeneric(
 setMethod(
   "map",
   signature(samc = "samc", vec = "numeric"),
-  function(samc, vec){
+  function(samc, vec) {
+    # TODO make work for transition matrices
     if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
-
-    if (samc@model$name == "CRW") {
-      vec = aggregate(vec ~ samc@crw_map[, 1], FUN = mean)$vec
-    }
 
     if (length(vec) != length(terra::cells(samc@map)))
       stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
 
-    ras <- as.numeric(samc@map)
+    df = data.frame(cell = terra::cells(samc@map),
+                    vec = vec)
 
-    ras[terra::cells(ras)] <- vec
-
-    if (samc@source == "SpatRaster") {
-      return(ras)
-    } else if (samc@source == "RasterLayer") {
-      return(raster::raster(ras))
-    } else if (samc@source == "matrix") {
-      return(as.matrix(ras, wide = TRUE))
-    } else {
-      stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
-    }
+    .build_map(samc, df)
   })
 
 #' @rdname map
@@ -72,30 +60,49 @@ setMethod(
   "map",
   signature(samc = "samc", vec = "list"),
   function(samc, vec){
-    if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
 
     lapply(vec, function(x){
-      if (!inherits(x, "numeric"))
-        stop("List contains invalid item(s); all entries must be numeric vectors.", call. = FALSE)
-      if (length(x) != length(terra::cells(samc@map)))
-        stop("The length of one or more vectors in the list does not match the number of non-NA cells in the landscape data", call. = FALSE)
+      map(samc, x)
     })
-
-    res <- lapply(vec, function(x){
-      ras <- samc@map
-
-      ras[terra::cells(ras)] <- x
-
-      if (samc@source == "SpatRaster") {
-        return(ras)
-      } else if (samc@source == "RasterLayer") {
-        return(raster::raster(ras))
-      } else if (samc@source == "matrix") {
-        return(as.matrix(ras, wide = TRUE))
-      } else {
-        stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
-      }
-    })
-
-    return(res)
   })
+
+
+#' Build map
+#'
+#' Internal function to map a df to various objects
+#'
+#' @param samc samc
+#' @param df df
+#' @noRd
+.build_map = function(samc, df) {
+  ras_base = as.numeric(samc@map)
+
+  ras_list = lapply(sort(colnames(df)[-1]), function (x) {
+    ras = ras_base
+    ras[terra::cells(ras)] = df[x]
+
+    return(ras)
+  })
+
+  ras = terra::rast(ras_list)
+
+  if (samc@source == "SpatRaster") {
+    return(ras)
+  } else if (samc@source == "RasterLayer") {
+    if (terra::nlyr(ras) > 1) {
+      return(raster::stack(ras))
+    } else {
+      return(raster::raster(ras))
+    }
+  } else if (samc@source == "matrix") {
+    if (terra::nlyr(ras) > 1) {
+      return(lapply(ras, function(x) {
+        as.matrix(x, wide = TRUE)
+      }))
+    } else {
+      return(as.matrix(ras, wide = TRUE))
+    }
+  } else {
+    stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
+  }
+}

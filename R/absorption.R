@@ -1,5 +1,5 @@
-# Copyright (c) 2021 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R location-class.R
 NULL
@@ -57,6 +57,7 @@ setGeneric(
     standardGeneric("absorption")
   })
 
+# TODO Add unit tests
 
 # absorption(samc) ----
 #' @rdname absorption
@@ -66,12 +67,26 @@ setMethod(
   function(samc) {
     .disable_conv(samc)
 
-    if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
+    c_abs = samc@data@c_abs
+    if (any(dim(c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    # TODO: possibly optimize using C++
-    abs_mat <- Matrix::solve(samc@data@f, samc@data@c_abs)
+    if (samc@model$name == "CRW") {
+      c_abs = apply(c_abs, 2, function(x) { x[samc@crw_map[, 1]] })
+    }
+
+    # TODO: possibly optimize
+    abs_mat <- Matrix::solve(samc@data@f, c_abs)
 
     abs_mat <- as.matrix(abs_mat)
+
+    if (samc@model$name == "CRW") {
+      vec = as.vector(samc@prob_mat)
+      vec = vec[!is.na(vec)]
+
+      abs_mat = vec * abs_mat
+
+      abs_mat = apply(abs_mat, 2, function(x) { .summarize_crw(samc, x, sum) })
+    }
 
     colnames(abs_mat) <- colnames(samc@data@c_abs)
 
@@ -110,21 +125,9 @@ setMethod(
   "absorption",
   signature(samc = "samc", init = "ANY", origin = "missing"),
   function(samc, init) {
-    .disable_crw(samc)
-
     if (any(dim(samc@data@c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-    if (samc@solver %in% c("direct", "iter")) {
-      check(samc, init)
-
-      pv = .process_init(samc, init)
-
-      pf = .psif(samc@data@f, pv, samc@.cache$sc)
-    } else if (samc@solver == "conv") {
-      pf = visitation(samc, init)
-    } else {
-      stop("Invalid method attribute in samc object.")
-    }
+    pf = visitation(samc, init)
 
     result = as.vector(pf %*% samc@data@c_abs)
     names(result) = colnames(samc@data@c_abs)

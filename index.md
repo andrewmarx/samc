@@ -29,10 +29,15 @@ Marx, A.J., Wang, C., Sefair, J.A., Acevedo, M.A. and Fletcher, R.J., Jr. (2020)
 
 ### **Publications**
 
-This is a list of publications where the samc package was applied to a research question:
+This is a list of publications where the samc package was used in some way:
 
+- [**Predicting dispersal and conflict risk for wolf recolonization in Colorado**](http://dx.doi.org/10.1111/1365-2664.14504) *Journal of Applied Ecology (Sep 2023)*
+- [**A framework for linking dispersal biology to connectivity across landscapes**](http://dx.doi.org/10.1007/s10980-023-01741-8) *Landscape Ecology (Jul 2023)*
+- [**Comparison and parallel implementation of alternative moving-window metrics of the connectivity of protected areas across large landscapes**](http://dx.doi.org/10.1007/s10980-023-01619-9) *Landscape Ecology (Mar 2023)*
+- [**Mapping the connectivity–conflict interface to inform conservation**](http://dx.doi.org/10.1073/pnas.2211482119) *PNAS (Dec 2022)*
 - [**Landscape connectivity for an endangered carnivore: habitat conservation and road mitigation for ocelots in the US**](http://dx.doi.org/10.1007/s10980-022-01569-8) *Landscape Ecology (Dec 2022)*
-- [**Extending isolation by resistance to predict genetic connectivity**](https://doi.org/10.1111/2041-210X.13975) *Methods in Ecology and Evolution (Sep 2022)*
+- [**Extending isolation by resistance to predict genetic connectivity**](http://doi.org/10.1111/2041-210X.13975) *Methods in Ecology and Evolution (Sep 2022)*
+- [**Defining and quantifying effective connectivity of landscapes for species' movements**](http://dx.doi.org/10.1111/ecog.05351) *Ecography (Mar 2021)*
 
 
 ### **Version 3**
@@ -65,6 +70,12 @@ If you have an error, make sure you are using the newest version of the package.
 
 We have a Github discussions page for anything and everything related to the package here: [Github Discussions](https://github.com/andrewmarx/samc/discussions)
 
+
+### **License**
+
+By default, package code is licensed under AGPLv3. Some code files derived from 3rd party sources may be licensed under GPLv3 and will have a comment to indicate this is the case.
+
+Website materials are licensed under CC BY-NC-SA 4.0.
 
 ### References
 

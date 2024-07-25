@@ -1,5 +1,5 @@
-# Copyright (c) 2022 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 # This script is the source of the code for the coin flip example vignette
 # The lines with `@knitr` are for processing by knitr

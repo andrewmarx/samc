@@ -1,7 +1,7 @@
 Package: samc
 Type: Package
 Title: Spatial Absorbing Markov Chains
-Version: 3.2.1
+Version: 3.3.0
 Authors@R: c(
     person("Andrew", "Marx", , "ajm.rpackages@gmail.com", role = c("aut", "cre", "cph"), 
       comment = c(ORCID = "0000-0002-7456-1631")
@@ -32,7 +32,7 @@ Description: Implements functions for working with absorbing Markov chains. The
     short-term and long-term predictions for metrics related to connectivity in 
     landscapes. Despite the ecological context of the framework, this package
     can be used in any application of absorbing Markov chains.
-License: GPL (>=3)
+License: AGPL (>= 3)
 URL: https://andrewmarx.github.io/samc/
 BugReports: https://github.com/andrewmarx/samc/issues/
 Encoding: UTF-8
@@ -44,7 +44,7 @@ Imports:
     raster,
     terra (>= 1.7-3),
     circular
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests: knitr,
     rmarkdown,
     testthat,
@@ -72,5 +72,6 @@ Collate:
     'rasterize.R'
     'samc.R'
     'survival.R'
+    'utils-models.R'
     'zzz.R'
 LinkingTo: Rcpp (>= 1.0.10), RcppEigen (>= 0.3.3.9.3), RcppThread (>= 2.1.3)

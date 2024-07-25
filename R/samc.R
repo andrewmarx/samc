@@ -1,5 +1,5 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R check.R
 NULL
@@ -133,7 +133,6 @@ setMethod(
     options = .validate_options(options)
     model = .validate_model(model, options$method)
 
-    tr_fun <- model$fun
     directions <-model$dir
     symm <- model$sym
 
@@ -177,6 +176,7 @@ setMethod(
                              conv_cache = NULL,
                              model = model,
                              source = "SpatRaster",
+                             nodes = as.integer(terra::global(data, fun = "notNA")),
                              map = data,
                              crw_map = NULL,
                              names = NULL,
@@ -205,8 +205,8 @@ setMethod(
     gc()
     # Create the transition matrix
     if (options$method %in% c("direct", "iter")) {
-      if (model$name == "RW") {
-        samc_obj@data@f = .rw(data, absorption, fidelity, tr_fun, directions, symm)
+      if (model$name %in% c("RW", "SSF")) {
+        samc_obj@data@f = .rw(data, absorption, fidelity, model)
         gc()
 
         samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
@@ -215,13 +215,23 @@ setMethod(
 
         if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
 
-        crw_list = .crw(data, absorption, fidelity, tr_fun, directions, symm, model)
+        if (is(model$kappa, "SpatRaster")) {
+          check(c(data, model$kappa))
+        } else if (is.numeric(model$kappa)) {
+          model$kappa = data * 0 + model$kappa
+        } else {
+          stop("Invalid kappa")
+        }
+
+        crw_list = .crw(data, absorption, fidelity, model$fun, directions, symm, model)
         #assign("myvar", crw_list)
         samc_obj@data@f = crw_list$tr
         gc()
 
         samc_obj@data@t_abs = crw_list$abs
         samc_obj@crw_map = crw_list$crw
+
+        samc_obj@prob_mat = crw_list$prob
 
       } else {
         stop("Unexpected error involving model name. Please report with a minimum reproducible example.", call. = FALSE)
@@ -399,6 +409,7 @@ setMethod(
                              model = list(name = "RW"),
                              crw_map = NULL,
                              source = "transition",
+                             nodes = as.integer(r - 1),
                              map = terra::rast(),
                              names = nm,
                              clumps = -1,

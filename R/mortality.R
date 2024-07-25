@@ -1,5 +1,5 @@
-# Copyright (c) 2019-2023 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R location-class.R visitation.R
 NULL
@@ -171,6 +171,17 @@ setMethod(
     q_n <- solve(qi - q) %*% (qi - qt)
 
     bt <- q_n %*% r
+
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      bt = diag(pv) %*% bt
+
+      bt = apply(bt, 1, function(x) samc:::.summarize_crw(samc, x, sum))
+      bt = apply(bt, 1, function(x) samc:::.summarize_crw(samc, x, sum)) # Same margin because results of last are transposed
+    }
+
     return(bt)
   })
 
@@ -184,7 +195,8 @@ setMethod(
 
     mort = visitation(samc, origin = origin, time = time)
 
-    rdg <- samc@data@t_abs
+    rdg = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+      else { samc@data@t_abs }
 
     if (is.list(mort)) {
       return(lapply(mort, function(x){as.vector(x * rdg)}))
@@ -200,7 +212,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -212,13 +223,29 @@ setMethod(
 
     rdg <- samc@data@t_abs
 
-    rdg[-dest] <- 0
+    if (samc@model$name == "RW") {
+      vec = logical(samc@nodes)
+      vec[dest] = TRUE
+    } else if (samc@model$name == "CRW") {
+      vec = (samc@crw_map[,1] == dest)
+    } else {
+      stop("Unexpected model", call. = FALSE)
+    }
+
+    rdg[!vec] <- 0
 
     time <- c(1, time)
 
     mort <- .sum_qpowrv(q, rdg, time)
 
     mort <- lapply(mort, as.vector)
+
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      mort = lapply(mort, function(x) .summarize_crw(samc, pv * x, sum))
+    }
 
     if (length(mort) == 1) {
       return(mort[[1]])
@@ -234,7 +261,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
   function(samc, origin, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     dest <- .process_locations(samc, dest)
 
@@ -255,12 +281,12 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time) {
-    .disable_crw(samc)
 
     if (samc@solver %in% c("direct", "iter")) {
       mort = visitation(samc, init = init, time = time)
 
-      rdg <- samc@data@t_abs
+      rdg = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+        else { samc@data@t_abs }
 
       if (is.list(mort)) {
         return(lapply(mort, function(x){as.vector(x * rdg)}))
@@ -271,11 +297,27 @@ setMethod(
 
       res = visitation(samc, init, time = time)
 
+      t_abs = samc@data@t_abs
 
-      return(res * samc@data@t_abs)
+      return(res * t_abs)
     } else {
       stop("Invalid method attribute in samc object.")
     }
+  })
+
+# mortality(samc, init, dest, time) ----
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "numeric"),
+  function(samc, init, dest, time) {
+    .disable_conv(samc)
+
+    dest = .process_locations(samc, dest)
+
+    res = mortality(samc, init, time = time)
+
+    return(res[dest])
   })
 
 # mortality(samc) ----
@@ -294,6 +336,9 @@ setMethod(
     dimnames(f) <- dimnames(samc$q_matrix) # Not sure why dimnames aren't carrying through later calculations
 
     rdg <- samc@data@t_abs
+
+    if (samc@model$name == "CRW") rdg = .summarize_crw(samc, rdg, mean)
+
     r <- Matrix::sparseMatrix(i = 1:length(rdg),
                               j = 1:length(rdg),
                               x = rdg,
@@ -326,19 +371,17 @@ setMethod(
   function(samc, origin) {
     .disable_conv(samc)
 
-    vis <- visitation(samc, origin = origin)
-    names(vis) <- samc$names
-
-    mort <- vis * samc@data@t_abs
-
-    if (ncol(samc@data@c_abs) > 0) {
-      mort <- list(total = mort)
-      for (n in colnames(samc@data@c_abs)) {
-        mort[[n]] <- vis * samc@data@c_abs[, n]
-      }
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
     }
 
-    return(mort)
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    return(mortality(samc, init))
   })
 
 # mortality(samc, dest) ----
@@ -348,14 +391,16 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     dest <- .process_locations(samc, dest)
 
     vis <- visitation(samc, dest = dest)
     names(vis) <- samc$names
 
-    mort <- vis * samc@data@t_abs[dest]
+    t_abs = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+      else { samc@data@t_abs }
+
+    mort <- vis * t_abs[dest]
 
     if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
@@ -374,7 +419,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if(length(origin) != length(dest))
       stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
@@ -390,8 +434,10 @@ setMethod(
     }
     names(results) <- samc$names[dest]
 
+    t_abs = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+      else { samc@data@t_abs }
 
-    mort <- results * samc@data@t_abs[dest]
+    mort <- results * t_abs[dest]
 
     if (ncol(samc@data@c_abs) > 0) {
       mort <- list(total = mort)
@@ -409,37 +455,47 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init) {
-    .disable_crw(samc)
-
     check(samc, init)
 
-    pv <- .process_init(samc, init)
+    res = visitation(samc, init)
+    t_abs = samc@data@t_abs
 
-    if (samc@solver %in% c("direct", "iter")) {
-      if (samc@solver == "iter") {
-        pf <- .psif_iter(samc@data@f, pv)
-      } else {
-        pf <- .psif(samc@data@f, pv, samc@.cache$sc)
+    if (samc@model$name == "CRW") t_abs = .summarize_crw(samc, t_abs, mean)
+
+    mort = res * t_abs
+
+    if (ncol(samc@data@c_abs) > 0) {
+      mort = list(total = mort)
+      for (n in colnames(samc@data@c_abs)) {
+        mort[[n]] = res * samc@data@c_abs[, n]
       }
-
-      names(pf) <- samc$names
-
-      mort <- pf * samc@data@t_abs
-
-      if (ncol(samc@data@c_abs) > 0) {
-        mort <- list(total = mort)
-        for (n in colnames(samc@data@c_abs)) {
-          mort[[n]] <- pf * samc@data@c_abs[, n]
-        }
-      }
-
-      return(mort)
-    } else if (samc@solver == "conv") {
-
-      res = visitation(samc, init)
-
-      return(res *  samc@data@t_abs)
-    } else {
-      stop("Invalid method attribute in samc object.")
     }
+
+    return(mort)
+  })
+
+# TODO: make work with mulstiple dest and it can be used for mortality(samc, origin, dest)
+# mortality(samc, init, dest) ----
+#' @rdname mortality
+setMethod(
+  "mortality",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
+  function(samc, init, dest) {
+    .disable_conv(samc)
+
+    dest = .process_locations(samc, dest)
+
+    vis = visitation(samc, init)
+
+    t_abs = if (samc@model$name == "CRW") { .summarize_crw(samc, samc@data@t_abs, mean) }
+    else { samc@data@t_abs }
+
+    mort = vis[dest] * t_abs[dest]
+
+    if (ncol(samc@data@c_abs) > 0) {
+      mort = append(mort, as.list(vis[dest] * samc@data@c_abs[dest, ]))
+      names(mort) = c("total", colnames(samc@data@c_abs))
+    }
+
+    return(mort)
   })

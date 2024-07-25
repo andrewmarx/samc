@@ -1,3 +1,6 @@
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
+
 # This script is the source of the code for the ggplot vignette and is also used
 # to generate the output figures. It only needs to be run directly if changes to
 # the figures are desired

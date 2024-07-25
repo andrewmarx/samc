@@ -1,5 +1,5 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include internal-classes.R
 NULL
@@ -81,8 +81,10 @@ NULL
 #' @slot conv_cache Convolution cache
 #' @slot model List containing model info used to build the samc object
 #' @slot source Information about the data source for the P matrix
+#' @slot nodes The number of nodes in the graph
 #' @slot map Used to verify landscape inputs and mapping of vector data
 #' @slot crw_map Matrix used to map location and direction to edges description
+#' @slot prob_mat Matric for CRW probabilities
 #' @slot names Names of the transient states
 #' @slot clumps Number of discontinuous regions in data
 #' @slot override Used to prevent accidental use of memory intensive functions
@@ -99,8 +101,10 @@ setClass(
                conv_cache = "ANY",
                model = "list",
                source = "character",
+               nodes = "integer",
                map = "SpatRaster",
                crw_map = "mat_null",
+               prob_mat = "mat_null",
                names = "char_null",
                clumps = "numeric",
                override = "logical",

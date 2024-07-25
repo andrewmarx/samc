@@ -2,6 +2,7 @@
 title: "Computation Methods"
 author: "Andrew Marx"
 date: "`r Sys.Date()`"
+license: "CC BY-NC-SA 4.0"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Computation Methods}
@@ -96,7 +97,6 @@ samc_obj$method = "iter"
 *Weaknesses:*
 
 - Not supported for all metrics
-- Metrics can only be calculated using the `init` parameter (not `origin` or `dest` inputs, but this will be partially addressed in the future)
 - `NA` values not supported in map inputs
 - Cannot define custom transition functions
 - Not supported for correlated random-walk (addressable in the future)

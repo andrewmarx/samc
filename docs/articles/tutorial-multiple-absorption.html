@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Multiple Absorption Tutorial • samc</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.3.0</span>
       </span>
     </div>
 
@@ -163,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-05-12</h4>
+            <h4 data-toc-skip class="date">2024-07-25</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/tutorial-multiple-absorption.Rmd" class="external-link"><code>vignettes/tutorial-multiple-absorption.Rmd</code></a></small>
       <div class="hidden name"><code>tutorial-multiple-absorption.Rmd</code></div>
@@ -196,7 +196,7 @@ purposes and do not represent anything meaningful.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First step is to load the libraries. Not all of these libraries are strictly</span></span>
 <span><span class="co"># needed; some are used for convenience and visualization for this tutorial.</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/terra/" class="external-link">"terra"</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/" class="external-link">"terra"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://andrewmarx.github.io/samc/" class="external-link">"samc"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://sjmgarnier.github.io/viridisLite/" class="external-link">"viridisLite"</a></span><span class="op">)</span></span>
 <span></span>
@@ -221,11 +221,11 @@ purposes and do not represent anything meaningful.</p>
 <span><span class="va">abs_data_b</span> <span class="op">&lt;-</span> <span class="va">abs_data</span> <span class="op">*</span> <span class="va">p2</span></span>
 <span></span>
 <span><span class="co"># With terra, make sure each layer has a unique name</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">abs_data_a</span><span class="op">)</span> <span class="op">=</span> <span class="st">"abs1"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">abs_data_b</span><span class="op">)</span> <span class="op">=</span> <span class="st">"abs2"</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">abs_data_a</span><span class="op">)</span> <span class="op">=</span> <span class="st">"abs1"</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">abs_data_b</span><span class="op">)</span> <span class="op">=</span> <span class="st">"abs2"</span></span>
 <span></span>
 <span><span class="co"># Verify</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">abs_data_a</span> <span class="op">+</span> <span class="va">abs_data_b</span>, <span class="va">abs_data</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">abs_data_a</span> <span class="op">+</span> <span class="va">abs_data_b</span>, <span class="va">abs_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Names: 1 string mismatch"                                                 </span></span>
 <span><span class="co">#&gt; [2] "Attributes: &lt; Component \"ptr\": Component \"names\": 1 string mismatch &gt;"</span></span></code></pre></div>
 </div>
@@ -240,7 +240,7 @@ absorption might have in a model. To start, we will work with the total
 absorption.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Setup the details for our transition function</span></span>
-<span><span class="va">rw_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="co"># Function for calculating transition probabilities</span></span>
+<span><span class="va">rw_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="co"># Function for calculating transition probabilities</span></span>
 <span>           dir <span class="op">=</span> <span class="fl">8</span>, <span class="co"># Directions of the transitions. Either 4 or 8.</span></span>
 <span>           sym <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Is the function symmetric?</span></span>
 <span></span>
@@ -254,11 +254,12 @@ absorption.</p>
 <span><span class="co"># When only working with total absorption, this version of mortality() returns</span></span>
 <span><span class="co"># a named vector</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">mort</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span>
-<span></span>
+<span><span class="co">#&gt;  num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Let's visualize it</span></span>
 <span><span class="va">mort_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mort_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mort_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -270,7 +271,7 @@ provided as either a RasterStack or a RasterBrick. The layers in the
 list/RasterStack/RasterBrick can be named, which will carryover into the
 results, which can help with code readability when accessing different
 parts of the results.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's attach absorption layers to our samc object</span></span>
 <span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">abs_data_a</span>, <span class="va">abs_data_b</span><span class="op">)</span></span>
 <span></span>
@@ -283,31 +284,34 @@ parts of the results.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">mort_multiple</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 3</span></span>
 <span><span class="co">#&gt;  $ total: num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span>
-<span><span class="co">#&gt;  $ abs1 : num [1:2624] 0.000164 0.000165 0.000147 0.000137 0.00013 ...</span></span>
-<span><span class="co">#&gt;  $ abs2 : num [1:2624] 0.000619 0.000622 0.000556 0.000518 0.000491 ...</span></span>
-<span></span>
+<span><span class="co">#&gt;  $ abs1 : num [1:2624] 1.90e-05 1.91e-05 1.71e-05 1.59e-05 1.51e-05 ...</span></span>
+<span><span class="co">#&gt;  $ abs2 : num [1:2624] 0.000764 0.000768 0.000687 0.000639 0.000606 ...</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Let's visualize it</span></span>
 <span><span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_multiple</span><span class="op">)</span></span>
-<span><span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">)</span> <span class="co"># Convert the list to a multi-layer SpatRaster for plotting</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">multiple_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">)</span> <span class="co"># Convert the list to a multi-layer SpatRaster for plotting</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">multiple_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span></span>
 <span><span class="co"># Let's check some things.</span></span>
 <span></span>
 <span><span class="co">#First, the results of the decomposed layers in the list should add up to the total result</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
-<span>          <span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co"># Alternatively, we could use the layer names:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">$</span><span class="va">total</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
-<span>          <span class="fu"><a href="https://rdrr.io/pkg/terra/man/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">$</span><span class="va">abs1</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">$</span><span class="va">abs2</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>          <span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Alternatively, we could use the layer names:</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">$</span><span class="va">total</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>          <span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">$</span><span class="va">abs1</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">$</span><span class="va">abs2</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Second, notice in the plots above that the result for the single input and the total</span></span>
 <span><span class="co"># result for the multiple input look very similar? That's because they are identical</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">mort</span>, <span class="va">mort_multiple</span><span class="op">$</span><span class="va">total</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">mort</span>, <span class="va">mort_multiple</span><span class="op">$</span><span class="va">total</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -325,7 +329,7 @@ absorption used to create the samc object, but our analysis might be
 only interested in learning about one of them. In that case, we only
 need to supply the absorption probabilities for what we are interested
 in; the others can be excluded.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's say we are interested in just the first component we created above</span></span>
 <span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="va">abs_data_a</span></span>
 <span></span>
@@ -334,14 +338,14 @@ in; the others can be excluded.</p>
 <span><span class="co"># Let's visualize it. Note that the results are the same as before, just without</span></span>
 <span><span class="co"># the second component.</span></span>
 <span><span class="va">partial_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_partial</span><span class="op">)</span></span>
-<span><span class="va">partial_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">partial_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">partial_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">partial_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">partial_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">partial_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;"></p>
 <p>The second situation is where we might have multiple candidate models
 for a particular source of absorption. Rather than running the analysis
 once for every candidate, we can simply include them all and run the
 analysis once.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create multiple versions of our first component. This might represent multiple</span></span>
 <span><span class="co"># models or hypotheses we want to explore</span></span>
 <span><span class="va">abs_1_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.2</span>,</span>
@@ -349,7 +353,7 @@ analysis once.</p>
 <span>                  <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.6</span>,</span>
 <span>                  <span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.8</span>,</span>
 <span>                  <span class="va">abs_data_a</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">abs_1_models</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"abs1_2"</span>, <span class="st">"abs1_4"</span>, <span class="st">"abs1_6"</span>, <span class="st">"abs1_8"</span>, <span class="st">"abs1"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">abs_1_models</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"abs1_2"</span>, <span class="st">"abs1_4"</span>, <span class="st">"abs1_6"</span>, <span class="st">"abs1_8"</span>, <span class="st">"abs1"</span><span class="op">)</span></span>
 <span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="va">abs_1_models</span></span>
 <span></span>
 <span><span class="va">mort_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
@@ -357,8 +361,8 @@ analysis once.</p>
 <span><span class="co"># Let's visualize it. Note that the results are not particularly interesting visually;</span></span>
 <span><span class="co"># the only difference between these models is the scale</span></span>
 <span><span class="va">models_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_models</span><span class="op">)</span></span>
-<span><span class="va">models_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">models_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">models_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">2</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">models_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">models_map</span><span class="op">)</span> <span class="co"># Convert the list to a RasterStack for plotting</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">models_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">2</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -401,7 +405,7 @@ analysis.</p>
 <div class="section level2">
 <h2 id="disabling-multiple-absorption">Disabling Multiple Absorption<a class="anchor" aria-label="anchor" href="#disabling-multiple-absorption"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># To remove all the absorption components</span></span>
 <span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></code></pre></div>
 </div>
@@ -424,7 +428,7 @@ analysis.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>

@@ -1,5 +1,5 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R location-class.R visitation.R
 NULL
@@ -111,6 +111,25 @@ setGeneric(
     standardGeneric("dispersal")
   })
 
+# dispersal(samc, origin, dest, time) ----
+#' @rdname dispersal
+setMethod(
+  "dispersal", # TODO add unit tests
+  signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "numeric"),
+  function(samc, origin, dest, time) {
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
+
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    return(dispersal(samc, init, dest=dest, time = time))
+  })
+
 # dispersal(samc, dest, time) ----
 #' @rdname dispersal
 setMethod(
@@ -118,7 +137,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "numeric"),
   function(samc, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -126,30 +144,44 @@ setMethod(
     dest <- .process_locations(samc, dest)
     .validate_time_steps(time)
 
-    q <- samc$q_matrix
-    qv <- q[, dest]
-    qv <- qv[-dest]
-    q <- q[-dest, -dest]
+    if (samc@model$name == "RW") {
+      vec = logical(samc@nodes)
+      vec[dest] = TRUE
+    } else if (samc@model$name == "CRW") {
+      vec = (samc@crw_map[,1] == dest)
+    } else {
+      stop("Unexpected model", call. = FALSE)
+    }
+
+    q = samc$q_matrix
+
+    qv = q[, vec, drop = FALSE]
+    qv[vec ,] = 0
+    qv = Matrix::rowSums(qv)
+
+    q[, vec] = 0
+    q[vec, ] = 0
 
     q2 = q
-    q2@x <- -q2@x
-    Matrix::diag(q2) <- Matrix::diag(q2) + 1
+    q2@x = -q2@x
+    Matrix::diag(q2) = Matrix::diag(q2) + 1
 
     time <- c(0, time)
 
     if (samc@solver == "iter") {
-      res <- .sum_qn_q_iter(q, q2, qv, time)
+      res = .sum_qn_q_iter(q, q2, qv, time)
     } else {
-      res <- .sum_qn_q(q, q2, qv, time)
+      res = .sum_qn_q(q, q2, qv, time)
     }
 
-    res <- lapply(res, as.vector)
+    res = lapply(res, as.vector)
 
-    # Element for i=j is missing, so fill in with NA
-    res <- lapply(res, function(x) {
-      lx <- length(x)
-      y <- c(x[0:(dest-1)], NA, x[dest:(lx + 1)])
-      return(y[1:(lx + 1)])})
+    if (samc@model$name == "CRW") {
+      pv = samc@prob_mat
+      pv = pv[!is.na(pv)]
+
+      res = lapply(res, function(x) .summarize_crw(samc, pv * x, sum))
+    }
 
     if (length(res) == 1) {
       return(res[[1]])
@@ -165,7 +197,6 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "numeric"),
   function(samc, init, dest, time) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
@@ -175,6 +206,8 @@ setMethod(
     dest <- .process_locations(samc, dest)
 
     pv <- .process_init(samc, init)
+
+    if (samc@model$name == "CRW") pv = .summarize_crw(samc, pv, sum)
 
     d <- dispersal(samc, dest = dest, time = time)
 
@@ -224,28 +257,15 @@ setMethod(
 
     if (is(origin, "matrix")) {
       if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
     }
 
-    origin <- .process_locations(samc, origin)
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
 
-    if (!samc@.cache$dgf_exists) {
-      if (samc@solver == "iter") {
-        dg <- samc:::.diagf_par_iter(samc@data@f, samc@threads)
-      } else {
-        dg <- samc:::.diagf_par(samc@data@f, samc@threads)
-      }
-
-      samc@.cache$dgf <- dg
-      samc@.cache$dgf_exists <- TRUE
-    }
-
-    f_row <- visitation(samc, origin = origin)
-    f_row[origin] <- f_row[origin] - 1
-
-    result <- as.vector(f_row/samc@.cache$dgf)
-    names(result) <- colnames(samc$q_matrix) # TODO update based on names changes? Check for other similiar situations
-
-    return(result)
+    return(dispersal(samc, init))
   })
 
 # dispersal(samc, dest) ----
@@ -255,7 +275,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "missing", dest = "location", time = "missing"),
   function(samc, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     dest <- .process_locations(samc, dest)
 
@@ -276,7 +295,6 @@ setMethod(
   signature(samc = "samc", init = "missing", origin = "location", dest = "location", time = "missing"),
   function(samc, origin, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
@@ -302,11 +320,8 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     check(samc, init)
-
-    pv <- .process_init(samc, init)
 
     if (!samc@.cache$dgf_exists) {
       if (samc@solver == "iter") {
@@ -319,13 +334,17 @@ setMethod(
       samc@.cache$dgf_exists <- TRUE
     }
 
-    if (samc@solver == "iter") {
-      disp <- .psid_long_iter(samc@data@f, pv, samc@.cache$dgf)
-    } else {
-      disp <- .psid_long(samc@data@f, pv, samc@.cache$dgf, samc@.cache$sc)
+    vis = visitation(samc, init)
+
+    dg = samc@.cache$dgf
+    init = .process_init(samc, init)
+
+    if (samc@model$name == "CRW") {
+      dg = .summarize_crw(samc, dg, sum) - .summarize_crw(samc, dg, length) + 1
+      init = .summarize_crw(samc, init, sum)
     }
 
-    return(as.vector(disp))
+    return((vis - init)/dg)
   })
 
 
@@ -336,13 +355,16 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, init, dest) {
     .disable_conv(samc)
-    .disable_crw(samc)
 
     check(samc, init)
 
     pv <- .process_init(samc, init)
 
     dj <- dispersal(samc, dest = dest)
+
+    if (samc@model$name == "CRW") {
+      pv = .summarize_crw(samc, pv, sum)
+    }
 
     return(as.numeric(pv %*% dj))
   })

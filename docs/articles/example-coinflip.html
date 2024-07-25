@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coin Flip • samc</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.3.0</span>
       </span>
     </div>
 
@@ -163,7 +163,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2023-05-12</h4>
+            <h4 data-toc-skip class="date">2024-07-25</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/example-coinflip.Rmd" class="external-link"><code>vignettes/example-coinflip.Rmd</code></a></small>
       <div class="hidden name"><code>example-coinflip.Rmd</code></div>
@@ -311,8 +311,9 @@ many times we expect a sequence to occur before hitting <span class="math inline
 <code class="sourceCode R"><span><span class="co"># Given a starting point (in this case, a sequence of 3 flips), how many times</span></span>
 <span><span class="co"># would we expect the different combinations of 3 flips to occur before absorption?</span></span>
 <span><span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="st">"HHT"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1.5 0.5 0.5 0.5 1.0 1.0 1.0</span></span>
-<span></span>
+<span><span class="co">#&gt; [1] 1.5 0.5 0.5 0.5 1.0 1.0 1.0</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_obj</span>, origin <span class="op">=</span> <span class="st">"HHT"</span><span class="op">)</span><span class="op">)</span> <span class="co"># Compare to survival() result</span></span>
 <span><span class="co">#&gt; [1] 6</span></span></code></pre></div>
 <p>In this case, we specify a starting sequence of <span class="math inline">\(HHT\)</span>, which is one flip away from <span class="math inline">\(HTH\)</span> (absorption). As an example
@@ -326,12 +327,13 @@ all the possible combinations of states and specifying an origin point
 simply gives us a single row of the matrix. It’s possible to get
 individual columns, as well as the entire matrix (which requires
 disabling a safety measure in place for larger problems).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Instead of a start point, we can look at an endpoint and how often we expect</span></span>
 <span><span class="co"># it to occur for each of the possible starting points</span></span>
 <span><span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_obj</span>, dest <span class="op">=</span> <span class="st">"THT"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.5 0.5 1.5 0.5 1.0 1.0 1.0</span></span>
-<span></span>
+<span><span class="co">#&gt; [1] 0.5 0.5 1.5 0.5 1.0 1.0 1.0</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># These results are just rows/cols of a larger matrix. We can get the entire matrix</span></span>
 <span><span class="co"># of the start/end possibilities but first, we have to disable some safety measures</span></span>
 <span><span class="co"># in place because this package is designed to work with extremely large P matrices</span></span>
@@ -346,8 +348,9 @@ disabling a safety measure in place for larger problems).</p>
 <span><span class="co">#&gt; [4,]  1.5  1.5  0.5  1.5    1    1    1</span></span>
 <span><span class="co">#&gt; [5,]  1.0  1.0  1.0  1.0    3    2    1</span></span>
 <span><span class="co">#&gt; [6,]  1.0  1.0  1.0  1.0    1    2    1</span></span>
-<span><span class="co">#&gt; [7,]  1.0  1.0  1.0  1.0    2    2    2</span></span>
-<span></span>
+<span><span class="co">#&gt; [7,]  1.0  1.0  1.0  1.0    2    2    2</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/rowSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="../reference/visitation.html">visitation</a></span><span class="op">(</span><span class="va">samc_obj</span><span class="op">)</span><span class="op">)</span> <span class="co"># equivalent to survival() above</span></span>
 <span><span class="co">#&gt; [1]  6  8  6  8 10  8 10</span></span></code></pre></div>
 <p>A third relevant metric is <code><a href="../reference/dispersal.html">dispersal()</a></code>. Rather than the
@@ -356,9 +359,9 @@ it calculates the probability of a sequence occurring before hitting our
 target sequence of <span class="math inline">\(HTH\)</span>. The
 short-term variant can be used to specify a limit to the number of flips
 we will make.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">samc_obj</span>, dest <span class="op">=</span> <span class="st">"TTT"</span>, time <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.28125 0.21875 0.28125 0.21875      NA 0.21875 0.59375</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.28125 0.21875 0.28125 0.21875 0.00000 0.21875 0.59375</span></span></code></pre></div>
 <p>In this case, we’re trying to find the probability of <span class="math inline">\(TTT\)</span> occurring within 5 flips. The results
 show the probability for every possible starting sequencing. For
 example, the seventh element, <span class="math inline">\(HTT\)</span>
@@ -384,7 +387,7 @@ is only one flip away and has the highest probability of
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>

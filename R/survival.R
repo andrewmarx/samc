@@ -1,5 +1,5 @@
-# Copyright (c) 2019 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #' @include samc-class.R visitation.R
 NULL
@@ -33,6 +33,7 @@ NULL
 #'
 #' @template param-samc
 #' @template param-init
+#' @template param-origin
 #'
 #' @return See Details
 #'
@@ -42,7 +43,7 @@ NULL
 
 setGeneric(
   "survival",
-  function(samc, init) {
+  function(samc, init, origin) {
     standardGeneric("survival")
   })
 
@@ -50,43 +51,52 @@ setGeneric(
 #' @rdname survival
 setMethod(
   "survival",
-  signature(samc = "samc", init = "missing"),
+  signature(samc = "samc", init = "missing", origin = "missing"),
   function(samc) {
     .disable_conv(samc)
 
+    # TODO If multiple dest becomes supported, this can be replaced with visitation(dest)
     if (samc@solver == "iter") {
       z = .f1_iter(samc@data@f)
     } else {
       z = .f1(samc@data@f, samc@.cache$sc)
     }
 
-    return(as.vector(z))
+    if (samc@model$name == "CRW") {
+      vec = as.vector(samc@prob_mat)
+      vec = vec[!is.na(vec)]
+
+      z = vec * z
+      z = .summarize_crw(samc, z, sum)
+    }
+
+    return(z)
+  })
+
+# survival(samc, origin) ----
+#' @rdname survival
+setMethod(
+  "survival",
+  signature(samc = "samc", init = "missing", origin = "location"),
+  function(samc, origin) {
+    if (is(origin, "matrix")) {
+      if (nrow(origin) > 1) stop("Only a single origin is supported for CRW", call. = FALSE)
+    } else {
+      if (length(origin) != 1)
+        stop("origin can only contain a single value for this version of the function", call. = FALSE)
+    }
+
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    return(survival(samc, init = init))
   })
 
 # survival(samc, init) ----
 #' @rdname survival
 setMethod(
   "survival",
-  signature(samc = "samc", init = "ANY"),
+  signature(samc = "samc", init = "ANY", origin = "missing"),
   function(samc, init) {
-    .disable_crw(samc)
-
-    if (samc@solver %in% c("direct", "iter")) {
-      check(samc, init)
-
-      pv <- .process_init(samc, init)
-
-      sv <- survival(samc)
-
-      surv <- pv %*% sv
-
-      return(as.numeric(surv))
-    } else if (samc@solver == "conv") {
-
-      res = visitation(samc, init)
-
-      return(sum(res))
-    } else {
-      stop("Invalid method attribute in samc object.")
-    }
+    sum(visitation(samc, init))
   })

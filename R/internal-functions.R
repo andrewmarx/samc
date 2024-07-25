@@ -1,22 +1,26 @@
-# Copyright (c) 2020-2023 Andrew Marx. All rights reserved.
-# Licensed under GPLv3.0. See LICENSE file in the project root for details.
-#
+# Copyright (c) 2024 Andrew Marx. All rights reserved.
+# Licensed under AGPLv3.0. See LICENSE file in the project root for details.
+
 # This file is for internal functions. They are subject to change and should not
 # be used by users.
-#
+
 
 #' RW function
 #'
 #' An internal function for creating RW samc matrix
 #'
 #' @noRd
-.rw <- function(x, absorption, fidelity, fun, dir, sym) {
-  if (is(fun, "function")) {
+.rw <- function(x, absorption, fidelity, model) {
+  dir = model$dir
+  fun = model$fun
+  sym = model$sym
+
+  if (model$name == "RW") {
     tr = .tr_vals(x, fun, dir)
-  } else if (fun == "1/mean(x)") {
-    tr = .tr_vals_res(x, dir)
+  } else if (model$name == "SSF") {
+    tr = .tr_vals_ssf(x, fun, dir, model$ssc)
   } else {
-    stop("Invalid transition function defined", call. = FALSE)
+    stop("", call. = FALSE)
   }
 
   nedges = sum(is.finite(tr))
@@ -139,19 +143,14 @@
   mat
 }
 
+
 #' CRW function
 #'
 #' An internal function for creating RW samc objects
 #'
 #' @noRd
 .crw <- function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
-  if (is(fun, "function")) {
-    tr = .tr_vals(x, fun, dir)
-  } else if (fun == "1/mean(x)") {
-    tr = .tr_vals_res(x, dir)
-  } else {
-    stop("Invalid transition function defined", call. = FALSE)
-  }
+  tr = .tr_vals(x, fun, dir)
 
   edge_counts = sum(is.finite(tr))
   edge_nums = tr
@@ -164,6 +163,8 @@
   ncells = length(cell_nums)
 
   edge_counts = sum(is.finite(tr))
+
+  mu = circular::circular(0)
 
   # Angle matrix
   # TODO make sure works for 4 directions
@@ -184,7 +185,7 @@
       mag_v1 = sqrt(sum(dir_vec[r, ]^2))
       mag_v2 = sqrt(sum(dir_vec[c, ]^2))
 
-      ang_mat[r, c] = circular::dvonmises(circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))), mu = circular::circular(0), kappa = model$kappa)
+      ang_mat[r, c] = circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2)))
     }
   }
 
@@ -256,6 +257,7 @@
   for (r in 1:nrows) {
     fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
     vals = 1 - fid - terra::values(absorption, mat = FALSE, row = r, nrows = 1)
+    kappa_vals = terra::values(model$kappa, mat = FALSE, row = r, nrows = 1)
     for (c in 1:ncols) {
       cell = cell + 1
       if (is.finite(vals[c])) {
@@ -287,7 +289,7 @@
                   e2_num = edge_nums[e2]
                   mat_p_count[e2_num] = mat_p_count[e2_num] + 1
 
-                  res = tr[e2] * ang_mat[d, dv]
+                  res = tr[e2] * circular::dvonmises(ang_mat[d, dv], mu = mu, kappa = kappa_vals[c])
                   rs = rs + res
 
                   row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]
@@ -321,9 +323,15 @@
 
   #View(as.matrix(mat))
 
+
+  dim(tr) = c(dir, length(tr)/dir)
+  tr = scale(tr, FALSE, colSums(tr, na.rm = TRUE))
+  attr(tr, 'scaled:scale') = NULL
+
   return(
     list(tr = mat,
          crw = crw_map,
+         prob = tr,
          abs = terra::values(absorption)[cell_nums[crw_map[,1]]])
   )
 }
@@ -345,25 +353,42 @@
     dir = c(1:4, 6:9)
   }
 
-  for (r in 1:nrows) {
-    vals = terra::focalValues(data, 3, r,1)
+  if (is(fun, "function")) {
+    for (r in 1:nrows) {
+      vals = terra::focalValues(data, 3, r,1)
 
-    for (c in 1:ncols) {
-      v = vals[c, 5]
-      for (d in dir) {
-        index = index + 1
+      for (c in 1:ncols) {
+        v = vals[c, 5]
+        for (d in dir) {
+          index = index + 1
 
-        result[index] = fun(c(v, vals[c, d])) / dist[r, d]
+          result[index] = fun(c(v, vals[c, d])) / dist[r, d]
 
+        }
       }
     }
+  } else if (fun == "1/mean(x)") {
+    for (r in 1:nrows) {
+      vals = terra::focalValues(data, 3, r,1)
+
+      for (c in 1:ncols) {
+        v = vals[c, 5]
+        for (d in dir) {
+          index = index + 1
+
+          result[index] = 2 / ((v + vals[c, d]) * dist[r, d])
+        }
+      }
+    }
+  } else {
+    stop("Invalid transition function defined", call. = FALSE)
   }
 
   result
 }
 
 
-.tr_vals_res = function(data, dir) {
+.tr_vals_ssf = function(data, fun, dir, ssc) {
 
   nrows = terra::nrow(data)
   ncols = terra::ncol(data)
@@ -371,7 +396,7 @@
   result = numeric(nrows * ncols * dir)
   index = 0
 
-  dist = .build_lookup_mat(data, dir)
+  dist = .build_lookup_mat(data, dir)^(ssc)
 
   if (dir == 4) {
     dir = c(2, 4, 6, 8)
@@ -379,18 +404,33 @@
     dir = c(1:4, 6:9)
   }
 
-  for (r in 1:nrows) {
-    vals = terra::focalValues(data, 3, r,1)
+  if (is(fun, "function")) {
+    for (r in 1:nrows) {
+      vals = terra::focalValues(data, 3, r,1)
 
-    for (c in 1:ncols) {
-      v = vals[c, 5]
-      for (d in dir) {
-        index = index + 1
+      for (c in 1:ncols) {
+        v = vals[c, 5]
+        for (d in dir) {
+          index = index + 1
 
-        result[index] = 2 / ((v + vals[c, d]) * dist[r, d])
-
+          result[index] = fun(c(v, vals[c, d])) * dist[r, d]
+        }
       }
     }
+  } else if (fun == "x[2]") {
+    for (r in 1:nrows) {
+      vals = terra::focalValues(data, 3, r,1)
+
+      for (c in 1:ncols) {
+        for (d in dir) {
+          index = index + 1
+
+          result[index] = vals[c, d] * dist[r, d]
+        }
+      }
+    }
+  } else {
+    stop("Invalid transition function defined", call. = FALSE)
   }
 
   result
@@ -596,7 +636,7 @@
   # limit represents 24.7 years. There is flexibility to increase the limit
   # if a justification can be made for it, but it's far more likely that
   # users will generally want far fewer time steps for ecologically relevant
-  # results and to avoid the cummulative precision issues.", call. = FALSE)
+  # results and to avoid the cumulative precision issues.", call. = FALSE)
 }
 
 
@@ -620,7 +660,7 @@
   if (any(x < 1))
     stop("All location values must be positive (greater than 0)", call. = FALSE)
 
-  if (any(x > nrow(samc$q_matrix)))
+  if (any(x > samc@nodes))
     stop("Location values cannot exceed the number of nodes in the landscape", call. = FALSE)
 }
 
@@ -687,12 +727,8 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
+    .validate_locations(samc, x)
 
-    if (samc@model$name == "CRW") {
-      stop("CRW model requires a list with location and direction.", call. = FALSE)
-    } else {
-      .validate_locations(samc, x)
-    }
     return(x)
   })
 
@@ -700,84 +736,32 @@ setMethod(
   ".process_locations",
   signature(samc = "samc", x = "character"),
   function(samc, x) {
-
     .validate_names(samc$names, x)
 
-    return(match(x, samc$names))
+    return(.process_locations(samc, match(x, samc$names)))
   })
 
 
-#' Validate transition args
+#' Map Location
 #'
-#' Validates the transition args for the samc() function
+#' Map a location
 #'
 #' @param x A list
 #' @noRd
-.validate_model <- function(x, method) {
-  args <- c("name", "fun", "dir", "sym")
-  names <- names(x)
+.map_location <- function(samc, x) {
+  if (samc@source == "transition") {
+    vec = numeric(samc@nodes)
+    vec[x] = 1
+    names(vec) = samc@names
 
-  dup_args <- names[duplicated(names)]
-  if (length(dup_args) > 0)
-    stop(paste("Duplicate argument in model:", dup_args), call. = FALSE)
-
-  if (!("name" %in% names)) {
-    x$name = "RW"
-    names = c(names, "name")
+    return(vec)
+  } else {
+    df = data.frame(cell = terra::cells(samc@map),
+                    vec = numeric(samc@nodes))
+    df$vec[x] = 1
   }
 
-  if (!x$name %in% c("RW", "CRW")) stop("Invalid model name", call. = FALSE)
-
-  missing_args <- args[!(args %in% names)]
-  if (length(missing_args) > 0)
-    stop(paste("Missing argument in model:", missing_args), call. = FALSE)
-
-  if (!(is(x$fun, "function") || is(x$fun, "character"))) {
-    stop("'fun' must be a supported named function or a user defined function")
-  } else if (!(x$dir %in% c(4, 8))) {
-    stop("`dir` must be set to either 4 or 8", call. = FALSE)
-  } else if (!is(x$sym, "logical")) {
-    stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
-  }
-
-  if (method == "conv") {
-    if (x$name != "RW") stop("Convolution currently only supports the 'RW' model.")
-    if (!is(x$fun, "character")) {
-      stop("Convolution currently only supports the '1/mean(x)' named function.")
-    } else if (x$fun != "1/mean(x)") {
-      stop("Convolution currently only supports the '1/mean(x)' named function.")
-    }
-  }
-
-
-  if (x$name == "CRW") {
-    args = c(args, "dist", "kappa")
-  }
-
-
-  unknown_args <- names[!(names %in% args)]
-  if (length(unknown_args) > 0)
-    stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
-
-  if (x$name == "CRW") {
-    if (x$dist == "vonMises") {
-      if (!is(x$kappa, "numeric"))
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (length(x$kappa) != 1)
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (!is.finite(x$kappa))
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-
-      if (x$kappa < 0)
-        stop("kappa must be single non-negative numeric value.", call. = FALSE)
-    } else {
-      stop(paste("Invalid distribution name:", x$dist), call. = FALSE)
-    }
-  }
-
-  return(x)
+  return(.build_map(samc, df))
 }
 
 
@@ -910,7 +894,14 @@ setMethod(
   function(samc, x) {
     if (any(!is.finite(x)) || any(x < 0)) stop("`init` input must only contain positive numeric values")
 
-    if (length(x) != length(samc@data@t_abs)) stop("`init` input length does not match number of transient states")
+    if (length(x) != samc@nodes) stop("`init` input length does not match number of nodes")
+
+
+    if (samc@model$name == "CRW") {
+      x = sweep(samc@prob_mat[, terra::cells(samc@map)], 2, x, "*")
+      dim(x) = NULL
+      x = x[!is.na(x)]
+    }
 
     return(x)
   })
@@ -961,4 +952,18 @@ setMethod(
 #' @noRd
 .disable_conv <- function(samc) {
   if (samc@solver == "conv") stop("Metric/parameter combinaton not currently supported for the convolution algorithm", call. = FALSE)
+}
+
+
+#' Summarize CRW
+#'
+#' Summarize CRW
+#'
+#' @param samc samc model
+#' @noRd
+.summarize_crw <- function(samc, vec, fun) {
+  if (length(vec) != nrow(samc@crw_map))
+    stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
+
+  aggregate(vec ~ samc@crw_map[, 1], FUN = fun)$vec
 }

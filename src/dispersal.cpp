@@ -1,5 +1,5 @@
-// Copyright (c) 2019 Andrew Marx. All rights reserved.
-// Licensed under GPLv3.0. See LICENSE file in the project root for details.
+// Copyright (c) 2024 Andrew Marx where applicable.
+// Licensed under AGPLv3.0. See LICENSE file in the project root for details.
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
@@ -169,29 +169,4 @@ Rcpp::NumericVector diagf_par_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, 
   Rcpp::Rcout << "Diagonal has been cached. Continuing with metric calculation...\n";
 
   return Rcpp::wrap(dg);
-}
-
-
-// [[Rcpp::export(".psid_long")]]
-Rcpp::NumericVector psid_long(Eigen::Map<Eigen::SparseMatrix<double> > &M,
-                              const Eigen::VectorXd &psi, const Eigen::VectorXd &dg,
-                              Rcpp::XPtr<SolverCache> &SC)
-{
-  SC->buildSolver(M.transpose(), "mt");
-
-  Eigen::VectorXd psiF = SC->solver().solve(psi) - psi;
-
-  return Rcpp::wrap(psiF.cwiseQuotient(dg));
-}
-
-// [[Rcpp::export(".psid_long_iter")]]
-Rcpp::NumericVector psid_long_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::VectorXd &psi, const Eigen::VectorXd &dg)
-{
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
-
-  solver.compute(M.transpose());
-
-  Eigen::VectorXd psiF = solver.solve(psi) - psi;
-
-  return Rcpp::wrap(psiF.cwiseQuotient(dg));
 }
