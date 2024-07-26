@@ -205,13 +205,11 @@ setMethod(
   "check",
   signature(a = "samc", b = "numeric"),
   function(a, b){
-    if (a@source != "transition") stop("Numeric vector input only valid for samc objects created from P matrix", call. = FALSE)
-
     if (!isTRUE(all.equal(names(b), a@names))) stop("Names of the vector must match the names of the transient states in the P matrix", call. = FALSE)
 
     if (any(!is.finite(b)) || any(b < 0) || any(is.na(b))) stop("Input must only contain positive numeric values", call. = FALSE)
 
-    if (length(b) != length(a@data@t_abs)) stop("Input length does not match number of transient states", call. = FALSE)
+    if (length(b) != nrow(a@data@f)) stop("Input length does not match number of transient states", call. = FALSE)
 
     if (sum(b) <= 0) stop("Input must contain at least one positive numeric value", call. = FALSE)
   })
