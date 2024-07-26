@@ -12,41 +12,42 @@
 #' @param samc A samc-class object
 #' @param x A vector of integers or character names
 #' @noRd
+#'
+.process_locations = function(samc, x) {
+  if (samc@model$name == "RW") {
+    .process_locations_rw(samc, x)
+  } else if (samc@model$name == "CRW") {
+    .process_locations_crw(samc, x)
+  } else {
+    stop("Unexpected model in .process_locations()", call. = FALSE)
+  }
+}
+
+
+#' Process RW location inputs
+#'
+#' Process RW location inputs
+#'
+#' @param samc A samc-class object
+#' @param x A vector of integers or character names
+#' @noRd
 setGeneric(
-  ".process_locations",
+  ".process_locations_rw",
   function(samc, x) {
-    standardGeneric(".process_locations")
+    standardGeneric(".process_locations_rw")
   })
 
 #' @noRd
 setMethod(
-  ".process_locations",
+  ".process_locations_rw",
   signature(samc = "samc", x = "matrix"),
   function(samc, x) {
-    if (samc@model$name == "CRW") {
-      if (nrow(x) > 1) {
-        stop("Multiple locations not supported yet. Matrix should only have 1 row/2 columns", call. = FALSE)
-      }
-
-      if (ncol(x) != 2) stop("Location should have 2 columns. The first for location and the second for direction.", call. = FALSE)
-
-      .validate_locations(samc, x[1, 1])
-
-      if (!(x[1, 2] %in% 1:8)) stop("Invalid direction. Must be a single integer from 1-8.", call. = FALSE)
-
-      x = which(apply(samc@crw_map, 1, function(crw) return(all(crw == x))))
-
-      if (length(x) != 1) stop("The combination of location and direction is not valid", call. = FALSE)
-
-    } else {
-      stop(paste("Invalid location input for model", samc@model$name), call. = FALSE)
-    }
-    return(x)
+    stop("matrix inputs are not valid for RW models", call. = FALSE)
   })
 
 #' @noRd
 setMethod(
-  ".process_locations",
+  ".process_locations_rw",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
     .validate_locations(samc, x)
@@ -55,12 +56,67 @@ setMethod(
   })
 
 setMethod(
-  ".process_locations",
+  ".process_locations_rw",
   signature(samc = "samc", x = "character"),
   function(samc, x) {
     .validate_names(samc$names, x)
 
-    return(.process_locations(samc, match(x, samc$names)))
+    return(.process_locations_rw(samc, match(x, samc$names)))
+  })
+
+
+#' Process CRW location inputs
+#'
+#' Process CRW location inputs
+#'
+#' @param samc A samc-class object
+#' @param x A vector of integers or character names
+#' @noRd
+setGeneric(
+  ".process_locations_crw",
+  function(samc, x) {
+    standardGeneric(".process_locations_crw")
+  })
+
+#' @noRd
+setMethod(
+  ".process_locations_crw",
+  signature(samc = "samc", x = "matrix"),
+  function(samc, x) {
+    if (nrow(x) > 1) {
+      stop("Multiple locations not supported yet. Matrix should only have 1 row and 2 columns.", call. = FALSE)
+    }
+
+    if (ncol(x) != 2) stop("Location should have 2 columns. The first for location and the second for direction.", call. = FALSE)
+
+    .validate_locations(samc, x[1, 1])
+
+    if (!(x[1, 2] %in% 1:8)) stop("Invalid direction. Must be a single integer from 1-8.", call. = FALSE)
+
+    x = which(apply(samc@crw_map, 1, function(crw) return(all(crw == x)))) # TODO expand to multiple location inputs?
+
+    if (length(x) != 1) stop("The combination of location and direction is not valid", call. = FALSE)
+
+    return(x)
+  })
+
+#' @noRd
+setMethod(
+  ".process_locations_crw",
+  signature(samc = "samc", x = "numeric"),
+  function(samc, x) {
+    .validate_locations(samc, x)
+
+    return(x)
+  })
+
+setMethod(
+  ".process_locations_crw",
+  signature(samc = "samc", x = "character"),
+  function(samc, x) {
+    .validate_names(samc$names, x)
+
+    return(.process_locations_crw(samc, match(x, samc$names)))
   })
 
 
@@ -155,36 +211,46 @@ setMethod(
 #' @param samc A samc-class object
 #' @param x initial state input
 #' @noRd
+.process_init = function(samc, x) {
+  if (samc@model$name == "RW") {
+    .process_init_rw(samc, x)
+  } else if (samc@model$name == "CRW") {
+    .process_init_crw(samc, x)
+  } else {
+    stop("Unexpected model in .process_init()", call. = FALSE)
+  }
+}
+
+#' Process RW initial state input
+#'
+#' Process RW initial state input
+#'
+#' @param samc A samc-class object
+#' @param x initial state input
+#' @noRd
 setGeneric(
-  ".process_init",
+  ".process_init_rw",
   function(samc, x) {
-    standardGeneric(".process_init")
+    standardGeneric(".process_init_rw")
   })
 
 # TODO: find a way to check the input type for `init` to the input type to samc()
 
 #' @noRd
 setMethod(
-  ".process_init",
+  ".process_init_rw",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
     if (any(!is.finite(x)) || any(x < 0)) stop("`init` input must only contain positive numeric values")
 
     if (length(x) != samc@nodes) stop("`init` input length does not match number of nodes")
 
-
-    if (samc@model$name == "CRW") {
-      x = sweep(samc@prob_mat[, terra::cells(samc@map)], 2, x, "*")
-      dim(x) = NULL
-      x = x[!is.na(x)]
-    }
-
     return(x)
   })
 
 #' @noRd
 setMethod(
-  ".process_init",
+  ".process_init_rw",
   signature(samc = "samc", x = "SpatRaster"),
   function(samc, x) {
     check(samc@map, x)
@@ -192,22 +258,82 @@ setMethod(
     pv = as.vector(terra::values(x))
     pv = pv[is.finite(pv)]
 
-    return(.process_init(samc, pv))
+    return(.process_init_rw(samc, pv))
   })
 
 #' @noRd
 setMethod(
-  ".process_init",
+  ".process_init_rw",
   signature(samc = "samc", x = "RasterLayer"),
   function(samc, x) {
-    return(.process_init(samc, rasterize(x)))
+    return(.process_init_rw(samc, rasterize(x)))
   })
 
 setMethod(
-  ".process_init",
+  ".process_init_rw",
   signature(samc = "samc", x = "matrix"),
   function(samc, x) {
-    return(.process_init(samc, rasterize(x)))
+    return(.process_init_rw(samc, rasterize(x)))
+  })
+
+
+#' Process CRW initial state input
+#'
+#' Process CRW initial state input
+#'
+#' @param samc A samc-class object
+#' @param x initial state input
+#' @noRd
+setGeneric(
+  ".process_init_crw",
+  function(samc, x) {
+    standardGeneric(".process_init_crw")
+  })
+
+# TODO: find a way to check the input type for `init` to the input type to samc()
+
+#' @noRd
+setMethod(
+  ".process_init_crw",
+  signature(samc = "samc", x = "numeric"),
+  function(samc, x) {
+    if (any(!is.finite(x)) || any(x < 0)) stop("`init` input must only contain positive numeric values")
+
+    if (length(x) != nrow(samc@data@f)) stop("`init` input length does not match number of edges")
+
+    return(x)
+  })
+
+#' @noRd
+setMethod(
+  ".process_init_crw",
+  signature(samc = "samc", x = "SpatRaster"),
+  function(samc, x) {
+    check(samc@map, x)
+
+    pv = as.vector(terra::values(x))
+    pv = pv[is.finite(pv)]
+
+    pv = sweep(samc@prob_mat[, terra::cells(samc@map)], 2, pv, "*")
+    dim(pv) = NULL
+    pv = pv[!is.na(pv)]
+
+    return(.process_init_crw(samc, pv))
+  })
+
+#' @noRd
+setMethod(
+  ".process_init_crw",
+  signature(samc = "samc", x = "RasterLayer"),
+  function(samc, x) {
+    return(.process_init_crw(samc, rasterize(x)))
+  })
+
+setMethod(
+  ".process_init_crw",
+  signature(samc = "samc", x = "matrix"),
+  function(samc, x) {
+    return(.process_init_crw(samc, rasterize(x)))
   })
 
 
@@ -217,20 +343,12 @@ setMethod(
 #'
 #' @param x A list
 #' @noRd
-.map_location = function(samc, x) {
-  if (samc@source == "transition") {
-    vec = numeric(samc@nodes)
-    vec[x] = 1
-    names(vec) = samc@names
+.map_location = function(samc, x) { # TODO rename to build_init
+  vec = numeric(nrow(samc@data@f))
+  vec[x] = 1
+  names(vec) = samc@names
 
-    return(vec)
-  } else {
-    df = data.frame(cell = terra::cells(samc@map),
-                    vec = numeric(samc@nodes))
-    df$vec[x] = 1
-  }
-
-  return(.build_map(samc, df))
+  return(vec)
 }
 
 
