@@ -173,6 +173,7 @@ setMethod(
     }
 
     res = .qpow_col(q, vec, time)
+    names(res) = as.character(time[-1])
     res = lapply(res, as.vector)
 
     if (samc@model$name == "CRW") {
@@ -224,6 +225,7 @@ setMethod(
       time = c(0, time)
 
       res = .qpow_row(q, pv, time)
+      names(res) = as.character(time[-1])
 
       res = lapply(res, as.vector)
 

@@ -14,25 +14,25 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // cond_t
-Rcpp::List cond_t(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
+Rcpp::List cond_t(const Eigen::Map<Eigen::SparseMatrix<double> >& IQ, const Eigen::VectorXd& qj);
 RcppExport SEXP _samc_cond_t(SEXP IQSEXP, SEXP qjSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type IQ(IQSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type qj(qjSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type IQ(IQSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type qj(qjSEXP);
     rcpp_result_gen = Rcpp::wrap(cond_t(IQ, qj));
     return rcpp_result_gen;
 END_RCPP
 }
 // cond_t_iter
-Rcpp::List cond_t_iter(Eigen::Map<Eigen::SparseMatrix<double> >& IQ, Eigen::VectorXd& qj);
+Rcpp::List cond_t_iter(const Eigen::Map<Eigen::SparseMatrix<double> >& IQ, const Eigen::VectorXd& qj);
 RcppExport SEXP _samc_cond_t_iter(SEXP IQSEXP, SEXP qjSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type IQ(IQSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type qj(qjSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type IQ(IQSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type qj(qjSEXP);
     rcpp_result_gen = Rcpp::wrap(cond_t_iter(IQ, qj));
     return rcpp_result_gen;
 END_RCPP
@@ -92,7 +92,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // sum_qn_q
-Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::SparseMatrix<double> >& M2, const Eigen::VectorXd& q, Rcpp::NumericVector t);
+Rcpp::List sum_qn_q(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::SparseMatrix<double> >& M2, const Eigen::VectorXd& q, const Rcpp::NumericVector& t);
 RcppExport SEXP _samc_sum_qn_q(SEXP MSEXP, SEXP M2SEXP, SEXP qSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -100,13 +100,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M2(M2SEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type q(qSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type t(tSEXP);
     rcpp_result_gen = Rcpp::wrap(sum_qn_q(M, M2, q, t));
     return rcpp_result_gen;
 END_RCPP
 }
 // sum_qn_q_iter
-Rcpp::List sum_qn_q_iter(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::SparseMatrix<double> >& M2, const Eigen::VectorXd& q, Rcpp::NumericVector t);
+Rcpp::List sum_qn_q_iter(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::SparseMatrix<double> >& M2, const Eigen::VectorXd& q, const Rcpp::NumericVector& t);
 RcppExport SEXP _samc_sum_qn_q_iter(SEXP MSEXP, SEXP M2SEXP, SEXP qSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -114,71 +114,71 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M2(M2SEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type q(qSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type t(tSEXP);
     rcpp_result_gen = Rcpp::wrap(sum_qn_q_iter(M, M2, q, t));
     return rcpp_result_gen;
 END_RCPP
 }
 // diagf_par
-Rcpp::NumericVector diagf_par(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int threads);
+Rcpp::NumericVector diagf_par(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const int threads);
 RcppExport SEXP _samc_diagf_par(SEXP MSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
     rcpp_result_gen = Rcpp::wrap(diagf_par(M, threads));
     return rcpp_result_gen;
 END_RCPP
 }
 // diagf_par_iter
-Rcpp::NumericVector diagf_par_iter(Eigen::Map<Eigen::SparseMatrix<double> >& M, const int threads);
+Rcpp::NumericVector diagf_par_iter(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const int threads);
 RcppExport SEXP _samc_diagf_par_iter(SEXP MSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
     rcpp_result_gen = Rcpp::wrap(diagf_par_iter(M, threads));
     return rcpp_result_gen;
 END_RCPP
 }
 // qpow_row
-Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_qpow_row(SEXP MSEXP, SEXP vecSEXP, SEXP stepsSEXP) {
+Rcpp::List qpow_row(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, const Rcpp::NumericVector& t);
+RcppExport SEXP _samc_qpow_row(SEXP MSEXP, SEXP vecSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type vec(vecSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(qpow_row(M, vec, steps));
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type t(tSEXP);
+    rcpp_result_gen = Rcpp::wrap(qpow_row(M, vec, t));
     return rcpp_result_gen;
 END_RCPP
 }
 // qpow_col
-Rcpp::List qpow_col(Eigen::Map<Eigen::SparseMatrix< double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_qpow_col(SEXP MSEXP, SEXP vecSEXP, SEXP stepsSEXP) {
+Rcpp::List qpow_col(const Eigen::Map<Eigen::SparseMatrix< double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, const Rcpp::NumericVector& t);
+RcppExport SEXP _samc_qpow_col(SEXP MSEXP, SEXP vecSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix< double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix< double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type vec(vecSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(qpow_col(M, vec, steps));
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type t(tSEXP);
+    rcpp_result_gen = Rcpp::wrap(qpow_col(M, vec, t));
     return rcpp_result_gen;
 END_RCPP
 }
 // sum_qpowrv
-Rcpp::List sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& rv, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_qpowrv(SEXP MSEXP, SEXP rvSEXP, SEXP stepsSEXP) {
+Rcpp::List sum_qpowrv(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& rv, const Rcpp::NumericVector& t);
+RcppExport SEXP _samc_sum_qpowrv(SEXP MSEXP, SEXP rvSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type rv(rvSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(sum_qpowrv(M, rv, steps));
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type t(tSEXP);
+    rcpp_result_gen = Rcpp::wrap(sum_qpowrv(M, rv, t));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -193,51 +193,51 @@ BEGIN_RCPP
 END_RCPP
 }
 // f1
-Rcpp::NumericVector f1(Eigen::Map<Eigen::SparseMatrix<double> >& M, Rcpp::XPtr<SolverCache>& SC);
+Rcpp::NumericVector f1(const Eigen::Map<Eigen::SparseMatrix<double> >& M, Rcpp::XPtr<SolverCache>& SC);
 RcppExport SEXP _samc_f1(SEXP MSEXP, SEXP SCSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<SolverCache>& >::type SC(SCSEXP);
     rcpp_result_gen = Rcpp::wrap(f1(M, SC));
     return rcpp_result_gen;
 END_RCPP
 }
 // f1_iter
-Rcpp::NumericVector f1_iter(Eigen::Map<Eigen::SparseMatrix<double> >& M);
+Rcpp::NumericVector f1_iter(const Eigen::Map<Eigen::SparseMatrix<double> >& M);
 RcppExport SEXP _samc_f1_iter(SEXP MSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     rcpp_result_gen = Rcpp::wrap(f1_iter(M));
     return rcpp_result_gen;
 END_RCPP
 }
 // sum_qpow_row
-Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_qpow_row(SEXP MSEXP, SEXP vecSEXP, SEXP stepsSEXP) {
+Rcpp::List sum_qpow_row(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, const Rcpp::NumericVector& t);
+RcppExport SEXP _samc_sum_qpow_row(SEXP MSEXP, SEXP vecSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type vec(vecSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(sum_qpow_row(M, vec, steps));
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type t(tSEXP);
+    rcpp_result_gen = Rcpp::wrap(sum_qpow_row(M, vec, t));
     return rcpp_result_gen;
 END_RCPP
 }
 // sum_qpow_col
-Rcpp::List sum_qpow_col(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, Rcpp::NumericVector steps);
-RcppExport SEXP _samc_sum_qpow_col(SEXP MSEXP, SEXP vecSEXP, SEXP stepsSEXP) {
+Rcpp::List sum_qpow_col(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::Map<Eigen::VectorXd>& vec, const Rcpp::NumericVector& t);
+RcppExport SEXP _samc_sum_qpow_col(SEXP MSEXP, SEXP vecSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type vec(vecSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type steps(stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(sum_qpow_col(M, vec, steps));
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type t(tSEXP);
+    rcpp_result_gen = Rcpp::wrap(sum_qpow_col(M, vec, t));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -255,24 +255,24 @@ BEGIN_RCPP
 END_RCPP
 }
 // f_row_iter
-Rcpp::NumericVector f_row_iter(Eigen::SparseMatrix<double>& M, const Eigen::VectorXd& vec);
+Rcpp::NumericVector f_row_iter(const Eigen::SparseMatrix<double>& M, const Eigen::VectorXd& vec);
 RcppExport SEXP _samc_f_row_iter(SEXP MSEXP, SEXP vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type vec(vecSEXP);
     rcpp_result_gen = Rcpp::wrap(f_row_iter(M, vec));
     return rcpp_result_gen;
 END_RCPP
 }
 // f_col
-Rcpp::NumericVector f_col(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& vec, Rcpp::XPtr<SolverCache>& SC);
+Rcpp::NumericVector f_col(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& vec, Rcpp::XPtr<SolverCache>& SC);
 RcppExport SEXP _samc_f_col(SEXP MSEXP, SEXP vecSEXP, SEXP SCSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type vec(vecSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<SolverCache>& >::type SC(SCSEXP);
     rcpp_result_gen = Rcpp::wrap(f_col(M, vec, SC));
@@ -280,12 +280,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // f_col_iter
-Rcpp::NumericVector f_col_iter(Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& vec);
+Rcpp::NumericVector f_col_iter(const Eigen::Map<Eigen::SparseMatrix<double> >& M, const Eigen::VectorXd& vec);
 RcppExport SEXP _samc_f_col_iter(SEXP MSEXP, SEXP vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double> >& >::type M(MSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type vec(vecSEXP);
     rcpp_result_gen = Rcpp::wrap(f_col_iter(M, vec));
     return rcpp_result_gen;

@@ -41,16 +41,16 @@
     .Call('_samc_diagf_par_iter', PACKAGE = 'samc', M, threads)
 }
 
-.qpow_row <- function(M, vec, steps) {
-    .Call('_samc_qpow_row', PACKAGE = 'samc', M, vec, steps)
+.qpow_row <- function(M, vec, t) {
+    .Call('_samc_qpow_row', PACKAGE = 'samc', M, vec, t)
 }
 
-.qpow_col <- function(M, vec, steps) {
-    .Call('_samc_qpow_col', PACKAGE = 'samc', M, vec, steps)
+.qpow_col <- function(M, vec, t) {
+    .Call('_samc_qpow_col', PACKAGE = 'samc', M, vec, t)
 }
 
-.sum_qpowrv <- function(M, rv, steps) {
-    .Call('_samc_sum_qpowrv', PACKAGE = 'samc', M, rv, steps)
+.sum_qpowrv <- function(M, rv, t) {
+    .Call('_samc_sum_qpowrv', PACKAGE = 'samc', M, rv, t)
 }
 
 .solver_cache <- function() {
@@ -65,12 +65,12 @@
     .Call('_samc_f1_iter', PACKAGE = 'samc', M)
 }
 
-.sum_qpow_row <- function(M, vec, steps) {
-    .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, vec, steps)
+.sum_qpow_row <- function(M, vec, t) {
+    .Call('_samc_sum_qpow_row', PACKAGE = 'samc', M, vec, t)
 }
 
-.sum_qpow_col <- function(M, vec, steps) {
-    .Call('_samc_sum_qpow_col', PACKAGE = 'samc', M, vec, steps)
+.sum_qpow_col <- function(M, vec, t) {
+    .Call('_samc_sum_qpow_col', PACKAGE = 'samc', M, vec, t)
 }
 
 .f_row <- function(M, vec, SC) {

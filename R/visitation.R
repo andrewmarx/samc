@@ -229,6 +229,7 @@ setMethod(
     }
 
     ft = .sum_qpow_col(q, vec, time)
+    names(ft) = as.character(time[-1])
 
     ft = lapply(ft, as.vector)
 
@@ -284,6 +285,7 @@ setMethod(
 
       time <- c(1, time)
       ft <- .sum_qpow_row(q, pv, time)
+      names(ft) = as.character(time[-1])
 
       ft = lapply(ft, as.vector)
 

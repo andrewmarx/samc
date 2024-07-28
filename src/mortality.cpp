@@ -5,26 +5,34 @@
 #include <RcppEigen.h>
 
 #include "solver-cache.h"
-
+#include "constants.h"
 
 // [[Rcpp::export(".sum_qpowrv")]]
-Rcpp::List sum_qpowrv(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &rv, Rcpp::NumericVector steps)
+Rcpp::List sum_qpowrv(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
+                      const Eigen::Map<Eigen::VectorXd> &rv,
+                      const Rcpp::NumericVector &t)
 {
-  int n = steps.size();
+  int n = t.size();
 
-  Rcpp::List res = Rcpp::List::create();
+  Rcpp::List res(n - 1);
 
   Eigen::VectorXd qrv = rv;
   Eigen::VectorXd time_res = qrv;
 
   for(int i = 1; i < n; i++) {
-    for (int j = steps[i - 1]; j < steps[i]; j++) {
-      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+    int t_start = t[i - 1];
+    int t_end = t[i];
+
+    for (int j = t_start; j < t_end; j++) {
+      if(j % INTERRUPT_CHECK_INTERVAL == 0) {
+        Rcpp::checkUserInterrupt();
+      }
+
       qrv = M * qrv;
-      time_res = time_res + qrv;
+      time_res += qrv;
     }
 
-    res.push_back(time_res, std::to_string((int)steps[i]));
+    res[i - 1] = Rcpp::wrap(time_res);
   }
 
   return res;

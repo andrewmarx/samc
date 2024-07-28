@@ -237,6 +237,7 @@ setMethod(
     time <- c(1, time)
 
     mort <- .sum_qpowrv(q, rdg, time)
+    names(mort) <- as.character(time[-1])
 
     mort <- lapply(mort, as.vector)
 

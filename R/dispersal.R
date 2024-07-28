@@ -173,6 +173,7 @@ setMethod(
     } else {
       res = .sum_qn_q(q, q2, qv, time)
     }
+    names(res) <- as.character(time[-1])
 
     res = lapply(res, as.vector)
 
