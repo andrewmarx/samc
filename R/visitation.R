@@ -475,7 +475,7 @@ setMethod(
 #'
 #' Calculates the net number of times that transient states are visited before absorption.
 #'
-#' The \code{\link{visitation}} function calculates the
+#' Add details here
 #'
 #' @template section-perf
 #'
@@ -496,31 +496,56 @@ setGeneric(
     standardGeneric("visitation_net")
   })
 
+# visitation_net(samc, origin) ----
+#' @rdname visitation_net
+setMethod(
+  "visitation_net",
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing"),
+  function(samc, origin) {
+    .disable_crw(samc)
+
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    return(visitation_net(samc, init = init))
+  })
+
 # visitation_net(samc, origin, dest) ----
 #' @rdname visitation_net
 setMethod(
   "visitation_net",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
   function(samc, origin, dest) {
-    .disable_crw(samc)
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
-
-    if (length(dest) != 1)
+    if (length(dest) != 1) {
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
+    }
 
-    origin = .process_locations(samc, origin)
-    init = .map_location(samc, origin)
+    dest = .process_locations(samc, dest)
+    res = visitation_net(samc, origin = origin)
+
+    return(res[dest])
+  })
+
+# visitation_net(samc, init) ----
+#' @rdname visitation_net
+setMethod(
+  "visitation_net",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing"),
+  function(samc, init) {
+    .disable_crw(samc)
 
     check(samc, init)
 
-    pv <- .process_init(samc, init)
+    pv = .process_init(samc, init)
 
     if (samc@solver %in% c("direct", "iter")) {
       if (samc@solver == "iter") {
-        r <- .f_row_iter(samc@data@f, pv)
+        r = .f_row_iter(samc@data@f, pv)
       } else {
-        r <- .f_row(samc@data@f, pv, samc@.cache$sc)
+        r = .f_row(samc@data@f, pv, samc@.cache$sc)
       }
 
       r = as.vector(r)
@@ -541,7 +566,22 @@ setMethod(
 
     n_net = abs(Matrix::skewpart(vq))
     visit_net = as.vector(Matrix::colSums(n_net))
-    visit_net[c(origin, dest)] = 2 * visit_net[c(origin, dest)]
 
     return(visit_net)
+  })
+
+# visitation_net(samc, init, dest) ----
+#' @rdname visitation_net
+setMethod(
+  "visitation_net",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location"),
+  function(samc, init, dest) {
+    if (length(dest) != 1) {
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+    }
+
+    dest = .process_locations(samc, dest)
+    res = visitation_net(samc, init = init)
+
+    return(res[dest])
   })
