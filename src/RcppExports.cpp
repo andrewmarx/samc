@@ -37,9 +37,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// build_convolution_cache
-Rcpp::XPtr<convolution_cache> build_convolution_cache(const Rcpp::NumericMatrix& kernel, const Rcpp::NumericMatrix& resistance, const Rcpp::NumericMatrix& fidelity, const Rcpp::NumericMatrix& absorption, const bool symmetric, const int threads);
-RcppExport SEXP _samc_build_convolution_cache(SEXP kernelSEXP, SEXP resistanceSEXP, SEXP fidelitySEXP, SEXP absorptionSEXP, SEXP symmetricSEXP, SEXP threadsSEXP) {
+// build_convolution_cache_float
+Rcpp::XPtr<convolution_cache<float>> build_convolution_cache_float(const Rcpp::NumericMatrix& kernel, const Rcpp::NumericMatrix& resistance, const Rcpp::NumericMatrix& fidelity, const Rcpp::NumericMatrix& absorption, const bool symmetric, const int threads);
+RcppExport SEXP _samc_build_convolution_cache_float(SEXP kernelSEXP, SEXP resistanceSEXP, SEXP fidelitySEXP, SEXP absorptionSEXP, SEXP symmetricSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -49,45 +49,99 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type absorption(absorptionSEXP);
     Rcpp::traits::input_parameter< const bool >::type symmetric(symmetricSEXP);
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_convolution_cache(kernel, resistance, fidelity, absorption, symmetric, threads));
+    rcpp_result_gen = Rcpp::wrap(build_convolution_cache_float(kernel, resistance, fidelity, absorption, symmetric, threads));
     return rcpp_result_gen;
 END_RCPP
 }
-// get_convolution_list
-Rcpp::List get_convolution_list(const Rcpp::XPtr<convolution_cache>& ca);
-RcppExport SEXP _samc_get_convolution_list(SEXP caSEXP) {
+// build_convolution_cache_double
+Rcpp::XPtr<convolution_cache<double>> build_convolution_cache_double(const Rcpp::NumericMatrix& kernel, const Rcpp::NumericMatrix& resistance, const Rcpp::NumericMatrix& fidelity, const Rcpp::NumericMatrix& absorption, const bool symmetric, const int threads);
+RcppExport SEXP _samc_build_convolution_cache_double(SEXP kernelSEXP, SEXP resistanceSEXP, SEXP fidelitySEXP, SEXP absorptionSEXP, SEXP symmetricSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache>& >::type ca(caSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_convolution_list(ca));
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type kernel(kernelSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type resistance(resistanceSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type fidelity(fidelitySEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type absorption(absorptionSEXP);
+    Rcpp::traits::input_parameter< const bool >::type symmetric(symmetricSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(build_convolution_cache_double(kernel, resistance, fidelity, absorption, symmetric, threads));
     return rcpp_result_gen;
 END_RCPP
 }
-// convolution_short
-Rcpp::List convolution_short(std::vector<long> steps, const Rcpp::XPtr<convolution_cache>& ca, const Rcpp::NumericVector& pop_in, const int threads);
-RcppExport SEXP _samc_convolution_short(SEXP stepsSEXP, SEXP caSEXP, SEXP pop_inSEXP, SEXP threadsSEXP) {
+// get_convolution_list_float
+Rcpp::List get_convolution_list_float(const Rcpp::XPtr<convolution_cache<float>>& ca);
+RcppExport SEXP _samc_get_convolution_list_float(SEXP caSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache<float>>& >::type ca(caSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_convolution_list_float(ca));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_convolution_list_double
+Rcpp::List get_convolution_list_double(const Rcpp::XPtr<convolution_cache<double>>& ca);
+RcppExport SEXP _samc_get_convolution_list_double(SEXP caSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache<double>>& >::type ca(caSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_convolution_list_double(ca));
+    return rcpp_result_gen;
+END_RCPP
+}
+// convolution_short_float
+Rcpp::List convolution_short_float(std::vector<long> steps, const Rcpp::XPtr<convolution_cache<float>>& ca, const Rcpp::NumericVector& pop_in, const int threads);
+RcppExport SEXP _samc_convolution_short_float(SEXP stepsSEXP, SEXP caSEXP, SEXP pop_inSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::vector<long> >::type steps(stepsSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache>& >::type ca(caSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache<float>>& >::type ca(caSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type pop_in(pop_inSEXP);
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(convolution_short(steps, ca, pop_in, threads));
+    rcpp_result_gen = Rcpp::wrap(convolution_short_float(steps, ca, pop_in, threads));
     return rcpp_result_gen;
 END_RCPP
 }
-// convolution_long
-Rcpp::List convolution_long(const Rcpp::XPtr<convolution_cache>& ca, const Rcpp::NumericVector& pop_in, const int threads);
-RcppExport SEXP _samc_convolution_long(SEXP caSEXP, SEXP pop_inSEXP, SEXP threadsSEXP) {
+// convolution_short_double
+Rcpp::List convolution_short_double(std::vector<long> steps, const Rcpp::XPtr<convolution_cache<double>>& ca, const Rcpp::NumericVector& pop_in, const int threads);
+RcppExport SEXP _samc_convolution_short_double(SEXP stepsSEXP, SEXP caSEXP, SEXP pop_inSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache>& >::type ca(caSEXP);
+    Rcpp::traits::input_parameter< std::vector<long> >::type steps(stepsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache<double>>& >::type ca(caSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type pop_in(pop_inSEXP);
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(convolution_long(ca, pop_in, threads));
+    rcpp_result_gen = Rcpp::wrap(convolution_short_double(steps, ca, pop_in, threads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// convolution_long_float
+Rcpp::List convolution_long_float(const Rcpp::XPtr<convolution_cache<float>>& ca, const Rcpp::NumericVector& init, const int threads);
+RcppExport SEXP _samc_convolution_long_float(SEXP caSEXP, SEXP initSEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache<float>>& >::type ca(caSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type init(initSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(convolution_long_float(ca, init, threads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// convolution_long_double
+Rcpp::List convolution_long_double(const Rcpp::XPtr<convolution_cache<double>>& ca, const Rcpp::NumericVector& init, const int threads);
+RcppExport SEXP _samc_convolution_long_double(SEXP caSEXP, SEXP initSEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<convolution_cache<double>>& >::type ca(caSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type init(initSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(convolution_long_double(ca, init, threads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -295,10 +349,14 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_samc_cond_t", (DL_FUNC) &_samc_cond_t, 2},
     {"_samc_cond_t_iter", (DL_FUNC) &_samc_cond_t_iter, 2},
-    {"_samc_build_convolution_cache", (DL_FUNC) &_samc_build_convolution_cache, 6},
-    {"_samc_get_convolution_list", (DL_FUNC) &_samc_get_convolution_list, 1},
-    {"_samc_convolution_short", (DL_FUNC) &_samc_convolution_short, 4},
-    {"_samc_convolution_long", (DL_FUNC) &_samc_convolution_long, 3},
+    {"_samc_build_convolution_cache_float", (DL_FUNC) &_samc_build_convolution_cache_float, 6},
+    {"_samc_build_convolution_cache_double", (DL_FUNC) &_samc_build_convolution_cache_double, 6},
+    {"_samc_get_convolution_list_float", (DL_FUNC) &_samc_get_convolution_list_float, 1},
+    {"_samc_get_convolution_list_double", (DL_FUNC) &_samc_get_convolution_list_double, 1},
+    {"_samc_convolution_short_float", (DL_FUNC) &_samc_convolution_short_float, 4},
+    {"_samc_convolution_short_double", (DL_FUNC) &_samc_convolution_short_double, 4},
+    {"_samc_convolution_long_float", (DL_FUNC) &_samc_convolution_long_float, 3},
+    {"_samc_convolution_long_double", (DL_FUNC) &_samc_convolution_long_double, 3},
     {"_samc_sum_qn_q", (DL_FUNC) &_samc_sum_qn_q, 4},
     {"_samc_sum_qn_q_iter", (DL_FUNC) &_samc_sum_qn_q_iter, 4},
     {"_samc_diagf_par", (DL_FUNC) &_samc_diagf_par, 2},

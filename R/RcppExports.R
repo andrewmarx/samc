@@ -9,20 +9,36 @@
     .Call('_samc_cond_t_iter', PACKAGE = 'samc', IQ, qj)
 }
 
-.build_convolution_cache <- function(kernel, resistance, fidelity, absorption, symmetric, threads = 1L) {
-    .Call('_samc_build_convolution_cache', PACKAGE = 'samc', kernel, resistance, fidelity, absorption, symmetric, threads)
+.build_convolution_cache_float <- function(kernel, resistance, fidelity, absorption, symmetric, threads = 1L) {
+    .Call('_samc_build_convolution_cache_float', PACKAGE = 'samc', kernel, resistance, fidelity, absorption, symmetric, threads)
 }
 
-.get_convolution_list <- function(ca) {
-    .Call('_samc_get_convolution_list', PACKAGE = 'samc', ca)
+.build_convolution_cache_double <- function(kernel, resistance, fidelity, absorption, symmetric, threads = 1L) {
+    .Call('_samc_build_convolution_cache_double', PACKAGE = 'samc', kernel, resistance, fidelity, absorption, symmetric, threads)
 }
 
-.convolution_short <- function(steps, ca, pop_in, threads = 1L) {
-    .Call('_samc_convolution_short', PACKAGE = 'samc', steps, ca, pop_in, threads)
+.get_convolution_list_float <- function(ca) {
+    .Call('_samc_get_convolution_list_float', PACKAGE = 'samc', ca)
 }
 
-.convolution_long <- function(ca, pop_in, threads = 1L) {
-    .Call('_samc_convolution_long', PACKAGE = 'samc', ca, pop_in, threads)
+.get_convolution_list_double <- function(ca) {
+    .Call('_samc_get_convolution_list_double', PACKAGE = 'samc', ca)
+}
+
+.convolution_short_float <- function(steps, ca, pop_in, threads = 1L) {
+    .Call('_samc_convolution_short_float', PACKAGE = 'samc', steps, ca, pop_in, threads)
+}
+
+.convolution_short_double <- function(steps, ca, pop_in, threads = 1L) {
+    .Call('_samc_convolution_short_double', PACKAGE = 'samc', steps, ca, pop_in, threads)
+}
+
+.convolution_long_float <- function(ca, init, threads = 1L) {
+    .Call('_samc_convolution_long_float', PACKAGE = 'samc', ca, init, threads)
+}
+
+.convolution_long_double <- function(ca, init, threads = 1L) {
+    .Call('_samc_convolution_long_double', PACKAGE = 'samc', ca, init, threads)
 }
 
 .sum_qn_q <- function(M, M2, q, t) {

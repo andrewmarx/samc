@@ -564,7 +564,7 @@
 #' @param x A function
 #' @noRd
 
-.convolution <- function(res, abso, fid, dir, sym, threads) {
+.convolution <- function(res, abso, fid, dir, sym, threads, datatype) {
 
   if (dir == 4) {
     kernel = matrix(
@@ -597,5 +597,11 @@
   dim(abso) = c(nc, nr)
   dim(fid) = c(nc, nr)
 
-  .build_convolution_cache(kernel, res, fid, abso, sym, threads)
+  if (datatype == "float") {
+    return(.build_convolution_cache_float(kernel, res, fid, abso, sym, threads))
+  } else if (datatype == "double") {
+    return(.build_convolution_cache_double(kernel, res, fid, abso, sym, threads))
+  } else {
+    stop("Invalid data type. Must be either 'float' or 'double'", call. = FALSE)
+  }
 }

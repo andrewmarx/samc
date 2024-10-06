@@ -184,6 +184,7 @@ setMethod(
                              override = options$override,
                              solver = options$method,
                              threads = options$threads,
+                             datatype = options$datatype,
                              .cache = new.env())
 
     # Check for "clumps"
@@ -241,7 +242,7 @@ setMethod(
 
       if (terra::is.lonlat(data)) warning("Convolution method currently does not properly correct directions for lonlat")
 
-      samc_obj@conv_cache = .convolution(data, absorption, fidelity, directions, symm, options$threads)
+      samc_obj@conv_cache = .convolution(data, absorption, fidelity, directions, symm, options$threads, options$datatype)
       samc_obj@data@t_abs = as.vector(terra::values(absorption))[terra::cells(absorption)]
     }
 
@@ -415,7 +416,8 @@ setMethod(
                              clumps = -1,
                              threads = options$threads,
                              override = options$override,
-                             solver = options$method)
+                             solver = options$method,
+                             datatype = options$datatype)
 
     samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@f))
     samc_obj@.cache$dgf_exists = FALSE

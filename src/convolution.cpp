@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Andrew Marx where applicable.
+// Copyright (c) 2024 Andrew Marx where applicable.
 // Licensed under GPLv3.0. See LICENSE file in the project root for details.
 //
 // Derived from https://github.com/LandSciTech/LSTDConnect/blob/8927cac418454bb7910be8f832dffb9b62b34223/src/samc.cpp
@@ -15,10 +15,10 @@
 #include <iostream>
 #include <algorithm>
 
-template<bool SYMMETRIC>
+template<typename T, bool SYMMETRIC>
 inline void construct_cache(
-    convolution_cache& ca,
-    const std::vector<kernel_point_t>& kernel,
+    convolution_cache<T>& ca,
+    const std::vector<kernel_point_t<T>>& kernel,
     const Rcpp::NumericMatrix& resistance,
     const Rcpp::NumericMatrix& fidelity,
     const Rcpp::NumericMatrix& absorption,
@@ -31,7 +31,7 @@ inline void construct_cache(
   ca.cell_count = ca.ncol * ca.nrow;
 
   ca.movement_rate.clear();
-  ca.movement_rate.resize(ca.kernel_size*ca.nrow*ca.ncol, {0});
+  ca.movement_rate.resize(ca.kernel_size*ca.nrow*ca.ncol, T(0));
 
   ca.absorption.assign(absorption.begin(),absorption.end());
 
@@ -63,6 +63,7 @@ inline void construct_cache(
         const std::size_t k_y = y+k_point.y_off;
 
         if((k_x >= 0 && k_x < ca.ncol) && (k_y >= 0 && k_y < ca.nrow)){
+          //weighted_sum += k_point.num / (static_cast<T>(resistance[k_y + k_x * ca.nrow]) + SYMMETRIC * static_cast<T>(resistance[y + x * ca.nrow]));
           weighted_sum += k_point.num/(resistance[k_y + k_x*ca.nrow]+(SYMMETRIC*resistance[y + x*ca.nrow]));
           //if(printing) Rcpp::Rcout << "a:" << x << ", " << y << ", " <<  k_x << ", " <<  k_y << ", " <<  resistance[k_y + k_x*ca.nrow] << ", " <<  k_point.num << "\n";
         }
@@ -101,15 +102,16 @@ inline void construct_cache(
   }
 }
 
-// [[Rcpp::export(.build_convolution_cache)]]
-Rcpp::XPtr<convolution_cache> build_convolution_cache(
+
+template <typename T>
+Rcpp::XPtr<convolution_cache<T>> build_convolution_cache(
     const Rcpp::NumericMatrix& kernel,
     const Rcpp::NumericMatrix& resistance,
     const Rcpp::NumericMatrix& fidelity,
     const Rcpp::NumericMatrix& absorption,
     const bool symmetric, const int threads = 1){
 
-  std::vector<kernel_point_t> kv{};
+  std::vector<kernel_point_t<T>> kv{};
 
   const std::ptrdiff_t k_nrow = kernel.nrow();
   const std::ptrdiff_t k_ncol = kernel.ncol();
@@ -117,7 +119,7 @@ Rcpp::XPtr<convolution_cache> build_convolution_cache(
   for(std::ptrdiff_t y=0; y<k_nrow; y++){
     for(std::ptrdiff_t x=0; x<k_ncol; x++){
       if(kernel[y+x*k_nrow] || (y-k_nrow/2 == 0 && x-k_ncol/2 == 0)){
-        kv.push_back({y-k_nrow/2, x-k_ncol/2, kernel[y+x*k_nrow]});
+        kv.push_back({y-k_nrow/2, x-k_ncol/2, static_cast<T>(kernel[y+x*k_nrow])});
         //Rcpp::Rcout << kernel[y+x*k_nrow] << "\n";
       }
     }
@@ -125,33 +127,53 @@ Rcpp::XPtr<convolution_cache> build_convolution_cache(
 
   if(kv.size() == 0){kv.push_back({0,0,0.0});}
 
-  convolution_cache* ca = new convolution_cache;
+  convolution_cache<T>* ca = new convolution_cache<T>;
   if(symmetric){
-    construct_cache<true>(*ca, kv, resistance, fidelity, absorption, threads);
+    construct_cache<T, true>(*ca, kv, resistance, fidelity, absorption, threads);
   }else{
-    construct_cache<false>(*ca, kv, resistance, fidelity, absorption, threads);
+    construct_cache<T, false>(*ca, kv, resistance, fidelity, absorption, threads);
   }
-  Rcpp::XPtr<convolution_cache> xp(ca, true);
+
+  Rcpp::XPtr<convolution_cache<T>> xp(ca, true);
 
   return xp;
 }
 
+// [[Rcpp::export(.build_convolution_cache_float)]]
+Rcpp::XPtr<convolution_cache<float>> build_convolution_cache_float(
+    const Rcpp::NumericMatrix& kernel,
+    const Rcpp::NumericMatrix& resistance,
+    const Rcpp::NumericMatrix& fidelity,
+    const Rcpp::NumericMatrix& absorption,
+    const bool symmetric, const int threads = 1){
+  return build_convolution_cache<float>(kernel, resistance, fidelity, absorption, symmetric, threads);
+}
 
+// [[Rcpp::export(.build_convolution_cache_double)]]
+Rcpp::XPtr<convolution_cache<double>> build_convolution_cache_double(
+    const Rcpp::NumericMatrix& kernel,
+    const Rcpp::NumericMatrix& resistance,
+    const Rcpp::NumericMatrix& fidelity,
+    const Rcpp::NumericMatrix& absorption,
+    const bool symmetric, const int threads = 1){
+  return build_convolution_cache<double>(kernel, resistance, fidelity, absorption, symmetric, threads);
+}
+
+
+template <typename T>
 inline void convolution_one_step(
-    const convolution_cache& ca,
-    const double* const pop_in,
-    double* const pop_out,
-    double* const vis,
-    double &pop,
+    const convolution_cache<T>& ca,
+    const T* const pop_in,
+    T* const pop_out,
+    T* const vis,
+    T &pop,
     const int threads = 1){
 
-  const double* const p_in = pop_in;// + (ca.nrow * ca.left_extra_cols);
-  double* const p_out = pop_out;// + (ca.nrow * ca.left_extra_cols);
-
-  //std::vector<double> temp(threads);
+  const T* const p_in = pop_in;// + (ca.nrow * ca.left_extra_cols);
+  T* const p_out = pop_out;// + (ca.nrow * ca.left_extra_cols);
 
   auto fun = [&] (unsigned int i){
-    double acc = 0;
+    T acc = 0;
     for(std::size_t con = 0; con < ca.kernel_size; con++){
       acc += ca.movement_rate[i*ca.kernel_size+con]*p_in[i+ca.kernel[con]];
     }
@@ -161,16 +183,14 @@ inline void convolution_one_step(
     //temp[(i * threads) / ca.kernel_size] = temp[(i * threads) / ca.kernel_size] + acc;
   };
 
-  RcppThread::parallelFor(0, ca.absorption.size(), fun, threads, threads);
-
-  //pop = std::reduce(temp.begin(), temp.end());
+  RcppThread::parallelFor(0, ca.absorption.size(), fun, threads, ca.nrow);
 }
 
 
-// [[Rcpp::export(".get_convolution_list")]]
-Rcpp::List get_convolution_list(const Rcpp::XPtr<convolution_cache>& ca)
+template <typename T>
+Rcpp::List get_convolution_list(const Rcpp::XPtr<convolution_cache<T>>& ca)
 {
-  const convolution_cache& c = *ca;
+  const convolution_cache<T>& c = *ca;
 
   Rcpp::List res = Rcpp::List::create(
     Rcpp::Named("ncol") = c.ncol,
@@ -186,32 +206,43 @@ Rcpp::List get_convolution_list(const Rcpp::XPtr<convolution_cache>& ca)
   return res;
 }
 
+// [[Rcpp::export(".get_convolution_list_float")]]
+Rcpp::List get_convolution_list_float(const Rcpp::XPtr<convolution_cache<float>>& ca) {
+  return get_convolution_list(ca);
+}
 
-// [[Rcpp::export(.convolution_short)]]
+// [[Rcpp::export(".get_convolution_list_double")]]
+Rcpp::List get_convolution_list_double(const Rcpp::XPtr<convolution_cache<double>>& ca) {
+  return get_convolution_list(ca);
+}
+
+
+template <typename T>
 Rcpp::List convolution_short(
     std::vector<long> steps,
-    const Rcpp::XPtr<convolution_cache>& ca,
-    const Rcpp::NumericVector& pop_in,
+    const Rcpp::XPtr<convolution_cache<T>>& ca,
+    const Rcpp::NumericVector& init,
     const int threads = 1){
+  T pop = 0.0;
 
-  double pop = 0.0;
+  std::vector<T> pop_in = Rcpp::as<std::vector<T>>(init);
 
-  std::vector<double> pop_a(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
-  std::vector<double> pop_b(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
-  std::vector<double> vis(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
+  std::vector<T> pop_a(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
+  std::vector<T> pop_b(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
+  std::vector<T> vis(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
 
-  std::memcpy(&pop_a[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
+  std::memcpy(&pop_a[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(T));
 
-  std::vector<Rcpp::NumericVector> pops{};
-  std::vector<Rcpp::NumericVector> visits{};
+  std::vector<std::vector<T>> pops{};
+  std::vector<std::vector<T>> visits{};
 
   // TODO replace pointer "views" with spans from C++20 when it becomes the standard for the package
-  double* const p_a = &pop_a[ca->nrow*ca->left_extra_cols];
-  double* const p_b = &pop_b[ca->nrow*ca->left_extra_cols];
-  double* const vis_ptr = &vis[ca->nrow*ca->left_extra_cols];
+  T* const p_a = &pop_a[ca->nrow*ca->left_extra_cols];
+  T* const p_b = &pop_b[ca->nrow*ca->left_extra_cols];
+  T* const vis_ptr = &vis[ca->nrow*ca->left_extra_cols];
 
-  const double* p_in = p_a;
-  double* p_out = p_b;
+  const T* p_in = p_a;
+  T* p_out = p_b;
 
   long last_i = 0;
   for(long i : steps){
@@ -228,40 +259,61 @@ Rcpp::List convolution_short(
     pops.emplace_back(int(ca->nrow) * int(ca->ncol));
     visits.emplace_back(int(ca->cell_count));
 
-    std::memcpy(&pops.back()[0], p_in, ca->nrow*ca->ncol * sizeof(double));
-    std::memcpy(&visits.back()[0], vis_ptr, ca->nrow*ca->ncol * sizeof(double));
+    std::memcpy(&pops.back()[0], p_in, ca->nrow*ca->ncol * sizeof(T));
+    std::memcpy(&visits.back()[0], vis_ptr, ca->nrow*ca->ncol * sizeof(T));
 
+    last_i = i;
   }
 
   return Rcpp::List::create(Rcpp::Named("time") = steps, Rcpp::Named("dist") = pops, Rcpp::Named("vis") = visits);
 }
 
-
-// [[Rcpp::export(.convolution_long)]]
-Rcpp::List convolution_long(
-    const Rcpp::XPtr<convolution_cache>& ca,
+// [[Rcpp::export(.convolution_short_float)]]
+Rcpp::List convolution_short_float(
+    std::vector<long> steps,
+    const Rcpp::XPtr<convolution_cache<float>>& ca,
     const Rcpp::NumericVector& pop_in,
     const int threads = 1){
+  return convolution_short(steps, ca, pop_in, threads);
+}
 
-  double pop = 1.0;
-  double EPSILON = 0.0000000001;
+// [[Rcpp::export(.convolution_short_double)]]
+Rcpp::List convolution_short_double(
+    std::vector<long> steps,
+    const Rcpp::XPtr<convolution_cache<double>>& ca,
+    const Rcpp::NumericVector& pop_in,
+    const int threads = 1){
+  return convolution_short(steps, ca, pop_in, threads);
+}
 
-  std::vector<double> pop_a(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
-  std::vector<double> pop_b(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
-  std::vector<double> vis(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
 
-  std::memcpy(&pop_a[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(double));
+template <typename T>
+Rcpp::List convolution_long(
+    const Rcpp::XPtr<convolution_cache<T>>& ca,
+    const Rcpp::NumericVector& init,
+    const int threads = 1){
 
-  Rcpp::NumericVector pops (int(ca->nrow) * int(ca->ncol));
-  Rcpp::NumericVector visits (int(ca->nrow) * int(ca->ncol));
+  T pop = 1.0;
+  T EPSILON = 0.0000000001;
+
+  std::vector<T> pop_in = Rcpp::as<std::vector<T>>(init);
+
+  std::vector<T> pop_a(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
+  std::vector<T> pop_b(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
+  std::vector<T> vis(ca->nrow*(ca->ncol+ca->left_extra_cols+ca->right_extra_cols), 0.0);
+
+  std::memcpy(&pop_a[ca->nrow*ca->left_extra_cols], &pop_in[0], ca->nrow*ca->ncol*sizeof(T));
+
+  std::vector<T> pops (int(ca->nrow) * int(ca->ncol));
+  std::vector<T> visits (int(ca->nrow) * int(ca->ncol));
 
   // TODO replace pointer "views" with spans from C++20 when it becomes the standard for the package
-  double* const p_a = &pop_a[ca->nrow*ca->left_extra_cols];
-  double* const p_b = &pop_b[ca->nrow*ca->left_extra_cols];
-  double* const vis_ptr = &vis[ca->nrow*ca->left_extra_cols];
+  T* const p_a = &pop_a[ca->nrow*ca->left_extra_cols];
+  T* const p_b = &pop_b[ca->nrow*ca->left_extra_cols];
+  T* const vis_ptr = &vis[ca->nrow*ca->left_extra_cols];
 
-  const double* p_in = p_a;
-  double* p_out = p_b;
+  const T* p_in = p_a;
+  T* p_out = p_b;
 
   std::size_t count = 0;
   std::size_t count_limit = 1000000;
@@ -269,7 +321,6 @@ Rcpp::List convolution_long(
   do {
     count++;
 
-//    convolution_one_step(*ca, p_in, p_out, pop, threads);
     convolution_one_step(*ca, p_in, p_out, vis_ptr, pop, threads);
 
     p_in = p_out;
@@ -281,9 +332,8 @@ Rcpp::List convolution_long(
 
     if(count % 100 == 0) {
 
-      std::memcpy(&pops[0], p_in, ca->nrow*ca->ncol*sizeof(double));
-
-      pop = Rcpp::sum(pops);
+      std::memcpy(&pops[0], p_in, ca->nrow*ca->ncol*sizeof(T));
+      pop = std::accumulate(p_in, p_in + (ca->nrow * ca->ncol), static_cast<T>(0));
     }
     Rcpp::checkUserInterrupt();
   } while((pop > EPSILON) & (count < count_limit));
@@ -292,9 +342,23 @@ Rcpp::List convolution_long(
     Rcpp::Rcout << "\nConvolution iteration limit reached. Results may not have fully converged.\n";
   }
 
-  std::memcpy(&visits[0], vis_ptr, ca->nrow*ca->ncol*sizeof(double));
+  std::memcpy(&visits[0], vis_ptr, ca->nrow*ca->ncol*sizeof(T));
 
-//  std::memcpy(&visits[0], vis.data(), ca->nrow*ca->ncol*sizeof(double));
+  return Rcpp::List::create(Rcpp::Named("time") = count, Rcpp::Named("dist") = Rcpp::wrap(pops), Rcpp::Named("vis") = visits);
+}
 
-  return Rcpp::List::create(Rcpp::Named("time") = count, Rcpp::Named("dist") = pops, Rcpp::Named("vis") = visits);
+// [[Rcpp::export(.convolution_long_float)]]
+Rcpp::List convolution_long_float(
+    const Rcpp::XPtr<convolution_cache<float>>& ca,
+    const Rcpp::NumericVector& init,
+    const int threads = 1){
+  return convolution_long(ca, init, threads);
+}
+
+// [[Rcpp::export(.convolution_long_double)]]
+Rcpp::List convolution_long_double(
+    const Rcpp::XPtr<convolution_cache<double>>& ca,
+    const Rcpp::NumericVector& init,
+    const int threads = 1){
+  return convolution_long(ca, init, threads);
 }

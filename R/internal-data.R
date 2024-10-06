@@ -243,7 +243,8 @@ setMethod(
   function(samc, x) {
     if (any(!is.finite(x)) || any(x < 0)) stop("`init` input must only contain positive numeric values")
 
-    if (length(x) != samc@nodes) stop("`init` input length does not match number of nodes")
+    # TODO does not work for conv
+    #if (length(x) != samc@nodes) stop("`init` input length does not match number of nodes")
 
     return(x)
   })
