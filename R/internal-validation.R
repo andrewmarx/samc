@@ -4,6 +4,16 @@
 # This file is for internal functions. They are subject to change and should not
 # be used by users.
 
+#' Is single pos int
+#'
+#' Validates that a variable is a single positive integer
+#'
+#' @param x anything
+#' @noRd
+.is_single_positive_integer <- function(x) {
+  is.numeric(x) && length(x) == 1 && !is.na(x) && x == as.integer(x) && x > 0
+}
+
 
 #' Validate model
 #'
@@ -256,16 +266,35 @@
 #' @param x A list
 #' @noRd
 .validate_options = function(x) {
+  opt_names = c('method', 'threads', 'override', 'datatype')
+
   if (is.null(x)) {
-    x = list(
-      method = "direct",
-      threads = 1,
-      override = FALSE
-    )
-  } else if (is.list(x)) {
-    # TODO finish this
+    x = list()
+  }
+
+  if (is.list(x)) {
+    if (is.null(x$method)) { x$method = "direct" }
+    if (is.null(x$threads)) { x$threads = 1 }
+    if (is.null(x$override)) { x$override = FALSE }
+    if (is.null(x$datatype)) { x$datatype = "double" }
   } else {
     stop("options argument must be a list or left empty for default values", call. = FALSE)
+  }
+
+  inv_names = opt_names[!(names(x) %in% opt_names)]
+  if (length(inv_names) > 0) {
+    stop(paste("Invalid option names:", paste(inv_names, collapse = ' ')), call. = FALSE)
+  }
+
+  # TODO test thoroughly
+  if (!(x$method %in% c("direct", "conv"))) { stop("options: method must be 'direct' or 'conv'", call. = FALSE) }
+  if (!.is_single_positive_integer(x$threads)) { stop("options: threads must be a single positive integer", call. = FALSE) }
+  if (!is.logical(x$override)) { stop("options: override must be TRUE or FALSE", call. = FALSE) }
+  if (!(x$datatype %in% c("float", "double"))) { stop("options: method must be 'float' or 'double'", call. = FALSE) }
+
+  # TODO remove if float support for direct solver implemented
+  if (x$method == "direct" & x$datatype == "float") {
+    stop("method: 'direct' only supports datatype: 'float'", call. = FALSE)
   }
 
   x
