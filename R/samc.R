@@ -31,11 +31,19 @@ NULL
 #' is assumed that there is no site fidelity (i.e., individuals will always move
 #' to an adjacent cell each time step).
 #'
-#' The \code{model} parameter is mandatory. It is used when calculating the values for
-#' the transition matrix. \code{model} must be constructed as a list with a
-#' transition function, the number of directions (4 or 8), and if the transition
-#' function is symmetric (TRUE or FALSE; currently not used). Here is the template:
-#' \code{list(fun = `function`, dir = `numeric`, sym = `logical`)}
+#' The \code{model} parameter is a mandatory list with the following template:
+#' \code{list(fun = `function`, dir = `numeric`, sym = `logical`)}. It is used when calculating
+#' the values for the transition matrix. \code{fun} must be a mathematical function
+#' taking a single vector \code{x} as input. \code{x[1]} contains the value for node \emph{i} and
+#' \code{x[2]} contains the value for node \emph{j} from the \code{data} input to \code{samc()}.
+#' \code{dir} determines which neighboring nodes are used andmust be either \code{4} or \code{8}.
+#' \code{symmetric} is an optimization to reduce redundant work for when \code{fun} is communative.
+#' It must be either \code{TRUE} or \code{FALSE}.
+#'
+#' Special cases for \code{fun} exist to significantly speed up creation of the samc model.
+#' They are selected using specific strings as the value for \code{fun}. Currently,
+#' \code{"1/mean(x)"} and \code{"x[2]"} are implemented. Other special cases can be implemented
+#' on request.
 #'
 #' When using raster inputs, SpatRaster objects (from the terra package) are recommended
 #' over RasterLayer objects (from the raster package). Internally, samc is using SpatRaster
@@ -73,6 +81,31 @@ NULL
 #' there must be no duplicate names. The exception to these rules is the very last
 #' column and the very last row of the P matrix. Since these are not part of the
 #' pairwise transition matrix, they may have whatever names the user prefers.
+#'
+#' \strong{Additional Options}
+#'
+#' Additional options can be passed to \code{samc(..., options)} as a list. There
+#' are several possible options: \code{list(method = `character`, threads = `numeric`,
+#' override = `logical`, precision = `character`)}. The use of options varies depending
+#' on other inputs. Some options can be changed after model creation (see samc-class
+#' documentation). It can be omitted for default behaviors.
+#'
+#' \code{method} controls the type of mathematical algorithm used for the model. It
+#' can be either \code{"direct"} (the default), \code{"iter"}, or \code{"conv"}. See the
+#' Computation Methods vignette for details.
+#'
+#' \code{threads} is a positive integer (default \code{1}) that enables parallelization in
+#' certain limited cases. See the Parallel Computing vignette for details.
+#'
+#' \code{override} is a logical value (default: \code{FALSE}) that enables certain memory
+#' intensive calculations. It only applies to the \code{"direct"} and \code{"iter"} methods.
+#' See the samc-class reference for details.
+#'
+#' \code{precision} controls the numerical precision of calculations. It can either be
+#' \code{"double"} (~15 digits precision; the default) or \code{"double"} (~7 digits of
+#' precision). Choosing the lower precision level can lead to significant speed
+#' improvements, and reduces the memory requirements by approximately half. It
+#' currently only applies to the \code{"conv"} method.
 #'
 #' \strong{Additional Information}
 #'
