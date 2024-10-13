@@ -530,6 +530,7 @@ setMethod(
   "visitation_net",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
   function(samc, origin, dest) {
+    warning("Version 4 of the package updated the usage of this function and is no longer compatable with older usage. See NEWS.md for details.", call. = FALSE)
     if (length(dest) != 1) {
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
     }
@@ -578,10 +579,10 @@ setMethod(
       stop("Invalid method attribute in samc object.")
     }
 
-    vq = vis * samc@data@f
-
-    n_net = abs(Matrix::skewpart(vq))
-    visit_net = as.vector(Matrix::colSums(n_net))
+    vq = vis * samc$q_matrix
+    n_net = Matrix::skewpart(vq) * 2 # undo div by 2 in skewpart to get vq-t(vq). TODO: check if actually more efficient than direc vq-t(vq)
+    n_net@x = pmax(n_net@x, 0)
+    visit_net = as.vector(Matrix::colSums(n_net)) + pv
 
     return(visit_net)
   })
