@@ -90,7 +90,7 @@ NULL
 #' @slot override Used to prevent accidental use of memory intensive functions
 #' @slot solver Controls the linear solver used for relevant metrics
 #' @slot threads Used for multi-threading
-#' @slot datatype Float or double. Only applies to convolution currently.
+#' @slot precision "single" or "double". Only applies to convolution currently.
 #' @slot .cache Cached data for performance boosts
 
 setClass(
@@ -111,7 +111,7 @@ setClass(
                override = "logical",
                solver = "character",
                threads = "numeric",
-               datatype = "character",
+               precision = "character",
                .cache = "environment")
 
   # set default values

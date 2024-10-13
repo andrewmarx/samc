@@ -237,12 +237,12 @@ setMethod(
         return(res)
       }
     } else if (samc@solver == "conv") {
-      if (samc@datatype == "float") {
+      if (samc@precision == "single") {
         results_list = samc:::.convolution_short_float(time, samc@conv_cache, pv, samc@threads)
-      } else if (samc@datatype == "double") {
+      } else if (samc@precision == "double") {
         results_list = samc:::.convolution_short_double(time, samc@conv_cache, pv, samc@threads)
       } else {
-        stop("Invalid data type. Must be either 'float' or 'double'", call. = FALSE)
+        stop("Invalid data type. Must be either 'single' or 'double'", call. = FALSE)
       }
 
       if (length(results_list$dist) == 1) {
