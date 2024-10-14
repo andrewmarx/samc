@@ -1,3 +1,34 @@
+# samc 4.0.0
+
+## Breaking changes
+- visitation_net(samc, origin, dest) has two changes to its behavior:
+  - It now behaves consistently with other metrics and returns a single value representing the result at the destination node. Previously, it behaved like the passage() function from gdistance and returned a vector using the origin and destination node information to perform a correction.
+  - Previously, the function used the same approach as passage() from gdistance, which calculated the net flow at edges between every pair of nodes i and j, then split that net flow between nodes i and j. passage() then performed a correction at the start and nodes. The new version of visitation_net() now assigns all the net flow to node j, then adds the initial state vector to the result to properly account for starting flow. Both approaches reach the correct result, except that gdistance's correction only works correctly in the simple case of one starting point and one point of total absorption. More general cases with a more complex initial state and/or absorbing states may be affected by these changes.
+  The new approach makes performing the correction for the general case simpler.
+
+## New features
+
+- New input options for metrics
+  - visitation_net(samc, origin)
+  - visitation_net(samc, init)
+  - visitation_net(samc, init, dest)
+- New `precision` option in the `options` list for `samc()`. Can choose between `"single"` and `"double"` precision
+  - Currently only applies to `samc` objects built for convolutions.
+  - Default is `"double"` and provides 15-16 digits of precision. This is the same as all previous versions.
+  - The `"single"` option provides 7-8 digits precision, but also reduces RAM use by roughly half. It's also slightly faster for metric calculations (~20% less time on one device), and also scales slightly better with multiple cores.
+
+## Other
+
+  - Enabled vector inputs for `init` parameters regardless of the data type used for inputs to the `samc()` function. This is intended to provide flexibility for special situations, and it's recommended that `init` inputs reflect the data types used for `samc()`.
+  - Reorganization of internal functions.
+  - Improvements to model and options validation.
+
+## Bug fixes
+
+  - Fixed `check()` node count approach for convolution.
+  - Fixed convolution short-term metrics with multiple time inputs.
+
+
 # samc 3.3.0
 
 ## New features
@@ -12,8 +43,8 @@
 
 - Lot's of internal refactoring and consolidation.
 - Various small memory and speed optimizations.
-- Various small fixes
-- License update
+- Various small fixes.
+- License update.
 
 
 # samc 3.2.1
