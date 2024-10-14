@@ -175,7 +175,8 @@ Current maps produced by Circuitscape model the net flow, and the gdistance pack
 ```{r}
 # Total movement flow with gdistance
 total_gdist = passage(gdist, origin_coords, dest_coords, theta = 0, totalNet = "total")
-plot(total_gdist, main = "Total Movement Flow (gdistance)", col = viridis(256))
+total_gdist_ras = rast(total_gdist)
+plot(total_gdist_ras, main = "Total Movement Flow (gdistance)", col = viridis(256))
 
 # Equivalent total movement flow with SAMC
 total_samc = visitation(samc_ij, origin = origin_cell)
@@ -183,39 +184,45 @@ total_samc_ras = map(samc_ij, total_samc)
 plot(total_samc_ras, main = "Total Movement Flow (samc)", col = viridis(256))
 
 # Verify that they have the same values
-all.equal(values(total_gdist), values(total_samc_ras))
+all.equal(as.vector(total_gdist_ras), as.vector(total_samc_ras))
 
 
 
 # Net movement flow with gdistance
 net_gdist = passage(gdist, origin_coords, dest_coords, theta = 0, totalNet = "net")
-net_gdist = rast(net_gdist)
-plot(net_gdist, main = "Net Movement Flow (gdistance)", col = viridis(256))
+net_gdist_ras = rast(net_gdist)
+plot(net_gdist_ras, main = "Net Movement Flow (gdistance)", col = viridis(256))
 
 # Equivalent net movement flow with SAMC
-net_samc = visitation_net(samc_ij, origin = origin_cell, dest = dest_cell)
-net_samc_ras = map(samc_obj, net_samc)
+net_samc = visitation_net(samc_ij, origin = origin_cell)
+net_samc_ras = map(samc_ij, net_samc)
 plot(net_samc_ras,  main = "Net Movement Flow (samc)", col = viridis(256))
 
 # Verify that they have the same values
-all.equal(values(net_gdist), values(net_samc_ras))
+all.equal(as.vector(net_gdist_ras), as.vector(net_samc_ras))
 ```
 
 As with commute distance, SAMC is not limited to calculating the total and net movement flows for landscapes without absorption. `visitation()` and `visitation_net()` are perfectly valid for our original samc object with broader landscape absorption.
 
 ```{r}
-reg_net_samc = visitation_net(samc_obj, origin = origin_cell, dest = dest_cell)
+reg_net_samc = visitation_net(samc_obj, origin = origin_cell)
 reg_samc_ras = map(samc_obj, reg_net_samc)
 plot(reg_samc_ras,  main = "Net Movement Flow (samc with absorption)", col = viridis(256))
 ```
 
-Overall, incorporating absorption more broadly has reduced the net movement flow because a portion of the individuals is now being removed before reaching the destination. More importantly, the incorporation of absorption now means the destination is not guaranteed to be reached, leading to a dramatic drop in the net movement at the destination cell. We can subtract the absorption model from the non-absorption model to see how much net movement flow has decreased.
+Overall, incorporating absorption more broadly has reduced the net movement flow because a portion of the individuals is now being removed before reaching the destination. More importantly, the incorporation of absorption now means the destination is not guaranteed to be reached, leading to a dramatic drop in the net movement at the destination cell. We can subtract the non-absorption model from the absorption model to see how much net movement flow has decreased.
 
 ```{r}
-plot(net_gdist - reg_samc_ras, main = "Effect of Absorption on Net Movement Flow", col = viridis(256))
+net_diff = reg_samc_ras - net_gdist_ras
+
+plot(net_diff, main = "Effect of Absorption on Net Movement Flow", col = viridis(256))
+
+# Bin for easier interpretation
+net_diff_binned = classify(net_diff, rcl = c(-1, -0.1, -0.01, 0, 0.01, 0.1, 1), right = FALSE)
+plot(net_diff_binned, main = "Effect of Absorption on Net Movement Flow (Binned)", col = viridis(256))
 ```
 
-This shows a nearly imperceptible effect of the absorption layer on the net movement flow below the strip of absorption, but as individuals encounter absorption, the net movement flow in the top half of the map drops dramatically. We can see that the presence of the absorption strip has decreased the net movement flow at the destination over 97%:
+Overall, we see that flow has increased on the bottom half and decreased on the top half. First, on the right path, there is a noticeable increase in flow where it crosses the absorption strip. This is because once movement reaches it, the increase in absorption causes some of the movement to stop and fail to leave. Then above this, movement flow decreases because the absorption barrier is limiting movement in from below. Third, we see a decrease in slight decrease in movement flow on the left path, despite an opening in the absorption barrier. That reduction in flow is probably largely attributable to the flow attempting to cross the barrier on either side of the path. Finally, we can see that the presence of the absorption strip has substantially decreased the net movement flow reaching the destination. We can look at the values directly to see the reduction is over 98%:
 
 ```{r}
 net_samc_ras[dest_cell] # Net movement flow at destination w/o absorption
