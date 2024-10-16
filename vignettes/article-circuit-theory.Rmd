@@ -202,29 +202,36 @@ plot(net_samc_ras,  main = "Net Movement Flow (samc)", col = viridis(256))
 all.equal(as.vector(net_gdist_ras), as.vector(net_samc_ras))
 ```
 
-As with commute distance, SAMC is not limited to calculating the total and net movement flows for landscapes without absorption. `visitation()` and `visitation_net()` are perfectly valid for our original samc object with broader landscape absorption.
+As with commute distance, SAMC is not limited to calculating the total and net movement flows for landscapes without absorption. `visitation()` and `visitation_net()` are perfectly valid for our original samc object with broader landscape absorption. Here is an example where we combine the destination absorption point with the absorbing barrier:
 
 ```{r}
-reg_net_samc = visitation_net(samc_obj, origin = origin_cell)
-reg_samc_ras = map(samc_obj, reg_net_samc)
-plot(reg_samc_ras,  main = "Net Movement Flow (samc with absorption)", col = viridis(256))
+comb_abs = abs_data_j + abs_data
+plot(comb_abs,  main = "Combined absorption", col = viridis(256))
+samc_comb = samc(res_data, comb_abs, model = rw_model)
+
+
+comb_net = visitation_net(samc_comb, origin = origin_cell)
+comb_net_res = map(samc_comb, comb_net)
+plot(comb_net_res,  main = "Net Movement Flow (samc with combined absorption)", col = viridis(256))
 ```
 
-Overall, incorporating absorption more broadly has reduced the net movement flow because a portion of the individuals is now being removed before reaching the destination. More importantly, the incorporation of absorption now means the destination is not guaranteed to be reached, leading to a dramatic drop in the net movement at the destination cell. We can subtract the non-absorption model from the absorption model to see how much net movement flow has decreased.
+Incorporating absorption more broadly has reduced the net movement flow between our start and end points because now the destination is not guaranteed to be reached, leading to a dramatic drop in the net movement at the destination cell. We can subtract the non-absorption model from the absorption model to see how much net movement flow has decreased.
 
 ```{r}
-net_diff = reg_samc_ras - net_gdist_ras
+comb_net_diff = comb_net_res - net_gdist_ras
 
-plot(net_diff, main = "Effect of Absorption on Net Movement Flow", col = viridis(256))
+plot(comb_net_diff, main = "Effect of Combined Absorption on Net Movement Flow", col = viridis(256))
 
 # Bin for easier interpretation
-net_diff_binned = classify(net_diff, rcl = c(-1, -0.1, -0.01, 0, 0.01, 0.1, 1), right = FALSE)
-plot(net_diff_binned, main = "Effect of Absorption on Net Movement Flow (Binned)", col = viridis(256))
+comb_net_diff_binned = classify(comb_net_diff, rcl = c(-1, -0.1, -0.01, 0, 0.01, 0.1, 1), right = FALSE)
+plot(comb_net_diff_binned, main = "Effect of Combined Absorption on Net Movement Flow (Binned)", col = viridis(256))
 ```
 
-Overall, we see that flow has increased on the bottom half and decreased on the top half. First, on the right path, there is a noticeable increase in flow where it crosses the absorption strip. This is because once movement reaches it, the increase in absorption causes some of the movement to stop and fail to leave. Then above this, movement flow decreases because the absorption barrier is limiting movement in from below. Third, we see a decrease in slight decrease in movement flow on the left path, despite an opening in the absorption barrier. That reduction in flow is probably largely attributable to the flow attempting to cross the barrier on either side of the path. Finally, we can see that the presence of the absorption strip has substantially decreased the net movement flow reaching the destination. We can look at the values directly to see the reduction is over 98%:
+Overall, we see that net flow has increased on the bottom half and decreased on the top half. Intuitively, net flow in the top half is reduced because the barrier is absorbing some of the flow coming from below. The increase in net flow in the bottom half may be less intuitive, but occurs because movement that would have been originally reached the top half is now partially being absorbed in both directions. So since there is less movement from the top half into the bottom half, that means the net flow in the bottom half is less affected by that return flow.
+
+We also see that movement flow on the right path becomes significantly restricted by the absorption barrier, making the left path relatively more important for movement flow from the start to the end. Yet, despite an opening in the barrier, we still see a noticeable drop in flow in the left path. Finally, we can see a substantial decrease in the net movement flow reaching the destination. We can look at the values directly to see that reduction is over 98%:
 
 ```{r}
 net_samc_ras[dest_cell] # Net movement flow at destination w/o absorption
-reg_net_samc[dest_cell] # With absorption
+comb_net[dest_cell] # With absorption
 ```
