@@ -1,17 +1,16 @@
 # samc 4.0.0
 
 ## Breaking changes
-- visitation_net(samc, origin, dest) has two changes to its behavior:
-  - It now behaves consistently with other metrics and returns a single value representing the result at the destination node. Previously, it behaved like the passage() function from gdistance and returned a vector using the origin and destination node information to perform a correction.
-  - Previously, the function used the same approach as passage() from gdistance, which calculated the net flow at edges between every pair of nodes i and j, then split that net flow between nodes i and j. passage() then performed a correction at the start and nodes. The new version of visitation_net() now assigns all the net flow to node j, then adds the initial state vector to the result to properly account for starting flow. Both approaches reach the correct result, except that gdistance's correction only works correctly in the simple case of one starting point and one point of total absorption. More general cases with a more complex initial state and/or absorbing states may be affected by these changes.
-  The new approach makes performing the correction for the general case simpler.
+- `visitation_net(samc, origin, dest)` has two changes to its behavior:
+  - It now behaves consistently with other metrics and returns a single value representing the result at the destination node. Previously, it behaved like the `passage()` function from gdistance and returned a vector using the origin and destination node information to perform a correction.
+  - Previously, the function used the same approach as `passage()` from gdistance, which calculates the net flow at edges between every pair of nodes i and j, then splits that net flow between nodes i and j. The new version of `visitation_net()` now assigns all the net flow to node j. Both approaches reach the correct result in the simple case of a single start node and single absorption node that `passage()` supports, but the new version more properly accounts for general cases involving multiple absorbing locations and varying intensities of absorption. The results are different, but in testing various scenarios, they appear to be slight and probably will not change the overall use and interpretation of previous applications.
 
 ## New features
 
 - New input options for metrics
-  - visitation_net(samc, origin)
-  - visitation_net(samc, init)
-  - visitation_net(samc, init, dest)
+  - `visitation_net(samc, origin)`
+  - `visitation_net(samc, init)`
+  - `visitation_net(samc, init, dest)`
 - New `precision` option in the `options` list for `samc()`. Can choose between `"single"` and `"double"` precision
   - Currently only applies to `samc` objects built for convolutions.
   - Default is `"double"` and provides 15-16 digits of precision. This is the same as all previous versions.
@@ -34,10 +33,10 @@
 ## New features
 
 - New input options for metrics
-  - cond_passage(samc, init, dest)
-  - dispersal(samc, origin, dest, time)
-  - distribution(samc, init, dest, time)
-  - mortality(samc, init, dest, time)
+  - `cond_passage(samc, init, dest)`
+  - `dispersal(samc, origin, dest, time)`
+  - `distribution(samc, init, dest, time)`
+  - `mortality(samc, init, dest, time)`
 
 ## Other
 
