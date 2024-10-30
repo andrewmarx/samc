@@ -62,13 +62,13 @@ Version 2 of the package officially removed support for various deprecated param
 
 Please note that this section is for package-specific queries. If you have questions or comments about the related published articles, contact the authors.
 
-*Have an error and can't fix it?*
+###### *Have an error and can't fix it?*
 
-- If you have an error, make sure you are using the newest version of the package. Then, check the site's [Troubleshooting](articles/troubleshooting.html) page, which is periodically updated with common errors that users encounter.
+If you have an error, make sure you are using the newest version of the package. Then, check the site's [Troubleshooting](articles/troubleshooting.html) page, which is periodically updated with common errors that users encounter.
 
-*Not sure how to do something? Found a bug? Have a feature request? Still can't solve your error? Want to show off your project?*
+###### *Not sure how to do something? Found a bug? Have a feature request? Still can't solve your error? Want to show off your project?*
 
-- We have a Github discussions page for anything and everything related to the package here: [Github Discussions](https://github.com/andrewmarx/samc/discussions)
+We have a Github discussions page for anything and everything related to the package here: [Github Discussions](https://github.com/andrewmarx/samc/discussions)
 
 
 #### **License**

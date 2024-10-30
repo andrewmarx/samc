@@ -50,7 +50,7 @@ Where:
 
 The `samc-class` is used to manage the $P$ matrix and other information to help ensure that the calculations used by the rest of the package are used correctly. Creating a `samc-class` object is the mandatory first step in the package, and is created using the `samc()` utility function. When creating the $P$ matrix, `samc()` only treats the $R$ matrix portion as a single column containing the total absorption probability for each transient state. The `samc()` function has several parameters that provide many different options for constructing the $P$ matrix that is at the core of the `samc-class`.
 
-#### *Option 1: Maps*
+###### *Option 1: Maps*
 
 The first option is to use a map of resistance (or conductance) and a map of total absorption with a list of transition arguments to calculate the transition probabilities between cells in the maps. There are certain requirements for these maps:
 
@@ -65,13 +65,13 @@ If using `SpatRaster` or `RasterLayer` objects, then additional conditions must 
 
 An optional fidelity map may be provided. This map would represent the probability of no transition between timesteps (e.g., no movement). By default, the package treats all cells in the maps the same and uses a value of `0` for fidelity. If used, the fidelity map must meet all of the same requirements listed above for the other map inputs.
 
-#### *Option 2: P Matrix*
+###### *Option 2: P Matrix*
 
 The second option for using this package is to directly supply a $P$ matrix. The $P$ matrix can be provided either as a regular matrix or a `dgCmatrix`, which is a sparse matrix object available through the Matrix package. The $R$ portion of the $P$ matrix must be a single column that represents the total absorption probability for each transient state.
 
 The advantage of this approach is total flexibility. The disadvantage is that the $P$ matrix can be created with certain properties that would lead to crashes, and the package is unable to detect all of them at this time. The other disadvantage is that the package cannot map the results back to anything for visualization purposes.
 
-#### *Option 3: igraph*
+###### *Option 3: igraph*
 
 A future version of the package will incorporate igraph support for graph-based inputs. This will provide the flexibility of a custom $P$ matrix, but will generally be more user-friendly to construct, be able to perform more thorough data checking to avoid issues in the $P$ matrix, and allow for mapping the results back to a graph for visualization purposes.
 
