@@ -26,7 +26,7 @@ library("samc")
 library("viridisLite")
 ```
 
-## Background
+#### **Background**
 
 This package provides a series of functions for working with absorbing Markov chains. A Markov chain is a model consisting of multiple states and describes how transitions occur between these states. An absorbing Markov chain is a special kind of Markov chain where every state is a *transient state* that can eventually reach one or more *absorbing states*. Absorbing states are a special type of state that cannot be left. Absorbing Markov chains can be represented using a $P$ matrix with the following structure:
 
@@ -46,11 +46,11 @@ Where:
 * When combined, $\begin{bmatrix}0 & I\end{bmatrix}$ represents that once an absorbing state has been entered, it cannot be left for a transient state or a different absorbing state.
 
 
-## The `samc-class`
+#### **The `samc-class`**
 
 The `samc-class` is used to manage the $P$ matrix and other information to help ensure that the calculations used by the rest of the package are used correctly. Creating a `samc-class` object is the mandatory first step in the package, and is created using the `samc()` utility function. When creating the $P$ matrix, `samc()` only treats the $R$ matrix portion as a single column containing the total absorption probability for each transient state. The `samc()` function has several parameters that provide many different options for constructing the $P$ matrix that is at the core of the `samc-class`.
 
-#### Option 1: Maps
+#### *Option 1: Maps*
 
 The first option is to use a map of resistance (or conductance) and a map of total absorption with a list of transition arguments to calculate the transition probabilities between cells in the maps. There are certain requirements for these maps:
 
@@ -65,18 +65,18 @@ If using `SpatRaster` or `RasterLayer` objects, then additional conditions must 
 
 An optional fidelity map may be provided. This map would represent the probability of no transition between timesteps (e.g., no movement). By default, the package treats all cells in the maps the same and uses a value of `0` for fidelity. If used, the fidelity map must meet all of the same requirements listed above for the other map inputs.
 
-#### Option 2: P Matrix
+#### *Option 2: P Matrix*
 
 The second option for using this package is to directly supply a $P$ matrix. The $P$ matrix can be provided either as a regular matrix or a `dgCmatrix`, which is a sparse matrix object available through the Matrix package. The $R$ portion of the $P$ matrix must be a single column that represents the total absorption probability for each transient state.
 
 The advantage of this approach is total flexibility. The disadvantage is that the $P$ matrix can be created with certain properties that would lead to crashes, and the package is unable to detect all of them at this time. The other disadvantage is that the package cannot map the results back to anything for visualization purposes.
 
-#### Option 3: igraph
+#### *Option 3: igraph*
 
 A future version of the package will incorporate igraph support for graph-based inputs. This will provide the flexibility of a custom $P$ matrix, but will generally be more user-friendly to construct, be able to perform more thorough data checking to avoid issues in the $P$ matrix, and allow for mapping the results back to a graph for visualization purposes.
 
 
-## Utility Functions
+#### **Utility Functions**
 
 In addition to the `samc()` function, the package has other utility functions that users might find helpful:
 
@@ -86,7 +86,7 @@ In addition to the `samc()` function, the package has other utility functions th
 - The `pairwise()` function is provided to easily and efficiently run specific metrics for all the pairwise combinations of start and end locations.
 
 
-## Analytical Functions
+#### **Analytical Functions**
 
 The package implements functions for the formulas provided in Table 1 of Fletcher et al. (2019), as well as other new ones since that publication. Many of the formulas are related conceptually and are grouped into single functions with multiple parameter signatures to reduce the number of unique function names needed. Note that the descriptions assume $\psi$ contains probabilities (see above). The following descriptions were written in an ecological context; the function reference pages provide mathematically formal descriptions.
 
@@ -123,7 +123,7 @@ Several of the analytical functions allow the input of an initial state $\psi$ f
 When the values in $\psi$ sum to a value other than one, care must be taken in the interpretation of the results. For example, $\psi$ could be used to represent a population of individuals where $\psi_i$ represents the number of individuals that start in transient state $i$. In this case, the results of the functions using $\psi$ aren't probabilities, but rather the expected number of individuals.
 
 
-## Built-in Example Data
+#### **Built-in Example Data**
 
 The package includes built-in example map data. Some of this data was used to create the figures in the SAMC paper and is used in numerous package tutorials.
 
