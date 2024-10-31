@@ -1,5 +1,5 @@
-pandoc: 3.1.11
-pkgdown: 2.0.9
+pandoc: '3.5'
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   article-circuit-theory: article-circuit-theory.html
@@ -21,5 +21,4 @@ articles:
   tutorial-locations: tutorial-locations.html
   tutorial-multiple-absorption: tutorial-multiple-absorption.html
   tutorial-temporal: tutorial-temporal.html
-last_built: 2024-07-25T18:11Z
-
+last_built: 2024-10-31T01:58Z

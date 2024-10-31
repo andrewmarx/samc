@@ -1,156 +1,57 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>/articles/article-circuit-theory.html</loc>
-  </url>
-  <url>
-    <loc>/articles/article-computation-methods.html</loc>
-  </url>
-  <url>
-    <loc>/articles/article-models.html</loc>
-  </url>
-  <url>
-    <loc>/articles/code-snippets.html</loc>
-  </url>
-  <url>
-    <loc>/articles/data-disconnected.html</loc>
-  </url>
-  <url>
-    <loc>/articles/example-coinflip.html</loc>
-  </url>
-  <url>
-    <loc>/articles/example-maze-part1.html</loc>
-  </url>
-  <url>
-    <loc>/articles/example-maze-part2.html</loc>
-  </url>
-  <url>
-    <loc>/articles/example-maze-part3.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/overview.html</loc>
-  </url>
-  <url>
-    <loc>/articles/parallel.html</loc>
-  </url>
-  <url>
-    <loc>/articles/performance.html</loc>
-  </url>
-  <url>
-    <loc>/articles/troubleshooting.html</loc>
-  </url>
-  <url>
-    <loc>/articles/tutorial-animations.html</loc>
-  </url>
-  <url>
-    <loc>/articles/tutorial-basic.html</loc>
-  </url>
-  <url>
-    <loc>/articles/tutorial-ggplot.html</loc>
-  </url>
-  <url>
-    <loc>/articles/tutorial-locations.html</loc>
-  </url>
-  <url>
-    <loc>/articles/tutorial-multiple-absorption.html</loc>
-  </url>
-  <url>
-    <loc>/articles/tutorial-temporal.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/absorption.html</loc>
-  </url>
-  <url>
-    <loc>/reference/char_null-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/check.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cond_passage.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dispersal.html</loc>
-  </url>
-  <url>
-    <loc>/reference/distribution.html</loc>
-  </url>
-  <url>
-    <loc>/reference/example_maze.html</loc>
-  </url>
-  <url>
-    <loc>/reference/example_split_corridor.html</loc>
-  </url>
-  <url>
-    <loc>/reference/example_toy_res.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/locate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/location-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/map.html</loc>
-  </url>
-  <url>
-    <loc>/reference/mat_null-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/mortality.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pairwise.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rasterize.html</loc>
-  </url>
-  <url>
-    <loc>/reference/samc-class-access.html</loc>
-  </url>
-  <url>
-    <loc>/reference/samc-class-modify.html</loc>
-  </url>
-  <url>
-    <loc>/reference/samc-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/samc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/samc_data-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/survival.html</loc>
-  </url>
-  <url>
-    <loc>/reference/visitation.html</loc>
-  </url>
-  <url>
-    <loc>/reference/visitation_net.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/articles/article-circuit-theory.html</loc></url>
+<url><loc>/articles/article-computation-methods.html</loc></url>
+<url><loc>/articles/article-models.html</loc></url>
+<url><loc>/articles/code-snippets.html</loc></url>
+<url><loc>/articles/data-disconnected.html</loc></url>
+<url><loc>/articles/example-coinflip.html</loc></url>
+<url><loc>/articles/example-maze-part1.html</loc></url>
+<url><loc>/articles/example-maze-part2.html</loc></url>
+<url><loc>/articles/example-maze-part3.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/overview.html</loc></url>
+<url><loc>/articles/parallel.html</loc></url>
+<url><loc>/articles/performance.html</loc></url>
+<url><loc>/articles/troubleshooting.html</loc></url>
+<url><loc>/articles/tutorial-animations.html</loc></url>
+<url><loc>/articles/tutorial-basic.html</loc></url>
+<url><loc>/articles/tutorial-ggplot.html</loc></url>
+<url><loc>/articles/tutorial-locations.html</loc></url>
+<url><loc>/articles/tutorial-multiple-absorption.html</loc></url>
+<url><loc>/articles/tutorial-temporal.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/absorption.html</loc></url>
+<url><loc>/reference/char_null-class.html</loc></url>
+<url><loc>/reference/check.html</loc></url>
+<url><loc>/reference/cond_passage.html</loc></url>
+<url><loc>/reference/dispersal.html</loc></url>
+<url><loc>/reference/distribution.html</loc></url>
+<url><loc>/reference/ex_abs_data.html</loc></url>
+<url><loc>/reference/ex_occ_data.html</loc></url>
+<url><loc>/reference/ex_res_data.html</loc></url>
+<url><loc>/reference/example_maze.html</loc></url>
+<url><loc>/reference/example_split_corridor.html</loc></url>
+<url><loc>/reference/example_toy_res.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/locate.html</loc></url>
+<url><loc>/reference/location-class.html</loc></url>
+<url><loc>/reference/map.html</loc></url>
+<url><loc>/reference/mat_null-class.html</loc></url>
+<url><loc>/reference/mortality.html</loc></url>
+<url><loc>/reference/pairwise.html</loc></url>
+<url><loc>/reference/rasterize.html</loc></url>
+<url><loc>/reference/samc-class-access.html</loc></url>
+<url><loc>/reference/samc-class-modify.html</loc></url>
+<url><loc>/reference/samc-class.html</loc></url>
+<url><loc>/reference/samc.html</loc></url>
+<url><loc>/reference/samc_data-class.html</loc></url>
+<url><loc>/reference/survival.html</loc></url>
+<url><loc>/reference/visitation.html</loc></url>
+<url><loc>/reference/visitation_net.html</loc></url>
 </urlset>
+
