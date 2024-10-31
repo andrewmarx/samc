@@ -173,6 +173,7 @@ setMethod(
     }
 
     res = .qpow_col(q, vec, time)
+    names(res) = as.character(time[-1])
     res = lapply(res, as.vector)
 
     if (samc@model$name == "CRW") {
@@ -224,6 +225,7 @@ setMethod(
       time = c(0, time)
 
       res = .qpow_row(q, pv, time)
+      names(res) = as.character(time[-1])
 
       res = lapply(res, as.vector)
 
@@ -235,11 +237,19 @@ setMethod(
         return(res)
       }
     } else if (samc@solver == "conv") {
-      results_list <- samc:::.convolution_short(time, samc@conv_cache, pv, samc@threads)
+      if (samc@precision == "single") {
+        results_list = samc:::.convolution_short_float(time, samc@conv_cache, pv, samc@threads)
+      } else if (samc@precision == "double") {
+        results_list = samc:::.convolution_short_double(time, samc@conv_cache, pv, samc@threads)
+      } else {
+        stop("Invalid data type. Must be either 'single' or 'double'", call. = FALSE)
+      }
 
-      res = as.vector(results_list$dist[[1]])
-
-      return(res)
+      if (length(results_list$dist) == 1) {
+        return(results_list$dist[[1]])
+      } else {
+        return(results_list$dist)
+      }
     } else {
       stop("Invalid method attribute in samc object.")
     }

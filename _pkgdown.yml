@@ -1,6 +1,10 @@
+template:
+  bootstrap: 5
+  bootswatch: cosmo
+
 navbar:
+  bg: dark
   title: "samc"
-  type: inverse
   left:
     - text: "Articles"
       menu:

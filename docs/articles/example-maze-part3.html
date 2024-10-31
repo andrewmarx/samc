@@ -4,170 +4,96 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Maze Part 3 • samc</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Maze Part 3">
-<meta property="og:description" content="samc">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Maze Part 3">
 </head>
-<body data-spy="scroll" data-target="#toc">
-    
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.3.0</span>
-      </span>
-    </div>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/overview.html">Overview</a>
-    </li>
-    <li>
-      <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
-    </li>
-    <li>
-      <a href="../articles/article-computation-methods.html">Computation Methods</a>
-    </li>
-    <li>
-      <a href="../articles/article-models.html">Models</a>
-    </li>
-    <li>
-      <a href="../articles/performance.html">Performance</a>
-    </li>
-    <li>
-      <a href="../articles/parallel.html">Parallel Computing</a>
-    </li>
-    <li>
-      <a href="../articles/troubleshooting.html">Troubleshooting</a>
-    </li>
-    <li>
-      <a href="../articles/code-snippets.html">Code Snippets</a>
-    </li>
+    <nav class="navbar navbar-expand-lg fixed-top bg-dark" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+
+    <a class="navbar-brand me-2" href="../index.html">samc</a>
+
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.0.0</small>
+
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/overview.html">Overview</a></li>
+    <li><a class="dropdown-item" href="../articles/article-circuit-theory.html">Circuit Theory</a></li>
+    <li><a class="dropdown-item" href="../articles/article-computation-methods.html">Computation Methods</a></li>
+    <li><a class="dropdown-item" href="../articles/article-models.html">Models</a></li>
+    <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
+    <li><a class="dropdown-item" href="../articles/parallel.html">Parallel Computing</a></li>
+    <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting</a></li>
+    <li><a class="dropdown-item" href="../articles/code-snippets.html">Code Snippets</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Data
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/data-disconnected.html">Disconnected Data</a>
-    </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-data" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Data</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-data">
+<li><a class="dropdown-item" href="../articles/data-disconnected.html">Disconnected Data</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Tutorials
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/tutorial-basic.html">Basic Tutorial</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-locations.html">Locations</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-ggplot.html">ggplot Visualization</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-temporal.html">Temporal Analysis</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-animations.html">Animations</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
-    </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
+<li><a class="dropdown-item" href="../articles/tutorial-basic.html">Basic Tutorial</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-locations.html">Locations</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-ggplot.html">ggplot Visualization</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-temporal.html">Temporal Analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-animations.html">Animations</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Examples
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/example-coinflip.html">Coin Flip</a>
-    </li>
-    <li>
-      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
-    </li>
-    <li>
-      <a href="../articles/example-maze-part2.html">Maze (Part 2)</a>
-    </li>
-    <li>
-      <a href="../articles/example-maze-part3.html">Maze (Part 3)</a>
-    </li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-examples">
+<li><a class="dropdown-item" href="../articles/example-coinflip.html">Coin Flip</a></li>
+    <li><a class="dropdown-item" href="../articles/example-maze-part1.html">Maze (Part 1)</a></li>
+    <li><a class="dropdown-item" href="../articles/example-maze-part2.html">Maze (Part 2)</a></li>
+    <li><a class="dropdown-item" href="../articles/example-maze-part3.html">Maze (Part 3)</a></li>
   </ul>
 </li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../news/index.html">News</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/andrewmarx/samc" class="external-link">
-    <span class="fa fa-github"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/andrewmarx/samc"><span class="fa fa-github"></span></a></li>
       </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
-      
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Maze Part 3</h1>
+
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>Maze Part 3</h1>
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2024-07-25</h4>
+            <h4 data-toc-skip class="date">2024-10-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/example-maze-part3.Rmd" class="external-link"><code>vignettes/example-maze-part3.Rmd</code></a></small>
-      <div class="hidden name"><code>example-maze-part3.Rmd</code></div>
-
+      <div class="d-none name"><code>example-maze-part3.Rmd</code></div>
     </div>
 
     
@@ -259,9 +185,8 @@ is drastically decreased for the starting point:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Expected time to finish from the start</span></span>
 <span><span class="va">short_surv</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 9022.974</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt; [1] 9022.974</span></span>
+<span></span>
 <span><span class="co"># The difference from our original maze</span></span>
 <span><span class="va">short_surv</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span> <span class="op">-</span> <span class="va">maze_surv</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] -4846.026</span></span></code></pre></div>
@@ -279,14 +204,14 @@ to set up.</p>
 changes the relationship between <code><a href="../reference/survival.html">survival()</a></code> and
 <code><a href="../reference/cond_passage.html">cond_passage()</a></code>. Since this example is back to a single
 absorbing state at the finish point, this relationship is restored:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">short_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">short_samc</span>, dest <span class="op">=</span> <span class="va">short_dest</span><span class="op">)</span></span>
 <span><span class="va">short_cond</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] 9021.974</span></span></code></pre></div>
 <p>Part 2 also showed that including additional absorbing states affects
 the probability of cells being visited. Modifying the maze to have
 multiple routes also has significant ramifications:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">short_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dispersal.html">dispersal</a></span><span class="op">(</span><span class="va">short_samc</span>, origin <span class="op">=</span> <span class="va">short_origin</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cached diagonal not found.</span></span>
@@ -294,16 +219,15 @@ multiple routes also has significant ramifications:</p>
 <span><span class="co">#&gt; Calculating matrix inverse diagonal...</span></span>
 <span><span class="co">#&gt; Computing: 100% (done)                         </span></span>
 <span><span class="co">#&gt; Complete                                                      </span></span>
-<span><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt; Diagonal has been cached. Continuing with metric calculation...</span></span>
+<span></span>
 <span><span class="fu">plot_maze</span><span class="op">(</span><span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">short_samc</span>, <span class="va">short_disp</span><span class="op">)</span>, <span class="st">"Probability of Visit (Shortcut Maze)"</span>, <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example-maze-part3_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Notably, it is again no longer possible to discern the optimal route
 through the maze by looking for cells with a probability of
 <code>1.0</code>. But, like Part 2, a partial path can still be
 identified:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Ideally, we would just use `as.numeric(short_disp == 1)`, but we have floating point precision issues here, so we will approximate it</span></span>
 <span><span class="va">short_disp_sol</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">short_disp</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">tolerance</span><span class="op">)</span></span>
 <span></span>
@@ -319,7 +243,7 @@ and after the loop created by the shortcut.</p>
 independently explored. Now, many of them will be combined into a more
 complex model. First, the resistance and absorption inputs need to be
 updated:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Combine our previous resistance layers</span></span>
 <span><span class="va">all_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">short_res</span>, <span class="va">ints_res</span>, <span class="va">ends_res</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -346,7 +270,7 @@ still exists if we assume the shortcut is hidden. This is a case where
 having asymmetric transition probabilities would be a more ideal
 solution, but for simplicity, we will leave things as they are.</p>
 <p>Create the new samc object:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_samc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/samc.html">samc</a></span><span class="op">(</span><span class="va">all_res</span>, <span class="va">all_abs_total</span>, model <span class="op">=</span> <span class="va">rw_model</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># We can actually reuse the short_res locations in this case, but let's make new ones anyway</span></span>
@@ -354,7 +278,7 @@ solution, but for simplicity, we will leave things as they are.</p>
 <span><span class="va">all_finish</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/locate.html">locate</a></span><span class="op">(</span><span class="va">all_samc</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">20</span>, y <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Following the previous model changes, start by looking at the
 expected time to absorption:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">all_samc</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Note the updated title from part 1</span></span>
@@ -368,36 +292,29 @@ left trap and the finish point. The relative role of each isn’t clear,
 but it does overall seem to decrease the time to absorption.</p>
 <p>Next is a complete overview of the different results for
 <code><a href="../reference/survival.html">survival()</a></code> and <code><a href="../reference/cond_passage.html">cond_passage()</a></code>:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Original results (Part 1)</span></span>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">maze_samc</span><span class="op">)</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 13869</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">maze_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span>, dest <span class="op">=</span> <span class="va">maze_dest</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 13868</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt; [1] 13869</span></span>
+<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">maze_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span>, dest <span class="op">=</span> <span class="va">maze_dest</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 13868</span></span>
+<span></span>
 <span><span class="co"># Results with traps (Part 2)</span></span>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">traps_samc</span><span class="op">)</span><span class="op">[</span><span class="va">maze_origin</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 1330.26</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">traps_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span>, dest <span class="op">=</span> <span class="va">maze_dest</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 3060.207</span></span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt; [1] 1330.26</span></span>
+<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">traps_samc</span>, origin <span class="op">=</span> <span class="va">maze_origin</span>, dest <span class="op">=</span> <span class="va">maze_dest</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 3060.207</span></span>
+<span></span>
 <span><span class="co"># Results with a shortcut</span></span>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">short_samc</span><span class="op">)</span><span class="op">[</span><span class="va">short_origin</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 9022.974</span></span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">short_samc</span>, origin <span class="op">=</span> <span class="va">short_origin</span>, dest <span class="op">=</span> <span class="va">short_dest</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 9021.974</span></span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt; [1] 9022.974</span></span>
+<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">short_samc</span>, origin <span class="op">=</span> <span class="va">short_origin</span>, dest <span class="op">=</span> <span class="va">short_dest</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 9021.974</span></span>
+<span></span>
 <span><span class="co"># Results with everything</span></span>
 <span><span class="fu"><a href="../reference/survival.html">survival</a></span><span class="op">(</span><span class="va">all_samc</span><span class="op">)</span><span class="op">[</span><span class="va">all_start</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 968.4007</span></span></code></pre></div>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">all_samc</span>, origin <span class="op">=</span> <span class="va">all_start</span>, dest <span class="op">=</span> <span class="va">all_finish</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 968.4007</span></span>
+<span><span class="fu"><a href="../reference/cond_passage.html">cond_passage</a></span><span class="op">(</span><span class="va">all_samc</span>, origin <span class="op">=</span> <span class="va">all_start</span>, dest <span class="op">=</span> <span class="va">all_finish</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2000.364</span></span></code></pre></div>
 <p>The presence of both the traps and the shortcut has a cumulative
 effect on both metrics; the time to absorption decreases, as does the
@@ -407,11 +324,10 @@ individual is not absorbed elsewhere).</p>
 using the <code><a href="../reference/mortality.html">mortality()</a></code> metric shows how introducing the
 shortcut affects the probability of finishing the maze vs being absorbed
 in the traps:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traps_mort</span><span class="op">[</span><span class="va">traps_mort</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 0.852084306 0.113761093 0.003940915 0.030213685</span></span></code></pre></div>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt; [1] 0.852084306 0.113761093 0.003940915 0.030213685</span></span>
+<span></span>
 <span><span class="va">all_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mortality.html">mortality</a></span><span class="op">(</span><span class="va">all_samc</span>, origin <span class="op">=</span> <span class="va">all_start</span><span class="op">)</span></span>
 <span><span class="va">all_mort</span><span class="op">[</span><span class="va">all_mort</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] 0.81665446 0.08106988 0.05073905 0.05153661</span></span></code></pre></div>
@@ -443,35 +359,26 @@ the package, the series will be expanded with an example illustrating
 the construction of a maze using a graph rather than a
 matrix/raster.</p>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by Andrew Marx.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Andrew Marx.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
-  
 
 
-  
+
 
   </body>
 </html>

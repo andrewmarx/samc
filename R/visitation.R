@@ -229,6 +229,7 @@ setMethod(
     }
 
     ft = .sum_qpow_col(q, vec, time)
+    names(ft) = as.character(time[-1])
 
     ft = lapply(ft, as.vector)
 
@@ -284,6 +285,7 @@ setMethod(
 
       time <- c(1, time)
       ft <- .sum_qpow_row(q, pv, time)
+      names(ft) = as.character(time[-1])
 
       ft = lapply(ft, as.vector)
 
@@ -295,11 +297,18 @@ setMethod(
         return(ft)
       }
     } else if (samc@solver == "conv") {
-      results_list = samc:::.convolution_short(time, samc@conv_cache, pv, samc@threads)
-
-      res = as.vector(results_list$vis[[1]])
-
-      return(res)
+      if (samc@precision == "single") {
+        results_list = samc:::.convolution_short_float(time, samc@conv_cache, pv, samc@threads)
+      } else if (samc@precision == "double") {
+        results_list = samc:::.convolution_short_double(time, samc@conv_cache, pv, samc@threads)
+      } else {
+        stop("Invalid data type. Must be either 'single' or 'double'", call. = FALSE)
+      }
+      if (length(results_list$vis) == 1) {
+        return(results_list$vis[[1]])
+      } else {
+        return(results_list$vis)
+      }
     } else {
       stop("Invalid method attribute in samc object.")
     }
@@ -443,9 +452,13 @@ setMethod(
 
       return(r)
     } else if (samc@solver == "conv") {
-
-      results_list = samc:::.convolution_long(samc@conv_cache, pv, samc@threads)
-
+      if (samc@precision == "single") {
+        results_list = samc:::.convolution_long_float(samc@conv_cache, pv, samc@threads)
+      } else if (samc@precision == "double") {
+        results_list = samc:::.convolution_long_double(samc@conv_cache, pv, samc@threads)
+      } else {
+        stop("Invalid data type. Must be either 'single' or 'double'", call. = FALSE)
+      }
       return(results_list$vis)
     } else {
       stop("Invalid method attribute in samc object.")
@@ -473,7 +486,7 @@ setMethod(
 #'
 #' Calculates the net number of times that transient states are visited before absorption.
 #'
-#' The \code{\link{visitation}} function calculates the
+#' Add details here
 #'
 #' @template section-perf
 #'
@@ -494,31 +507,57 @@ setGeneric(
     standardGeneric("visitation_net")
   })
 
+# visitation_net(samc, origin) ----
+#' @rdname visitation_net
+setMethod(
+  "visitation_net",
+  signature(samc = "samc", init = "missing", origin = "location", dest = "missing"),
+  function(samc, origin) {
+    .disable_crw(samc)
+
+    if (length(origin) != 1)
+      stop("origin can only contain a single location for this version of the function", call. = FALSE)
+
+    origin = .process_locations(samc, origin)
+    init = .map_location(samc, origin)
+
+    return(visitation_net(samc, init = init))
+  })
+
 # visitation_net(samc, origin, dest) ----
 #' @rdname visitation_net
 setMethod(
   "visitation_net",
   signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
   function(samc, origin, dest) {
-    .disable_crw(samc)
-    if (length(origin) != 1)
-      stop("origin can only contain a single location for this version of the function", call. = FALSE)
-
-    if (length(dest) != 1)
+    warning("Version 4 of the package updated the usage of this function and is no longer compatable with older usage. See NEWS.md for details.", call. = FALSE)
+    if (length(dest) != 1) {
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
+    }
 
-    origin = .process_locations(samc, origin)
-    init = .map_location(samc, origin)
+    dest = .process_locations(samc, dest)
+    res = visitation_net(samc, origin = origin)
+
+    return(res[dest])
+  })
+
+# visitation_net(samc, init) ----
+#' @rdname visitation_net
+setMethod(
+  "visitation_net",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing"),
+  function(samc, init) {
+    .disable_crw(samc)
 
     check(samc, init)
 
-    pv <- .process_init(samc, init)
+    pv = .process_init(samc, init)
 
     if (samc@solver %in% c("direct", "iter")) {
       if (samc@solver == "iter") {
-        r <- .f_row_iter(samc@data@f, pv)
+        r = .f_row_iter(samc@data@f, pv)
       } else {
-        r <- .f_row(samc@data@f, pv, samc@.cache$sc)
+        r = .f_row(samc@data@f, pv, samc@.cache$sc)
       }
 
       r = as.vector(r)
@@ -527,19 +566,39 @@ setMethod(
 
       vis = r
     } else if (samc@solver == "conv") {
-
-      results_list = samc:::.convolution_long(samc@conv_cache, pv, samc@threads)
+      if (samc@precision == "single") {
+        results_list = samc:::.convolution_long_float(samc@conv_cache, pv, samc@threads)
+      } else if (samc@precision == "double") {
+        results_list = samc:::.convolution_long_double(samc@conv_cache, pv, samc@threads)
+      } else {
+        stop("Invalid data type. Must be either 'single' or 'double'", call. = FALSE)
+      }
 
       vis = results_list$vis
     } else {
       stop("Invalid method attribute in samc object.")
     }
 
-    vq = vis * samc@data@f
-
-    n_net = abs(Matrix::skewpart(vq))
-    visit_net = as.vector(Matrix::colSums(n_net))
-    visit_net[c(origin, dest)] = 2 * visit_net[c(origin, dest)]
+    vq = vis * samc$q_matrix
+    n_net = Matrix::skewpart(vq) * 2 # undo div by 2 in skewpart to get vq-t(vq). TODO: check if actually more efficient than direc vq-t(vq)
+    n_net@x = pmax(n_net@x, 0)
+    visit_net = as.vector(Matrix::colSums(n_net)) + pv
 
     return(visit_net)
+  })
+
+# visitation_net(samc, init, dest) ----
+#' @rdname visitation_net
+setMethod(
+  "visitation_net",
+  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location"),
+  function(samc, init, dest) {
+    if (length(dest) != 1) {
+      stop("dest can only contain a single location for this version of the function", call. = FALSE)
+    }
+
+    dest = .process_locations(samc, dest)
+    res = visitation_net(samc, init = init)
+
+    return(res[dest])
   })

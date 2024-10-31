@@ -6,6 +6,6 @@
 # }
 
 .onAttach <- function(libname, pkgname) {
-  msg <-paste("Version 2 and Version 3 had breaking changes. Check the package website for details.")
+  msg = paste("Old code may be affected by breaking changes. Check the package website and release notes for details.")
   packageStartupMessage(msg)
 }

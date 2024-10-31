@@ -4,43 +4,61 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 
-// [[Rcpp::export(".qpow_row")]]
-Rcpp::List qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &vec, Rcpp::NumericVector steps)
-{
-  int n = steps.size();
+#include "constants.h"
 
-  Rcpp::List res = Rcpp::List::create();
+// [[Rcpp::export(".qpow_row")]]
+Rcpp::List qpow_row(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
+                    const Eigen::Map<Eigen::VectorXd> &vec,
+                    const Rcpp::NumericVector &t)
+{
+  int n = t.size();
+
+  Rcpp::List res(n - 1);
 
   Eigen::RowVectorXd time_res = vec;
 
   for(int i = 1; i < n; i++) {
-    for (int j = steps[i - 1]; j < steps[i]; j++) {
-      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+    int t_start = t[i - 1];
+    int t_end = t[i];
+
+    for (int j = t_start; j < t_end; j++) {
+      if(j % INTERRUPT_CHECK_INTERVAL == 0) {
+        Rcpp::checkUserInterrupt();
+      }
+
       time_res = time_res * M;
     }
 
-    res.push_back(time_res, std::to_string((int)steps[i]));
+    res[i - 1] = Rcpp::wrap(time_res);
   }
 
   return res;
 }
 
 // [[Rcpp::export(".qpow_col")]]
-Rcpp::List qpow_col(Eigen::Map<Eigen::SparseMatrix< double> > &M, const Eigen::Map<Eigen::VectorXd> &vec, Rcpp::NumericVector steps)
+Rcpp::List qpow_col(const Eigen::Map<Eigen::SparseMatrix< double> > &M,
+                    const Eigen::Map<Eigen::VectorXd> &vec,
+                    const Rcpp::NumericVector &t)
 {
-  int n = steps.size();
+  int n = t.size();
 
-  Rcpp::List res = Rcpp::List::create();
+  Rcpp::List res(n - 1);
 
   Eigen::VectorXd time_res = M * vec;
 
   for(int i = 1; i < n; i++) {
-    for (int j = steps[i - 1]; j < steps[i]; j++) {
-      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+    int t_start = t[i - 1];
+    int t_end = t[i];
+
+    for (int j = t_start; j < t_end; j++) {
+      if(j % INTERRUPT_CHECK_INTERVAL == 0) {
+        Rcpp::checkUserInterrupt();
+      }
+
       time_res = M * time_res;
     }
 
-    res.push_back(time_res, std::to_string((int)steps[i]));
+    res[i - 1] = Rcpp::wrap(time_res);
   }
 
   return res;

@@ -1,19 +1,49 @@
+# samc 4.0.0
+
+## Breaking changes
+- `visitation_net(samc, origin, dest)` has two changes to its behavior:
+  - It now behaves consistently with other metrics and returns a single value representing the result at the destination node. Previously, it behaved like the `passage()` function from gdistance and returned a vector using the origin and destination node information to perform a correction to the flow values.
+  - Previously, the function used the same mathematical implementation as `passage()` from gdistance. In retrospect, the final part of this implementation only works properly in the specific case of a single start point and a single end point, which is correct for the input requirements of `passage()`, but is not quite correct for when there are multiple nodes with absorption. The new version properly accounts for general cases involving multiple absorbing locations and varying intensities of absorption. This does change the results from older versions. The difference between the two versions is equivalent to one half the results from `mortality()`. In practice, landscapes with widespread absorption will see a negligible difference; in current large-scale examples, the effect is several magnitudes of order less than the net flow value. The difference may be more prominent when dealing with a very small number of absorbing nodes.
+
+## New features
+
+- New input options for metrics
+  - `visitation_net(samc, origin)`
+  - `visitation_net(samc, init)`
+  - `visitation_net(samc, init, dest)`
+- New `precision` option in the `options` list for `samc()`. Can choose between `"single"` and `"double"` precision
+  - Currently only applies to `samc` objects built for convolutions.
+  - Default is `"double"` and provides 15-16 digits of precision. This is the same as all previous versions.
+  - The `"single"` option provides 7-8 digits precision, but also reduces RAM use by roughly half. It's also slightly faster for metric calculations (~20% less time on one device), and also scales slightly better with multiple cores.
+
+## Other
+
+  - Enabled vector inputs for `init` parameters regardless of the data type used for inputs to the `samc()` function. This is intended to provide flexibility for special situations, and it's recommended that `init` inputs reflect the data types used for `samc()`.
+  - Reorganization of internal functions.
+  - Improvements to model and options validation.
+
+## Bug fixes
+
+  - Fixed `check()` node count approach for convolution.
+  - Fixed convolution short-term metrics with multiple time inputs.
+
+
 # samc 3.3.0
 
 ## New features
 
 - New input options for metrics
-  - cond_passage(samc, init, dest)
-  - dispersal(samc, origin, dest, time)
-  - distribution(samc, init, dest, time)
-  - mortality(samc, init, dest, time)
+  - `cond_passage(samc, init, dest)`
+  - `dispersal(samc, origin, dest, time)`
+  - `distribution(samc, init, dest, time)`
+  - `mortality(samc, init, dest, time)`
 
 ## Other
 
 - Lot's of internal refactoring and consolidation.
 - Various small memory and speed optimizations.
-- Various small fixes
-- License update
+- Various small fixes.
+- License update.
 
 
 # samc 3.2.1

@@ -7,118 +7,138 @@
 #include <Rcpp/Benchmark/Timer.h>
 
 #include "solver-cache.h"
+#include "constants.h"
 
 // [[Rcpp::export(".sum_qpow_row")]]
-Rcpp::List sum_qpow_row(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &vec, Rcpp::NumericVector steps)
+Rcpp::List sum_qpow_row(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
+                        const Eigen::Map<Eigen::VectorXd> &vec,
+                        const Rcpp::NumericVector &t)
 {
-  int n = steps.size();
+  int n = t.size();
 
-  Rcpp::List res = Rcpp::List::create();
+  Rcpp::List res(n - 1);
 
   Eigen::RowVectorXd vecq = vec;
   Eigen::RowVectorXd time_res = vec;
 
   for(int i = 1; i < n; i++) {
-    for (int j = steps[i - 1]; j < steps[i]; j++) {
-      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+    int t_start = t[i - 1];
+    int t_end = t[i];
+
+    for (int j = t_start; j < t_end; j++) {
+      if(j % INTERRUPT_CHECK_INTERVAL == 0) {
+        Rcpp::checkUserInterrupt();
+      }
+
       vecq = vecq * M;
-      time_res = time_res + vecq;
+      time_res += vecq;
     }
 
-    res.push_back(time_res, std::to_string((int)steps[i]));
+    res[i - 1] = Rcpp::wrap(time_res);
   }
 
   return res;
 }
 
 // [[Rcpp::export(".sum_qpow_col")]]
-Rcpp::List sum_qpow_col(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::Map<Eigen::VectorXd> &vec, Rcpp::NumericVector steps)
+Rcpp::List sum_qpow_col(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
+                        const Eigen::Map<Eigen::VectorXd> &vec,
+                        const Rcpp::NumericVector &t)
 {
-  int n = steps.size();
+  int n = t.size();
 
-  Rcpp::List res = Rcpp::List::create();
+  Rcpp::List res(n - 1);
 
   Eigen::VectorXd qc = vec;
   Eigen::VectorXd time_res = vec;
 
   for(int i = 1; i < n; i++) {
-    for (int j = steps[i - 1]; j < steps[i]; j++) {
-      if(i % 1000 == 0) Rcpp::checkUserInterrupt();
+    int t_start = t[i - 1];
+    int t_end = t[i];
+
+    for (int j = t_start; j < t_end; j++) {
+      if(j % INTERRUPT_CHECK_INTERVAL == 0) {
+        Rcpp::checkUserInterrupt();
+      }
+
       qc = M * qc;
-      time_res = time_res + qc;
+      time_res += qc;
     }
 
-    res.push_back(time_res, std::to_string((int)steps[i]));
+    res[i - 1] = Rcpp::wrap(time_res);
   }
 
   return res;
 }
 
-
 // [[Rcpp::export(".f_row")]]
-Rcpp::NumericVector f_row(const Eigen::SparseMatrix<double> &M, const Eigen::VectorXd &vec, Rcpp::XPtr<SolverCache> &SC)
+Rcpp::NumericVector f_row(const Eigen::SparseMatrix<double> &M,
+                          const Eigen::VectorXd &vec,
+                          Rcpp::XPtr<SolverCache> &SC)
 {
   SC->buildSolver(M.transpose(), "mt");
 
   Eigen::VectorXd res = SC->solver().solve(vec);
+  if(SC->solver().info() != Eigen::Success) {
+    Rcpp::stop("Solver failed in f_row");
+  }
 
   return Rcpp::wrap(res);
 }
 
 // [[Rcpp::export(".f_row_iter")]]
-Rcpp::NumericVector f_row_iter(Eigen::SparseMatrix<double> &M, const Eigen::VectorXd &vec)
+Rcpp::NumericVector f_row_iter(const Eigen::SparseMatrix<double> &M,
+                               const Eigen::VectorXd &vec)
 {
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
   solver.compute(M.transpose());
+  if(solver.info() != Eigen::Success) {
+    Rcpp::stop("Decomposition failed in f_row_iter");
+  }
 
   Eigen::VectorXd res = solver.solve(vec);
+  if(solver.info() != Eigen::Success) {
+    Rcpp::stop("Solver failed in f_row_iter");
+  }
 
   return Rcpp::wrap(res);
 }
 
 // [[Rcpp::export(".f_col")]]
-Rcpp::NumericVector f_col(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::VectorXd &vec, Rcpp::XPtr<SolverCache> &SC)
+Rcpp::NumericVector f_col(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
+                          const Eigen::VectorXd &vec,
+                          Rcpp::XPtr<SolverCache> &SC)
 {
   int sz = M.rows();
 
-  //Rcpp::Timer timer;
-
-  //timer.step("compute() start");
   SC->buildSolver(M, "m");
-  //timer.step("compute() end");
 
-  //timer.step("solve() start");
   Eigen::VectorXd res = SC->solver().solve(vec);
-  //timer.step("solve() end");
-
-  //Rcpp::NumericVector tr(timer);
-  //Rcpp::Rcout << tr;
+  if(SC->solver().info() != Eigen::Success) {
+    Rcpp::stop("Solver failed in f_col");
+  }
 
   return Rcpp::wrap(res);
 }
 
 // [[Rcpp::export(".f_col_iter")]]
-Rcpp::NumericVector f_col_iter(Eigen::Map<Eigen::SparseMatrix<double> > &M, const Eigen::VectorXd &vec)
+Rcpp::NumericVector f_col_iter(const Eigen::Map<Eigen::SparseMatrix<double> > &M,
+                               const Eigen::VectorXd &vec)
 {
   int sz = M.rows();
 
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double> > solver;
 
-  //Rcpp::Timer timer;
-
-  //timer.step("compute() start");
   solver.compute(M);
-  //timer.step("compute() end");
+  if(solver.info() != Eigen::Success) {
+    Rcpp::stop("Decomposition failed in f_col_iter");
+  }
 
-  //timer.step("solve() start");
   Eigen::VectorXd res = solver.solve(vec);
-  //timer.step("solve() end");
-
-  //Rcpp::NumericVector tr(timer);
-  //Rcpp::Rcout << tr;
+  if(solver.info() != Eigen::Success) {
+    Rcpp::stop("Solver failed in f_col_iter");
+  }
 
   return Rcpp::wrap(res);
 }
-
-

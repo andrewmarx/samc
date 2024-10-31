@@ -4,170 +4,96 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Multiple Absorption Tutorial • samc</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Multiple Absorption Tutorial">
-<meta property="og:description" content="samc">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Multiple Absorption Tutorial">
 </head>
-<body data-spy="scroll" data-target="#toc">
-    
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">samc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.3.0</span>
-      </span>
-    </div>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/overview.html">Overview</a>
-    </li>
-    <li>
-      <a href="../articles/article-circuit-theory.html">Circuit Theory</a>
-    </li>
-    <li>
-      <a href="../articles/article-computation-methods.html">Computation Methods</a>
-    </li>
-    <li>
-      <a href="../articles/article-models.html">Models</a>
-    </li>
-    <li>
-      <a href="../articles/performance.html">Performance</a>
-    </li>
-    <li>
-      <a href="../articles/parallel.html">Parallel Computing</a>
-    </li>
-    <li>
-      <a href="../articles/troubleshooting.html">Troubleshooting</a>
-    </li>
-    <li>
-      <a href="../articles/code-snippets.html">Code Snippets</a>
-    </li>
+    <nav class="navbar navbar-expand-lg fixed-top bg-dark" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+
+    <a class="navbar-brand me-2" href="../index.html">samc</a>
+
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.0.0</small>
+
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/overview.html">Overview</a></li>
+    <li><a class="dropdown-item" href="../articles/article-circuit-theory.html">Circuit Theory</a></li>
+    <li><a class="dropdown-item" href="../articles/article-computation-methods.html">Computation Methods</a></li>
+    <li><a class="dropdown-item" href="../articles/article-models.html">Models</a></li>
+    <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
+    <li><a class="dropdown-item" href="../articles/parallel.html">Parallel Computing</a></li>
+    <li><a class="dropdown-item" href="../articles/troubleshooting.html">Troubleshooting</a></li>
+    <li><a class="dropdown-item" href="../articles/code-snippets.html">Code Snippets</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Data
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/data-disconnected.html">Disconnected Data</a>
-    </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-data" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Data</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-data">
+<li><a class="dropdown-item" href="../articles/data-disconnected.html">Disconnected Data</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Tutorials
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/tutorial-basic.html">Basic Tutorial</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-locations.html">Locations</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-ggplot.html">ggplot Visualization</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-temporal.html">Temporal Analysis</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-animations.html">Animations</a>
-    </li>
-    <li>
-      <a href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a>
-    </li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
+<li><a class="dropdown-item" href="../articles/tutorial-basic.html">Basic Tutorial</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-locations.html">Locations</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-ggplot.html">ggplot Visualization</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-temporal.html">Temporal Analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-animations.html">Animations</a></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-multiple-absorption.html">Multiple Absorption</a></li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Examples
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/example-coinflip.html">Coin Flip</a>
-    </li>
-    <li>
-      <a href="../articles/example-maze-part1.html">Maze (Part 1)</a>
-    </li>
-    <li>
-      <a href="../articles/example-maze-part2.html">Maze (Part 2)</a>
-    </li>
-    <li>
-      <a href="../articles/example-maze-part3.html">Maze (Part 3)</a>
-    </li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-examples">
+<li><a class="dropdown-item" href="../articles/example-coinflip.html">Coin Flip</a></li>
+    <li><a class="dropdown-item" href="../articles/example-maze-part1.html">Maze (Part 1)</a></li>
+    <li><a class="dropdown-item" href="../articles/example-maze-part2.html">Maze (Part 2)</a></li>
+    <li><a class="dropdown-item" href="../articles/example-maze-part3.html">Maze (Part 3)</a></li>
   </ul>
 </li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../news/index.html">News</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/andrewmarx/samc" class="external-link">
-    <span class="fa fa-github"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/andrewmarx/samc"><span class="fa fa-github"></span></a></li>
       </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
-      
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Multiple Absorption Tutorial</h1>
+
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>Multiple Absorption Tutorial</h1>
                         <h4 data-toc-skip class="author">Andrew
 Marx</h4>
             
-            <h4 data-toc-skip class="date">2024-07-25</h4>
+            <h4 data-toc-skip class="date">2024-10-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/andrewmarx/samc/blob/HEAD/vignettes/tutorial-multiple-absorption.Rmd" class="external-link"><code>vignettes/tutorial-multiple-absorption.Rmd</code></a></small>
-      <div class="hidden name"><code>tutorial-multiple-absorption.Rmd</code></div>
-
+      <div class="d-none name"><code>tutorial-multiple-absorption.Rmd</code></div>
     </div>
 
     
@@ -254,9 +180,8 @@ absorption.</p>
 <span><span class="co"># When only working with total absorption, this version of mortality() returns</span></span>
 <span><span class="co"># a named vector</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">mort</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt;  num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span>
+<span></span>
 <span><span class="co"># Let's visualize it</span></span>
 <span><span class="va">mort_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mort_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -271,7 +196,7 @@ provided as either a RasterStack or a RasterBrick. The layers in the
 list/RasterStack/RasterBrick can be named, which will carryover into the
 results, which can help with code readability when accessing different
 parts of the results.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's attach absorption layers to our samc object</span></span>
 <span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">abs_data_a</span>, <span class="va">abs_data_b</span><span class="op">)</span></span>
 <span></span>
@@ -285,15 +210,14 @@ parts of the results.</p>
 <span><span class="co">#&gt; List of 3</span></span>
 <span><span class="co">#&gt;  $ total: num [1:2624] 0.000783 0.000787 0.000704 0.000655 0.000621 ...</span></span>
 <span><span class="co">#&gt;  $ abs1 : num [1:2624] 1.90e-05 1.91e-05 1.71e-05 1.59e-05 1.51e-05 ...</span></span>
-<span><span class="co">#&gt;  $ abs2 : num [1:2624] 0.000764 0.000768 0.000687 0.000639 0.000606 ...</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt;  $ abs2 : num [1:2624] 0.000764 0.000768 0.000687 0.000639 0.000606 ...</span></span>
+<span></span>
 <span><span class="co"># Let's visualize it</span></span>
 <span><span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/map.html">map</a></span><span class="op">(</span><span class="va">samc_obj</span>, <span class="va">mort_multiple</span><span class="op">)</span></span>
 <span><span class="va">multiple_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">)</span> <span class="co"># Convert the list to a multi-layer SpatRaster for plotting</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">multiple_map</span>, xlab <span class="op">=</span> <span class="st">"x"</span>, ylab <span class="op">=</span> <span class="st">"y"</span>, col <span class="op">=</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, nc <span class="op">=</span> <span class="fl">1</span>, nr <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tutorial-multiple-absorption_files/figure-html/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span></span>
 <span><span class="co"># Let's check some things.</span></span>
@@ -301,14 +225,12 @@ parts of the results.</p>
 <span><span class="co">#First, the results of the decomposed layers in the list should add up to the total result</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>          <span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Alternatively, we could use the layer names:</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co"># Alternatively, we could use the layer names:</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">$</span><span class="va">total</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>          <span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">multiple_map</span><span class="op">$</span><span class="va">abs1</span> <span class="op">+</span> <span class="va">multiple_map</span><span class="op">$</span><span class="va">abs2</span>, mat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span></span>
 <span><span class="co"># Second, notice in the plots above that the result for the single input and the total</span></span>
 <span><span class="co"># result for the multiple input look very similar? That's because they are identical</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">mort</span>, <span class="va">mort_multiple</span><span class="op">$</span><span class="va">total</span><span class="op">)</span></span>
@@ -329,7 +251,7 @@ absorption used to create the samc object, but our analysis might be
 only interested in learning about one of them. In that case, we only
 need to supply the absorption probabilities for what we are interested
 in; the others can be excluded.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's say we are interested in just the first component we created above</span></span>
 <span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="va">abs_data_a</span></span>
 <span></span>
@@ -345,7 +267,7 @@ in; the others can be excluded.</p>
 for a particular source of absorption. Rather than running the analysis
 once for every candidate, we can simply include them all and run the
 analysis once.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create multiple versions of our first component. This might represent multiple</span></span>
 <span><span class="co"># models or hypotheses we want to explore</span></span>
 <span><span class="va">abs_1_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">abs_data_a</span> <span class="op">*</span> <span class="fl">0.2</span>,</span>
@@ -379,65 +301,69 @@ samc() function. Ultimately, any number of arbitrary mathematical
 functions could be used to combine the individual components into a
 total absorption. As a starting point, however, users may want to think
 about how their data fits into probability theory.</p>
-<p>Let’s say we have two possible sources of absorption <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>. If they cannot occur at the same time,
-they are mutually exclusive, or disjoint, events. An example of this
-might be a deer dispersing across a landscape that can die to either
-predation or road mortality (hit by a vehicle). In this case, both types
-of absorption result in death of the deer, and since a deer cannot die
-twice, this means that both types of absorption are mutually exclusive.
-Under the rules of probability, we can then calculate our total
-absorption as <span class="math inline">\(P(A\text{ or }B) = P(A) +
-P(B)\)</span> where <span class="math inline">\(P(A) = \text{Probability
-of Predation}\)</span> and <span class="math inline">\(P(B) =
-\text{Probability of Road Mortality}\)</span>.</p>
+<p>Let’s say we have two possible sources of absorption
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>.
+If they cannot occur at the same time, they are mutually exclusive, or
+disjoint, events. An example of this might be a deer dispersing across a
+landscape that can die to either predation or road mortality (hit by a
+vehicle). In this case, both types of absorption result in death of the
+deer, and since a deer cannot die twice, this means that both types of
+absorption are mutually exclusive. Under the rules of probability, we
+can then calculate our total absorption as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> or </mtext><mspace width="0.333em"></mspace></mrow><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(A\text{ or }B) = P(A) + P(B)</annotation></semantics></math>
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mtext mathvariant="normal">Probability of Predation</mtext></mrow><annotation encoding="application/x-tex">P(A) = \text{Probability of Predation}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mtext mathvariant="normal">Probability of Road Mortality</mtext></mrow><annotation encoding="application/x-tex">P(B) = \text{Probability of Road Mortality}</annotation></semantics></math>.</p>
 <p>More complex scenarios are possible. It’s conceivable that there
 might be situations where two or more or different sources of absorption
 can occur simultaneously. In this case, the total absorption could be
-calculated as <span class="math inline">\(P(A\text{ or }B) = P(A) + P(B)
-- P(A)P(B)\)</span>. When interpreting results using multiple absorption
-in the package, the results for <span class="math inline">\(P(A)P(B)\)</span> can be calculated either by
-providing the absorption sources <span class="math inline">\(A\)</span>
-and <span class="math inline">\(B\)</span> and then multiplying their
-results after the analysis, or absorption sources <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> can be pre-multiplied into a single
-absorbing state which is then used as an absorbing state for the
-analysis.</p>
+calculated as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> or </mtext><mspace width="0.333em"></mspace></mrow><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(A\text{ or }B) = P(A) + P(B) - P(A)P(B)</annotation></semantics></math>.
+When interpreting results using multiple absorption in the package, the
+results for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(A)P(B)</annotation></semantics></math>
+can be calculated either by providing the absorption sources
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+and then multiplying their results after the analysis, or absorption
+sources
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+can be pre-multiplied into a single absorbing state which is then used
+as an absorbing state for the analysis.</p>
 </div>
 <div class="section level2">
 <h2 id="disabling-multiple-absorption">Disabling Multiple Absorption<a class="anchor" aria-label="anchor" href="#disabling-multiple-absorption"></a>
 </h2>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># To remove all the absorption components</span></span>
 <span><span class="va">samc_obj</span><span class="op">$</span><span class="va">abs_states</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></code></pre></div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by Andrew Marx.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Andrew Marx.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
-  
 
 
-  
+
 
   </body>
 </html>

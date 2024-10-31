@@ -8,17 +8,15 @@
 #include <RcppEigen.h>
 #include <string>
 
-using namespace Eigen;
-
 class SolverCache {
-  typedef SparseLU<SparseMatrix<double> > Solver;
+  typedef Eigen::SparseLU<Eigen::SparseMatrix<double> > Solver;
 
   Solver m_solver;
   std::string name;
 
 public:
-  SolverCache() { name = ""; }
-  void buildSolver(const Eigen::SparseMatrix<double> &M, const std::string& fun);
+  SolverCache() : name("") { }
+  void buildSolver(const Eigen::SparseMatrix<double> &M, const std::string &fun);
   Solver& solver() { return m_solver; }
 };
 
