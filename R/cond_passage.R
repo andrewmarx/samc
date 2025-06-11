@@ -162,6 +162,7 @@ setMethod(
   "cond_passage",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location"),
   function(samc, init, dest) {
+    stop("Not implemented", call. = FALSE) # TODO finish
     .disable_conv(samc)
 
     if(length(origin) != length(dest))
