@@ -140,7 +140,7 @@ setMethod(
     }
 
     origin = .process_locations(samc, origin)
-    init = .map_location(samc, origin)
+    init = .build_init(samc, origin)
 
     return(distribution(samc, init, time = time))
   })
@@ -202,7 +202,7 @@ setMethod(
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
     origin = .process_locations(samc, origin)
-    init = .map_location(samc, origin)
+    init = .build_init(samc, origin)
 
     return(distribution(samc, init, dest = dest, time = time))
   })

@@ -87,7 +87,7 @@ setMethod(
     }
 
     origin = .process_locations(samc, origin)
-    init = .map_location(samc, origin)
+    init = .build_init(samc, origin)
 
     return(survival(samc, init = init))
   })

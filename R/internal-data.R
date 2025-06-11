@@ -344,7 +344,7 @@ setMethod(
 #'
 #' @param x A list
 #' @noRd
-.map_location = function(samc, x) { # TODO rename to build_init
+.build_init = function(samc, x) {
   vec = numeric(nrow(samc@data@f))
   vec[x] = 1
   names(vec) = samc@names

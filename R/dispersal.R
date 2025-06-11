@@ -125,7 +125,7 @@ setMethod(
     }
 
     origin = .process_locations(samc, origin)
-    init = .map_location(samc, origin)
+    init = .build_init(samc, origin)
 
     return(dispersal(samc, init, dest=dest, time = time))
   })
@@ -264,7 +264,7 @@ setMethod(
     }
 
     origin = .process_locations(samc, origin)
-    init = .map_location(samc, origin)
+    init = .build_init(samc, origin)
 
     return(dispersal(samc, init))
   })
