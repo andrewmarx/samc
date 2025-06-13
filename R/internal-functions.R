@@ -289,7 +289,10 @@
                   e2_num = edge_nums[e2]
                   mat_p_count[e2_num] = mat_p_count[e2_num] + 1
 
-                  res = tr[e2] * circular::dvonmises(ang_mat[d, dv], mu = mu, kappa = kappa_vals[c])
+                  res = tr[e2] * circular::dvonmises(
+                    circular::circular(ang_mat[d, dv]),
+                    mu = circular::circular(mu),
+                    kappa = kappa_vals[c])
                   rs = rs + res
 
                   row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]
