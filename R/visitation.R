@@ -276,8 +276,6 @@ setMethod(
   function(samc, init, time){
     .validate_time_steps(time)
 
-    check(samc, init)
-
     pv <- .process_init(samc, init)
 
     if (samc@solver %in% c("direct", "iter")) {
@@ -435,8 +433,6 @@ setMethod(
   "visitation",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init){
-    check(samc, init)
-
     pv <- .process_init(samc, init)
 
     if (samc@solver %in% c("direct", "iter")) {
