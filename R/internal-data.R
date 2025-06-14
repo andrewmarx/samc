@@ -345,12 +345,48 @@ setMethod(
 #' @param x A list
 #' @noRd
 .build_init = function(samc, x) {
-  vec = numeric(nrow(samc@data@f))
-  vec[x] = 1
-  names(vec) = samc@names
+  if (samc@model$name == "RW") {
+    vec = numeric(samc@nodes)
+    vec[x] = 1
+    names(vec) = samc@names
+  } else if (samc@model$name == "CRW") {
+    vec = .build_init_crw(samc, x)
+  } else {
+    stop("Unexpected model in .build_init()", call. = FALSE)
+  }
 
   return(vec)
 }
+
+
+#' Build CRW initial state from origin
+#'
+#' Build CRW initial state from origin
+#'
+#' @param samc A samc-class object
+#' @param x origin input
+#' @noRd
+setGeneric(
+  ".build_init_crw",
+  function(samc, x) {
+    standardGeneric(".build_init_crw")
+  })
+
+#' @noRd
+setMethod(
+  ".build_init_crw",
+  signature(samc = "samc", x = "numeric"),
+  function(samc, x) {
+    pv = numeric(samc@nodes)
+    pv[x] = 1
+
+    pv = sweep(samc@prob_mat[, terra::cells(samc@map)], 2, pv, "*")
+    dim(pv) = NULL
+    pv = pv[!is.na(pv)]
+
+    return(pv)
+  })
+
 
 
 #' Summarize CRW
