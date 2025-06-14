@@ -456,8 +456,6 @@ setMethod(
   "mortality",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
   function(samc, init) {
-    check(samc, init)
-
     res = visitation(samc, init)
     t_abs = samc@data@t_abs
 

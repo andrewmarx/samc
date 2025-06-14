@@ -202,8 +202,6 @@ setMethod(
     if (length(dest) != 1)
       stop("dest can only contain a single location for this version of the function", call. = FALSE)
 
-    check(samc, init)
-
     dest <- .process_locations(samc, dest)
 
     pv <- .process_init(samc, init)
@@ -322,8 +320,6 @@ setMethod(
   function(samc, init) {
     .disable_conv(samc)
 
-    check(samc, init)
-
     if (!samc@.cache$dgf_exists) {
       if (samc@solver == "iter") {
         dg <- samc:::.diagf_par_iter(samc@data@f, samc@threads)
@@ -356,8 +352,6 @@ setMethod(
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "location", time = "missing"),
   function(samc, init, dest) {
     .disable_conv(samc)
-
-    check(samc, init)
 
     pv <- .process_init(samc, init)
 

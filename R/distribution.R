@@ -213,8 +213,6 @@ setMethod(
   "distribution",
   signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "numeric"),
   function(samc, init, time) {
-    check(samc, init)
-
     pv <- .process_init(samc, init)
 
     .validate_time_steps(time)
