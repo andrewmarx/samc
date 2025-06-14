@@ -247,6 +247,9 @@ setMethod(
       } else if (model$name == "CRW") {
         warning("CRW support is currently experimental and may see input changes")
 
+        # TODO Fix this. The issue is `tr` in `.crw()` not properly having all edges removed
+        if (terra::global(data, fun = "anyNA")[1,1]) stop("CRW does not currently work with NA values in the map", call. = FALSE)
+
         if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
 
         if (is(model$kappa, "SpatRaster")) {
