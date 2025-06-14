@@ -91,11 +91,7 @@ setMethod(
 
     .validate_locations(samc, x[1, 1])
 
-    if (!(x[1, 2] %in% 1:8)) stop("Invalid direction. Must be a single integer from 1-8.", call. = FALSE)
-
-    x = which(apply(samc@crw_map, 1, function(crw) return(all(crw == x)))) # TODO expand to multiple location inputs?
-
-    if (length(x) != 1) stop("The combination of location and direction is not valid", call. = FALSE)
+    if (!(x[1, 2] %in% 1:samc@model$dir)) stop(paste0("Invalid direction. Must be a single integer from 1-", samc@model$dir), call. = FALSE)
 
     return(x)
   })
@@ -381,6 +377,20 @@ setMethod(
     pv[x] = 1
 
     pv = sweep(samc@prob_mat[, terra::cells(samc@map)], 2, pv, "*")
+    dim(pv) = NULL
+    pv = pv[!is.na(pv)]
+
+    return(pv)
+  })
+
+#' @noRd
+setMethod(
+  ".build_init_crw",
+  signature(samc = "samc", x = "matrix"),
+  function(samc, x) {
+    pv = samc@prob_mat * 0
+    pv[x[, 2:1, drop = FALSE]] = 1
+
     dim(pv) = NULL
     pv = pv[!is.na(pv)]
 
