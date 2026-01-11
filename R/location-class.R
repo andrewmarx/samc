@@ -13,4 +13,4 @@
 #'
 #' @export location
 
-setClassUnion("location", c("numeric", "matrix", "character"))
+setClassUnion("location", c("numeric", "matrix", "character", "data.frame"))

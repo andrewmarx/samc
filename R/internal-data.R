@@ -48,6 +48,14 @@ setMethod(
 #' @noRd
 setMethod(
   ".process_locations_rw",
+  signature(samc = "samc", x = "data.frame"),
+  function(samc, x) {
+    stop("data frame inputs are not valid for RW models", call. = FALSE)
+  })
+
+#' @noRd
+setMethod(
+  ".process_locations_rw",
   signature(samc = "samc", x = "numeric"),
   function(samc, x) {
     .validate_locations(samc, x)
@@ -95,6 +103,15 @@ setMethod(
 
     return(x)
   })
+
+#' @noRd
+setMethod(
+  ".process_locations_crw",
+  signature(samc = "samc", x = "data.frame"),
+  function(samc, x) {
+    stop("data frame inputs are not currently implemented for CRW models", call. = FALSE)
+  })
+
 
 #' @noRd
 setMethod(
