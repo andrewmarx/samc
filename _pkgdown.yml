@@ -1,6 +1,7 @@
 template:
   bootstrap: 5
   bootswatch: cosmo
+  math-rendering: katex
 
 navbar:
   bg: dark

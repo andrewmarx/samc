@@ -61,7 +61,7 @@ https://latex.codecogs.com/eqneditor/editor.php
 
 The first step is to create a $P$ matrix representing the possible states. The key is to define $HTH$ as our absorbing state. In other words, once the model reaches that state, it is complete.
 
-![](img/coinflipmatrix.svg)
+![Matrix of transition probabilities between different sets of three coin flips.](img/coinflipmatrix.svg)
 
 ```{r}
 <<setup_1>>
