@@ -68,6 +68,56 @@ setGeneric(
     standardGeneric("cond_passage")
   })
 
+#' cond_passage internal function
+#'
+#' An internal function for the core cond_passage calculations. This is a workaround
+#' to support get the component results for CRW when someone tries to enter a start
+#' location and direction. Effectively, cond_passage(origin, dest) where origin
+#' has a direction component can't call something that has already used summarize_crw()
+#'
+#' @noRd
+.cond_passage <- function(samc, dest) {
+  if (samc@clumps == -1)
+    warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
+
+  if (samc@clumps > 1)
+    stop("This function cannot be used with discontinuous data", call. = FALSE)
+
+  if (length(dest) != 1)
+    stop("dest must be a single location that refers to a cell in the landscape", call. = FALSE)
+
+  dest = .process_locations(samc, dest)
+
+  if (samc@model$name == "RW") {
+    vec = logical(samc@nodes)
+    vec[dest] = TRUE
+  } else if (samc@model$name == "CRW") {
+    vec = (samc@crw_map[,1] == dest)
+  } else {
+    stop("Unexpected model", call. = FALSE)
+  }
+
+  Q = samc$q_matrix
+
+  q = Q[, vec, drop = FALSE]
+  q = Matrix::rowSums(q)
+  q[vec] = 1
+
+  Q[vec, ] = 0
+  Q[, vec] = 0
+
+  Q@x = -Q@x
+  Matrix::diag(Q) = Matrix::diag(Q) + 1
+
+  if (samc@solver == "iter") {
+    t = .cond_t_iter(Q, q)
+  } else {
+    t = .cond_t(Q, q)
+  }
+
+  return(t)
+}
+
 # cond_passage(samc, dest) ----
 #' @rdname cond_passage
 setMethod(
@@ -76,43 +126,7 @@ setMethod(
   function(samc, dest) {
     .disable_conv(samc)
 
-    if (samc@clumps == -1)
-      warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
-
-    if (samc@clumps > 1)
-      stop("This function cannot be used with discontinuous data", call. = FALSE)
-
-    if (length(dest) != 1)
-      stop("dest must be a single location that refers to a cell in the landscape", call. = FALSE)
-
-    dest = .process_locations(samc, dest)
-
-    if (samc@model$name == "RW") {
-      vec = logical(samc@nodes)
-      vec[dest] = TRUE
-    } else if (samc@model$name == "CRW") {
-      vec = (samc@crw_map[,1] == dest)
-    } else {
-      stop("Unexpected model", call. = FALSE)
-    }
-
-    Q = samc$q_matrix
-
-    q = Q[, vec, drop = FALSE]
-    q = Matrix::rowSums(q)
-    q[vec] = 1
-
-    Q[vec, ] = 0
-    Q[, vec] = 0
-
-    Q@x = -Q@x
-    Matrix::diag(Q) = Matrix::diag(Q) + 1
-
-    if (samc@solver == "iter") {
-      t = .cond_t_iter(Q, q)
-    } else {
-      t = .cond_t(Q, q)
-    }
+    t = .cond_passage(samc, dest)
 
     if (samc@model$name == "RW") {
       res = t$fb / t$b
@@ -136,8 +150,13 @@ setMethod(
   function(samc, origin, dest) {
     .disable_conv(samc)
 
-    if(length(origin) != length(dest))
-      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+    if (is(origin, "matrix")) {
+      if(nrow(origin) != length(dest))
+        stop("The 'origin' and 'dest' parameters must have the same number of rows", call. = FALSE)
+    } else {
+      if(length(origin) != length(dest))
+        stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+    }
 
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
@@ -147,10 +166,19 @@ setMethod(
     unique_dest <- unique(dest)
 
     for (d in unique_dest) {
-      t <- cond_passage(samc, dest = d)
+      t = .cond_passage(samc, dest = d)
+
+      if (samc@model$name == "RW") {
+        res = t$fb / t$b
+      } else if (samc@model$name == "CRW") {
+        pv = samc@prob_mat
+        pv = pv[!is.na(pv)]
+
+        res = .summarize_crw(samc, (pv * t$fb), sum) / .summarize_crw(samc, pv * t$b, sum) # Works
+      }
 #      adj_origin <- origin
 #      adj_origin[origin > d] <- adj_origin[origin > d] - 1
-      result[dest == d] <- t[origin[dest == d]]
+      result[dest == d] <- res[origin[dest == d]]
     }
 
     return(result)
