@@ -150,10 +150,16 @@ setMethod(
   function(samc, origin, dest) {
     .disable_conv(samc)
 
+    directional = FALSE
+    n_origin = 0
+
     if (is(origin, "matrix")) {
+      directional = TRUE
+      n_origin = nrow(origin)
       if(nrow(origin) != length(dest))
         stop("The 'origin' and 'dest' parameters must have the same number of rows", call. = FALSE)
     } else {
+      n_origin = length(origin)
       if(length(origin) != length(dest))
         stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
     }
@@ -161,7 +167,7 @@ setMethod(
     origin <- .process_locations(samc, origin)
     dest <- .process_locations(samc, dest)
 
-    result <- vector(mode = "numeric", length = length(origin))
+    result <- vector(mode = "numeric", length = n_origin)
 
     unique_dest <- unique(dest)
 
@@ -170,15 +176,23 @@ setMethod(
 
       if (samc@model$name == "RW") {
         res = t$fb / t$b
+        res = res[origin[dest == d]]
       } else if (samc@model$name == "CRW") {
-        pv = samc@prob_mat
-        pv = pv[!is.na(pv)]
+        if (directional) {
+          init = samc:::.build_init(samc, origin[dest == d, , drop = FALSE])
 
-        res = .summarize_crw(samc, (pv * t$fb), sum) / .summarize_crw(samc, pv * t$b, sum) # Works
+          res = t$fb[as.logical(init)]/t$b[as.logical(init)] # Unweighted outputs
+        } else {
+          pv = samc@prob_mat
+          pv = pv[!is.na(pv)]
+
+          res = .summarize_crw(samc, (pv * t$fb), sum) / .summarize_crw(samc, pv * t$b, sum) # Works
+          res = res[origin[dest == d]]
+        }
       }
-#      adj_origin <- origin
-#      adj_origin[origin > d] <- adj_origin[origin > d] - 1
-      result[dest == d] <- res[origin[dest == d]]
+      # adj_origin <- origin
+      # adj_origin[origin > d] <- adj_origin[origin > d] - 1
+      result[dest == d] = res
     }
 
     return(result)

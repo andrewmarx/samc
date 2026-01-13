@@ -91,15 +91,13 @@ setMethod(
   ".process_locations_crw",
   signature(samc = "samc", x = "matrix"),
   function(samc, x) {
-    if (nrow(x) > 1) {
-      stop("Multiple locations not supported yet. Matrix should only have 1 row and 2 columns.", call. = FALSE)
-    }
-
     if (ncol(x) != 2) stop("Location should have 2 columns. The first for location and the second for direction.", call. = FALSE)
 
-    .validate_locations(samc, x[1, 1])
+    for (i in 1:nrow(x)) {
+      .validate_locations(samc, x[i, 1])
 
-    if (!(x[1, 2] %in% 1:samc@model$dir)) stop(paste0("Invalid direction. Must be a single integer from 1-", samc@model$dir), call. = FALSE)
+      if (!(x[i, 2] %in% 1:samc@model$dir)) stop(paste0("Invalid direction. Must be a single integer from 1-", samc@model$dir), call. = FALSE)
+    }
 
     return(x)
   })
