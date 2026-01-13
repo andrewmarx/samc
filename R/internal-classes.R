@@ -14,22 +14,22 @@ NULL
 #' @keywords internal
 
 setClass(
-  # set the name of the class
-  "samc_data",
+    # set the name of the class
+    "samc_data",
 
-  # define the slots
-  slots = list(f = "CsparseMatrix",
-               t_abs = "numeric",
-               c_abs = "matrix")
+    # define the slots
+    slots = list(f = "CsparseMatrix",
+        t_abs = "numeric",
+        c_abs = "matrix")
 
-  # set default values
-  #prototype = list(p = NA)
+    # set default values
+    #prototype = list(p = NA)
 
-  # create a function to validate the data
-  # validity=function(object)
-  # {
-  #   return(TRUE)
-  # }
+    # create a function to validate the data
+    # validity=function(object)
+    # {
+    #     return(TRUE)
+    # }
 )
 
 

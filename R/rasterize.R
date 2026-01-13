@@ -38,31 +38,31 @@ NULL
 #'
 #' @export
 setGeneric(
-  "rasterize",
-  function(x) {
-    standardGeneric("rasterize")
-  })
+    "rasterize",
+    function(x) {
+        standardGeneric("rasterize")
+    })
 
 #' @rdname rasterize
 setMethod(
-  "rasterize",
-  signature(x = "matrix"),
-  function(x) {
-    terra::rast(x, extent = terra::ext(0.5, ncol(x) + 0.5, 0.5, nrow(x) + 0.5), crs = "local")
-  })
+    "rasterize",
+    signature(x = "matrix"),
+    function(x) {
+        terra::rast(x, extent = terra::ext(0.5, ncol(x) + 0.5, 0.5, nrow(x) + 0.5), crs = "local")
+    })
 
 #' @rdname rasterize
 setMethod(
-  "rasterize",
-  signature(x = "RasterLayer"),
-  function(x) {
-    terra::rast(x)
-  })
+    "rasterize",
+    signature(x = "RasterLayer"),
+    function(x) {
+        terra::rast(x)
+    })
 
 #' @rdname rasterize
 setMethod(
-  "rasterize",
-  signature(x = "SpatRaster"),
-  function(x) {
-    x
-  })
+    "rasterize",
+    signature(x = "SpatRaster"),
+    function(x) {
+        x
+    })

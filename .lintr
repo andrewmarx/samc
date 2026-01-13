@@ -1,0 +1,12 @@
+linters: linters_with_defaults(
+    line_length_linter(150),
+    commented_code_linter = NULL,
+    indentation_linter = indentation_linter(
+      indent = 4,
+      hanging_indent_style = "never"
+    ),
+    assignment_linter = assignment_linter(
+      operator = c("=")
+    )
+  )
+encoding: "UTF-8"

@@ -44,40 +44,40 @@ NULL
 #' @export
 
 setGeneric(
-  "locate",
-  function(samc, xy) {
-    standardGeneric("locate")
-  })
+    "locate",
+    function(samc, xy) {
+        standardGeneric("locate")
+    })
 
 #' @rdname locate
 setMethod(
-  "locate",
-  signature(samc = "samc", xy = "missing"),
-  function(samc){
-    if (samc@source == "transition") {
-      stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
-    } else if (samc@source == "SpatRaster") {
-      return(samc@map)
-    } else if (samc@source == "RasterLayer") {
-      return(raster::raster(samc@map))
-    } else if (samc@source == "matrix") {
-      return(as.matrix(samc@map, wide = TRUE))
-    } else {
-      stop("An unexpected issue occurred. Please report a bug with a reproducible example", call. = FALSE)
-    }
-  })
+    "locate",
+    signature(samc = "samc", xy = "missing"),
+    function(samc) {
+        if (samc@source == "transition") {
+            stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
+        } else if (samc@source == "SpatRaster") {
+            return(samc@map)
+        } else if (samc@source == "RasterLayer") {
+            return(raster::raster(samc@map))
+        } else if (samc@source == "matrix") {
+            return(as.matrix(samc@map, wide = TRUE))
+        } else {
+            stop("An unexpected issue occurred. Please report a bug with a reproducible example", call. = FALSE)
+        }
+    })
 
 #' @rdname locate
 setMethod(
-  "locate",
-  signature(samc = "samc", xy = "ANY"),
-  function(samc, xy){
-    if (samc@source == "transition") stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
+    "locate",
+    signature(samc = "samc", xy = "ANY"),
+    function(samc, xy) {
+        if (samc@source == "transition") stop("This function cannot be used when the samc-object was created from a transition matrix", call. = FALSE)
 
-    result = terra::extract(samc@map, xy)
-    result = result[, ncol(result)] # TODO can it be more robust for different types of inputs (currently handles matrices and data frames for xy having different results)
+        result = terra::extract(samc@map, xy)
+        result = result[, ncol(result)] # TODO can it be more robust for different types of inputs (currently handles matrices and data frames for xy having different results)
 
-    if (anyNA(result)) stop("One or more coordinates do not correspond to non-NA cells.", call. = FALSE)
+        if (anyNA(result)) stop("One or more coordinates do not correspond to non-NA cells.", call. = FALSE)
 
-    return(result)
-  })
+        return(result)
+    })

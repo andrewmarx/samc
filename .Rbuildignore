@@ -20,3 +20,4 @@ index.md
 ^cran-comments\.md$
 ^vignettes/(?!overview.Rmd)
 ^LICENSE\.md$
+^\.lintr$

@@ -39,179 +39,179 @@ NULL
 #' @export
 
 setGeneric(
-  "check",
-  function(a, b) {
-    standardGeneric("check")
-  })
+    "check",
+    function(a, b) {
+        standardGeneric("check")
+    })
 
 
 # TODO merge
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "Raster", b = "missing"),
-  function(a){
+    "check",
+    signature(a = "Raster", b = "missing"),
+    function(a) {
 
-    n <- raster::nlayers(a)
+        n = raster::nlayers(a)
 
-    if (n == 0) {
-      stop("No raster layers found", call. = FALSE)
-    }
-
-    r1 <- a[[1]]
-
-    if (sum(is.infinite(r1[]), na.rm = TRUE) > 0) {
-      stop("Data contains Inf or -Inf element", call. = FALSE)
-    } else if (sum(is.nan(r1[]), na.rm = TRUE) > 0) {
-      stop("Data contains NaN elements", call. = FALSE)
-    }
-
-    if (n > 1) {
-      r1[] <- is.finite(r1[])
-
-      for (i in 2:n) {
-        r2 <- a[[i]]
-
-        if (sum(is.infinite(r2[]), na.rm = TRUE) > 0) {
-          stop("Data contains Inf or -Inf element", call. = FALSE)
-        } else if (sum(is.nan(r2[]), na.rm = TRUE) > 0) {
-          stop("Data contains NaN elements", call. = FALSE)
+        if (n == 0) {
+            stop("No raster layers found", call. = FALSE)
         }
 
-        r2[] <- is.finite(r2[])
+        r1 = a[[1]]
 
-        tryCatch(
-          {
-            raster::compareRaster(r1, r2, values = TRUE)
-          },
-          error = function(e) {
-            if(grepl("not all objects have the same values", e$message)) {
-              msg = "NA mismatch"
-            } else {
-              msg = e$message
+        if (sum(is.infinite(r1[]), na.rm = TRUE) > 0) {
+            stop("Data contains Inf or -Inf element", call. = FALSE)
+        } else if (sum(is.nan(r1[]), na.rm = TRUE) > 0) {
+            stop("Data contains NaN elements", call. = FALSE)
+        }
+
+        if (n > 1) {
+            r1[] = is.finite(r1[])
+
+            for (i in 2:n) {
+                r2 = a[[i]]
+
+                if (sum(is.infinite(r2[]), na.rm = TRUE) > 0) {
+                    stop("Data contains Inf or -Inf element", call. = FALSE)
+                } else if (sum(is.nan(r2[]), na.rm = TRUE) > 0) {
+                    stop("Data contains NaN elements", call. = FALSE)
+                }
+
+                r2[] = is.finite(r2[])
+
+                tryCatch(
+                    {
+                        raster::compareRaster(r1, r2, values = TRUE)
+                    },
+                    error = function(e) {
+                        if (grepl("not all objects have the same values", e$message)) {
+                            msg = "NA mismatch"
+                        } else {
+                            msg = e$message
+                        }
+                        stop(msg, " in input data", call. = FALSE)
+                    }
+                )
             }
-            stop(msg, " in input data", call. = FALSE)
-          }
-        )
-      }
-    }
+        }
 
-    return(TRUE)
-  })
+        return(TRUE)
+    })
 
 
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "SpatRaster", b = "missing"),
-  function(a){
+    "check",
+    signature(a = "SpatRaster", b = "missing"),
+    function(a) {
 
-    n <- terra::nlyr(a)
+        n = terra::nlyr(a)
 
-    if (n == 0) {
-      stop("No raster layers found", call. = FALSE)
-    }
+        if (n == 0) {
+            stop("No raster layers found", call. = FALSE)
+        }
 
-    inf_counts = numeric(n)
-    nan_counts = numeric(n)
+        inf_counts = numeric(n)
+        nan_counts = numeric(n)
 
-    for (r in 1:terra::nrow(a)) {
-      data = terra::values(a, row = r, nrows = 1)
+        for (r in seq_len(terra::nrow(a))) {
+            data = terra::values(a, row = r, nrows = 1)
 
-      if (any(is.infinite(data))) stop("Data contains Inf or -Inf", call. = FALSE)
-      if (any(is.nan(data))) stop("Data contains NaN", call. = FALSE)
+            if (any(is.infinite(data))) stop("Data contains Inf or -Inf", call. = FALSE)
+            if (any(is.nan(data))) stop("Data contains NaN", call. = FALSE)
 
-      data = rowSums(is.finite(data))
-      if (any(data > 0 & data < n)) stop("NA mismatch in input data", call. = FALSE)
-    }
-
-
-    return(TRUE)
-  })
+            data = rowSums(is.finite(data))
+            if (any(data > 0 & data < n)) stop("NA mismatch in input data", call. = FALSE)
+        }
 
 
-#' @rdname check
-setMethod(
-  "check",
-  signature(a = "matrix", b = "missing"),
-  function(a){
-    a <- rasterize(a)
-
-    check(a)
-  })
+        return(TRUE)
+    })
 
 
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "SpatRaster", b = "SpatRaster"),
-  function(a, b){
-    check(c(a, b)) # TODO make CRS warning an error?
-  })
+    "check",
+    signature(a = "matrix", b = "missing"),
+    function(a) {
+        a = rasterize(a)
+
+        check(a)
+    })
 
 
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "Raster", b = "Raster"),
-  function(a, b){
-    check(raster::stack(a, b))
-  })
+    "check",
+    signature(a = "SpatRaster", b = "SpatRaster"),
+    function(a, b) {
+        check(c(a, b)) # TODO make CRS warning an error?
+    })
 
 
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "matrix", b = "matrix"),
-  function(a, b){
-    a <- rasterize(a)
-    b <- rasterize(b)
+    "check",
+    signature(a = "Raster", b = "Raster"),
+    function(a, b) {
+        check(raster::stack(a, b))
+    })
 
-    check(a, b)
-  })
+
+#' @rdname check
+setMethod(
+    "check",
+    signature(a = "matrix", b = "matrix"),
+    function(a, b) {
+        a = rasterize(a)
+        b = rasterize(b)
+
+        check(a, b)
+    })
 
 
 # TODO: reimplement source checks to ensure inputs match original data type used to create samc object
 
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "samc", b = "Raster"),
-  function(a, b){
-    check(a@map, b)
-  })
+    "check",
+    signature(a = "samc", b = "Raster"),
+    function(a, b) {
+        check(a@map, b)
+    })
 
 
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "samc", b = "SpatRaster"),
-  function(a, b){
-    check(a@map, b)
-  })
+    "check",
+    signature(a = "samc", b = "SpatRaster"),
+    function(a, b) {
+        check(a@map, b)
+    })
 
 
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "samc", b = "matrix"),
-  function(a, b){
-    check(a@map, rasterize(b))
-  })
+    "check",
+    signature(a = "samc", b = "matrix"),
+    function(a, b) {
+        check(a@map, rasterize(b))
+    })
 
 
 #' @rdname check
 setMethod(
-  "check",
-  signature(a = "samc", b = "numeric"),
-  function(a, b){
-    if (!isTRUE(all.equal(names(b), a@names))) stop("Names of the vector must match the names of the transient states in the P matrix", call. = FALSE)
+    "check",
+    signature(a = "samc", b = "numeric"),
+    function(a, b) {
+        if (!isTRUE(all.equal(names(b), a@names))) stop("Names of the vector must match the names of the transient states in the P matrix", call. = FALSE)
 
-    if (any(!is.finite(b)) || any(b < 0) || any(is.na(b))) stop("Input must only contain positive numeric values", call. = FALSE)
+        if (any(!is.finite(b)) || any(b < 0) || any(is.na(b))) stop("Input must only contain positive numeric values", call. = FALSE)
 
-    # TODO Fix for conv.
-    # UPDATE Fixed? validate
-    if (length(b) != a@nodes) stop("Input length does not match number of transient states", call. = FALSE)
+        # TODO Fix for conv.
+        # UPDATE Fixed? validate
+        if (length(b) != a@nodes) stop("Input length does not match number of transient states", call. = FALSE)
 
-    if (sum(b) <= 0) stop("Input must contain at least one positive numeric value", call. = FALSE)
-  })
+        if (sum(b) <= 0) stop("Input must contain at least one positive numeric value", call. = FALSE)
+    })

@@ -33,38 +33,37 @@ NULL
 #' @export
 
 setGeneric(
-  "map",
-  function(samc, vec) {
-    standardGeneric("map")
-  })
-
-#' @rdname map
-setMethod(
-  "map",
-  signature(samc = "samc", vec = "numeric"),
-  function(samc, vec) {
-    # TODO make work for transition matrices
-    if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
-
-    if (length(vec) != length(terra::cells(samc@map)))
-      stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
-
-    df = data.frame(cell = terra::cells(samc@map),
-                    vec = vec)
-
-    .build_map(samc, df)
-  })
-
-#' @rdname map
-setMethod(
-  "map",
-  signature(samc = "samc", vec = "list"),
-  function(samc, vec){
-
-    lapply(vec, function(x){
-      map(samc, x)
+    "map",
+    function(samc, vec) {
+        standardGeneric("map")
     })
-  })
+
+#' @rdname map
+setMethod(
+    "map",
+    signature(samc = "samc", vec = "numeric"),
+    function(samc, vec) {
+        # TODO make work for transition matrices
+        if (samc@source == "transition") stop("This function cannot be used for samc objects created from transition matrices", call. = FALSE)
+
+        if (length(vec) != length(terra::cells(samc@map)))
+            stop("The length of the vector does not match the number of non-NA cells in the landscape data", call. = FALSE)
+
+        df = data.frame(cell = terra::cells(samc@map), vec = vec)
+
+        .build_map(samc, df)
+    })
+
+#' @rdname map
+setMethod(
+    "map",
+    signature(samc = "samc", vec = "list"),
+    function(samc, vec) {
+
+        lapply(vec, function(x) {
+            map(samc, x)
+        })
+    })
 
 
 #' Build map
@@ -75,34 +74,34 @@ setMethod(
 #' @param df df
 #' @noRd
 .build_map = function(samc, df) {
-  ras_base = as.numeric(samc@map)
+    ras_base = as.numeric(samc@map)
 
-  ras_list = lapply(sort(colnames(df)[-1]), function (x) {
-    ras = ras_base
-    ras[terra::cells(ras)] = df[x]
+    ras_list = lapply(sort(colnames(df)[-1]), function(x) {
+        ras = ras_base
+        ras[terra::cells(ras)] = df[x]
 
-    return(ras)
-  })
+        return(ras)
+    })
 
-  ras = terra::rast(ras_list)
+    ras = terra::rast(ras_list)
 
-  if (samc@source == "SpatRaster") {
-    return(ras)
-  } else if (samc@source == "RasterLayer") {
-    if (terra::nlyr(ras) > 1) {
-      return(raster::stack(ras))
+    if (samc@source == "SpatRaster") {
+        return(ras)
+    } else if (samc@source == "RasterLayer") {
+        if (terra::nlyr(ras) > 1) {
+            return(raster::stack(ras))
+        } else {
+            return(raster::raster(ras))
+        }
+    } else if (samc@source == "matrix") {
+        if (terra::nlyr(ras) > 1) {
+            return(lapply(ras, function(x) {
+                as.matrix(x, wide = TRUE)
+            }))
+        } else {
+            return(as.matrix(ras, wide = TRUE))
+        }
     } else {
-      return(raster::raster(ras))
+        stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
     }
-  } else if (samc@source == "matrix") {
-    if (terra::nlyr(ras) > 1) {
-      return(lapply(ras, function(x) {
-        as.matrix(x, wide = TRUE)
-      }))
-    } else {
-      return(as.matrix(ras, wide = TRUE))
-    }
-  } else {
-    stop("An unexpected error occurred. Please report as a bug with a reproducible example", call. = FALSE)
-  }
 }
