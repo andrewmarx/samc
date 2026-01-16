@@ -9,5 +9,4 @@ Meta
 *.pdf
 other
 benchmark
-man/*.Rd
 docs
