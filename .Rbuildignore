@@ -20,3 +20,6 @@ index.md
 ^cran-comments\.md$
 ^vignettes/(?!overview.Rmd)
 ^LICENSE\.md$
+^\.lintr$
+^pkgdown$
+^\.github$

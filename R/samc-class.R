@@ -94,32 +94,32 @@ NULL
 #' @slot .cache Cached data for performance boosts
 
 setClass(
-  # set the name of the class
-  "samc",
+    # set the name of the class
+    "samc",
 
-  # define the slots
-  slots = list(data = "samc_data",
-               conv_cache = "ANY",
-               model = "list",
-               source = "character",
-               nodes = "integer",
-               map = "SpatRaster",
-               crw_map = "mat_null",
-               prob_mat = "mat_null",
-               names = "char_null",
-               clumps = "numeric",
-               override = "logical",
-               solver = "character",
-               threads = "numeric",
-               precision = "character",
-               .cache = "environment")
+    # define the slots
+    slots = list(data = "samc_data",
+                 conv_cache = "ANY",
+                 model = "list",
+                 source = "character",
+                 nodes = "integer",
+                 map = "SpatRaster",
+                 crw_map = "mat_null",
+                 prob_mat = "mat_null",
+                 names = "char_null",
+                 clumps = "numeric",
+                 override = "logical",
+                 solver = "character",
+                 threads = "numeric",
+                 precision = "character",
+                 .cache = "environment")
 
-  # set default values
-  #prototype = list(p = NA)
+    # set default values
+    #prototype = list(p = NA)
 
-  # create a function to validate the data
-  # validity=function(object)
-  # {
-  #   return(TRUE)
-  # }
-  )
+    # create a function to validate the data
+    # validity=function(object)
+    # {
+    #   return(TRUE)
+    # }
+)

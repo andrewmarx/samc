@@ -11,7 +11,7 @@ NULL
 #'
 #' \eqn{\tilde{t}=\tilde{B}_j^{-1}\tilde{F}\tilde{B}_j{\cdot}1}
 #' \itemize{
-#'   \item \strong{cond_passage(samc, dest)}
+#'     \item \strong{cond_passage(samc, dest)}
 #'
 #' The result is a vector where each element corresponds to a cell in the landscape,
 #' and can be mapped back to the landscape using the \code{\link{map}} function.
@@ -25,7 +25,7 @@ NULL
 #' corresponding to \emph{i == j}. This corrects the final result so that vector indices
 #' work as expected, and allows the vector to be properly used in the \code{\link{map}} function.
 #'
-#'   \item \strong{cond_passage(samc, origin, dest)}
+#'     \item \strong{cond_passage(samc, origin, dest)}
 #'
 #' The result is a numeric value representing the mean number of steps before
 #' absorption starting from a given origin conditional on absorption into \emph{j}.
@@ -63,37 +63,38 @@ NULL
 #' @export
 
 setGeneric(
-  "cond_passage",
-  function(samc, init, origin, dest) {
-    standardGeneric("cond_passage")
-  })
+    "cond_passage",
+    function(samc, init, origin, dest) {
+        standardGeneric("cond_passage")
+    })
 
-# cond_passage(samc, dest) ----
-#' @rdname cond_passage
-setMethod(
-  "cond_passage",
-  signature(samc = "samc", init = "missing", origin = "missing", dest = "location"),
-  function(samc, dest) {
-    .disable_conv(samc)
-
+#' cond_passage internal function
+#'
+#' An internal function for the core cond_passage calculations. This is a workaround
+#' to support get the component results for CRW when someone tries to enter a start
+#' location and direction. Effectively, cond_passage(origin, dest) where origin
+#' has a direction component can't call something that has already used summarize_crw()
+#'
+#' @noRd
+.cond_passage = function(samc, dest) {
     if (samc@clumps == -1)
-      warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
+        warning("Unknown number of clumps in data. If the function crashes, it may be due to the transition matrix being discontinuous.", call. = FALSE)
 
     if (samc@clumps > 1)
-      stop("This function cannot be used with discontinuous data", call. = FALSE)
+        stop("This function cannot be used with discontinuous data", call. = FALSE)
 
     if (length(dest) != 1)
-      stop("dest must be a single location that refers to a cell in the landscape", call. = FALSE)
+        stop("dest must be a single location that refers to a cell in the landscape", call. = FALSE)
 
     dest = .process_locations(samc, dest)
 
     if (samc@model$name == "RW") {
-      vec = logical(samc@nodes)
-      vec[dest] = TRUE
+        vec = logical(samc@nodes)
+        vec[dest] = TRUE
     } else if (samc@model$name == "CRW") {
-      vec = (samc@crw_map[,1] == dest)
+        vec = (samc@crw_map[, 1] == dest)
     } else {
-      stop("Unexpected model", call. = FALSE)
+        stop("Unexpected model", call. = FALSE)
     }
 
     Q = samc$q_matrix
@@ -109,77 +110,119 @@ setMethod(
     Matrix::diag(Q) = Matrix::diag(Q) + 1
 
     if (samc@solver == "iter") {
-      t = .cond_t_iter(Q, q)
+        t = .cond_t_iter(Q, q)
     } else {
-      t = .cond_t(Q, q)
+        t = .cond_t(Q, q)
     }
 
-    if (samc@model$name == "RW") {
-      res = t$fb / t$b
-    } else if (samc@model$name == "CRW") {
-      pv = samc@prob_mat
-      pv = pv[!is.na(pv)]
+    return(t)
+}
 
-      res = .summarize_crw(samc, (pv * t$fb), sum) / .summarize_crw(samc, pv * t$b, sum) # Works
-    }
+# cond_passage(samc, dest) ----
+#' @rdname cond_passage
+setMethod(
+    "cond_passage",
+    signature(samc = "samc", init = "missing", origin = "missing", dest = "location"),
+    function(samc, dest) {
+        .disable_conv(samc)
 
-    names(res) = samc$names
+        t = .cond_passage(samc, dest)
 
-    return(res)
-  })
+        if (samc@model$name == "RW") {
+            res = t$fb / t$b
+        } else if (samc@model$name == "CRW") {
+            pv = samc@prob_mat
+            pv = pv[!is.na(pv)]
+
+            res = .summarize_crw(samc, (pv * t$fb), sum) / .summarize_crw(samc, pv * t$b, sum) # Works
+        }
+
+        names(res) = samc$names
+
+        return(res)
+    })
 
 # cond_passage(samc, origin, dest) ----
 #' @rdname cond_passage
 setMethod(
-  "cond_passage",
-  signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
-  function(samc, origin, dest) {
-    .disable_conv(samc)
+    "cond_passage",
+    signature(samc = "samc", init = "missing", origin = "location", dest = "location"),
+    function(samc, origin, dest) {
+        .disable_conv(samc)
 
-    if(length(origin) != length(dest))
-      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+        directional = FALSE
+        n_origin = 0
 
-    origin <- .process_locations(samc, origin)
-    dest <- .process_locations(samc, dest)
+        if (is(origin, "matrix")) {
+            directional = TRUE
+            n_origin = nrow(origin)
+            if (nrow(origin) != length(dest))
+                stop("The 'origin' and 'dest' parameters must have the same number of rows", call. = FALSE)
+        } else {
+            n_origin = length(origin)
+            if (length(origin) != length(dest))
+                stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+        }
 
-    result <- vector(mode = "numeric", length = length(origin))
+        origin = .process_locations(samc, origin)
+        dest = .process_locations(samc, dest)
 
-    unique_dest <- unique(dest)
+        result = vector(mode = "numeric", length = n_origin)
 
-    for (d in unique_dest) {
-      t <- cond_passage(samc, dest = d)
-#      adj_origin <- origin
-#      adj_origin[origin > d] <- adj_origin[origin > d] - 1
-      result[dest == d] <- t[origin[dest == d]]
-    }
+        unique_dest = unique(dest)
 
-    return(result)
-  })
+        for (d in unique_dest) {
+            t = .cond_passage(samc, dest = d)
+
+            if (samc@model$name == "RW") {
+                res = t$fb / t$b
+                res = res[origin[dest == d]]
+            } else if (samc@model$name == "CRW") {
+                if (directional) {
+                    init = samc:::.build_init(samc, origin[dest == d, , drop = FALSE])
+
+                    res = t$fb[as.logical(init)] / t$b[as.logical(init)] # Unweighted outputs
+                } else {
+                    pv = samc@prob_mat
+                    pv = pv[!is.na(pv)]
+
+                    res = .summarize_crw(samc, (pv * t$fb), sum) / .summarize_crw(samc, pv * t$b, sum) # Works
+                    res = res[origin[dest == d]]
+                }
+            }
+            # adj_origin = origin
+            # adj_origin[origin > d] = adj_origin[origin > d] - 1
+            result[dest == d] = res
+        }
+
+        return(result)
+    })
 
 # cond_passage(samc, init, dest) ----
 #' @rdname cond_passage
 setMethod(
-  "cond_passage",
-  signature(samc = "samc", init = "ANY", origin = "missing", dest = "location"),
-  function(samc, init, dest) {
-    .disable_conv(samc)
+    "cond_passage",
+    signature(samc = "samc", init = "ANY", origin = "missing", dest = "location"),
+    function(samc, init, dest) {
+        stop("Not implemented", call. = FALSE) # TODO finish
+        .disable_conv(samc)
 
-    if(length(origin) != length(dest))
-      stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
+        if (length(origin) != length(dest))
+            stop("The 'origin' and 'dest' parameters must have the same number of values", call. = FALSE)
 
-    origin <- .process_locations(samc, origin)
-    dest <- .process_locations(samc, dest)
+        origin = .process_locations(samc, origin)
+        dest = .process_locations(samc, dest)
 
-    result <- vector(mode = "numeric", length = length(origin))
+        result = vector(mode = "numeric", length = length(origin))
 
-    unique_dest <- unique(dest)
+        unique_dest = unique(dest)
 
-    for (d in unique_dest) {
-      t <- cond_passage(samc, dest = d)
-      #      adj_origin <- origin
-      #      adj_origin[origin > d] <- adj_origin[origin > d] - 1
-      result[dest == d] <- t[origin[dest == d]]
-    }
+        for (d in unique_dest) {
+            t = cond_passage(samc, dest = d)
+            #            adj_origin = origin
+            #            adj_origin[origin > d] = adj_origin[origin > d] - 1
+            result[dest == d] = t[origin[dest == d]]
+        }
 
-    return(result)
-  })
+        return(result)
+    })

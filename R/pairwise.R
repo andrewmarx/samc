@@ -41,37 +41,37 @@ NULL
 #' @export
 
 setGeneric(
-  "pairwise",
-  function(fun, samc, origin, dest) {
-    standardGeneric("pairwise")
-  })
+    "pairwise",
+    function(fun, samc, origin, dest) {
+        standardGeneric("pairwise")
+    })
 
 #' @rdname pairwise
 setMethod(
-  "pairwise",
-  signature(fun = "function", samc = "samc", origin = "location", dest = "location"),
-  function(fun, samc, origin, dest) {
-    # Create all possible pairs
-    df <- expand.grid(origin = origin, dest = dest,
-                      KEEP.OUT.ATTRS = FALSE,
-                      stringsAsFactors = FALSE)
+    "pairwise",
+    signature(fun = "function", samc = "samc", origin = "location", dest = "location"),
+    function(fun, samc, origin, dest) {
+        # Create all possible pairs
+        df = expand.grid(origin = origin, dest = dest,
+                         KEEP.OUT.ATTRS = FALSE,
+                         stringsAsFactors = FALSE)
 
-    # Remove duplicates
-    df <- unique(df)
+        # Remove duplicates
+        df = unique(df)
 
-    # Reset rownames
-    rownames(df) <- NULL
+        # Reset rownames
+        rownames(df) = NULL
 
-    # Get results
-    df$result <- fun(samc, origin = df$origin, dest = df$dest)
+        # Get results
+        df$result = fun(samc, origin = df$origin, dest = df$dest)
 
-    return(df)
-  })
+        return(df)
+    })
 
 #' @rdname pairwise
 setMethod(
-  "pairwise",
-  signature(fun = "function", samc = "samc", origin = "location", dest = "missing"),
-  function(fun, samc, origin) {
-    return(pairwise(fun, samc, origin, origin))
-  })
+    "pairwise",
+    signature(fun = "function", samc = "samc", origin = "location", dest = "missing"),
+    function(fun, samc, origin) {
+        return(pairwise(fun, samc, origin, origin))
+    })
