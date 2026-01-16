@@ -26,7 +26,7 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE))) {
 
 # Background
 
-This document describes the relationship between the SAMC framework and circuit theory, as presented in an article published in *Methods in Ecology and Evolution* (2022; DOI: [10.1111/2041-210X.13975](https://doi.org/10.1111/2041-210X.13975)) and at a workshop during the 2021 International Association for Landscape Ecology - North American annual meeting: [IALE-NA 2021 Workshops](https://www.ialena.org/workshops-2021.html).
+This document describes the relationship between circuit theory and the SAMC framework, and how commonly used circuit-theory metrics arise as special cases within a broader random-walk formulation.
 
 Circuit theory (McRae et al. 2008) is a widely used tool in ecology and conservation for modeling landscape connectivity. It can be used to calculate several different metrics, including:
 
@@ -34,7 +34,7 @@ Circuit theory (McRae et al. 2008) is a widely used tool in ecology and conserva
 - Net flow from one node to another
 - Probability of reaching nodes
 
-Both SAMC and circuit theory use Markov chain theory to model movement based on variation in the landscape coded as resistance values. However, SAMC extends these capabilities by utilizing absorbing Markov chains, which allow it to model a variety of short- and long-term metrics. SAMC also allows for the explicit incorporation of multiple absorption states into the model. These states can represent any effect that might permanently stop movement in the landscape, such as:
+Both circuit theory and SAMC use Markov chain theory to model movement through landscapes encoded as resistance surfaces. However, SAMC extends this formulation by using absorbing Markov chains, which allow absorption to occur anywhere in the landscape rather than only at destination nodes. This makes it possible to model a wider range of short- and long-term metrics, as well as multiple absorption processes that may permanently stop movement, such as:
 
 - Natural death
 - Predation probability
@@ -42,7 +42,9 @@ Both SAMC and circuit theory use Markov chain theory to model movement based on 
 - Human removal
 - Non-mortality causes (e.g., permanent settlement)
 
-Throughout this document, circuit theory should be understood as a special case of a broader random-walk framework. The goal here is not to replace circuit theory, but to clarify how its core ideas fit within the more general SAMC formulation.
+Throughout this document, circuit theory should be understood as a special case of a more general random-walk framework. The goal here is not to replace circuit theory, but to clarify how its core ideas fit within the broader SAMC formulation.
+
+The material presented here is based on work published in *Methods in Ecology and Evolution* (2022; DOI: [10.1111/2041-210X.13975](https://doi.org/10.1111/2041-210X.13975)) and on a workshop presented at the 2021 International Association for Landscape Ecology – North American annual meeting ([IALE-NA 2021 Workshops](https://www.ialena.org/workshops-2021.html)).
 
 
 # Code Setup
