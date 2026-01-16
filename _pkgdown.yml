@@ -1,4 +1,4 @@
-url: ~
+url: https://andrewmarx.github.io/samc/
 template:
   bootstrap: 5
   bootswatch: cosmo
@@ -65,8 +65,8 @@ navbar:
 reference:
   - title: "Classes"
     contents:
-      - samc-class
-      - location-class
+      - "samc-class"
+      - "location-class"
   - title: "Utility Functions"
     contents:
       - check
