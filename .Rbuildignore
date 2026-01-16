@@ -21,3 +21,5 @@ index.md
 ^vignettes/(?!overview.Rmd)
 ^LICENSE\.md$
 ^\.lintr$
+^pkgdown$
+^\.github$
