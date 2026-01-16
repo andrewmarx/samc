@@ -1,0 +1,106 @@
+# Map vector data
+
+Map vector data to a RasterLayer
+
+## Usage
+
+``` r
+map(samc, vec)
+
+# S4 method for class 'samc,numeric'
+map(samc, vec)
+
+# S4 method for class 'samc,list'
+map(samc, vec)
+```
+
+## Arguments
+
+- samc:
+
+  Spatial absorbing Markov chain object. This should be output from the
+  samc() function.
+
+- vec:
+
+  Vector data to fill into the map.
+
+## Value
+
+A matrix, RasterLayer, or SpatRaster object. The returned type will
+match the type used to create the samc object.
+
+## Details
+
+This is a convenience function to ensure that vector data is properly
+mapped back to the original landscape data. The reason this is needed is
+that the package supports matrices, RasterLayers, and SpatRasters, which
+can differ in the order that data is read and written (R matrices are
+column-major order, whereas the raster package uses row-major order).
+Internally, the package uses only a single order, regardless of the
+original data. This can cause issues with mapping vector results if care
+is not taken, and this function is provided to simplify the process. It
+also correctly maps results for landscape data that has NA cells, which
+are another potential source of error if not careful.
+
+The only requirement of the `vec` input is that the number of elements
+in it matches the number of non-NA cells in the landscape data that was
+used to create the samc object.
+
+## Examples
+
+``` r
+# "Load" the data. In this case we are using data built into the package.
+# In practice, users will likely load raster data using the raster() function
+# from the raster package.
+res_data <- samc::example_split_corridor$res
+abs_data <- samc::example_split_corridor$abs
+init_data <- samc::example_split_corridor$init
+
+
+# Make sure our data meets the basic input requirements of the package using
+# the check() function.
+check(res_data, abs_data)
+#> [1] TRUE
+check(res_data, init_data)
+#> [1] TRUE
+
+# Setup the details for a random-walk model
+rw_model <- list(fun = function(x) 1/mean(x), # Function for calculating transition probabilities
+                 dir = 8, # Directions of the transitions. Either 4 or 8.
+                 sym = TRUE) # Is the function symmetric?
+
+
+# Create a `samc-class` object with the resistance and absorption data using
+# the samc() function. We use the recipricol of the arithmetic mean for
+# calculating the transition matrix. Note, the input data here are matrices,
+# not RasterLayers.
+samc_obj <- samc(res_data, abs_data, model = rw_model)
+
+
+# Convert the initial state data to probabilities
+init_prob_data <- init_data / sum(init_data, na.rm = TRUE)
+
+
+# Calculate short- and long-term metrics using the analytical functions
+short_mort <- mortality(samc_obj, init_prob_data, time = 50)
+short_dist <- distribution(samc_obj, origin = 3, time = 50)
+long_disp <- dispersal(samc_obj, init_prob_data)
+#> 
+#> Cached diagonal not found.
+#> Performing setup. This can take several minutes... Complete.
+#> Calculating matrix inverse diagonal...
+#> Computing: 100% (done)                         
+#> Complete                                                      
+#> Diagonal has been cached. Continuing with metric calculation...
+visit <- visitation(samc_obj, dest = 4)
+surv <- survival(samc_obj)
+
+
+# Use the map() function to turn vector results into RasterLayer objects.
+short_mort_map <- map(samc_obj, short_mort)
+short_dist_map <- map(samc_obj, short_dist)
+long_disp_map <- map(samc_obj, long_disp)
+visit_map <- map(samc_obj, visit)
+surv_map <- map(samc_obj, surv)
+```
