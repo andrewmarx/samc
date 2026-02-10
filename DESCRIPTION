@@ -42,8 +42,7 @@ Imports:
     methods,
     Matrix (>= 1.5-3),
     raster,
-    terra (>= 1.7-3),
-    circular
+    terra (>= 1.7-3)
 RoxygenNote: 7.3.3
 Suggests: knitr,
     rmarkdown,

@@ -164,8 +164,6 @@
 
     edge_counts = sum(is.finite(tr))
 
-    mu = circular::circular(0)
-
     # Angle matrix
     # TODO make sure works for 4 directions
     dir_vec = matrix(c(-1, 1,
@@ -185,7 +183,7 @@
             mag_v1 = sqrt(sum(dir_vec[r, ]^2))
             mag_v2 = sqrt(sum(dir_vec[c, ]^2))
 
-            ang_mat[r, c] = circular::circular(acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2)))
+            ang_mat[r, c] = acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))
         }
     }
 
@@ -289,9 +287,8 @@
                                     e2_num = edge_nums[e2]
                                     mat_p_count[e2_num] = mat_p_count[e2_num] + 1
 
-                                    res = tr[e2] * circular::dvonmises(
-                                        circular::circular(ang_mat[d, dv]),
-                                        mu = circular::circular(mu),
+                                    res = tr[e2] * .dvonmises_rad_fast(
+                                        ang_mat[d, dv],
                                         kappa = kappa_vals[c])
                                     rs = rs + res
 
@@ -606,5 +603,25 @@
         return(.build_convolution_cache_double(kernel, res, fid, abso, sym, threads))
     } else {
         stop("Invalid data type. Must be either 'single' or 'double'", call. = FALSE)
+    }
+}
+
+
+#' von Mises
+#'
+#' TODO description here
+#'
+#' @param x todo
+#' @param mu todo
+#' @param kappa todo
+#' @noRd
+
+.dvonmises_rad_fast <- function(x, mu = 0, kappa = 1) {
+    if (kappa == 0) {
+        rep(1 / (2 * pi), length(x))
+    } else if (kappa < 100000) {
+        1/(2 * pi * besselI(x = kappa, nu = 0, expon.scaled = TRUE)) * (exp(cos(x - mu) - 1)) ^ kappa
+    } else {
+        ifelse(((x - mu) %% (2 * pi)) == 0, Inf, 0)
     }
 }
