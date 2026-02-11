@@ -51,21 +51,33 @@ setMethod(
     "pairwise",
     signature(fun = "function", samc = "samc", origin = "location", dest = "location"),
     function(fun, samc, origin, dest) {
-        # Create all possible pairs
-        df = expand.grid(origin = origin, dest = dest,
-                         KEEP.OUT.ATTRS = FALSE,
-                         stringsAsFactors = FALSE)
+        origin_is_matrix = is.matrix(origin)
+        if (origin_is_matrix) {
+            origin_df = as.data.frame(origin, stringsAsFactors = FALSE)
+            if (ncol(origin_df) != 2) {
+                stop("pairwise(): matrix origin must have exactly 2 columns.", call. = FALSE)
+            }
+            names(origin_df) = c("origin", "direction")
+        } else if (is.atomic(origin) & is.vector(origin)) {
+            origin_df = data.frame(origin = origin, stringsAsFactors = FALSE)
+        } else {
+            stop("pairwise(): only a vector or 2 column matrix supported for origin.", call. = FALSE)
+        }
 
-        # Remove duplicates
+        dest_df = data.frame(dest = dest, stringsAsFactors = FALSE)
+
+        df = merge(origin_df, dest_df, by = NULL) # Cartesian product: origin rows x dest values
         df = unique(df)
-
-        # Reset rownames
         rownames(df) = NULL
 
-        # Get results
-        df$result = fun(samc, origin = df$origin, dest = df$dest)
+        origin_arg = if (origin_is_matrix) {
+            as.matrix(df[, c("origin", "direction"), drop = FALSE])
+        } else {
+            df$origin
+        }
 
-        return(df)
+        df$result = fun(samc, origin = origin_arg, dest = df$dest)
+        df
     })
 
 #' @rdname pairwise
@@ -73,5 +85,9 @@ setMethod(
     "pairwise",
     signature(fun = "function", samc = "samc", origin = "location", dest = "missing"),
     function(fun, samc, origin) {
+        if (is.matrix(origin) | !is.atomic(origin)) {
+            stop("pairwise(): when dest is excluded, origin must be a vector", call. = FALSE)
+        }
+
         return(pairwise(fun, samc, origin, origin))
     })
