@@ -176,14 +176,17 @@
                         1, -1),
         nrow = 8, byrow = TRUE)
 
-    ang_mat = matrix(nrow = 8, ncol = 8)
+    # ang_mat was original general version. cos_mat is for von mises, which has a cos() that cancels the acos()
+    # ang_mat = matrix(nrow = 8, ncol = 8)
+    cos_mat = matrix(nrow = 8, ncol = 8)
 
     for (r in 1:8) {
         for (c in 1:8) {
             mag_v1 = sqrt(sum(dir_vec[r, ]^2))
             mag_v2 = sqrt(sum(dir_vec[c, ]^2))
 
-            ang_mat[r, c] = acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))
+            # ang_mat[r, c] = acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))
+            cos_mat[r, c] = sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2)
         }
     }
 
@@ -287,9 +290,7 @@
                                     e2_num = edge_nums[e2]
                                     mat_p_count[e2_num] = mat_p_count[e2_num] + 1
 
-                                    res = tr[e2] * .dvonmises_rad_fast(
-                                        ang_mat[d, dv],
-                                        kappa = kappa_vals[c])
+                                    res = tr[e2] * .dvonmises_rad_fast(cos_mat[d, dv], kappa = kappa_vals[c])
                                     rs = rs + res
 
                                     row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]
@@ -612,16 +613,18 @@
 #' TODO description here
 #'
 #' @param x todo
-#' @param mu todo
 #' @param kappa todo
 #' @noRd
 
-.dvonmises_rad_fast <- function(x, mu = 0, kappa = 1) {
+.dvonmises_rad_fast <- function(x, kappa = 1) {
+    # commented lines are original version before cos/acos cancellation
     if (kappa == 0) {
-        rep(1 / (2 * pi), length(x))
+        1 / (2 * pi)
     } else if (kappa < 100000) {
-        1/(2 * pi * besselI(x = kappa, nu = 0, expon.scaled = TRUE)) * (exp(cos(x - mu) - 1)) ^ kappa
+        # 1/(2 * pi * besselI(x = kappa, nu = 0, expon.scaled = TRUE)) * (exp(cos(x) - 1)) ^ kappa
+        1/(2 * pi * besselI(x = kappa, nu = 0, expon.scaled = TRUE)) * (exp(x - 1)) ^ kappa
     } else {
-        ifelse(((x - mu) %% (2 * pi)) == 0, Inf, 0)
+        # ifelse(((x) %% (2 * pi)) == 0, Inf, 0)
+        ifelse(x == 1, Inf, 0)
     }
 }
