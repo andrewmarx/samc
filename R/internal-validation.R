@@ -118,17 +118,32 @@
 
 
     if (x$dist == "vonMises") {
-        if (!is(x$kappa, "numeric"))
-            stop("kappa must be single non-negative numeric value.", call. = FALSE)
+        if (is(x$kappa, "SpatRaster")) {
+            if (!terra::is.num(x$kappa)) {
+                stop("raster kappa must be numeric.")
+            }
 
-        if (length(x$kappa) != 1)
-            stop("kappa must be single non-negative numeric value.", call. = FALSE)
+            k_minmax = terra::minmax(x$kappa)
+            if (k_minmax["min", 1] < 0) {
+                stop("raster kappa cannot have negative values.", call. = FALSE)
+            }
 
-        if (!is.finite(x$kappa))
-            stop("kappa must be single non-negative numeric value.", call. = FALSE)
+            if (k_minmax["max", 1] == Inf) {
+                stop("raster kappa cannot have Inf values.", call. = FALSE)
+            }
 
-        if (x$kappa < 0)
-            stop("kappa must be single non-negative numeric value.", call. = FALSE)
+        } else if (is.numeric(x$kappa)) {
+            if (length(x$kappa) != 1)
+                stop("scalar kappa must be single non-negative numeric value.", call. = FALSE)
+
+            if (!is.finite(x$kappa))
+                stop("scalar kappa must be single non-negative numeric value.", call. = FALSE)
+
+            if (x$kappa < 0)
+                stop("scalar kappa must be single non-negative numeric value.", call. = FALSE)
+        } else {
+            stop("kappa must be a non-negative scalar or raster map")
+        }
     } else {
         stop(paste("Invalid distribution name:", x$dist), call. = FALSE)
     }
