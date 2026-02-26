@@ -247,10 +247,13 @@ setMethod(
 
                 if (terra::is.lonlat(data)) warning("CRW does not properly adjust turning angles for lonlat yet.")
 
-                if (is(model$kappa, "SpatRaster")) {
-                    check(c(data, model$kappa))
-                } else if (is.numeric(model$kappa)) {
-                    model$kappa = data * 0 + model$kappa
+                k = model$kappa
+                # All other checks in internal validation
+                if (is(k, "SpatRaster")) {
+                    check(c(data, k))
+                    model$kappa_mode = "raster"
+                } else if (is.numeric(k)) {
+                    model$kappa_mode = "scalar"
                 } else {
                     stop("Invalid kappa")
                 }

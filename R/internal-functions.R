@@ -152,6 +152,8 @@
 .crw = function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
     tr = .tr_vals(x, fun, dir)
 
+    kappa_mode = model$kappa_mode
+
     edge_counts = sum(is.finite(tr))
     edge_nums = tr
     edge_nums[is.finite(edge_nums)] = 1:edge_counts
@@ -254,11 +256,24 @@
     crw_index = 0
     index = 0
 
+    kappa_vals = terra::values(x, mat = FALSE, row = 1, nrows = 1) * 0
+    inv_norm_vals = kappa_vals
+
+    if (kappa_mode == "scalar") {
+        kappa_vals = kappa_vals + model$kappa
+        inv_norm_vals = inv_norm_vals + (1 / (2 * pi * besselI(model$kappa, nu = 0, expon.scaled = TRUE)))
+    }
+
     # Loop through cells with values
     for (r in 1:nrows) {
         fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
         vals = 1 - fid - terra::values(absorption, mat = FALSE, row = r, nrows = 1)
-        kappa_vals = terra::values(model$kappa, mat = FALSE, row = r, nrows = 1)
+
+        if (kappa_mode == "raster"){
+            kappa_vals = terra::values(model$kappa, mat = FALSE, row = r, nrows = 1)
+            inv_norm_vals = 1/(2 * pi * besselI(x = kappa_vals, nu = 0, expon.scaled = TRUE))
+        }
+
         for (c in 1:ncols) {
             cell = cell + 1
             if (is.finite(vals[c])) {
@@ -290,7 +305,16 @@
                                     e2_num = edge_nums[e2]
                                     mat_p_count[e2_num] = mat_p_count[e2_num] + 1
 
-                                    res = tr[e2] * .dvonmises_rad_fast(cos_mat[d, dv], kappa = kappa_vals[c])
+                                    temp = if (kappa_vals[c] == 0) {
+                                        1 / (2 * pi)
+                                    } else if (kappa_vals[c] < 100000) {
+                                        inv_norm_vals[c] * (exp(kappa_vals[c] * (cos_mat[d, dv] - 1)))
+                                    } else {
+                                        ifelse(x == 1, Inf, 0)
+                                    }
+
+                                    res = tr[e2] * temp
+
                                     rs = rs + res
 
                                     row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]
@@ -604,27 +628,5 @@
         return(.build_convolution_cache_double(kernel, res, fid, abso, sym, threads))
     } else {
         stop("Invalid data type. Must be either 'single' or 'double'", call. = FALSE)
-    }
-}
-
-
-#' von Mises
-#'
-#' TODO description here
-#'
-#' @param x todo
-#' @param kappa todo
-#' @noRd
-
-.dvonmises_rad_fast <- function(x, kappa = 1) {
-    # commented lines are original version before cos/acos cancellation
-    if (kappa == 0) {
-        1 / (2 * pi)
-    } else if (kappa < 100000) {
-        # 1/(2 * pi * besselI(x = kappa, nu = 0, expon.scaled = TRUE)) * (exp(cos(x) - 1)) ^ kappa
-        1/(2 * pi * besselI(x = kappa, nu = 0, expon.scaled = TRUE)) * (exp(x - 1)) ^ kappa
-    } else {
-        # ifelse(((x) %% (2 * pi)) == 0, Inf, 0)
-        ifelse(x == 1, Inf, 0)
     }
 }
