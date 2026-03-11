@@ -1,8 +1,15 @@
+# samc 4.2.0
+
+CRW optimizations and enhancements
+
 # samc 4.1.0
+
+CRW reimplementation
 
 # samc 4.0.0
 
 ## Breaking changes
+
 - `visitation_net(samc, origin, dest)` has two changes to its behavior:
   - It now behaves consistently with other metrics and returns a single value representing the result at the destination node. Previously, it behaved like the `passage()` function from gdistance and returned a vector using the origin and destination node information to perform a correction to the flow values.
   - Previously, the function used the same mathematical implementation as `passage()` from gdistance. In retrospect, the final part of this implementation only works properly in the specific case of a single start point and a single end point, which is correct for the input requirements of `passage()`, but is not quite correct for when there are multiple nodes with absorption. The new version properly accounts for general cases involving multiple absorbing locations and varying intensities of absorption. This does change the results from older versions. The difference between the two versions is equivalent to one half the results from `mortality()`. In practice, landscapes with widespread absorption will see a negligible difference; in current large-scale examples, the effect is several magnitudes of order less than the net flow value. The difference may be more prominent when dealing with a very small number of absorbing nodes.
