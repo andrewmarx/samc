@@ -1,4 +1,4 @@
-# samc 4.2.0
+# samc 4.2.1
 
 CRW optimizations and enhancements
 
