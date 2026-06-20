@@ -1,5 +1,3 @@
-context("Survival")
-
 for(test in testlist) {
   # Create the samc object
   samc_obj <- test$samc
@@ -15,9 +13,7 @@ for(test in testlist) {
   F_mat <- solve(I - Q)
 
   # Prepare the occupancy data
-  occ_ras <- raster::raster(test$init)
-  pv <- as.vector(occ_ras)
-  pv <- pv[is.finite(pv)]
+  pv <- as_pv(test$init)
 
 
   # Run the tests

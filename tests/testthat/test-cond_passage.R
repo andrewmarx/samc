@@ -1,5 +1,3 @@
-context("Conditional Passage Time")
-
 br_function <- function(samc, col) {
   # Calculate the results based on De Sanctis and de Koning 2018
   Q <- samc$q_matrix

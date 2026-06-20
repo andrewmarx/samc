@@ -1,6 +1,3 @@
-context("Mortality")
-
-
 for(test in testlist) {
   # Create the samc object
   samc_obj <- test$samc
@@ -29,9 +26,7 @@ for(test in testlist) {
   F_mat <- solve(I - Q)
 
   # Prepare the occupancy data
-  occ_ras <- raster::raster(test$init)
-  pv <- as.vector(occ_ras)
-  pv <- pv[is.finite(pv)]
+  pv <- as_pv(test$init)
 
 
   # Run the tests
@@ -40,16 +35,7 @@ for(test in testlist) {
     result <- mortality(samc_obj, time = time)
     samc_obj$override <- FALSE
 
-    base_result <- diag(nrow(Q))
-
-    Qt <- diag(nrow(Q))
-
-    for (i in 1:(time - 1)) {
-      Qt <- Qt %*% Q
-      base_result <- base_result + Qt
-    }
-
-    base_result <- base_result %*% R
+    base_result <- sum_powers(Q, time) %*% R
 
     # Verify
     expect_equal(dim(result), dim(base_result))
@@ -61,16 +47,7 @@ for(test in testlist) {
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), time = time)
     expect_equal(result, result_char)
 
-    base_result <- diag(nrow(Q))
-
-    Qt <- diag(nrow(Q))
-
-    for (i in 1:(time - 1)) {
-      Qt <- Qt %*% Q
-      base_result <- base_result + Qt
-    }
-
-    base_result <- base_result %*% R
+    base_result <- sum_powers(Q, time) %*% R
 
     # Verify
     expect_equal(as.vector(result), as.vector(base_result[row_vec[1], ]))
@@ -82,16 +59,7 @@ for(test in testlist) {
     expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      base_result <- diag(nrow(Q))
-
-      Qt <- diag(nrow(Q))
-
-      for (j in 1:(time_vec[i] - 1)) {
-        Qt <- Qt %*% Q
-        base_result <- base_result + Qt
-      }
-
-      base_result <- base_result %*% R
+      base_result <- sum_powers(Q, time_vec[i]) %*% R
 
       # Verify
       expect_equal(result[[i]], as.vector(base_result[row_vec[1], ]))
@@ -103,16 +71,7 @@ for(test in testlist) {
     result_char <- mortality(samc_obj, dest = as.character(col_vec[1]), time = time)
     expect_equal(result, result_char)
 
-    base_result <- diag(nrow(Q))
-
-    Qt <- diag(nrow(Q))
-
-    for (i in 1:(time - 1)) {
-      Qt <- Qt %*% Q
-      base_result <- base_result + Qt
-    }
-
-    base_result <- base_result %*% R
+    base_result <- sum_powers(Q, time) %*% R
 
     # Verify
     expect_equal(as.vector(result), as.vector(base_result[, col_vec[1]]))
@@ -124,16 +83,7 @@ for(test in testlist) {
     expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      base_result <- diag(nrow(Q))
-
-      Qt <- diag(nrow(Q))
-
-      for (j in 1:(time_vec[i] - 1)) {
-        Qt <- Qt %*% Q
-        base_result <- base_result + Qt
-      }
-
-      base_result <- base_result %*% R
+      base_result <- sum_powers(Q, time_vec[i]) %*% R
 
       # Verify
       expect_equal(result[[i]], as.vector(base_result[, col_vec[1]]))
@@ -145,16 +95,7 @@ for(test in testlist) {
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), dest = as.character(col_vec[1]), time = time)
     expect_equal(result, result_char)
 
-    base_result <- diag(nrow(Q))
-
-    Qt <- diag(nrow(Q))
-
-    for (i in 1:(time - 1)) {
-      Qt <- Qt %*% Q
-      base_result <- base_result + Qt
-    }
-
-    base_result <- base_result %*% R
+    base_result <- sum_powers(Q, time) %*% R
 
     # Verify
     expect_equal(as.vector(result), as.vector(base_result[row_vec[1], col_vec[1]]))
@@ -166,16 +107,7 @@ for(test in testlist) {
     expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      base_result <- diag(nrow(Q))
-
-      Qt <- diag(nrow(Q))
-
-      for (j in 1:(time_vec[i] - 1)) {
-        Qt <- Qt %*% Q
-        base_result <- base_result + Qt
-      }
-
-      base_result <- base_result %*% R
+      base_result <- sum_powers(Q, time_vec[i]) %*% R
 
       # Verify
       expect_equal(result[[i]], as.vector(base_result[row_vec[1], col_vec[1]]))
@@ -185,16 +117,7 @@ for(test in testlist) {
   test_that("Testing mortality(samc, init, time)", {
     result <- mortality(samc_obj, init = test$init, time = time)
 
-    base_result <- I
-
-    Qt <- diag(nrow(Q))
-
-    for (i in 1:(time - 1)) {
-      Qt <- Qt %*% Q
-      base_result <- base_result + Qt
-    }
-
-    base_result <- pv %*% base_result %*% R
+    base_result <- pv %*% sum_powers(Q, time) %*% R
 
     # Verify
     expect_equal(as.vector(result), as.vector(base_result))
@@ -204,16 +127,7 @@ for(test in testlist) {
     result <- mortality(samc_obj, init = test$init, time = time_vec)
 
     for (i in 1:length(time_vec)) {
-      base_result <- I
-
-      Qt <- diag(nrow(Q))
-
-      for (j in 1:(time_vec[i] - 1)) {
-        Qt <- Qt %*% Q
-        base_result <- base_result + Qt
-      }
-
-      base_result <- pv %*% base_result %*% R
+      base_result <- pv %*% sum_powers(Q, time_vec[i]) %*% R
 
       # Verify
       expect_equal(result[[i]], as.vector(base_result))

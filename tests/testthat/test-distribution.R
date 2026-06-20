@@ -1,6 +1,3 @@
-context("Distribution")
-
-
 for(test in testlist) {
   # Create the samc object
   samc_obj <- test$samc
@@ -10,15 +7,10 @@ for(test in testlist) {
   Q <- as.matrix(Q)
 
   # Prepare the occupancy data
-  occ_ras <- raster::raster(test$init)
-  pv <- as.vector(occ_ras)
-  pv <- pv[is.finite(pv)]
+  pv <- as_pv(test$init)
 
   # Calculate P^t
-  Pt <- Q
-  for (i in 2:time) {
-    Pt <- Pt %*% Q
-  }
+  Pt <- mat_power(Q, time)
 
 
   # Run the tests
@@ -49,11 +41,7 @@ for(test in testlist) {
     expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      pt <- Q
-      for (j in 2:time_vec[i]) {
-        pt <- pt %*% Q
-      }
-      base_result <- pt[row_vec[1], ]
+      base_result <- mat_power(Q, time_vec[i])[row_vec[1], ]
 
       expect_equal(result[[i]], base_result, check.names = FALSE)
     }
@@ -75,11 +63,7 @@ for(test in testlist) {
     expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      pt <- Q
-      for (j in 2:time_vec[i]) {
-        pt <- Q %*% pt
-      }
-      base_result <- pt[, col_vec[1]]
+      base_result <- mat_power(Q, time_vec[i])[, col_vec[1]]
 
       expect_equal(result[[i]], base_result, check.names = FALSE)
     }
@@ -101,11 +85,7 @@ for(test in testlist) {
     expect_equal(result, result_char)
 
     for (i in 1:length(time_vec)) {
-      pt <- Q
-      for (j in 2:time_vec[i]) {
-        pt <- pt %*% Q
-      }
-      base_result <- pt[row_vec[1], col_vec[1]]
+      base_result <- mat_power(Q, time_vec[i])[row_vec[1], col_vec[1]]
 
       expect_equal(result[[i]], base_result)
     }
@@ -123,11 +103,7 @@ for(test in testlist) {
     result <- distribution(samc_obj, init = test$init, time = time_vec)
 
     for (i in 1:length(time_vec)) {
-      pt <- Q
-      for (j in 2:time_vec[i]) {
-        pt <- pt %*% Q
-      }
-      base_result <- pv %*% pt
+      base_result <- pv %*% mat_power(Q, time_vec[i])
 
       expect_equal(result[[i]], as.vector(base_result))
     }

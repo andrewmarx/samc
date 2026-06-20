@@ -82,12 +82,14 @@ masklist <- list(
                   nrow = 9)
 )
 
+# Seed so the random absorption states (and any failures that depend on them)
+# are reproducible from run to run.
+set.seed(1)
 p1 <- runif(72, max = 0.4)
 p2 <- 1 - p1
 
 testlist <- list()
 for(i in 1:length(masklist)) {
-  print(i)
   testlist[[i]] <- lapply(baselist, function(x) {masklist[[i]] * x})
 
   testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
@@ -108,7 +110,6 @@ for(i in 1:length(masklist)) {
 # Asymmetric versions
 n <- length(testlist)
 for(i in (n + 1):(n + length(masklist))) {
-  print(i)
   testlist[[i]] <- lapply(baselist, function(x) {masklist[[i - n]] * x})
 
   testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
@@ -129,3 +130,38 @@ time = 100
 time_vec = c(3, 5, 7, 11, 13)
 row_vec = c(7, 34, 5, 5)
 col_vec = c(13, 13, 5, 19)
+
+
+#
+# Shared reference-implementation helpers used across the metric tests. These
+# build the "ground truth" results from first principles so they stay
+# independent of the package's own implementation.
+#
+
+# M^t
+mat_power <- function(M, t) {
+  res <- M
+  for (i in seq_len(t - 1)) {
+    res <- res %*% M
+  }
+  res
+}
+
+# I + M + M^2 + ... + M^(t-1)
+sum_powers <- function(M, t) {
+  acc <- diag(nrow(M))
+  term <- acc
+  for (i in seq_len(t - 1)) {
+    term <- term %*% M
+    acc <- acc + term
+  }
+  acc
+}
+
+# Occupancy vector in the package's internal (row-major) cell ordering. The
+# matrix is routed through raster() to match that ordering, then NA cells are
+# dropped.
+as_pv <- function(init) {
+  v <- as.vector(raster::raster(init))
+  v[is.finite(v)]
+}

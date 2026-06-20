@@ -1,6 +1,3 @@
-context("Check")
-
-
 # Fail cases for check()
 check_fail <- list(
   check1 = matrix(c(5,  5,  5,  5,  5,  5,  5,  5,  5,

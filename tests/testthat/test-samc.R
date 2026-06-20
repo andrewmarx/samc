@@ -1,6 +1,3 @@
-context("SAMC test")
-
-
 test_that("samc p matrix row sums equal 1 without fidelity data", {
 
   # Create the samc object and get the row sums of the p matrix

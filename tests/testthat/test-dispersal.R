@@ -1,5 +1,3 @@
-context("Dispersal")
-
 for(test in testlist) {
   # Create the samc object
   samc_obj <- test$samc
@@ -16,9 +14,7 @@ for(test in testlist) {
   I <- diag(nrow(Q))
 
   # Prepare the occupancy data
-  occ_ras <- raster::raster(test$init)
-  pv <- as.vector(occ_ras)
-  pv <- pv[is.finite(pv)]
+  pv <- as_pv(test$init)
 
   # Pre-calc
   f <- solve(I - Q)
@@ -36,15 +32,7 @@ for(test in testlist) {
 
     Qj <- Q[-col_vec[1],-col_vec[1]]
 
-    Qji <- diag(nrow(Qj))
-    base_result <- Qji
-
-    for (i in 1:(time - 1)) {
-      Qji <- Qji %*% Qj
-      base_result <- base_result + Qji
-    }
-
-    base_result <- base_result %*% qj
+    base_result <- sum_powers(Qj, time) %*% qj
 
     expect_equal(as.vector(result)[-col_vec[1]], as.vector(base_result))
   })
@@ -58,15 +46,7 @@ for(test in testlist) {
 
     Qj <- Q[-col_vec[1],-col_vec[1]]
     for (i in 1:length(time_vec)) {
-      Qji <- diag(nrow(Qj))
-      base_result <- Qji
-
-      for (j in 1:(time_vec[i] - 1)) {
-        Qji <- Qji %*% Qj
-        base_result <- base_result + Qji
-      }
-
-      base_result <- base_result %*% qj
+      base_result <- sum_powers(Qj, time_vec[i]) %*% qj
 
       expect_equal((result[[i]])[-col_vec[1]], as.vector(base_result))
     }
@@ -81,15 +61,7 @@ for(test in testlist) {
 
     Qj <- Q[-col_vec[1],-col_vec[1]]
 
-    Qji <- diag(nrow(Qj))
-    base_result <- Qji
-
-    for (i in 1:(time - 1)) {
-      Qji <- Qji %*% Qj
-      base_result <- base_result + Qji
-    }
-
-    base_result <- pv[-col_vec[1]] %*% (base_result %*% qj)
+    base_result <- pv[-col_vec[1]] %*% (sum_powers(Qj, time) %*% qj)
 
     expect_equal(result, as.numeric(base_result))
   })
@@ -104,15 +76,7 @@ for(test in testlist) {
     for (i in 1:length(time_vec)) {
       Qj <- Q[-col_vec[1],-col_vec[1]]
 
-      Qji <- diag(nrow(Qj))
-      base_result <- Qji
-
-      for (j in 1:(time_vec[i] - 1)) {
-        Qji <- Qji %*% Qj
-        base_result <- base_result + Qji
-      }
-
-      base_result <- pv[-col_vec[1]] %*% (base_result %*% qj)
+      base_result <- pv[-col_vec[1]] %*% (sum_powers(Qj, time_vec[i]) %*% qj)
 
       expect_equal(result[[i]], as.numeric(base_result))
     }
