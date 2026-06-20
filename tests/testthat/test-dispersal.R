@@ -3,12 +3,7 @@ for(test in testlist) {
   samc_obj <- test$samc
 
   # Extract Q
-  Q <- samc_obj$q_matrix
-  Q <- as.matrix(Q)
-
-  # Extract R
-  R <- diag(nrow(Q))
-  diag(R) <- samc_obj@data@t_abs
+  Q <- ref_q(samc_obj)
 
   # Create an indentity matrix
   I <- diag(nrow(Q))
@@ -17,13 +12,13 @@ for(test in testlist) {
   pv <- as_pv(test$init)
 
   # Pre-calc
-  f <- solve(I - Q)
+  f <- ref_f(samc_obj)
   fdg <- I
   diag(fdg) <- 1/diag(f)
 
 
   #Run the tests
-  test_that("Testing dispersal(samc, dest, time)", {
+  test_that(sprintf("Testing dispersal(samc, dest, time) [scenario %d]", test$id), {
     result <- dispersal(samc_obj, dest = col_vec[1], time = time)
     result_char <- dispersal(samc_obj, dest = as.character(col_vec[1]), time = time)
     expect_equal(result, result_char)
@@ -37,7 +32,7 @@ for(test in testlist) {
     expect_equal(as.vector(result)[-col_vec[1]], as.vector(base_result))
   })
 
-  test_that("Testing dispersal(samc, dest, time_vec)", {
+  test_that(sprintf("Testing dispersal(samc, dest, time_vec) [scenario %d]", test$id), {
     result <- dispersal(samc_obj, dest = col_vec[1], time = time_vec)
     result_char <- dispersal(samc_obj, dest = as.character(col_vec[1]), time = time_vec)
     expect_equal(result, result_char)
@@ -45,14 +40,14 @@ for(test in testlist) {
     qj <- Q[-col_vec[1], col_vec[1]]
 
     Qj <- Q[-col_vec[1],-col_vec[1]]
-    for (i in 1:length(time_vec)) {
+    for (i in seq_along(time_vec)) {
       base_result <- sum_powers(Qj, time_vec[i]) %*% qj
 
       expect_equal((result[[i]])[-col_vec[1]], as.vector(base_result))
     }
   })
 
-  test_that("Testing dispersal(samc, init, dest, time)", {
+  test_that(sprintf("Testing dispersal(samc, init, dest, time) [scenario %d]", test$id), {
     result <- dispersal(samc_obj, init = test$init, dest = col_vec[1], time = time)
     result_char <- dispersal(samc_obj, init = test$init, dest = as.character(col_vec[1]), time = time)
     expect_equal(result, result_char)
@@ -66,14 +61,14 @@ for(test in testlist) {
     expect_equal(result, as.numeric(base_result))
   })
 
-  test_that("Testing dispersal(samc, init, dest, time_vec)", {
+  test_that(sprintf("Testing dispersal(samc, init, dest, time_vec) [scenario %d]", test$id), {
     result <- dispersal(samc_obj, init = test$init, dest = col_vec[1], time = time_vec)
     result_char <- dispersal(samc_obj, init = test$init, dest = as.character(col_vec[1]), time = time_vec)
     expect_equal(result, result_char)
 
     qj <- Q[-col_vec[1], col_vec[1]]
 
-    for (i in 1:length(time_vec)) {
+    for (i in seq_along(time_vec)) {
       Qj <- Q[-col_vec[1],-col_vec[1]]
 
       base_result <- pv[-col_vec[1]] %*% (sum_powers(Qj, time_vec[i]) %*% qj)
@@ -82,7 +77,7 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing dispersal(samc)", {
+  test_that(sprintf("Testing dispersal(samc) [scenario %d]", test$id), {
     samc_obj$override <- TRUE
     result <- dispersal(samc_obj)
     samc_obj$override <- FALSE
@@ -93,7 +88,7 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result))
   })
 
-  test_that("Testing dispersal(samc, origin)", {
+  test_that(sprintf("Testing dispersal(samc, origin) [scenario %d]", test$id), {
     result <- dispersal(samc_obj, origin = row_vec[1])
     samc_obj@.cache$dgf_exists <- FALSE
     samc_obj$threads <- 2
@@ -109,7 +104,7 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result[row_vec[1], ]))
   })
 
-  test_that("Testing dispersal(samc, dest)", {
+  test_that(sprintf("Testing dispersal(samc, dest) [scenario %d]", test$id), {
     result <- dispersal(samc_obj, dest = col_vec[1])
     result_char <- dispersal(samc_obj, dest = as.character(col_vec[1]))
     expect_equal(result, result_char)
@@ -120,14 +115,14 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result[, col_vec[1]]))
   })
 
-  test_that("Testing dispersal(samc, origin, dest)", {
+  test_that(sprintf("Testing dispersal(samc, origin, dest) [scenario %d]", test$id), {
     base_result <- (f - I) %*% fdg
 
     vector_result <- dispersal(samc_obj, origin = row_vec, dest = col_vec)
     vector_result_char <- dispersal(samc_obj, origin = as.character(row_vec), dest = as.character(col_vec))
     expect_equal(vector_result, vector_result_char)
 
-    for (i in 1:length(row_vec)) {
+    for (i in seq_along(row_vec)) {
       r <- dispersal(samc_obj, origin = row_vec[i], dest = col_vec[i])
 
       expect_equal(vector_result[i], r)
@@ -135,7 +130,7 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing dispersal(samc, init)", {
+  test_that(sprintf("Testing dispersal(samc, init) [scenario %d]", test$id), {
     result <- dispersal(samc_obj, init = test$init)
     samc_obj@.cache$dgf_exists <- FALSE
     samc_obj$threads <- 2
@@ -152,7 +147,7 @@ for(test in testlist) {
   })
 
 
-  test_that("Testing dispersal(samc, init, dest)", {
+  test_that(sprintf("Testing dispersal(samc, init, dest) [scenario %d]", test$id), {
     result <- dispersal(samc_obj, init = test$init, dest = col_vec[1])
     result_char <- dispersal(samc_obj, init = test$init, dest = as.character(col_vec[1]))
     expect_equal(result, result_char)

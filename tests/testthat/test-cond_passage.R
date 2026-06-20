@@ -1,7 +1,6 @@
 br_function <- function(samc, col) {
   # Calculate the results based on De Sanctis and de Koning 2018
-  Q <- samc$q_matrix
-  Q <- as.matrix(Q)
+  Q <- ref_q(samc)
 
   qj <- Q[-col, col]
   Qj <- Q[-col, -col]
@@ -16,8 +15,8 @@ br_function <- function(samc, col) {
   f <- solve(I - Qj)
 
   b <- as.matrix(f %*% R)
-  bdg <- Matrix::sparseMatrix(i = 1:nrow(b),
-                              j = 1:nrow(b),
+  bdg <- Matrix::sparseMatrix(i = seq_len(nrow(b)),
+                              j = seq_len(nrow(b)),
                               x = b[, 2],
                               index1 = TRUE)
 
@@ -27,10 +26,7 @@ br_function <- function(samc, col) {
   return(as.numeric(res))
 }
 
-test_num = 0
 for(test in testlist) {
-  test_num = test_num + 1
-
   # TODO cond_passage does not work in all cases yet. Remove this when it does
   if (!(test$id %in% c(1, 2))) next
 
@@ -43,7 +39,7 @@ for(test in testlist) {
 
 
   # Run the tests
-  test_that(paste("Testing cond_passage(samc, dest):", test_num), {
+  test_that(sprintf("Testing cond_passage(samc, dest) [scenario %d]", test$id), {
 
     base_result <- br_function(samc_obj, col_vec[1])
 
@@ -59,13 +55,13 @@ for(test in testlist) {
     expect_equal(r1, r2)
   })
 
-  test_that(paste("Testing cond_passage(samc, origin, dest)", test_num), {
+  test_that(sprintf("Testing cond_passage(samc, origin, dest) [scenario %d]", test$id), {
     vector_result <- cond_passage(samc_p, origin = row_vec, dest = col_vec)
     vector_result_char <- cond_passage(samc_p, origin = as.character(row_vec), dest = as.character(col_vec))
 
     expect_equal(vector_result, vector_result_char)
 
-    for (i in 1:length(row_vec)) {
+    for (i in seq_along(row_vec)) {
       base_result <- cond_passage(samc_obj, dest = col_vec[i])
 
       r <- cond_passage(samc_p, origin = row_vec[i], dest = col_vec[i])

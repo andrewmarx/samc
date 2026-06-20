@@ -89,7 +89,7 @@ p1 <- runif(72, max = 0.4)
 p2 <- 1 - p1
 
 testlist <- list()
-for(i in 1:length(masklist)) {
+for(i in seq_along(masklist)) {
   testlist[[i]] <- lapply(baselist, function(x) {masklist[[i]] * x})
 
   testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
@@ -100,7 +100,7 @@ for(i in 1:length(masklist)) {
                              model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
 
 
-  testlist[[i]]$samc@names = as.character(1:length(testlist[[i]]$samc@data@t_abs))
+  testlist[[i]]$samc@names = as.character(seq_along(testlist[[i]]$samc@data@t_abs))
 
   testlist[[i]]$samc$abs_states <- list(testlist[[i]]$abs * p1, testlist[[i]]$abs * p2)
 
@@ -119,7 +119,7 @@ for(i in (n + 1):(n + length(masklist))) {
                              testlist[[i]]$fid,
                              model = list(fun = function(x) 1/(mean(x) + x[1]), dir = 4, sym = FALSE))
 
-  testlist[[i]]$samc@names = as.character(1:length(testlist[[i]]$samc@data@t_abs))
+  testlist[[i]]$samc@names = as.character(seq_along(testlist[[i]]$samc@data@t_abs))
 
   testlist[[i]]$samc$abs_states <- list(testlist[[i]]$abs * p1, testlist[[i]]$abs * p2)
   testlist[[i]]$id <- i
@@ -164,4 +164,34 @@ sum_powers <- function(M, t) {
 as_pv <- function(init) {
   v <- as.vector(raster::raster(init))
   v[is.finite(v)]
+}
+
+# Dense transient matrix Q for a samc object.
+ref_q <- function(samc) {
+  as.matrix(samc$q_matrix)
+}
+
+# Diagonal total-absorption matrix R = diag(t_abs).
+ref_r <- function(samc) {
+  R <- diag(length(samc@data@t_abs))
+  diag(R) <- samc@data@t_abs
+  R
+}
+
+# List of absorption matrices: the total R followed by one diagonal matrix per
+# absorption state (the columns of c_abs). Used by the mortality tests.
+ref_r_list <- function(samc) {
+  per_state <- lapply(split(samc@data@c_abs, col(samc@data@c_abs)),
+                      function(x) {
+                        mat <- diag(length(x))
+                        diag(mat) <- x
+                        mat
+                      })
+  c(list(total = ref_r(samc)), per_state)
+}
+
+# Fundamental matrix F = (I - Q)^-1.
+ref_f <- function(samc) {
+  Q <- ref_q(samc)
+  solve(diag(nrow(Q)) - Q)
 }

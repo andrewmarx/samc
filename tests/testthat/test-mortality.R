@@ -3,34 +3,21 @@ for(test in testlist) {
   samc_obj <- test$samc
 
   # Extract Q
-  Q <- samc_obj$q_matrix
-  Q <- as.matrix(Q)
+  Q <- ref_q(samc_obj)
 
-  # Extract R
-  R <- diag(nrow(Q))
-  diag(R) <- samc_obj@data@t_abs
-
-  R_list <- lapply(split(samc_obj@data@c_abs, col(samc_obj@data@c_abs)),
-                   function(x){
-                     mat <- diag(length(x))
-                     diag(mat) <- x
-                     return(mat)
-                   })
-
-  R_list <- c(list(total = R), R_list)
-
-  # Create an indentity matrix
-  I <- diag(nrow(Q))
+  # Total absorption matrix and the per-state absorption matrices
+  R <- ref_r(samc_obj)
+  R_list <- ref_r_list(samc_obj)
 
   # Fundamental matrix
-  F_mat <- solve(I - Q)
+  F_mat <- ref_f(samc_obj)
 
   # Prepare the occupancy data
   pv <- as_pv(test$init)
 
 
   # Run the tests
-  test_that("Testing mortality(samc, time)", {
+  test_that(sprintf("Testing mortality(samc, time) [scenario %d]", test$id), {
     samc_obj$override <- TRUE
     result <- mortality(samc_obj, time = time)
     samc_obj$override <- FALSE
@@ -42,7 +29,7 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result))
   })
 
-  test_that("Testing mortality(samc, origin, time)", {
+  test_that(sprintf("Testing mortality(samc, origin, time) [scenario %d]", test$id), {
     result <- mortality(samc_obj, origin = row_vec[1], time = time)
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), time = time)
     expect_equal(result, result_char)
@@ -53,12 +40,12 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result[row_vec[1], ]))
   })
 
-  test_that("Testing mortality(samc, origin, time_vec)", {
+  test_that(sprintf("Testing mortality(samc, origin, time_vec) [scenario %d]", test$id), {
     result <- mortality(samc_obj, origin = row_vec[1], time = time_vec)
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), time = time_vec)
     expect_equal(result, result_char)
 
-    for (i in 1:length(time_vec)) {
+    for (i in seq_along(time_vec)) {
       base_result <- sum_powers(Q, time_vec[i]) %*% R
 
       # Verify
@@ -66,7 +53,7 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing mortality(samc, dest, time)", {
+  test_that(sprintf("Testing mortality(samc, dest, time) [scenario %d]", test$id), {
     result <- mortality(samc_obj, dest = col_vec[1], time = time)
     result_char <- mortality(samc_obj, dest = as.character(col_vec[1]), time = time)
     expect_equal(result, result_char)
@@ -77,12 +64,12 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result[, col_vec[1]]))
   })
 
-  test_that("Testing mortality(samc, dest, time_vec)", {
+  test_that(sprintf("Testing mortality(samc, dest, time_vec) [scenario %d]", test$id), {
     result <- mortality(samc_obj, dest = col_vec[1], time = time_vec)
     result_char <- mortality(samc_obj, dest = as.character(col_vec[1]), time = time_vec)
     expect_equal(result, result_char)
 
-    for (i in 1:length(time_vec)) {
+    for (i in seq_along(time_vec)) {
       base_result <- sum_powers(Q, time_vec[i]) %*% R
 
       # Verify
@@ -90,7 +77,7 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing mortality(samc, origin, dest, time)", {
+  test_that(sprintf("Testing mortality(samc, origin, dest, time) [scenario %d]", test$id), {
     result <- mortality(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time)
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), dest = as.character(col_vec[1]), time = time)
     expect_equal(result, result_char)
@@ -101,12 +88,12 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result[row_vec[1], col_vec[1]]))
   })
 
-  test_that("Testing mortality(samc, origin, dest, time_vec)", {
+  test_that(sprintf("Testing mortality(samc, origin, dest, time_vec) [scenario %d]", test$id), {
     result <- mortality(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time_vec)
     result_char <- mortality(samc_obj, origin = as.character(row_vec[1]), dest = as.character(col_vec[1]), time = time_vec)
     expect_equal(result, result_char)
 
-    for (i in 1:length(time_vec)) {
+    for (i in seq_along(time_vec)) {
       base_result <- sum_powers(Q, time_vec[i]) %*% R
 
       # Verify
@@ -114,7 +101,7 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing mortality(samc, init, time)", {
+  test_that(sprintf("Testing mortality(samc, init, time) [scenario %d]", test$id), {
     result <- mortality(samc_obj, init = test$init, time = time)
 
     base_result <- pv %*% sum_powers(Q, time) %*% R
@@ -123,10 +110,10 @@ for(test in testlist) {
     expect_equal(as.vector(result), as.vector(base_result))
   })
 
-  test_that("Testing mortality(samc, init, time_vec)", {
+  test_that(sprintf("Testing mortality(samc, init, time_vec) [scenario %d]", test$id), {
     result <- mortality(samc_obj, init = test$init, time = time_vec)
 
-    for (i in 1:length(time_vec)) {
+    for (i in seq_along(time_vec)) {
       base_result <- pv %*% sum_powers(Q, time_vec[i]) %*% R
 
       # Verify
@@ -134,7 +121,7 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing mortality(samc)", {
+  test_that(sprintf("Testing mortality(samc) [scenario %d]", test$id), {
     # Make sure absorption components add up
     samc_obj$override <- TRUE
     result <- mortality(samc_obj)
@@ -148,7 +135,7 @@ for(test in testlist) {
   })
 
 
-  test_that("Testing mortality(samc, origin)", {
+  test_that(sprintf("Testing mortality(samc, origin) [scenario %d]", test$id), {
     # Make sure absorption components add up
     result <- mortality(samc_obj, origin = row_vec[1])
     expect_equal(as.vector(result[[1]]), as.vector(Reduce('+', result) - result[[1]]))
@@ -163,7 +150,7 @@ for(test in testlist) {
            base_result, result)
   })
 
-  test_that("Testing mortality(samc, dest)", {
+  test_that(sprintf("Testing mortality(samc, dest) [scenario %d]", test$id), {
     # Make sure absorption components add up
     result <- mortality(samc_obj, dest = col_vec[1])
     expect_equal(as.vector(result[[1]]), as.vector(Reduce('+', result) - result[[1]]))
@@ -178,7 +165,7 @@ for(test in testlist) {
            base_result, result)
   })
 
-  test_that("Testing mortality(samc, origin, dest)", {
+  test_that(sprintf("Testing mortality(samc, origin, dest) [scenario %d]", test$id), {
     # Make sure absorption components add up
     vector_result <- mortality(samc_obj, origin = row_vec, des = col_vec)
     expect_equal(as.vector(vector_result[[1]]), as.vector(Reduce('+', vector_result) - vector_result[[1]]))
@@ -189,7 +176,7 @@ for(test in testlist) {
 
 
     base_result <- lapply(R_list, function(x) F_mat %*% x)
-    for (i in 1:length(row_vec)) {
+    for (i in seq_along(row_vec)) {
       # Test single pair version against paired vector version
       r <- mortality(samc_obj, origin = row_vec[i], dest = col_vec[i])
       mapply(function(x, y) expect_equal(x[i], y),
@@ -201,7 +188,7 @@ for(test in testlist) {
     }
   })
 
-  test_that("Testing mortality(samc, init)", {
+  test_that(sprintf("Testing mortality(samc, init) [scenario %d]", test$id), {
     # Make sure absorption components add up
     result <- mortality(samc_obj, init = test$init)
     expect_equal(as.vector(result[[1]]), as.vector(Reduce('+', result) - result[[1]]))
