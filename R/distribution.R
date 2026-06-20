@@ -120,8 +120,8 @@ setMethod(
 
             res = diag(pv) %*% res
 
-            res = apply(res, 1, function(x) samc:::.summarize_crw(samc, x, sum))
-            res = apply(res, 1, function(x) samc:::.summarize_crw(samc, x, sum)) # Same margin because results of last are transposed
+            res = apply(res, 1, function(x) .summarize_crw(samc, x, sum))
+            res = apply(res, 1, function(x) .summarize_crw(samc, x, sum)) # Same margin because results of last are transposed
         }
 
         return(res)
@@ -236,9 +236,9 @@ setMethod(
             }
         } else if (samc@solver == "conv") {
             if (samc@precision == "single") {
-                results_list = samc:::.convolution_short_float(time, samc@conv_cache, pv, samc@threads)
+                results_list = .convolution_short_float(time, samc@conv_cache, pv, samc@threads)
             } else if (samc@precision == "double") {
-                results_list = samc:::.convolution_short_double(time, samc@conv_cache, pv, samc@threads)
+                results_list = .convolution_short_double(time, samc@conv_cache, pv, samc@threads)
             } else {
                 stop("Invalid data type. Must be either 'single' or 'double'", call. = FALSE)
             }

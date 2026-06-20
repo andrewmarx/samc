@@ -179,7 +179,7 @@ setMethod(
                 res = res[origin[dest == d]]
             } else if (samc@model$name == "CRW") {
                 if (directional) {
-                    init = samc:::.build_init(samc, origin[dest == d, , drop = FALSE])
+                    init = .build_init(samc, origin[dest == d, , drop = FALSE])
 
                     res = t$fb[as.logical(init)] / t$b[as.logical(init)] # Unweighted outputs
                 } else {

@@ -323,9 +323,9 @@ setMethod(
 
         if (!samc@.cache$dgf_exists) {
             if (samc@solver == "iter") {
-                dg = samc:::.diagf_par_iter(samc@data@f, samc@threads)
+                dg = .diagf_par_iter(samc@data@f, samc@threads)
             } else {
-                dg = samc:::.diagf_par(samc@data@f, samc@threads)
+                dg = .diagf_par(samc@data@f, samc@threads)
             }
 
             samc@.cache$dgf = dg
