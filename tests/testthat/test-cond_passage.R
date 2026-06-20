@@ -56,10 +56,7 @@ for(test in testlist) {
   })
 
   test_that(sprintf("Testing cond_passage(samc, origin, dest) [scenario %d]", test$id), {
-    vector_result <- cond_passage(samc_p, origin = row_vec, dest = col_vec)
-    vector_result_char <- cond_passage(samc_p, origin = as.character(row_vec), dest = as.character(col_vec))
-
-    expect_equal(vector_result, vector_result_char)
+    vector_result <- expect_id_invariant(cond_passage, samc_p, origin = row_vec, dest = col_vec)
 
     for (i in seq_along(row_vec)) {
       base_result <- cond_passage(samc_obj, dest = col_vec[i])

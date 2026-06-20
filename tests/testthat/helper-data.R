@@ -195,3 +195,31 @@ ref_f <- function(samc) {
   Q <- ref_q(samc)
   solve(diag(nrow(Q)) - Q)
 }
+
+
+#
+# Shared assertion helpers used across the metric tests.
+#
+
+# Assert a metric call gives identical results whether locations are passed as
+# numeric or character IDs. Only the origin/dest arguments are converted to
+# character for the second call (time and other args are left untouched).
+# Returns the (numeric-ID) result invisibly for further checks.
+expect_id_invariant <- function(fn, samc, ...) {
+  args <- list(...)
+  num <- do.call(fn, c(list(samc), args))
+
+  chr_args <- args
+  loc <- intersect(names(chr_args), c("origin", "dest"))
+  chr_args[loc] <- lapply(chr_args[loc], as.character)
+
+  chr <- do.call(fn, c(list(samc), chr_args))
+  expect_equal(num, chr)
+  invisible(num)
+}
+
+# Assert two matrices match in both shape and values.
+expect_matrix_equal <- function(result, expected) {
+  expect_equal(dim(result), dim(expected))
+  expect_equal(as.vector(result), as.vector(expected))
+}

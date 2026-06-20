@@ -20,14 +20,11 @@ for(test in testlist) {
 
     base_result <- Pt
 
-    expect_equal(dim(result), dim(base_result))
-    expect_equal(as.vector(result), as.vector(base_result))
+    expect_matrix_equal(result, base_result)
   })
 
   test_that(sprintf("Testing distribution(samc, origin, time) [scenario %d]", test$id), {
-    result <- distribution(samc_obj, origin = row_vec[1], time = time)
-    result_char <- distribution(samc_obj, origin = as.character(row_vec[1]), time = time)
-    expect_equal(result, result_char)
+    result <- expect_id_invariant(distribution, samc_obj, origin = row_vec[1], time = time)
 
     base_result <- Pt[row_vec[1], ]
 
@@ -35,9 +32,7 @@ for(test in testlist) {
   })
 
   test_that(sprintf("Testing distribution(samc, origin, time_vec) [scenario %d]", test$id), {
-    result <- distribution(samc_obj, origin = row_vec[1], time = time_vec)
-    result_char <- distribution(samc_obj, origin = as.character(row_vec[1]), time = time_vec)
-    expect_equal(result, result_char)
+    result <- expect_id_invariant(distribution, samc_obj, origin = row_vec[1], time = time_vec)
 
     for (i in seq_along(time_vec)) {
       base_result <- mat_power(Q, time_vec[i])[row_vec[1], ]
@@ -47,9 +42,7 @@ for(test in testlist) {
   })
 
   test_that(sprintf("Testing distribution(samc, dest, time) [scenario %d]", test$id), {
-    result <- distribution(samc_obj, dest = col_vec[1], time = time)
-    result_char <- distribution(samc_obj, dest = as.character(col_vec[1]), time = time)
-    expect_equal(result, result_char)
+    result <- expect_id_invariant(distribution, samc_obj, dest = col_vec[1], time = time)
 
     base_result <- Pt[, col_vec[1]]
 
@@ -57,9 +50,7 @@ for(test in testlist) {
   })
 
   test_that(sprintf("Testing distribution(samc, dest, time_vec) [scenario %d]", test$id), {
-    result <- distribution(samc_obj, dest = col_vec[1], time = time_vec)
-    result_char <- distribution(samc_obj, dest = as.character(col_vec[1]), time = time_vec)
-    expect_equal(result, result_char)
+    result <- expect_id_invariant(distribution, samc_obj, dest = col_vec[1], time = time_vec)
 
     for (i in seq_along(time_vec)) {
       base_result <- mat_power(Q, time_vec[i])[, col_vec[1]]
@@ -69,9 +60,7 @@ for(test in testlist) {
   })
 
   test_that(sprintf("Testing distribution(samc, origin, dest, time) [scenario %d]", test$id), {
-    result <- distribution(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time)
-    result_char <- distribution(samc_obj, origin = as.character(row_vec[1]), dest = as.character(col_vec[1]), time = time)
-    expect_equal(result, result_char)
+    result <- expect_id_invariant(distribution, samc_obj, origin = row_vec[1], dest = col_vec[1], time = time)
 
     base_result <- Pt[row_vec[1], col_vec[1]]
 
@@ -79,9 +68,7 @@ for(test in testlist) {
   })
 
   test_that(sprintf("Testing distribution(samc, origin, dest, time_vec) [scenario %d]", test$id), {
-    result <- distribution(samc_obj, origin = row_vec[1], dest = col_vec[1], time = time_vec)
-    result_char <- distribution(samc_obj, origin = as.character(row_vec[1]), dest = as.character(col_vec[1]), time = time_vec)
-    expect_equal(result, result_char)
+    result <- expect_id_invariant(distribution, samc_obj, origin = row_vec[1], dest = col_vec[1], time = time_vec)
 
     for (i in seq_along(time_vec)) {
       base_result <- mat_power(Q, time_vec[i])[row_vec[1], col_vec[1]]
