@@ -21,6 +21,17 @@
     samc@model$name == "CRW"
 }
 
+#' Resolve per-state total absorption, collapsing CRW substates
+#'
+#' Returns the total absorption vector. For CRW models the per-substate values
+#' are summarized to one value per state using the mean.
+#'
+#' @param samc samc model
+#' @noRd
+.resolve_t_abs = function(samc) {
+    if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+}
+
 
 #' Used to disable CRW
 #'

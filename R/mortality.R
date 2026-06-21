@@ -195,7 +195,7 @@ setMethod(
 
         mort = visitation(samc, origin = origin, time = time)
 
-        rdg = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+        rdg = .resolve_t_abs(samc)
 
         if (is.list(mort)) {
             return(lapply(mort, function(x) as.vector(x * rdg)))
@@ -285,7 +285,7 @@ setMethod(
         if (samc@solver %in% c("direct", "iter")) {
             mort = visitation(samc, init = init, time = time)
 
-            rdg = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+            rdg = .resolve_t_abs(samc)
 
             if (is.list(mort)) {
                 return(lapply(mort, function(x) as.vector(x * rdg)))
@@ -334,9 +334,7 @@ setMethod(
         gc()
         dimnames(f) = dimnames(samc$q_matrix) # Not sure why dimnames aren't carrying through later calculations
 
-        rdg = samc@data@t_abs
-
-        if (.is_crw(samc)) rdg = .summarize_crw(samc, rdg, mean)
+        rdg = .resolve_t_abs(samc)
 
         r = Matrix::sparseMatrix(i = seq_along(rdg),
                                  j = seq_along(rdg),
@@ -396,7 +394,7 @@ setMethod(
         vis = visitation(samc, dest = dest)
         names(vis) = samc$names
 
-        t_abs = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+        t_abs = .resolve_t_abs(samc)
 
         mort = vis * t_abs[dest]
 
@@ -432,7 +430,7 @@ setMethod(
         }
         names(results) = samc$names[dest]
 
-        t_abs = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+        t_abs = .resolve_t_abs(samc)
 
         mort = results * t_abs[dest]
 
@@ -453,9 +451,7 @@ setMethod(
     signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
     function(samc, init) {
         res = visitation(samc, init)
-        t_abs = samc@data@t_abs
-
-        if (.is_crw(samc)) t_abs = .summarize_crw(samc, t_abs, mean)
+        t_abs = .resolve_t_abs(samc)
 
         mort = res * t_abs
 
@@ -482,7 +478,7 @@ setMethod(
 
         vis = visitation(samc, init)
 
-        t_abs = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+        t_abs = .resolve_t_abs(samc)
 
         mort = vis[dest] * t_abs[dest]
 
