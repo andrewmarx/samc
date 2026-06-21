@@ -114,7 +114,7 @@ setMethod(
             res = res %*% q
         }
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -163,10 +163,10 @@ setMethod(
 
         time = c(1, time)
 
-        if (samc@model$name == "RW") {
+        if (.is_rw(samc)) {
             vec = numeric(samc@nodes)
             vec[dest] = 1
-        } else if (samc@model$name == "CRW") {
+        } else if (.is_crw(samc)) {
             vec = as.numeric(samc@crw_map[, 1] == dest)
         } else {
             stop("Unexpected model", call. = FALSE)
@@ -176,7 +176,7 @@ setMethod(
         names(res) = as.character(time[-1])
         res = lapply(res, as.vector)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -227,7 +227,7 @@ setMethod(
 
             res = lapply(res, as.vector)
 
-            if (samc@model$name == "CRW") res = lapply(res, function(x) .summarize_crw(samc, x, sum))
+            if (.is_crw(samc)) res = lapply(res, function(x) .summarize_crw(samc, x, sum))
 
             if (length(res) == 1) {
                 return(res[[1]])

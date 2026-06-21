@@ -144,10 +144,10 @@ setMethod(
         dest = .process_locations(samc, dest)
         .validate_time_steps(time)
 
-        if (samc@model$name == "RW") {
+        if (.is_rw(samc)) {
             vec = logical(samc@nodes)
             vec[dest] = TRUE
-        } else if (samc@model$name == "CRW") {
+        } else if (.is_crw(samc)) {
             vec = (samc@crw_map[, 1] == dest)
         } else {
             stop("Unexpected model", call. = FALSE)
@@ -177,7 +177,7 @@ setMethod(
 
         res = lapply(res, as.vector)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -206,7 +206,7 @@ setMethod(
 
         pv = .process_init(samc, init)
 
-        if (samc@model$name == "CRW") pv = .summarize_crw(samc, pv, sum)
+        if (.is_crw(samc)) pv = .summarize_crw(samc, pv, sum)
 
         d = dispersal(samc, dest = dest, time = time)
 
@@ -337,7 +337,7 @@ setMethod(
         dg = samc@.cache$dgf
         init = .process_init(samc, init)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             dg = .summarize_crw(samc, dg, sum) - .summarize_crw(samc, dg, length) + 1
             init = .summarize_crw(samc, init, sum)
         }
@@ -358,7 +358,7 @@ setMethod(
 
         dj = dispersal(samc, dest = dest)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = .summarize_crw(samc, pv, sum)
         }
 

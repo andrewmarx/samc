@@ -168,7 +168,7 @@ setMethod(
             res = res + q2
         }
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -219,10 +219,10 @@ setMethod(
 
         time = c(1, time)
 
-        if (samc@model$name == "RW") {
+        if (.is_rw(samc)) {
             vec = numeric(samc@nodes)
             vec[dest] = 1
-        } else if (samc@model$name == "CRW") {
+        } else if (.is_crw(samc)) {
             vec = as.numeric(samc@crw_map[, 1] == dest)
         } else {
             stop("Unexpected model", call. = FALSE)
@@ -233,7 +233,7 @@ setMethod(
 
         ft = lapply(ft, as.vector)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -287,7 +287,7 @@ setMethod(
 
             ft = lapply(ft, as.vector)
 
-            if (samc@model$name == "CRW") ft = lapply(ft, function(x) .summarize_crw(samc, x, sum))
+            if (.is_crw(samc)) ft = lapply(ft, function(x) .summarize_crw(samc, x, sum))
 
             if (length(ft) == 1) {
                 return(ft[[1]])
@@ -327,7 +327,7 @@ setMethod(
         n = Matrix::solve(samc@data@f)
         n = as.matrix(n)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -377,10 +377,10 @@ setMethod(
 
         dest = .process_locations(samc, dest)
 
-        if (samc@model$name == "RW") {
+        if (.is_rw(samc)) {
             vec = numeric(samc@nodes)
             vec[dest] = 1
-        } else if (samc@model$name == "CRW") {
+        } else if (.is_crw(samc)) {
             vec = as.numeric(samc@crw_map[, 1] == dest)
         } else {
             stop("Unexpected model", call. = FALSE)
@@ -392,7 +392,7 @@ setMethod(
             r = .f_col(samc@data@f, vec, samc@.cache$sc)
         }
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -444,7 +444,7 @@ setMethod(
 
             r = as.vector(r)
 
-            if (samc@model$name == "CRW") r = .summarize_crw(samc, r, sum)
+            if (.is_crw(samc)) r = .summarize_crw(samc, r, sum)
 
             return(r)
         } else if (samc@solver == "conv") {
@@ -558,7 +558,7 @@ setMethod(
 
             r = as.vector(r)
 
-            # if (samc@model$name == "CRW") r = .summarize_crw(samc, r, sum)
+            # if (.is_crw(samc)) r = .summarize_crw(samc, r, sum)
 
             vis = r
         } else if (samc@solver == "conv") {

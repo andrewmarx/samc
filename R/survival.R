@@ -62,7 +62,7 @@ setMethod(
             z = .f1(samc@data@f, samc@.cache$sc)
         }
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             vec = as.vector(samc@prob_mat)
             vec = vec[!is.na(vec)]
 

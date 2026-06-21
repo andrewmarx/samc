@@ -88,10 +88,10 @@ setGeneric(
 
     dest = .process_locations(samc, dest)
 
-    if (samc@model$name == "RW") {
+    if (.is_rw(samc)) {
         vec = logical(samc@nodes)
         vec[dest] = TRUE
-    } else if (samc@model$name == "CRW") {
+    } else if (.is_crw(samc)) {
         vec = (samc@crw_map[, 1] == dest)
     } else {
         stop("Unexpected model", call. = FALSE)
@@ -128,9 +128,9 @@ setMethod(
 
         t = .cond_passage(samc, dest)
 
-        if (samc@model$name == "RW") {
+        if (.is_rw(samc)) {
             res = t$fb / t$b
-        } else if (samc@model$name == "CRW") {
+        } else if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -174,10 +174,10 @@ setMethod(
         for (d in unique_dest) {
             t = .cond_passage(samc, dest = d)
 
-            if (samc@model$name == "RW") {
+            if (.is_rw(samc)) {
                 res = t$fb / t$b
                 res = res[origin[dest == d]]
-            } else if (samc@model$name == "CRW") {
+            } else if (.is_crw(samc)) {
                 if (directional) {
                     init = .build_init(samc, origin[dest == d, , drop = FALSE])
 

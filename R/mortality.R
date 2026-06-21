@@ -172,7 +172,7 @@ setMethod(
 
         bt = q_n %*% r
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -195,7 +195,7 @@ setMethod(
 
         mort = visitation(samc, origin = origin, time = time)
 
-        rdg = if (samc@model$name == "CRW") .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+        rdg = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
 
         if (is.list(mort)) {
             return(lapply(mort, function(x) as.vector(x * rdg)))
@@ -222,10 +222,10 @@ setMethod(
 
         rdg = samc@data@t_abs
 
-        if (samc@model$name == "RW") {
+        if (.is_rw(samc)) {
             vec = logical(samc@nodes)
             vec[dest] = TRUE
-        } else if (samc@model$name == "CRW") {
+        } else if (.is_crw(samc)) {
             vec = (samc@crw_map[, 1] == dest)
         } else {
             stop("Unexpected model", call. = FALSE)
@@ -240,7 +240,7 @@ setMethod(
 
         mort = lapply(mort, as.vector)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             pv = samc@prob_mat
             pv = pv[!is.na(pv)]
 
@@ -285,7 +285,7 @@ setMethod(
         if (samc@solver %in% c("direct", "iter")) {
             mort = visitation(samc, init = init, time = time)
 
-            rdg = if (samc@model$name == "CRW") .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+            rdg = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
 
             if (is.list(mort)) {
                 return(lapply(mort, function(x) as.vector(x * rdg)))
@@ -336,7 +336,7 @@ setMethod(
 
         rdg = samc@data@t_abs
 
-        if (samc@model$name == "CRW") rdg = .summarize_crw(samc, rdg, mean)
+        if (.is_crw(samc)) rdg = .summarize_crw(samc, rdg, mean)
 
         r = Matrix::sparseMatrix(i = seq_along(rdg),
                                  j = seq_along(rdg),
@@ -396,7 +396,7 @@ setMethod(
         vis = visitation(samc, dest = dest)
         names(vis) = samc$names
 
-        t_abs = if (samc@model$name == "CRW") .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+        t_abs = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
 
         mort = vis * t_abs[dest]
 
@@ -432,7 +432,7 @@ setMethod(
         }
         names(results) = samc$names[dest]
 
-        t_abs = if (samc@model$name == "CRW") .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+        t_abs = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
 
         mort = results * t_abs[dest]
 
@@ -455,7 +455,7 @@ setMethod(
         res = visitation(samc, init)
         t_abs = samc@data@t_abs
 
-        if (samc@model$name == "CRW") t_abs = .summarize_crw(samc, t_abs, mean)
+        if (.is_crw(samc)) t_abs = .summarize_crw(samc, t_abs, mean)
 
         mort = res * t_abs
 
@@ -482,7 +482,7 @@ setMethod(
 
         vis = visitation(samc, init)
 
-        t_abs = if (samc@model$name == "CRW") .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
+        t_abs = if (.is_crw(samc)) .summarize_crw(samc, samc@data@t_abs, mean) else samc@data@t_abs
 
         mort = vis[dest] * t_abs[dest]
 

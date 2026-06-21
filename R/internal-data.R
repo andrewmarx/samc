@@ -14,9 +14,9 @@
 #' @noRd
 #'
 .process_locations = function(samc, x) {
-    if (samc@model$name == "RW") {
+    if (.is_rw(samc)) {
         .process_locations_rw(samc, x)
-    } else if (samc@model$name == "CRW") {
+    } else if (.is_crw(samc)) {
         .process_locations_crw(samc, x)
     } else {
         stop("Unexpected model in .process_locations()", call. = FALSE)
@@ -223,9 +223,9 @@ setMethod(
 #' @param x initial state input
 #' @noRd
 .process_init = function(samc, x) {
-    if (samc@model$name == "RW") {
+    if (.is_rw(samc)) {
         .process_init_rw(samc, x)
-    } else if (samc@model$name == "CRW") {
+    } else if (.is_crw(samc)) {
         .process_init_crw(samc, x)
     } else {
         stop("Unexpected model in .process_init()", call. = FALSE)
@@ -356,11 +356,11 @@ setMethod(
 #' @param x A list
 #' @noRd
 .build_init = function(samc, x) {
-    if (samc@model$name == "RW") {
+    if (.is_rw(samc)) {
         vec = numeric(samc@nodes)
         vec[x] = 1
         names(vec) = samc@names
-    } else if (samc@model$name == "CRW") {
+    } else if (.is_crw(samc)) {
         vec = .build_init_crw(samc, x)
     } else {
         stop("Unexpected model in .build_init()", call. = FALSE)

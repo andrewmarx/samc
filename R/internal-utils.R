@@ -5,6 +5,23 @@
 # be used by users.
 
 
+#' Test whether a samc object uses the random walk (RW) model
+#'
+#' @param samc samc model
+#' @noRd
+.is_rw = function(samc) {
+    samc@model$name == "RW"
+}
+
+#' Test whether a samc object uses the correlated random walk (CRW) model
+#'
+#' @param samc samc model
+#' @noRd
+.is_crw = function(samc) {
+    samc@model$name == "CRW"
+}
+
+
 #' Used to disable CRW
 #'
 #' Disable CRW
@@ -12,7 +29,7 @@
 #' @param samc samc model
 #' @noRd
 .disable_crw = function(samc) {
-    if (samc@model$name == "CRW") stop("Metric/parameter combination not currently supported for CRW", call. = FALSE)
+    if (.is_crw(samc)) stop("Metric/parameter combination not currently supported for CRW", call. = FALSE)
 }
 
 #' Used to disable convolution

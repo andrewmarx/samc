@@ -70,7 +70,7 @@ setMethod(
         c_abs = samc@data@c_abs
         if (any(dim(c_abs) == 0)) stop("No absorption components defined in the samc object", call. = FALSE)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             c_abs = apply(c_abs, 2, function(x) x[samc@crw_map[, 1]])
         }
 
@@ -79,7 +79,7 @@ setMethod(
 
         abs_mat = as.matrix(abs_mat)
 
-        if (samc@model$name == "CRW") {
+        if (.is_crw(samc)) {
             vec = as.vector(samc@prob_mat)
             vec = vec[!is.na(vec)]
 
