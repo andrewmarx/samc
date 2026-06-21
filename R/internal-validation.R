@@ -44,17 +44,18 @@
 }
 
 
-#' Validate transition args for CRW
+#' Validate args common to all transition models
 #'
-#' Validates the model for the samc() function
+#' Checks the shared argument structure (required args, fun/dir/sym types,
+#' method, and unknown args) used by every model validator.
 #'
 #' @param x A list
+#' @param args Character vector of allowed argument names
+#' @param methods Character vector of allowed methods
+#' @param method The method to validate against
 #' @noRd
-.validate_rw = function(x, method) {
+.validate_model_common = function(x, args, methods, method) {
     names = names(x)
-
-    args = c("name", "fun", "dir", "sym")
-    methods = c("direct", "iter", "conv")
 
     missing_args = args[!(args %in% names)]
     if (length(missing_args) > 0)
@@ -70,14 +71,6 @@
 
     if (!(method %in% methods))
         stop("Invalid method for model", call. = FALSE)
-
-    if (method == "conv") {
-        if (!is(x$fun, "character")) {
-            stop("Convolution currently only supports the '1/mean(x)' named function.", call. = FALSE)
-        } else if (x$fun != "1/mean(x)") {
-            stop("Convolution currently only supports the '1/mean(x)' named function.", call. = FALSE)
-        }
-    }
 
     unknown_args = names[!(names %in% args)]
     if (length(unknown_args) > 0)
@@ -91,31 +84,33 @@
 #'
 #' @param x A list
 #' @noRd
-.validate_crw = function(x, method) {
-    names = names(x)
+.validate_rw = function(x, method) {
+    args = c("name", "fun", "dir", "sym")
+    methods = c("direct", "iter", "conv")
 
+    .validate_model_common(x, args, methods, method)
+
+    if (method == "conv") {
+        if (!is(x$fun, "character")) {
+            stop("Convolution currently only supports the '1/mean(x)' named function.", call. = FALSE)
+        } else if (x$fun != "1/mean(x)") {
+            stop("Convolution currently only supports the '1/mean(x)' named function.", call. = FALSE)
+        }
+    }
+}
+
+
+#' Validate transition args for CRW
+#'
+#' Validates the model for the samc() function
+#'
+#' @param x A list
+#' @noRd
+.validate_crw = function(x, method) {
     args = c("name", "fun", "dir", "sym", "dist", "kappa")
     methods = c("direct", "iter")
 
-    missing_args = args[!(args %in% names)]
-    if (length(missing_args) > 0)
-        stop(paste("Missing argument in model:", missing_args), call. = FALSE)
-
-    if (!(is(x$fun, "function") || is(x$fun, "character"))) {
-        stop("'fun' must be a supported named function or a user defined function")
-    } else if (!(x$dir %in% c(4, 8))) {
-        stop("`dir` must be set to either 4 or 8", call. = FALSE)
-    } else if (!is(x$sym, "logical")) {
-        stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
-    }
-
-    if (!(method %in% methods))
-        stop("Invalid method for model", call. = FALSE)
-
-    unknown_args = names[!(names %in% args)]
-    if (length(unknown_args) > 0)
-        stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
-
+    .validate_model_common(x, args, methods, method)
 
     if (x$dist == "vonMises") {
         if (is(x$kappa, "SpatRaster")) {
@@ -157,29 +152,10 @@
 #' @param x A list
 #' @noRd
 .validate_ssf = function(x, method) {
-    names = names(x)
-
     args = c("name", "fun", "dir", "sym", "ssc")
     methods = c("direct", "iter")
 
-    missing_args = args[!(args %in% names)]
-    if (length(missing_args) > 0)
-        stop(paste("Missing argument in model:", missing_args), call. = FALSE)
-
-    if (!(is(x$fun, "function") || is(x$fun, "character"))) {
-        stop("'fun' must be a supported named function or a user defined function")
-    } else if (!(x$dir %in% c(4, 8))) {
-        stop("`dir` must be set to either 4 or 8", call. = FALSE)
-    } else if (!is(x$sym, "logical")) {
-        stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
-    }
-
-    if (!(method %in% methods))
-        stop("Invalid method for model", call. = FALSE)
-
-    unknown_args = names[!(names %in% args)]
-    if (length(unknown_args) > 0)
-        stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
+    .validate_model_common(x, args, methods, method)
 
     if (!is(x$ssc, "numeric"))
         stop("ssc must be single numeric value.", call. = FALSE)
