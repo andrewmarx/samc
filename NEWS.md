@@ -1,10 +1,10 @@
 # samc 4.2.1
 
-CRW optimizations and enhancements
+- CRW optimizations and enhancements.
 
 # samc 4.1.0
 
-CRW reimplementation
+- CRW reimplementation.
 
 # samc 4.0.0
 
@@ -24,17 +24,17 @@ CRW reimplementation
   - Currently only applies to `samc` objects built for convolutions.
   - Default is `"double"` and provides 15-16 digits of precision. This is the same as all previous versions.
   - The `"single"` option provides 7-8 digits precision, but also reduces RAM use by roughly half. It's also slightly faster for metric calculations (~20% less time on one device), and also scales slightly better with multiple cores.
-
-## Other
-
 - Enabled vector inputs for `init` parameters regardless of the data type used for inputs to the `samc()` function. This is intended to provide flexibility for special situations, and it's recommended that `init` inputs reflect the data types used for `samc()`.
-- Reorganization of internal functions.
-- Improvements to model and options validation.
 
 ## Bug fixes
 
 - Fixed `check()` node count approach for convolution.
 - Fixed convolution short-term metrics with multiple time inputs.
+
+## Other
+
+- Reorganization of internal functions.
+- Improvements to model and options validation.
 
 # samc 3.3.0
 
@@ -46,11 +46,17 @@ CRW reimplementation
   - `distribution(samc, init, dest, time)`
   - `mortality(samc, init, dest, time)`
 
+## Performance
+
+- Various small memory and speed optimizations.
+
+## Bug fixes
+
+- Various small fixes.
+
 ## Other
 
 - Lots of internal refactoring and consolidation.
-- Various small memory and speed optimizations.
-- Various small fixes.
 - License update.
 
 # samc 3.2.1
@@ -92,36 +98,39 @@ CRW reimplementation
 
 # samc 3.0.2
 
+## Breaking changes
+
+- Added support for setting the initial state in the `visitation()` function.
+- Removed default naming of cells for samc objects created from rasters. This leads to substantially smaller samc objects, especially as raster inputs become larger.
+- Combined the three original example data objects into a single list. Updated documentation accordingly.
+- Removed support for TransitionLayer inputs to the `samc()` function so that gdistance can be removed as a dependency.
+- The `sym` option for creating the samc object is currently ignored.
+- The `map()` function was updated so that the output matches the input types used in the `samc()` function.
+- Renamed the `tr_args` parameter to `model` to reflect future anticipated support for different types of models. Current usage will not change and assumes a default random-walk model.
+- Renamed the `occ` parameter in metrics to `init` (short for "initial state" or "initialize").
+- Added the parameter for setting the initial state in the `cond_passage()` function to match other metrics, but it is not currently used.
+
 ## New features
 
 - Added support for the terra package for raster data. Internally, the package now uses terra and converts RasterLayer objects to SpatRaster objects. It's recommended that users switch to the terra package for loading and preparing raster data for samc.
 - Made the `rasterize()` function publicly available. Mainly useful for converting matrices to a SpatRaster that matches the structure used internally by the package.
 - Added short-term versions of the `visitation()` function.
-- ***Breaking*** Added support for setting the initial state in the `visitation()` function
 
 ## Performance
 
-- ***Breaking*** Removed default naming of cells for samc objects created from rasters. This leads to substantially smaller samc objects, especially as raster inputs become larger.
 - Overhauled the samc object creation to be substantially more memory efficient. It is now feasible to create samc objects with 100+ million transient states with 32 GB of RAM. However, this memory efficiency comes with the tradeoff that samc objects can take significantly longer to create (~2x as long based on preliminary testing).
 - Added optional support for iterative solvers in metrics (where applicable). This greatly reduces the memory requirements of these metrics, but in general, will take longer to calculate. Initial tests indicate that the `visitation()` function is feasible for samc objects with 50 million cells with 32 GB of RAM. Details about changing the solver can be found in the help documentation for the `samc-class`.
 - Added caching behavior for some metrics when using a direct solver. This can reduce run-time by over 95% when rerunning these metrics with the same arguments but different input values. Using different arguments or metrics may require rebuilding the cache, so it is best to keep specific usages of a metric grouped in code.
   - In rare cases, cached data is reused for other combinations of arguments and other metrics. This can lead to unexpected situational speedups depending on the order of metrics in the code. Combinations of metrics benefiting from this behavior are not currently documented, but may be in the future.
   - Currently, each samc object has its own cache. Creating multiple samc objects can lead to high memory usage by data caches. The best way to avoid this is to only have one samc object at a time. A future version will implement a single global data cache so that having multiple samc objects will not lead to multiple data caches consuming excess memory.
 
-## Website
+## Documentation
 
 - Updated the performance vignette to include additional information about the choice of linear solver. Also removed old memory consumption benchmarks due to a flaw in testing where profilers in R do not measure the memory consumption of native code.
+- Moved the maze example vignette data into a built-in data object.
 
 ## Other
 
-- ***Breaking*** Combined the three original example data objects into a single list. Updated documentation accordingly.
-- Moved the maze example vignette data into a built-in data object.
-- ***Breaking*** Removed support for TransitionLayer inputs to the `samc()` function so that gdistance can be removed as a dependency.
-- ***Breaking*** The `sym` option for creating the samc object is currently ignored.
-- ***Breaking*** The `map()` function was updated so that the output matches the input types used in the `samc()` function.
-- ***Breaking*** Renamed the `tr_args` parameter to `model` to reflect future anticipated support for different types of models. Current usage will not change and assumes a default random-walk model.
-- ***Breaking*** Renamed the `occ` parameter in metrics to `init` (short for "initial state" or "initialize")
-- ***Breaking*** Added the parameter for setting the initial state in the `cond_passage()` function to match other metrics, but it is not currently used.
 - Bumped various package version requirements.
 
 # samc 2.0.1
