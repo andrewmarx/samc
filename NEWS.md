@@ -27,15 +27,14 @@ CRW reimplementation
 
 ## Other
 
-  - Enabled vector inputs for `init` parameters regardless of the data type used for inputs to the `samc()` function. This is intended to provide flexibility for special situations, and it's recommended that `init` inputs reflect the data types used for `samc()`.
-  - Reorganization of internal functions.
-  - Improvements to model and options validation.
+- Enabled vector inputs for `init` parameters regardless of the data type used for inputs to the `samc()` function. This is intended to provide flexibility for special situations, and it's recommended that `init` inputs reflect the data types used for `samc()`.
+- Reorganization of internal functions.
+- Improvements to model and options validation.
 
 ## Bug fixes
 
-  - Fixed `check()` node count approach for convolution.
-  - Fixed convolution short-term metrics with multiple time inputs.
-
+- Fixed `check()` node count approach for convolution.
+- Fixed convolution short-term metrics with multiple time inputs.
 
 # samc 3.3.0
 
@@ -54,22 +53,21 @@ CRW reimplementation
 - Various small fixes.
 - License update.
 
-
 # samc 3.2.1
 
-## Bug fix
+## Bug fixes
 
 - Fixed a minor issue in `check()` that was preventing use of the `init` parameter for samc objects created directly from a matrix.
 
 # samc 3.2.0
 
-## New Features
+## New features
 
 - Added the `visitation_net()` function for calculating net movement flow (vs total from `visitation()`)
 
 # samc 3.1.0
 
-## New Features
+## New features
 
 - Added support for the convolution algorithm described by Hughes et al. (2023, DOI: 10.1007/s10980-023-01619-9):
   - This algorithm is very memory efficient and fast, making it a good choice in memory-constrained scenarios.
@@ -92,10 +90,9 @@ CRW reimplementation
 
 - Added the toy resistance data used for a workshop at the IALE 2021 conference.
 
-
 # samc 3.0.2
 
-## New Features
+## New features
 
 - Added support for the terra package for raster data. Internally, the package now uses terra and converts RasterLayer objects to SpatRaster objects. It's recommended that users switch to the terra package for loading and preparing raster data for samc.
 - Made the `rasterize()` function publicly available. Mainly useful for converting matrices to a SpatRaster that matches the structure used internally by the package.
@@ -163,7 +160,7 @@ CRW reimplementation
 - Added the ability to use the $ operator for accessing and modifying components of samc-class objects. See samc-class documentation for details.
 - Updated check() so that multiple rasters can be inputted in the first argument as a RasterStack. This eliminates the need to manually run check() for multiple pairs of rasters.
 - Added initial support for caching intermediate results of some calculations. This currently only benefits dispersal(samc, occ), which now caches the diag(F) calculation. This means that while the first run of this method will still be slow, subsequent runs will be substantially faster. With this feature, dispersal(samc, origin) has been enabled and will share the same cached information with dispersal(samc, occ). Future versions will expand the cache options to additional metrics.
-- Added support for multiple absorption. The `absorption` parameter in samc() is treated as the total absorption (consistent with previous behavior). After the creation of the samc-class object, additional absorbing states can be attached to the samc-class object. See the samc-class documentation and the new *Multiple Absorption* tutorial for more details. 
+- Added support for multiple absorption. The `absorption` parameter in samc() is treated as the total absorption (consistent with previous behavior). After the creation of the samc-class object, additional absorbing states can be attached to the samc-class object. See the samc-class documentation and the new *Multiple Absorption* tutorial for more details.
 - Added a new absorption() metric. This metric is closely related to the mortality() metric. The absorption() metric can be used to determine the overall probability that a particular absorbing state will be reached (the mortality() metric calculates it for individual transient states rather than overall).
 - Fix missing value short-term dispersal
 - Overhauled the *Overview* vignette, including adding more details about the construction of the P matrix.
@@ -189,7 +186,6 @@ CRW reimplementation
 - Added checks during samc-class creation to prevent potential issues with discontinuous/clumped input data. Currently, this type of data will not work with the cond_passage() function, but will in a future release.
 - Reworked some of the vignettes to produce cleaner pages and remove suggested dependencies (e.g. gifski, gganimate, ggplot2) from the package so that users aren't bugged about installing them if they don't need them.
 
-
 # samc 1.2.0
 
 - Added the ability to create samc-class objects from a custom P matrix using p_mat parameter in samc(). See the samc() documentation for details
@@ -197,7 +193,6 @@ CRW reimplementation
 - Added the locate() function, which functions similarly to the cellFromXY() function in the raster package. It's used to get cell numbers from xy coords, but unlike cellFromXY(), it properly accounts for how cells are numbered when the P matrix is constructed.
 - Adjusted the absorption inputs to support values of 0 (i.e., no absorption). Currently, at least one cell must have a non-zero value
 - Fixed an issue where raster/matrix inputs containing isolated cells (individual cells neighbored by only NA values) would lead to malformed P matrices.
-
 
 # samc 1.1.0
 
@@ -211,17 +206,14 @@ CRW reimplementation
 - Created a Gitter community for package support. Gitter badges on the README and home pages can be used to access it.
 - Updated the package citation info to refer to Marx et al. (2020, DOI: 10.1111/ecog.04891)
 
-
 # samc 1.0.4
 
 - Add conditional usage of suggested packages in vignettes
 - Minor updates for package info
 
-
 # samc 1.0.3
 
 - First CRAN submission
-
 
 # samc 1.0.0
 
@@ -234,7 +226,6 @@ CRW reimplementation
 - Updated example data
 - Extensive documentation
 - Several tutorials
-
 
 # samc 0.1.0
 
