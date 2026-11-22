@@ -431,7 +431,8 @@ setMethod(
                                 threads = options$threads,
                                 override = options$override,
                                 solver = options$method,
-                                precision = options$precision)
+                                precision = options$precision,
+                                .cache = new.env())
 
         samc_obj@.cache$dgf = numeric(nrow(samc_obj@data@f))
         samc_obj@.cache$dgf_exists = FALSE
