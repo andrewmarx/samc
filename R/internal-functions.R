@@ -5,6 +5,39 @@
 # be used by users.
 
 
+#' Neighbor cell offsets
+#'
+#' Linear cell index offsets from a cell to its neighbors, in the same direction
+#' order used by `.tr_vals()`. Returns an `ncols` x `dir` matrix so that the
+#' offsets can differ by column: on a global lonlat raster, `terra::focalValues()`
+#' wraps columns across the antimeridian, so the W neighbors of the first column
+#' are in the last column (same row), and vice versa for E neighbors.
+#'
+#' @noRd
+.nb_offsets = function(x, dir) {
+    ncols = terra::ncol(x)
+
+    if (dir == 4) {
+        dr = c(-1, 0, 0, 1)
+        dc = c(0, -1, 1, 0)
+    } else if (dir == 8) {
+        dr = c(-1, -1, -1, 0, 0, 1, 1, 1)
+        dc = c(-1, 0, 1, -1, 1, -1, 0, 1)
+    } else {
+        stop("Invalid directions", call. = FALSE)
+    }
+
+    offsets = matrix(dr * ncols + dc, nrow = ncols, ncol = dir, byrow = TRUE)
+
+    if (isTRUE(terra::is.lonlat(x, global = TRUE))) {
+        offsets[1, dc == -1] = offsets[1, dc == -1] + ncols
+        offsets[ncols, dc == 1] = offsets[ncols, dc == 1] - ncols
+    }
+
+    offsets
+}
+
+
 #' RW function
 #'
 #' An internal function for creating RW samc matrix
@@ -36,11 +69,10 @@
     # tr offset vars
     if (dir == 4) {
         dir_vec = c(1:2, 0, 3:4)
-        offsets = c(-ncols, -1, 1, ncols)
     } else if (dir == 8) {
         dir_vec = c(1:4, 0, 5:8)
-        offsets = c(-ncols - 1, -ncols, -ncols + 1, -1, 1, ncols - 1, ncols, ncols + 1)
     }
+    offsets = .nb_offsets(x, dir)
 
     # Fill out mat_p
     mat_p = integer(ncells + 1)
@@ -62,7 +94,7 @@
                         p2i = p1i + d
 
                         if (!is.na(tr[p2i])) {
-                            p2 = cell_lookup[cell + offsets[d]]
+                            p2 = cell_lookup[cell + offsets[c, d]]
 
                             mat_p[p2 + 1] = mat_p[p2 + 1] + 1
                         }
@@ -106,7 +138,7 @@
                         p2i = p1i + d
 
                         if (!is.na(tr[p2i])) {
-                            p2 = cell_lookup[cell + offsets[d]]
+                            p2 = cell_lookup[cell + offsets[c, d]]
 
                             mat_p_count[p2] = mat_p_count[p2] + 1
 
@@ -196,11 +228,10 @@
     # tr offset vars
     if (dir == 4) {
         dir_vec = c(1:2, 0, 3:4)
-        offsets = c(-ncols, -1, 1, ncols) * 4
     } else if (dir == 8) {
         dir_vec = c(1:4, 0, 5:8)
-        offsets = c(-ncols - 1, -ncols, -ncols + 1, -1, 1, ncols - 1, ncols, ncols + 1) * 8
     }
+    offsets = .nb_offsets(x, dir) * dir
 
 
     # Fill out mat_p
@@ -219,7 +250,7 @@
                     e1 = p1 + d
 
                     if (!is.na(tr[e1])) {
-                        p2 = p1 + offsets[d]
+                        p2 = p1 + offsets[c, d]
 
                         # loop through valid secondary edges
                         for (dv in dir_vec) {
@@ -284,7 +315,7 @@
                 for (d in 1:dir) {
                     e1 = p1 + d
                     if (!is.na(tr[e1])) {
-                        p2 = p1 + offsets[d]
+                        p2 = p1 + offsets[c, d]
                         e1_num = edge_nums[e1]
 
                         crw_index = crw_index + 1
