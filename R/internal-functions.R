@@ -547,7 +547,7 @@
         if (lonlat) {
             cn = (0:(nrows - 1)) * ncols + 1
 
-            adj = terra::adjacent(rast, cn, directions = 8, pairs = TRUE)
+            adj = terra::adjacent(rast, cn, directions = dir, pairs = TRUE)
 
             dist = terra::distance(
                 terra::xyFromCell(rast, adj[, 1]),
@@ -560,10 +560,15 @@
             adj[!is.nan(adj)] = dist
             adj = t(adj)
 
-            mat[, c(1:4, 6:9)] = adj
-            mat[, 1] = mat[, 3]
-            mat[, 4] = mat[, 6]
-            mat[, 7] = mat[, 9]
+            if (dir == 4) {
+                mat[, c(2, 4, 6, 8)] = adj
+                mat[, 4] = mat[, 6]
+            } else {
+                mat[, c(1:4, 6:9)] = adj
+                mat[, 1] = mat[, 3]
+                mat[, 4] = mat[, 6]
+                mat[, 7] = mat[, 9]
+            }
         }
     }
 

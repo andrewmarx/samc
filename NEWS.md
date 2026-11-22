@@ -3,6 +3,7 @@
 ## Bug fixes
 
 - `samc()` objects created from P matrices (`matrix` or `dgCMatrix` inputs) shared a single internal cache, so metrics for a later object could silently reuse the solver setup from an earlier one and return wrong results. Each object now gets its own cache.
+- Step lengths for lonlat rasters with `dir = 4` were assigned to the wrong directions. On regional rasters every northward transition was dropped, and on global rasters east-west steps used the wrong distances.
 
 # samc 4.2.1
 
