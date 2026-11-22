@@ -96,7 +96,9 @@ setMethod("$<-", signature(x = "samc"), function(x, name, value) {
             warning("Input must be a single positive integer.", call. = FALSE)
         }
     } else if (name == "solver") {
-        if (x %in% c("direct", "iter")) {
+        if (x@solver == "conv") {
+            warning("Cannot change the solver of a samc object created with the convolution method.", call. = FALSE)
+        } else if (is.character(value) && length(value) == 1 && value %in% c("direct", "iter")) {
             x@solver = value
         } else {
             warning("Valid inputs: \"direct\" \"iter\"", call. = FALSE)
