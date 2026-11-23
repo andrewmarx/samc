@@ -102,8 +102,6 @@
         stop("Unexpected model in .rw()", call. = FALSE)
     }
 
-    nedges = sum(is.finite(tr))
-
     nrows = terra::nrow(x)
     ncols = terra::ncol(x)
     cell_nums = terra::cells(x)
@@ -152,8 +150,9 @@
 
     mat_p_count = integer(ncells + 1)
 
-    mat_x = numeric(nedges + ncells)
-    mat_i = integer(nedges + ncells)
+    nnz = mat_p[length(mat_p)]
+    mat_x = numeric(nnz)
+    mat_i = integer(nnz)
 
     cell = 0
 
