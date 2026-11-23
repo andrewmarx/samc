@@ -235,6 +235,7 @@
     } else if (dir == 8) {
         dir_vec = c(1:4, 0, 5:8)
     }
+    nb_dirs = dir_vec[dir_vec != 0]
     offsets = .nb_offsets(x, dir) * dir
 
 
@@ -292,11 +293,9 @@
     index = 0
 
     kappa_vals = terra::values(x, mat = FALSE, row = 1, nrows = 1) * 0
-    inv_norm_vals = kappa_vals
 
     if (kappa_mode == "scalar") {
         kappa_vals = kappa_vals + model$kappa
-        inv_norm_vals = inv_norm_vals + (1 / (2 * pi * besselI(model$kappa, nu = 0, expon.scaled = TRUE)))
     }
 
     # Loop through cells with values
@@ -306,7 +305,6 @@
 
         if (kappa_mode == "raster"){
             kappa_vals = terra::values(model$kappa, mat = FALSE, row = r, nrows = 1)
-            inv_norm_vals = 1/(2 * pi * besselI(x = kappa_vals, nu = 0, expon.scaled = TRUE))
         }
 
         for (c in 1:ncols) {
@@ -331,6 +329,13 @@
                         row_indices = numeric(dir)
                         row_indices[] = NA
 
+                        # Von Mises weights are exp(kappa * cos(turn)) up to a constant that cancels when the row is
+                        # normalized by rs. Shifting by the smallest available turn makes the largest weight exactly
+                        # 1, so rows can't underflow to 0/0 when straight ahead is unavailable (e.g., at the edge of
+                        # the map), and very large kappa converges to the smallest available turn.
+                        valid_dv = nb_dirs[!is.na(tr[p2 + nb_dirs])]
+                        cos_max = if (length(valid_dv)) max(cos_mat[d, valid_dv]) else 1
+
                         # loop through valid secondary edges
                         for (dv in dir_vec) {
                             if (dv) {
@@ -340,13 +345,7 @@
                                     e2_num = edge_nums[e2]
                                     mat_p_count[e2_num] = mat_p_count[e2_num] + 1
 
-                                    temp = if (kappa_vals[c] == 0) {
-                                        1 / (2 * pi)
-                                    } else if (kappa_vals[c] < 100000) {
-                                        inv_norm_vals[c] * (exp(kappa_vals[c] * (cos_mat[d, dv] - 1)))
-                                    } else {
-                                        ifelse(x == 1, Inf, 0)
-                                    }
+                                    temp = exp(kappa_vals[c] * (cos_mat[d, dv] - cos_max))
 
                                     res = tr[e2] * temp
 

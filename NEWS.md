@@ -8,6 +8,7 @@
 - `samc_obj$solver <- value` always failed with an error. It now switches between `"direct"` and `"iter"`, warns on invalid values, and refuses to change the solver of objects created with the convolution method.
 - `samc()` failed with "missing value where TRUE/FALSE needed" for SpatRaster inputs with no CRS when using `method = "conv"` or the CRW model. Rasters with no CRS are now treated as not lonlat in these checks.
 - CRW models with `dir = 4` and `kappa > 0` used the wrong turning angles.
+- CRW models with large `kappa` (~500 and up) produced NaN transition probabilities at the edges of the map, which caused metrics to fail, and `kappa >= 100000` failed with an error. Turning probabilities are now computed in a numerically stable way for any finite `kappa`.
 
 # samc 4.2.1
 
