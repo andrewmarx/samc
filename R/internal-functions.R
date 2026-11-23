@@ -92,7 +92,7 @@
     } else if (model$name == "SSF") {
         tr = .tr_vals(x, fun, dir, ssc = model$ssc)
     } else {
-        stop("", call. = FALSE)
+        stop("Unexpected model in .rw()", call. = FALSE)
     }
 
     nedges = sum(is.finite(tr))
@@ -150,7 +150,7 @@
 
     cell = 0
 
-    row_indices = numeric(dir)
+    row_indices = integer(dir)
 
     for (r in 1:nrows) {
         fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
@@ -191,8 +191,8 @@
                         mat_i[fid_index] = p1 - 1L
                     }
                 }
-                row_indices = row_indices[!is.na(row_indices)]
-                mat_x[row_indices] = mat_x[row_indices] / rs
+                ri = row_indices[!is.na(row_indices)]
+                mat_x[ri] = mat_x[ri] / rs
             }
         }
     }
@@ -235,19 +235,10 @@
                              1, -1),
         nrow = 8, byrow = TRUE)
 
-    # ang_mat was original general version. cos_mat is for von mises, which has a cos() that cancels the acos()
-    # ang_mat = matrix(nrow = 8, ncol = 8)
-    cos_mat = matrix(nrow = 8, ncol = 8)
-
-    for (r in 1:8) {
-        for (c in 1:8) {
-            mag_v1 = sqrt(sum(heading_vecs[r, ]^2))
-            mag_v2 = sqrt(sum(heading_vecs[c, ]^2))
-
-            # ang_mat[r, c] = acos(sum(heading_vecs[r, ] * heading_vecs[c, ]) / (mag_v1 * mag_v2))
-            cos_mat[r, c] = sum(heading_vecs[r, ] * heading_vecs[c, ]) / (mag_v1 * mag_v2)
-        }
-    }
+    # Cosine of the turn angle between each pair of headings. The von Mises weights only need the cosine, so the
+    # angle itself (the acos() of this) is never calculated.
+    mag = sqrt(rowSums(heading_vecs^2))
+    cos_mat = tcrossprod(heading_vecs) / tcrossprod(mag)
 
     # With dir = 4, heading indices 1-4 are N, W, E, S, so keep only those rows/cols
     if (dir == 4) {
@@ -314,6 +305,8 @@
     crw_index = 0L
     index = 0L
 
+    row_indices = integer(dir)
+
     kappa_vals = terra::values(x, mat = FALSE, row = 1, nrows = 1) * 0
 
     if (kappa_mode == "scalar") {
@@ -347,7 +340,6 @@
 
                         rs = 0
 
-                        row_indices = numeric(dir)
                         row_indices[] = NA
 
                         # Von Mises weights are exp(kappa * cos(turn)) up to a constant that cancels when the row is
@@ -384,8 +376,8 @@
                                 mat_i[fid_index] = e1_num - 1L
                             }
                         }
-                        row_indices = row_indices[!is.na(row_indices)]
-                        mat_x[row_indices] = mat_x[row_indices] / rs
+                        ri = row_indices[!is.na(row_indices)]
+                        mat_x[ri] = mat_x[ri] / rs
                     }
                 }
             }
@@ -440,7 +432,7 @@
         dir = c(1:4, 6:9)
     }
 
-    if (is(fun, "function")) {
+    if (is.function(fun)) {
         for (r in 1:nrows) {
             vals = terra::focalValues(data, 3, r, 1)
 
@@ -506,32 +498,34 @@
     }
 
 
-    if (!is.na(lonlat)) {
-        if (lonlat) {
-            cn = (0:(nrows - 1)) * ncols + 1
+    if (isTRUE(lonlat)) {
+        # Distances only vary by row, so use the first cell of each row
+        cn = (0:(nrows - 1)) * ncols + 1
 
-            adj = terra::adjacent(rast, cn, directions = dir, pairs = TRUE)
+        adj = terra::adjacent(rast, cn, directions = dir, pairs = TRUE)
 
-            dist = terra::distance(
-                terra::xyFromCell(rast, adj[, 1]),
-                terra::xyFromCell(rast, adj[, 2]),
-                lonlat = TRUE, pairwise = TRUE)
+        dist = terra::distance(
+            terra::xyFromCell(rast, adj[, 1]),
+            terra::xyFromCell(rast, adj[, 2]),
+            lonlat = TRUE, pairwise = TRUE)
 
-            adj = terra::adjacent(rast, cn, directions = dir, pairs = FALSE)
-            adj = t(adj)
+        # `dist` has one value per existing neighbor, ordered by cell and then by direction. With `pairs = FALSE` the
+        # result is a cell x direction matrix with NaN for missing neighbors. R fills matrices by column, so
+        # transpose to direction x cell to fill the non-NaN positions in the same order as `dist`, then transpose back.
+        adj = terra::adjacent(rast, cn, directions = dir, pairs = FALSE)
+        adj = t(adj)
 
-            adj[!is.nan(adj)] = dist
-            adj = t(adj)
+        adj[!is.nan(adj)] = dist
+        adj = t(adj)
 
-            if (dir == 4) {
-                mat[, c(2, 4, 6, 8)] = adj
-                mat[, 4] = mat[, 6]
-            } else {
-                mat[, c(1:4, 6:9)] = adj
-                mat[, 1] = mat[, 3]
-                mat[, 4] = mat[, 6]
-                mat[, 7] = mat[, 9]
-            }
+        if (dir == 4) {
+            mat[, c(2, 4, 6, 8)] = adj
+            mat[, 4] = mat[, 6]
+        } else {
+            mat[, c(1:4, 6:9)] = adj
+            mat[, 1] = mat[, 3]
+            mat[, 4] = mat[, 6]
+            mat[, 7] = mat[, 9]
         }
     }
 
