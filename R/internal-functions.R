@@ -38,6 +38,46 @@
 }
 
 
+#' Direction order for matrix entries
+#'
+#' The order in which a cell's entries are visited when filling the matrix:
+#' the direction indices used by `.tr_vals()`, with a 0 marking where the
+#' diagonal (fidelity) entry falls so that row indices stay sorted within each
+#' column.
+#'
+#' @noRd
+.dir_order = function(dir) {
+    if (dir == 4) {
+        c(1:2, 0, 3:4)
+    } else if (dir == 8) {
+        c(1:4, 0, 5:8)
+    } else {
+        stop("Invalid directions", call. = FALSE)
+    }
+}
+
+
+#' Build a dgCMatrix
+#'
+#' Create an `n` x `n` dgCMatrix directly from its slots
+#'
+#' @param p Integer vector of column pointers (0-based, length `n + 1`)
+#' @param i Integer vector of row indices (0-based)
+#' @param x Numeric vector of values
+#' @param n Number of rows/columns
+#' @noRd
+.csc = function(p, i, x, n) {
+    mat = new("dgCMatrix")
+    mat@Dim = c(as.integer(n), as.integer(n))
+
+    mat@p = p
+    mat@i = i
+    mat@x = x
+
+    mat
+}
+
+
 #' RW function
 #'
 #' An internal function for creating RW samc matrix
@@ -50,7 +90,7 @@
     if (model$name == "RW") {
         tr = .tr_vals(x, fun, dir)
     } else if (model$name == "SSF") {
-        tr = .tr_vals_ssf(x, fun, dir, model$ssc)
+        tr = .tr_vals(x, fun, dir, ssc = model$ssc)
     } else {
         stop("", call. = FALSE)
     }
@@ -67,11 +107,7 @@
     cell_lookup[cell_nums] = seq_along(cell_nums)
 
     # tr offset vars
-    if (dir == 4) {
-        dir_vec = c(1:2, 0, 3:4)
-    } else if (dir == 8) {
-        dir_vec = c(1:4, 0, 5:8)
-    }
+    dir_vec = .dir_order(dir)
     offsets = .nb_offsets(x, dir)
 
     # Fill out mat_p
@@ -161,14 +197,7 @@
         }
     }
 
-    mat = new("dgCMatrix")
-    mat@Dim = c(as.integer(ncells), as.integer(ncells))
-
-    mat@p = mat_p
-    mat@i = mat_i
-    mat@x = mat_x
-
-    mat
+    .csc(mat_p, mat_i, mat_x, ncells)
 }
 
 
@@ -196,14 +225,14 @@
     cell_nums = terra::cells(x)
 
     # Angle matrix. Rows/cols are in 8-direction order: NW, N, NE, W, E, SW, S, SE
-    dir_vec = matrix(c(-1, 1,
-                        0, 1,
-                        1, 1,
-                       -1, 0,
-                        1, 0,
-                       -1, -1,
-                        0, -1,
-                        1, -1),
+    heading_vecs = matrix(c(-1, 1,
+                             0, 1,
+                             1, 1,
+                            -1, 0,
+                             1, 0,
+                            -1, -1,
+                             0, -1,
+                             1, -1),
         nrow = 8, byrow = TRUE)
 
     # ang_mat was original general version. cos_mat is for von mises, which has a cos() that cancels the acos()
@@ -212,11 +241,11 @@
 
     for (r in 1:8) {
         for (c in 1:8) {
-            mag_v1 = sqrt(sum(dir_vec[r, ]^2))
-            mag_v2 = sqrt(sum(dir_vec[c, ]^2))
+            mag_v1 = sqrt(sum(heading_vecs[r, ]^2))
+            mag_v2 = sqrt(sum(heading_vecs[c, ]^2))
 
-            # ang_mat[r, c] = acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))
-            cos_mat[r, c] = sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2)
+            # ang_mat[r, c] = acos(sum(heading_vecs[r, ] * heading_vecs[c, ]) / (mag_v1 * mag_v2))
+            cos_mat[r, c] = sum(heading_vecs[r, ] * heading_vecs[c, ]) / (mag_v1 * mag_v2)
         }
     }
 
@@ -227,11 +256,7 @@
 
 
     # tr offset vars
-    if (dir == 4) {
-        dir_vec = c(1:2, 0, 3:4)
-    } else if (dir == 8) {
-        dir_vec = c(1:4, 0, 5:8)
-    }
+    dir_vec = .dir_order(dir)
     nb_dirs = dir_vec[dir_vec != 0]
     offsets = .nb_offsets(x, dir) * dir
 
@@ -367,12 +392,7 @@
         }
     }
 
-    mat = new("dgCMatrix")
-    mat@Dim = c(edge_counts, edge_counts)
-
-    mat@p = mat_p
-    mat@i = mat_i
-    mat@x = mat_x
+    mat = .csc(mat_p, mat_i, mat_x, edge_counts)
 
     dim(tr) = c(dir, length(tr) / dir)
     tr = scale(tr, FALSE, colSums(tr, na.rm = TRUE))
@@ -387,7 +407,23 @@
 }
 
 
-.tr_vals = function(data, fun, dir) {
+#' Transition values
+#'
+#' Calculate the unnormalized transition value for every cell and direction.
+#' The result is a vector with `dir` values per raster cell, in cell order.
+#'
+#' For RW/CRW models (`ssc = NULL`) the function value is divided by the
+#' distance between cells. For SSF models it is multiplied by the distance
+#' raised to the power `ssc`.
+#'
+#' @param data A SpatRaster
+#' @param fun A function, or the name of a built-in function: `"1/mean(x)"`
+#' (RW/CRW) or `"x[2]"` (SSF)
+#' @param dir Either 4 or 8
+#' @param ssc Step selection coefficient for SSF models, otherwise `NULL`
+#' @noRd
+.tr_vals = function(data, fun, dir, ssc = NULL) {
+    ssf = !is.null(ssc)
 
     nrows = terra::nrow(data)
     ncols = terra::ncol(data)
@@ -396,6 +432,7 @@
     index = 0
 
     dist = .build_lookup_mat(data, dir)
+    if (ssf) dist = dist^(ssc)
 
     if (dir == 4) {
         dir = c(2, 4, 6, 8)
@@ -412,12 +449,15 @@
                 for (d in dir) {
                     index = index + 1
 
-                    result[index] = fun(c(v, vals[c, d])) / dist[r, d]
-
+                    if (ssf) {
+                        result[index] = fun(c(v, vals[c, d])) * dist[r, d]
+                    } else {
+                        result[index] = fun(c(v, vals[c, d])) / dist[r, d]
+                    }
                 }
             }
         }
-    } else if (fun == "1/mean(x)") {
+    } else if (!ssf && fun == "1/mean(x)") {
         for (r in 1:nrows) {
             vals = terra::focalValues(data, 3, r, 1)
 
@@ -430,44 +470,7 @@
                 }
             }
         }
-    } else {
-        stop("Invalid transition function defined", call. = FALSE)
-    }
-
-    result
-}
-
-
-.tr_vals_ssf = function(data, fun, dir, ssc) {
-
-    nrows = terra::nrow(data)
-    ncols = terra::ncol(data)
-
-    result = numeric(nrows * ncols * dir)
-    index = 0
-
-    dist = .build_lookup_mat(data, dir)^(ssc)
-
-    if (dir == 4) {
-        dir = c(2, 4, 6, 8)
-    } else if (dir == 8) {
-        dir = c(1:4, 6:9)
-    }
-
-    if (is(fun, "function")) {
-        for (r in 1:nrows) {
-            vals = terra::focalValues(data, 3, r, 1)
-
-            for (c in 1:ncols) {
-                v = vals[c, 5]
-                for (d in dir) {
-                    index = index + 1
-
-                    result[index] = fun(c(v, vals[c, d])) * dist[r, d]
-                }
-            }
-        }
-    } else if (fun == "x[2]") {
+    } else if (ssf && fun == "x[2]") {
         for (r in 1:nrows) {
             vals = terra::focalValues(data, 3, r, 1)
 
