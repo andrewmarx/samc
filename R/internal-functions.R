@@ -80,8 +80,15 @@
 
 #' RW function
 #'
-#' An internal function for creating RW samc matrix
+#' An internal function for creating the matrix for RW and SSF samc objects.
+#' States are the non-NA cells of the map.
 #'
+#' @param x A SpatRaster with the data for the transition function
+#' @param absorption A SpatRaster with the total absorption
+#' @param fidelity A SpatRaster with the fidelity
+#' @param model The model list. Uses `name`, `fun`, `dir`, and for SSF, `ssc`
+#'
+#' @return A dgCMatrix
 #' @noRd
 .rw = function(x, absorption, fidelity, model) {
     dir = model$dir
@@ -203,8 +210,19 @@
 
 #' CRW function
 #'
-#' An internal function for creating RW samc objects
+#' An internal function for creating the matrix for CRW samc objects. States
+#' are the edges of the map (a cell and the heading it was entered with)
+#' rather than the cells.
 #'
+#' @param x A SpatRaster with the data for the transition function
+#' @param absorption A SpatRaster with the total absorption
+#' @param fidelity A SpatRaster with the fidelity
+#' @param model The model list. Uses `fun`, `dir`, `kappa`, and `kappa_mode`
+#'
+#' @return A list with the matrix (`tr`, a dgCMatrix), a two column matrix
+#' with the cell and heading of each state (`crw`), the normalized transition
+#' values as a `dir` x cells matrix (`prob`), and the absorption for each state
+#' (`abs`)
 #' @noRd
 .crw = function(x, absorption, fidelity, model) {
     dir = model$dir
@@ -482,6 +500,18 @@
 }
 
 
+#' Build distance lookup matrix
+#'
+#' Distances from a cell to each of its neighbors. Columns are the positions
+#' of a 3x3 window in the same order as `terra::focalValues()`. The center
+#' column and, for `dir = 4`, the diagonal columns are NA. For lonlat rasters
+#' the distances depend on latitude, so there is one row per raster row.
+#'
+#' @param rast A SpatRaster
+#' @param dir Either 4 or 8
+#'
+#' @return A matrix with `nrow(rast)` rows and 9 columns
+#' @noRd
 .build_lookup_mat = function(rast, dir) {
 
     # TODO Create tests to directly validate results for both directions options for planar and latlon
@@ -535,11 +565,19 @@
 
 #' Convolution
 #'
-#' TODO description here
+#' An internal function for creating the cache used by the convolution
+#' algorithm. Non-finite values in the inputs are treated as 0.
 #'
-#' @param x A function
+#' @param res A SpatRaster with the resistance data
+#' @param abso A SpatRaster with the total absorption
+#' @param fid A SpatRaster with the fidelity
+#' @param dir Either 4 or 8
+#' @param sym Whether the transition function is symmetric
+#' @param threads Number of threads to use
+#' @param precision Either `"single"` or `"double"`
+#'
+#' @return The convolution cache created by the C++ code
 #' @noRd
-
 .convolution = function(res, abso, fid, dir, sym, threads, precision) {
 
     if (dir == 4) {
@@ -558,8 +596,8 @@
         stop("'directions' must be equal to either 4 or 8")
     }
 
-    nr = nrow(res)
-    nc = ncol(res)
+    nr = terra::nrow(res)
+    nc = terra::ncol(res)
 
     res = as.matrix(res)
     abso = as.matrix(abso)
