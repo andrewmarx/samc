@@ -177,7 +177,10 @@
 #' An internal function for creating RW samc objects
 #'
 #' @noRd
-.crw = function(x, absorption, fidelity, fun, dir, sym = TRUE, model) {
+.crw = function(x, absorption, fidelity, model) {
+    dir = model$dir
+    fun = model$fun
+
     tr = .tr_vals(x, fun, dir)
 
     kappa_mode = model$kappa_mode

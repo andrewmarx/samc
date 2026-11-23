@@ -258,7 +258,7 @@ setMethod(
                     stop("Invalid kappa")
                 }
 
-                crw_list = .crw(data, absorption, fidelity, model$fun, directions, symm, model)
+                crw_list = .crw(data, absorption, fidelity, model)
                 #assign("myvar", crw_list)
                 samc_obj@data@f = crw_list$tr
                 gc()
