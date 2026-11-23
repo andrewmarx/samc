@@ -44,3 +44,51 @@ test_that("samc objects built from P matrices do not share a cache", {
   expect_equal(vis_a, as.vector(solve(diag(2) - as.matrix(samc_a$q_matrix))[1, ]), tolerance = 1e-10)
   expect_equal(vis_b, as.vector(solve(diag(2) - as.matrix(samc_b$q_matrix))[1, ]), tolerance = 1e-10)
 })
+
+test_that("SpatRasters without a CRS work with the convolution and CRW paths", {
+
+  # `terra::is.lonlat()` returns NA (with a warning) when a raster has no CRS.
+  # That must not break the lonlat checks in samc().
+  res = matrix(seq(1, 2, length.out = 100), 10, 10)
+  abs = matrix(0.01, 10, 10)
+  res_r = terra::rast(res)
+  abs_r = terra::rast(abs)
+  expect_true(is.na(suppressWarnings(terra::is.lonlat(res_r))))
+
+  rw_model = list(fun = "1/mean(x)", dir = 8, sym = TRUE)
+  conv_opts = list(method = "conv", threads = 1)
+
+  conv_r = suppressWarnings(samc(res_r, abs_r, model = rw_model, options = conv_opts))
+  conv_m = samc(res, abs, model = rw_model, options = conv_opts)
+  expect_equal(mortality(conv_r, init = res_r, time = 5),
+               mortality(conv_m, init = res, time = 5),
+               tolerance = 1e-12)
+
+  crw_model = list(name = "CRW", fun = "1/mean(x)", dir = 8, sym = TRUE, dist = "vonMises", kappa = 1)
+  expect_no_error(suppressWarnings(samc(res_r, abs_r, model = crw_model)))
+})
+
+test_that("lonlat warnings still fire for the convolution and CRW paths", {
+
+  res_r = terra::rast(matrix(seq(1, 2, length.out = 100), 10, 10),
+                      extent = terra::ext(0, 10, 0, 10), crs = "EPSG:4326")
+  abs_r = terra::rast(matrix(0.01, 10, 10),
+                      extent = terra::ext(0, 10, 0, 10), crs = "EPSG:4326")
+
+  collect_warnings = function(expr) {
+    msgs = character(0)
+    withCallingHandlers(expr, warning = function(w) {
+      msgs <<- c(msgs, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    })
+    msgs
+  }
+
+  conv_warnings = collect_warnings(samc(res_r, abs_r, model = list(fun = "1/mean(x)", dir = 8, sym = TRUE),
+                                        options = list(method = "conv", threads = 1)))
+  expect_true(any(grepl("Convolution method currently does not properly correct directions for lonlat", conv_warnings)))
+
+  crw_warnings = collect_warnings(samc(res_r, abs_r, model = list(name = "CRW", fun = "1/mean(x)", dir = 8, sym = TRUE,
+                                                                  dist = "vonMises", kappa = 1)))
+  expect_true(any(grepl("CRW does not properly adjust turning angles for lonlat", crw_warnings)))
+})
