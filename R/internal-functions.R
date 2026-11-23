@@ -198,8 +198,7 @@
 
     edge_counts = sum(is.finite(tr))
 
-    # Angle matrix
-    # TODO make sure works for 4 directions
+    # Angle matrix. Rows/cols are in 8-direction order: NW, N, NE, W, E, SW, S, SE
     dir_vec = matrix(c(-1, 1,
                         0, 1,
                         1, 1,
@@ -222,6 +221,11 @@
             # ang_mat[r, c] = acos(sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2))
             cos_mat[r, c] = sum(dir_vec[r, ] * dir_vec[c, ]) / (mag_v1 * mag_v2)
         }
+    }
+
+    # With dir = 4, heading indices 1-4 are N, W, E, S, so keep only those rows/cols
+    if (dir == 4) {
+        cos_mat = cos_mat[c(2, 4, 5, 7), c(2, 4, 5, 7)]
     }
 
 
