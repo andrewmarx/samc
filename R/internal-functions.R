@@ -46,7 +46,6 @@
 .rw = function(x, absorption, fidelity, model) {
     dir = model$dir
     fun = model$fun
-    sym = model$sym
 
     if (model$name == "RW") {
         tr = .tr_vals(x, fun, dir)
@@ -86,7 +85,6 @@
         for (c in 1:ncols) {
             cell = cell + 1
             if (is.finite(vals[c])) {
-                p1 = cell_lookup[cell]
                 p1i = (cell - 1) * dir
 
                 # loop through valid edges
@@ -130,7 +128,6 @@
 
                 # loop through valid edges
                 rs = 0
-                fid_index = NA
 
                 row_indices[] = NA
 
@@ -194,9 +191,6 @@
     nrows = terra::nrow(x)
     ncols = terra::ncol(x)
     cell_nums = terra::cells(x)
-    ncells = length(cell_nums)
-
-    edge_counts = sum(is.finite(tr))
 
     # Angle matrix. Rows/cols are in 8-direction order: NW, N, NE, W, E, SW, S, SE
     dir_vec = matrix(c(-1, 1,
@@ -324,7 +318,6 @@
                         crw_map[crw_index, ] = c(index, d)
 
                         rs = 0
-                        fid_index = NA
 
                         row_indices = numeric(dir)
                         row_indices[] = NA
@@ -372,14 +365,11 @@
     }
 
     mat = new("dgCMatrix")
-    mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
+    mat@Dim = c(edge_counts, edge_counts)
 
     mat@p = mat_p
     mat@i = mat_i
     mat@x = mat_x
-
-    #View(as.matrix(mat))
-
 
     dim(tr) = c(dir, length(tr) / dir)
     tr = scale(tr, FALSE, colSums(tr, na.rm = TRUE))
@@ -494,71 +484,6 @@
 }
 
 
-#' Build direction lookup function
-#'
-#' TODO description here
-#'
-#' @param x A function
-#' @noRd
-
-.build_lookup_function = function(rast, dir) {
-
-    # TODO Create tests to directly validate results for both directions options for planar and latlon
-
-    lonlat = terra::is.lonlat(rast)
-    nrows = terra::nrow(rast)
-    ncols = terra::ncol(rast)
-
-    if (dir == 4) {
-        dist_lookup = c(1, 1, 1, 1)
-    } else if (dir == 8) {
-        dist_lookup = c(sqrt(2), 1, sqrt(2), 1, 1, sqrt(2), 1, sqrt(2))
-    }
-
-    dist = function(x, dir) {
-        # x not used intentionally
-        dist_lookup[dir]
-    }
-
-    if (!is.na(lonlat)) {
-        if (lonlat) {
-            cn = (0:(nrows - 1)) * ncols + 1
-
-            adj = terra::adjacent(rast, cn, directions = 8, pairs = TRUE)
-
-            dist = terra::distance(
-                terra::xyFromCell(rast, adj[, 1]),
-                terra::xyFromCell(rast, adj[, 2]),
-                lonlat = TRUE, pairwise = TRUE)
-
-            adj = terra::adjacent(rast, cn, directions = dir, pairs = FALSE)
-            adj = t(adj)
-
-            dist_lookup = adj
-            dist_lookup[!is.nan(dist_lookup)] = dist
-
-            if (dir == 4) {
-                dir_reindex = c(1, 3, 3, 4)
-            } else if (dir == 8) {
-                dir_reindex = c(3, 2, 3, 5, 5, 8, 7, 8)
-            } else {
-                stop("Invalid directions", call. = FALSE)
-            }
-
-
-            dist = function(x, dir) {
-                dir = dir_reindex[dir]
-
-                x = trunc((x - 1) / ncols) + 1
-
-                dist_lookup[dir, x]
-            }
-        }
-    }
-
-    return(dist)
-}
-
 .build_lookup_mat = function(rast, dir) {
 
     # TODO Create tests to directly validate results for both directions options for planar and latlon
@@ -605,17 +530,6 @@
     }
 
     return(mat)
-}
-
-#' Build turning lookup function
-#'
-#' TODO description here
-#'
-#' @param x A function
-#' @noRd
-
-.build_turn_function = function() {
-
 }
 
 
