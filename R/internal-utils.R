@@ -5,12 +5,15 @@
 # be used by users.
 
 
-#' Test whether a samc object uses the random walk (RW) model
+#' Test whether a samc object uses a random walk (RW) state space
+#'
+#' TRUE for models with one transient state per cell. SSF models only differ
+#' from RW in how the transition values are calculated, so they are included.
 #'
 #' @param samc samc model
 #' @noRd
 .is_rw = function(samc) {
-    samc@model$name == "RW"
+    samc@model$name %in% c("RW", "SSF")
 }
 
 #' Test whether a samc object uses the correlated random walk (CRW) model
