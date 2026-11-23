@@ -63,7 +63,8 @@
     cell_nums = terra::cells(x)
     ncells = length(cell_nums)
 
-    cell_lookup = matrix(0, ncols, nrows) # Intentionally reversed for rast->mat
+    # Integer so that values read from it don't coerce mat_p/mat_i to double
+    cell_lookup = integer(nrows * ncols)
     cell_lookup[cell_nums] = seq_along(cell_nums)
 
     # tr offset vars
@@ -76,8 +77,8 @@
 
     # Fill out mat_p
     mat_p = integer(ncells + 1)
-    mat_p[] = 1 # every column will have a fidelity value
-    mat_p[1] = 0 # except first entry of mat_p does not refer to a column
+    mat_p[] = 1L # every column will have a fidelity value
+    mat_p[1] = 0L # except first entry of mat_p does not refer to a column
     cell = 0
 
     for (r in 1:nrows) {
@@ -96,7 +97,7 @@
                         if (!is.na(tr[p2i])) {
                             p2 = cell_lookup[cell + offsets[c, d]]
 
-                            mat_p[p2 + 1] = mat_p[p2 + 1] + 1
+                            mat_p[p2 + 1L] = mat_p[p2 + 1L] + 1L
                         }
                     }
                 }
@@ -140,21 +141,21 @@
                         if (!is.na(tr[p2i])) {
                             p2 = cell_lookup[cell + offsets[c, d]]
 
-                            mat_p_count[p2] = mat_p_count[p2] + 1
+                            mat_p_count[p2] = mat_p_count[p2] + 1L
 
                             res = tr[p2i]
                             rs = rs + res
 
                             row_indices[d] = mat_p[p2] + mat_p_count[p2]
                             mat_x[mat_p[p2] + mat_p_count[p2]] = -res * vals[c]
-                            mat_i[mat_p[p2] + mat_p_count[p2]] = p1
+                            mat_i[mat_p[p2] + mat_p_count[p2]] = p1 - 1L
                         }
                     } else {
-                        mat_p_count[p1] = mat_p_count[p1] + 1
+                        mat_p_count[p1] = mat_p_count[p1] + 1L
 
                         fid_index = mat_p[p1] + mat_p_count[p1]
                         mat_x[fid_index] = 1 - fid[c]
-                        mat_i[fid_index] = p1
+                        mat_i[fid_index] = p1 - 1L
                     }
                 }
                 row_indices = row_indices[!is.na(row_indices)]
@@ -163,13 +164,11 @@
         }
     }
 
-    mat_i = mat_i - 1
-
     mat = new("dgCMatrix")
     mat@Dim = c(as.integer(ncells), as.integer(ncells))
 
-    mat@p = as.integer(mat_p)
-    mat@i = as.integer(mat_i)
+    mat@p = mat_p
+    mat@i = mat_i
     mat@x = mat_x
 
     mat
@@ -187,8 +186,9 @@
     kappa_mode = model$kappa_mode
 
     edge_counts = sum(is.finite(tr))
-    edge_nums = tr
-    edge_nums[is.finite(edge_nums)] = 1:edge_counts
+    # Integer edge numbers, NA for non-edges
+    edge_nums = rep(NA_integer_, length(tr))
+    edge_nums[is.finite(tr)] = seq_len(edge_counts)
 
 
     nrows = terra::nrow(x)
@@ -262,10 +262,10 @@
                             if (dv) {
                                 e2 = p2 + dv
                                 if (!is.na(tr[e2])) {
-                                    mat_p[edge_nums[e2] + 1] = mat_p[edge_nums[e2] + 1] + 1
+                                    mat_p[edge_nums[e2] + 1L] = mat_p[edge_nums[e2] + 1L] + 1L
                                 }
                             } else {
-                                mat_p[edge_nums[e1] + 1] = mat_p[edge_nums[e1] + 1] + 1
+                                mat_p[edge_nums[e1] + 1L] = mat_p[edge_nums[e1] + 1L] + 1L
                             }
                         }
                     }
@@ -289,8 +289,8 @@
 
 
     cell = 0
-    crw_index = 0
-    index = 0
+    crw_index = 0L
+    index = 0L
 
     kappa_vals = terra::values(x, mat = FALSE, row = 1, nrows = 1) * 0
 
@@ -311,7 +311,7 @@
             cell = cell + 1
             if (is.finite(vals[c])) {
                 p1 = (cell - 1) * dir
-                index = index + 1
+                index = index + 1L
 
                 # loop through valid edges
                 for (d in 1:dir) {
@@ -320,7 +320,7 @@
                         p2 = p1 + offsets[c, d]
                         e1_num = edge_nums[e1]
 
-                        crw_index = crw_index + 1
+                        crw_index = crw_index + 1L
                         crw_map[crw_index, ] = c(index, d)
 
                         rs = 0
@@ -343,7 +343,7 @@
 
                                 if (!is.na(tr[e2])) {
                                     e2_num = edge_nums[e2]
-                                    mat_p_count[e2_num] = mat_p_count[e2_num] + 1
+                                    mat_p_count[e2_num] = mat_p_count[e2_num] + 1L
 
                                     temp = exp(kappa_vals[c] * (cos_mat[d, dv] - cos_max))
 
@@ -353,14 +353,14 @@
 
                                     row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]
                                     mat_x[mat_p[e2_num] + mat_p_count[e2_num]] = -res * vals[c]
-                                    mat_i[mat_p[e2_num] + mat_p_count[e2_num]] = e1_num
+                                    mat_i[mat_p[e2_num] + mat_p_count[e2_num]] = e1_num - 1L
                                 }
                             } else {
-                                mat_p_count[e1_num] = mat_p_count[e1_num] + 1
+                                mat_p_count[e1_num] = mat_p_count[e1_num] + 1L
 
                                 fid_index = mat_p[e1_num] + mat_p_count[e1_num]
                                 mat_x[fid_index] = 1 - fid[c]
-                                mat_i[fid_index] = e1_num
+                                mat_i[fid_index] = e1_num - 1L
                             }
                         }
                         row_indices = row_indices[!is.na(row_indices)]
@@ -371,13 +371,11 @@
         }
     }
 
-    mat_i = mat_i - 1
-
     mat = new("dgCMatrix")
     mat@Dim = c(as.integer(sum(edge_counts)), as.integer(sum(edge_counts)))
 
-    mat@p = as.integer(mat_p)
-    mat@i = as.integer(mat_i)
+    mat@p = mat_p
+    mat@i = mat_i
     mat@x = mat_x
 
     #View(as.matrix(mat))
