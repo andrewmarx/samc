@@ -430,71 +430,65 @@
 #' (RW/CRW) or `"x[2]"` (SSF)
 #' @param dir Either 4 or 8
 #' @param ssc Step selection coefficient for SSF models, otherwise `NULL`
+#' @param block_cells Approximate number of cells read per
+#' `terra::focalValues()` call. Each block is processed one direction at a
+#' time, so this bounds the temporary memory (roughly 110 bytes per cell of the
+#' block) without paying the per-call overhead of reading one row at a time.
 #' @noRd
-.tr_vals = function(data, fun, dir, ssc = NULL) {
+.tr_vals = function(data, fun, dir, ssc = NULL, block_cells = 2.5e5) {
     ssf = !is.null(ssc)
 
-    nrows = terra::nrow(data)
-    ncols = terra::ncol(data)
-
-    result = numeric(nrows * ncols * dir)
-    index = 0
-
-    dist = .build_lookup_mat(data, dir)
-    if (ssf) dist = dist^(ssc)
-
-    if (dir == 4) {
-        dir = c(2, 4, 6, 8)
-    } else if (dir == 8) {
-        dir = c(1:4, 6:9)
-    }
-
     if (is.function(fun)) {
-        for (r in 1:nrows) {
-            vals = terra::focalValues(data, 3, r, 1)
-
-            for (c in 1:ncols) {
-                v = vals[c, 5]
-                for (d in dir) {
-                    index = index + 1
-
-                    if (ssf) {
-                        result[index] = fun(c(v, vals[c, d])) * dist[r, d]
-                    } else {
-                        result[index] = fun(c(v, vals[c, d])) / dist[r, d]
-                    }
-                }
-            }
-        }
+        mode = "custom"
     } else if (!ssf && fun == "1/mean(x)") {
-        for (r in 1:nrows) {
-            vals = terra::focalValues(data, 3, r, 1)
-
-            for (c in 1:ncols) {
-                v = vals[c, 5]
-                for (d in dir) {
-                    index = index + 1
-
-                    result[index] = 2 / ((v + vals[c, d]) * dist[r, d])
-                }
-            }
-        }
+        mode = "rw"
     } else if (ssf && fun == "x[2]") {
-        for (r in 1:nrows) {
-            vals = terra::focalValues(data, 3, r, 1)
-
-            for (c in 1:ncols) {
-                for (d in dir) {
-                    index = index + 1
-
-                    result[index] = vals[c, d] * dist[r, d]
-                }
-            }
-        }
+        mode = "ssf"
     } else {
         stop("Invalid transition function defined", call. = FALSE)
     }
 
+    nrows = terra::nrow(data)
+    ncols = terra::ncol(data)
+
+    dist = .build_lookup_mat(data, dir)
+    if (ssf) dist = dist^(ssc)
+
+    # focalValues() columns of the neighbors, in direction order
+    nb_cols = if (dir == 4) c(2, 4, 6, 8) else c(1:4, 6:9)
+
+    # One column per cell and one row per direction, so that flattening it at the end puts the directions of each
+    # cell next to each other
+    result = matrix(0, nrow = dir, ncol = nrows * ncols)
+
+    block_rows = max(1L, as.integer(block_cells %/% ncols))
+
+    for (r1 in seq(1L, nrows, by = block_rows)) {
+        rows = r1:min(r1 + block_rows - 1L, nrows)
+        cells = ((r1 - 1L) * ncols + 1L):(rows[length(rows)] * ncols)
+        cell_rows = rep(rows, each = ncols)
+
+        # One row per cell of the block. Column 5 is the cell itself, nb_cols are its neighbors (NA if off the map)
+        vals = terra::focalValues(data, 3, r1, length(rows))
+        from = vals[, 5]
+
+        for (j in seq_len(dir)) {
+            to = vals[, nb_cols[j]]
+            step = dist[cell_rows, nb_cols[j]]
+
+            result[j, cells] = switch(mode,
+                rw = 2 / ((from + to) * step),
+                ssf = to * step,
+                custom = {
+                    # A plain loop rather than vapply(), which would add a second function call per pair
+                    v = numeric(length(from))
+                    for (k in seq_along(from)) v[k] = fun(c(from[k], to[k]))
+                    if (ssf) v * step else v / step
+                })
+        }
+    }
+
+    dim(result) = NULL
     result
 }
 

@@ -10,6 +10,10 @@
 - CRW models with `dir = 4` and `kappa > 0` used the wrong turning angles.
 - CRW models with large `kappa` (~500 and up) produced NaN transition probabilities at the edges of the map, which caused metrics to fail, and `kappa >= 100000` failed with an error. Turning probabilities are now computed in a numerically stable way for any finite `kappa`.
 
+## Other changes
+
+- Calculating transition values for the built-in transition functions is faster when creating RW, SSF, and CRW `samc()` objects. As part of this change, custom transition functions are now called in a different order (by direction, then by cell, instead of by cell, then by direction). Results are unchanged unless the function has side effects; for example, a function that uses random numbers will give different results than previous versions for the same seed.
+
 # samc 4.2.1
 
 - CRW optimizations and enhancements.
