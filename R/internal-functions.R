@@ -48,6 +48,58 @@
 }
 
 
+#' Strips of raster rows
+#'
+#' Split `nrows` raster rows into strips of `block_rows` rows (the last one may
+#' be shorter; `block_rows` is clamped to `1:nrows`). Returns an integer matrix
+#' with one row per strip: the first and last row of the strip (`r1`, `r2`) and
+#' of the strip plus a one row halo above and below where those rows exist
+#' (`ra`, `rb`).
+#'
+#' @noRd
+.strips = function(nrows, block_rows) {
+    nrows = as.integer(nrows)
+    block_rows = as.integer(max(1, min(block_rows, nrows)))
+    r1 = seq.int(1L, nrows, by = block_rows)
+    r2 = pmin(r1 + block_rows - 1L, nrows)
+
+    cbind(r1 = r1, r2 = r2, ra = pmax(1L, r1 - 1L), rb = pmin(nrows, r2 + 1L))
+}
+
+
+#' Neighbor cells within a slab
+#'
+#' For destination cells at slab rows `drow` and columns `dcol`, the slab cell
+#' index (row-major, 1-based) of the neighbor one step of `dr` rows and `dc`
+#' columns away, or NA where that neighbor is outside the slab. With `wrap`,
+#' columns wrap around (global lonlat rasters), so only rows can fall outside.
+#'
+#' @noRd
+.slab_nb = function(drow, dcol, dr, dc, nh, ncols, wrap) {
+    qr = drow + dr
+    qc = dcol + dc
+    if (wrap) qc = (qc - 1L) %% ncols + 1L
+
+    q = (qr - 1L) * ncols + qc
+    q[qr < 1L | qr > nh | qc < 1L | qc > ncols] = NA
+    q
+}
+
+
+#' Sort entry slots by row index
+#'
+#' `slot_x` (values) and `slot_i` (row indices) are slot x column matrices for
+#' some matrix columns, NA in `slot_i` marking an empty slot. Returns the values
+#' and indices with each column's slots sorted by row index, empty slots last,
+#' as vectors in the same column-major layout.
+#'
+#' @noRd
+.sort_slots = function(slot_x, slot_i) {
+    o = order(rep(seq_len(ncol(slot_i)), each = nrow(slot_i)), slot_i)
+    list(x = slot_x[o], i = slot_i[o])
+}
+
+
 #' Direction order for matrix entries
 #'
 #' The order in which a cell's entries are visited when filling the matrix:
@@ -91,129 +143,209 @@
 #' RW function
 #'
 #' An internal function for creating the matrix for RW and SSF samc objects.
-#' States are the non-NA cells of the map.
+#' States are the non-NA cells of the map, numbered in cell order.
+#'
+#' The matrix is built in strips of whole raster rows. This function does all
+#' of the raster access and bookkeeping; each strip is handed to `.rw_block()`
+#' as plain vectors, and the finished slab of the CSC arrays it returns is
+#' copied into the preallocated result.
 #'
 #' @param x A SpatRaster with the data for the transition function
 #' @param absorption A SpatRaster with the total absorption
 #' @param fidelity A SpatRaster with the fidelity
 #' @param model The model list. Uses `name`, `fun`, `dir`, and for SSF, `ssc`
+#' @param block_cells Approximate number of destination cells per strip (whole
+#' rows, at least one). The strip temporaries are about 1 kB per cell at
+#' `dir = 8`.
 #'
 #' @return A dgCMatrix
 #' @noRd
-.rw = function(x, absorption, fidelity, model) {
-    dir = model$dir
-    fun = model$fun
+.rw = function(x, absorption, fidelity, model, block_cells = 2e4) {
+    dir = as.integer(model$dir)
 
     if (model$name == "RW") {
-        tr = .tr_vals(x, fun, dir)
+        tr = .tr_vals(x, model$fun, dir)
     } else if (model$name == "SSF") {
-        tr = .tr_vals(x, fun, dir, ssc = model$ssc)
+        tr = .tr_vals(x, model$fun, dir, ssc = model$ssc)
     } else {
         stop("Unexpected model in .rw()", call. = FALSE)
     }
 
-    nrows = terra::nrow(x)
-    ncols = terra::ncol(x)
-    cell_nums = terra::cells(x)
-    ncells = length(cell_nums)
+    nrows = as.integer(terra::nrow(x))
+    ncols = as.integer(terra::ncol(x))
+    row_tr = as.numeric(ncols) * dir # tr values per raster row (double, so that tr indices can't overflow)
+    nb = .nb_steps(dir)
+    wrap = isTRUE(terra::is.lonlat(x, global = TRUE))
+    strips = .strips(nrows, block_cells %/% ncols)
 
-    # Integer so that values read from it don't coerce mat_p/mat_i to double
-    cell_lookup = integer(nrows * ncols)
-    cell_lookup[cell_nums] = seq_along(cell_nums)
+    # State numbers (1-based in cell order, 0 for NA cells), and the number of non-zeros: a diagonal entry per state
+    # plus an entry per transition value out of a state. The count is exact for the built-in transition functions,
+    # whose values are NA wherever the destination is NA or off the map. A blocked scan rather than terra::cells(),
+    # which reads the whole raster at once.
+    state = integer(nrows * ncols)
+    nstates = 0L
+    nnz = 0
+    for (s in seq_len(nrow(strips))) {
+        r1 = strips[s, "r1"]
+        r2 = strips[s, "r2"]
 
-    # tr offset vars
-    dir_vec = .dir_order(dir)
-    offsets = .nb_offsets(x, dir)
+        valid = !is.na(terra::values(x, mat = FALSE, row = r1, nrows = r2 - r1 + 1L))
+        k = sum(valid)
+        if (k > 0L) {
+            state[((r1 - 1L) * ncols + 1L):(r2 * ncols)][valid] = nstates + seq_len(k)
 
-    # Fill out mat_p
-    mat_p = integer(ncells + 1)
-    mat_p[] = 1L # every column will have a fidelity value
-    mat_p[1] = 0L # except first entry of mat_p does not refer to a column
-    cell = 0
-
-    for (r in 1:nrows) {
-        vals = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
-        for (c in 1:ncols) {
-            cell = cell + 1
-            if (is.finite(vals[c])) {
-                p1i = (cell - 1) * dir
-
-                # loop through valid edges
-                for (d in dir_vec) {
-                    if (d) {
-                        p2i = p1i + d
-
-                        if (!is.na(tr[p2i])) {
-                            p2 = cell_lookup[cell + offsets[c, d]]
-
-                            mat_p[p2 + 1L] = mat_p[p2 + 1L] + 1L
-                        }
-                    }
-                }
-            }
+            # Transition values of the block, less those out of NA cells
+            t0 = (r1 - 1) * row_tr
+            na_tr = t0 + rep((which(!valid) - 1) * dir, each = dir) + seq_len(dir)
+            nnz = nnz + k + sum(!is.na(tr[(t0 + 1):(r2 * row_tr)])) - sum(!is.na(tr[na_tr]))
         }
+        nstates = nstates + k
     }
+    rm(valid)
+    if (nnz > .Machine$integer.max) stop("Too many non-zero entries for a dgCMatrix", call. = FALSE)
 
-    for (i in 2:length(mat_p)) {
-        mat_p[i] = mat_p[i] + mat_p[i - 1]
-    }
-
-    mat_p_count = integer(ncells + 1)
-
-    nnz = mat_p[length(mat_p)]
     mat_x = numeric(nnz)
     mat_i = integer(nnz)
+    mat_p = integer(nstates + 1L)
+    pos = 0L # entries written so far
+    col_pos = 0L # columns (states) written so far
 
-    cell = 0
+    for (s in seq_len(nrow(strips))) {
+        r1 = strips[s, "r1"]
+        r2 = strips[s, "r2"]
+        ra = strips[s, "ra"]
+        rb = strips[s, "rb"]
 
-    row_indices = integer(dir)
+        blk = .rw_block(
+            tr = tr[((ra - 1) * row_tr + 1):(rb * row_tr)],
+            fid = terra::values(fidelity, mat = FALSE, row = ra, nrows = rb - ra + 1L),
+            abs = terra::values(absorption, mat = FALSE, row = ra, nrows = rb - ra + 1L),
+            state = state[((ra - 1L) * ncols + 1L):(rb * ncols)],
+            ncols = ncols,
+            dest_rows = c(r1, r2) - ra + 1L,
+            dr = nb$dr,
+            dc = nb$dc,
+            wrap = wrap)
 
-    for (r in 1:nrows) {
-        fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
-        vals = 1 - fid - terra::values(absorption, mat = FALSE, row = r, nrows = 1)
-
-        for (c in 1:ncols) {
-            cell = cell + 1
-            if (is.finite(vals[c])) {
-                p1 = cell_lookup[cell]
-                p1i = (cell - 1) * dir
-
-                # loop through valid edges
-                rs = 0
-
-                row_indices[] = NA
-
-                for (d in dir_vec) {
-                    if (d) {
-                        p2i = p1i + d
-
-                        if (!is.na(tr[p2i])) {
-                            p2 = cell_lookup[cell + offsets[c, d]]
-
-                            mat_p_count[p2] = mat_p_count[p2] + 1L
-
-                            res = tr[p2i]
-                            rs = rs + res
-
-                            row_indices[d] = mat_p[p2] + mat_p_count[p2]
-                            mat_x[mat_p[p2] + mat_p_count[p2]] = -res * vals[c]
-                            mat_i[mat_p[p2] + mat_p_count[p2]] = p1 - 1L
-                        }
-                    } else {
-                        mat_p_count[p1] = mat_p_count[p1] + 1L
-
-                        fid_index = mat_p[p1] + mat_p_count[p1]
-                        mat_x[fid_index] = 1 - fid[c]
-                        mat_i[fid_index] = p1 - 1L
-                    }
-                }
-                ri = row_indices[!is.na(row_indices)]
-                mat_x[ri] = mat_x[ri] / rs
-            }
+        m = length(blk$x)
+        if (m > 0L) {
+            idx = pos + seq_len(m)
+            mat_x[idx] = blk$x
+            mat_i[idx] = blk$i
         }
+        ns = length(blk$p)
+        mat_p[col_pos + 1L + seq_len(ns)] = pos + cumsum(blk$p)
+        pos = pos + m
+        col_pos = col_pos + ns
+        rm(blk)
     }
 
-    .csc(mat_p, mat_i, mat_x, ncells)
+    # Only a custom transition function with values towards NA cells can leave unused slots (see the count above)
+    if (pos < nnz) {
+        length(mat_x) = pos
+        length(mat_i) = pos
+    }
+
+    .csc(mat_p, mat_i, mat_x, nstates)
+}
+
+
+#' RW matrix block
+#'
+#' Build one slab of the RW/SSF matrix: the CSC columns of the destination
+#' cells of a strip. Takes only plain data and does no raster access, so that
+#' it can be ported to C++ or used on standalone tiles.
+#'
+#' The caller supplies a slab of `nh` rows of `ncols` cells, row-major (cell
+#' order). The destinations are the cells of slab rows
+#' `dest_rows[1]:dest_rows[2]`. Entries come from the neighbors of the
+#' destinations, so the slab must include a one row halo: every map row within
+#' one row of the destination rows. Slab rows beyond the first and last are
+#' treated as off the map, and so are columns beyond the first and last unless
+#' `wrap` is set.
+#'
+#' @param tr Transition values of the slab cells, `dir` per cell, in cell order
+#' and the direction order of `dr`/`dc` (as from `.tr_vals()`). NA where there
+#' is no transition.
+#' @param fid,abs Fidelity and absorption of the slab cells
+#' @param state Integer state number of each slab cell, 0 if the cell is not a
+#' state. These are the (1-based) matrix row and column numbers, so they can be
+#' global. They must be ascending in cell order (wrapped columns excepted) for
+#' the row indices of each column to come out sorted.
+#' @param ncols Number of slab columns
+#' @param dest_rows First and last destination row, as slab rows
+#' @param dr,dc Integer row and column steps from a cell to its neighbors, in
+#' ascending cell order and with every step's opposite included (see
+#' `.nb_steps()`)
+#' @param wrap Whether the first and last slab columns are neighbors (global
+#' lonlat raster)
+#'
+#' @return A list with the slab of the CSC arrays for the destination cells
+#' that are states (`state != 0`), in cell order: `p`, the number of entries in
+#' each column (integer); `i`, the row indices, 0-based (`state - 1`); and `x`,
+#' the values. Within each column the row indices are ascending.
+#' @noRd
+.rw_block = function(tr, fid, abs, state, ncols, dest_rows, dr, dc, wrap) {
+    dir = length(dr)
+    nh = length(state) %/% ncols
+
+    # Cells that are not states give no entries
+    vals = 1 - fid - abs
+    vals[!is.finite(vals) | state == 0L] = NA
+
+    # Row sums of the transition values of each slab cell, added in direction order (colSums() rounds differently)
+    rs = numeric(length(state))
+    for (j in seq_len(dir)) {
+        t = tr[seq.int(j, by = dir, length.out = length(state))]
+        t[is.na(t)] = 0
+        rs = rs + t
+    }
+
+    dest = ((dest_rows[1] - 1L) * ncols + 1L):(dest_rows[2] * ncols)
+    n = length(dest)
+    drow = rep(dest_rows[1]:dest_rows[2], each = ncols)
+    dcol = rep(seq_len(ncols), length.out = n)
+
+    # Gather by destination: the column of a destination has an entry for each neighbor k that is a source, using
+    # the neighbor's transition value in the opposite direction, opp[k]. The first h neighbors come before the
+    # destination in cell order, so with the diagonal entry in slot h + 1 the dir + 1 slots of a column are in
+    # ascending row order (except for wrapped columns, sorted below).
+    opp = match(paste(-dr, -dc), paste(dr, dc))
+    h = sum(dr < 0L | (dr == 0L & dc < 0L))
+
+    slot_x = matrix(NA_real_, dir + 1L, n) # values, one column per destination
+    slot_i = matrix(NA_integer_, dir + 1L, n) # row numbers (source states), NA for no entry
+    for (k in seq_len(dir)) {
+        q = .slab_nb(drow, dcol, dr[k], dc[k], nh, ncols, wrap)
+        tq = tr[(q - 1L) * dir + opp[k]]
+        iq = state[q]
+        iq[is.na(tq) | is.na(vals[q])] = NA
+
+        slot = k + (k > h)
+        slot_x[slot, ] = (-tq * vals[q]) / rs[q]
+        slot_i[slot, ] = iq
+    }
+    slot_x[h + 1L, ] = 1 - fid[dest]
+    slot_i[h + 1L, ] = state[dest]
+
+    # On a global raster the W/E neighbors of the first/last column are on the other side of the map, out of cell
+    # order
+    if (wrap) {
+        wc = which(dcol == 1L | dcol == ncols)
+        s = .sort_slots(slot_x[, wc, drop = FALSE], slot_i[, wc, drop = FALSE])
+        slot_x[, wc] = s$x
+        slot_i[, wc] = s$i
+        rm(s)
+    }
+
+    is_col = state[dest] != 0L
+    keep = !is.na(slot_i) & rep(is_col, each = dir + 1L)
+    p = as.integer(colSums(keep))[is_col]
+    x = slot_x[keep]
+    rm(slot_x)
+    i = slot_i[keep] - 1L
+
+    list(p = p, i = i, x = x)
 }
 
 
