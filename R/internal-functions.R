@@ -16,25 +16,35 @@
 #' @noRd
 .nb_offsets = function(x, dir) {
     ncols = terra::ncol(x)
+    nb = .nb_steps(dir)
 
-    if (dir == 4) {
-        dr = c(-1, 0, 0, 1)
-        dc = c(0, -1, 1, 0)
-    } else if (dir == 8) {
-        dr = c(-1, -1, -1, 0, 0, 1, 1, 1)
-        dc = c(-1, 0, 1, -1, 1, -1, 0, 1)
-    } else {
-        stop("Invalid directions", call. = FALSE)
-    }
-
-    offsets = matrix(dr * ncols + dc, nrow = ncols, ncol = dir, byrow = TRUE)
+    offsets = matrix(nb$dr * ncols + nb$dc, nrow = ncols, ncol = dir, byrow = TRUE)
 
     if (isTRUE(terra::is.lonlat(x, global = TRUE))) {
-        offsets[1, dc == -1] = offsets[1, dc == -1] + ncols
-        offsets[ncols, dc == 1] = offsets[ncols, dc == 1] - ncols
+        offsets[1, nb$dc == -1] = offsets[1, nb$dc == -1] + ncols
+        offsets[ncols, nb$dc == 1] = offsets[ncols, nb$dc == 1] - ncols
     }
 
     offsets
+}
+
+
+#' Neighbor steps
+#'
+#' Row and column steps (`dr`, `dc`, integer vectors of length `dir`) from a
+#' cell to each of its neighbors, in the direction order used by `.tr_vals()`:
+#' NW, N, NE, W, E, SW, S, SE (or N, W, E, S for `dir = 4`). This order is
+#' ascending in cell order.
+#'
+#' @noRd
+.nb_steps = function(dir) {
+    if (dir == 4) {
+        list(dr = c(-1L, 0L, 0L, 1L), dc = c(0L, -1L, 1L, 0L))
+    } else if (dir == 8) {
+        list(dr = c(-1L, -1L, -1L, 0L, 0L, 1L, 1L, 1L), dc = c(-1L, 0L, 1L, -1L, 1L, -1L, 0L, 1L))
+    } else {
+        stop("Invalid directions", call. = FALSE)
+    }
 }
 
 
