@@ -100,25 +100,6 @@
 }
 
 
-#' Direction order for matrix entries
-#'
-#' The order in which a cell's entries are visited when filling the matrix:
-#' the direction indices used by `.tr_vals()`, with a 0 marking where the
-#' diagonal (fidelity) entry falls so that row indices stay sorted within each
-#' column.
-#'
-#' @noRd
-.dir_order = function(dir) {
-    if (dir == 4) {
-        c(1:2, 0, 3:4)
-    } else if (dir == 8) {
-        c(1:4, 0, 5:8)
-    } else {
-        stop("Invalid directions", call. = FALSE)
-    }
-}
-
-
 #' Build a dgCMatrix
 #'
 #' Create an `n` x `n` dgCMatrix directly from its slots
@@ -352,209 +333,266 @@
 #' CRW function
 #'
 #' An internal function for creating the matrix for CRW samc objects. States
-#' are the edges of the map (a cell and the heading it was entered with)
-#' rather than the cells.
+#' are the edges of the map (a cell and the heading it is left with) rather
+#' than the cells: the (cell, direction) pairs with a finite transition value,
+#' numbered in that order.
+#'
+#' The matrix is built in strips of whole raster rows, as in `.rw()`, with each
+#' strip handed to `.crw_block()`.
 #'
 #' @param x A SpatRaster with the data for the transition function
 #' @param absorption A SpatRaster with the total absorption
 #' @param fidelity A SpatRaster with the fidelity
 #' @param model The model list. Uses `fun`, `dir`, `kappa`, and `kappa_mode`
+#' @param block_entries Approximate number of entry slots per strip (whole
+#' rows, at least one). A strip has `(dir + 1) * dir` slots per cell.
 #'
 #' @return A list with the matrix (`tr`, a dgCMatrix), a two column matrix
 #' with the cell and heading of each state (`crw`), the normalized transition
 #' values as a `dir` x cells matrix (`prob`), and the absorption for each state
 #' (`abs`)
 #' @noRd
-.crw = function(x, absorption, fidelity, model) {
-    dir = model$dir
-    fun = model$fun
+.crw = function(x, absorption, fidelity, model, block_entries = 2.5e5) {
+    dir = as.integer(model$dir)
+    tr = .tr_vals(x, model$fun, dir)
 
-    tr = .tr_vals(x, fun, dir)
+    nrows = as.integer(terra::nrow(x))
+    ncols = as.integer(terra::ncol(x))
+    ncell = nrows * ncols
+    row_tr = as.numeric(ncols) * dir # tr values per raster row (double, so that tr indices can't overflow)
+    nb = .nb_steps(dir)
+    wrap = isTRUE(terra::is.lonlat(x, global = TRUE))
+    kappa_raster = model$kappa_mode == "raster"
 
-    kappa_mode = model$kappa_mode
+    # Cosine of the turn angle between each pair of headings, in direction order. The heading of a step is (dc, -dr),
+    # i.e. x to the right and y up. The von Mises weights only need the cosine, so the angle itself (the acos() of
+    # this) is never calculated.
+    heading = cbind(nb$dc, -nb$dr)
+    mag = sqrt(rowSums(heading^2))
+    cos_mat = tcrossprod(heading) / tcrossprod(mag)
 
-    edge_counts = sum(is.finite(tr))
-    # Integer edge numbers, NA for non-edges
-    edge_nums = rep(NA_integer_, length(tr))
-    edge_nums[is.finite(tr)] = seq_len(edge_counts)
+    # Cells with entries (finite 1 - fidelity - absorption), and the cell and direction of each edge
+    abs_all = terra::values(absorption, mat = FALSE)
+    has_entries = is.finite(1 - terra::values(fidelity, mat = FALSE) - abs_all)
+    e = which(is.finite(tr))
+    nedges = length(e)
+    cell = (e - 1L) %/% dir + 1L
+    d = e - (cell - 1L) * dir
+    rm(e)
 
+    # Edges before each raster row, so that a strip can number its edges from its own slab of tr
+    row_base = c(0L, cumsum(tabulate((cell - 1L) %/% ncols + 1L, nrows)))
 
-    nrows = terra::nrow(x)
-    ncols = terra::ncol(x)
-    cell_nums = terra::cells(x)
+    # Number of non-zeros: column (p2, dv) has an entry for each edge into p2 from a cell with entries, plus the
+    # diagonal if p2 has entries itself. The whole map is treated as one slab to find where each edge goes.
+    from = has_entries[cell]
+    src = cell[from]
+    dd = d[from]
+    dest = .slab_nb((src - 1L) %/% ncols + 1L, (src - 1L) %% ncols + 1L, nb$dr[dd], nb$dc[dd], nrows, ncols, wrap)
+    indeg = tabulate(dest, ncell)
+    rm(src, dd, dest)
+    nnz = sum(as.numeric(tabulate(cell, ncell)) * (indeg + has_entries))
+    rm(indeg)
+    if (nnz > .Machine$integer.max) stop("Too many non-zero entries for a dgCMatrix", call. = FALSE)
 
-    # Angle matrix. Rows/cols are in 8-direction order: NW, N, NE, W, E, SW, S, SE
-    heading_vecs = matrix(c(-1, 1,
-                             0, 1,
-                             1, 1,
-                            -1, 0,
-                             1, 0,
-                            -1, -1,
-                             0, -1,
-                             1, -1),
-        nrow = 8, byrow = TRUE)
+    # The cell (as its index among cells with entries) and direction of each state: filled for the edges of cells
+    # with entries, in order, and left as 0 in the remaining rows at the end
+    crw_map = matrix(0L, nrow = nedges, ncol = 2)
+    m = sum(from)
+    crw_map[seq_len(m), 1] = cumsum(has_entries)[cell[from]]
+    crw_map[seq_len(m), 2] = d[from]
+    rm(cell, d, from, has_entries)
+    abs_out = abs_all[terra::cells(x)[crw_map[, 1]]]
+    rm(abs_all)
 
-    # Cosine of the turn angle between each pair of headings. The von Mises weights only need the cosine, so the
-    # angle itself (the acos() of this) is never calculated.
-    mag = sqrt(rowSums(heading_vecs^2))
-    cos_mat = tcrossprod(heading_vecs) / tcrossprod(mag)
+    mat_x = numeric(nnz)
+    mat_i = integer(nnz)
+    mat_p = integer(nedges + 1L)
+    pos = 0L # entries written so far
+    col_pos = 0L # columns (states) written so far
 
-    # With dir = 4, heading indices 1-4 are N, W, E, S, so keep only those rows/cols
-    if (dir == 4) {
-        cos_mat = cos_mat[c(2, 4, 5, 7), c(2, 4, 5, 7)]
-    }
+    strips = .strips(nrows, block_entries %/% ((dir + 1L) * dir * ncols))
+    for (s in seq_len(nrow(strips))) {
+        r1 = strips[s, "r1"]
+        r2 = strips[s, "r2"]
+        ra = strips[s, "ra"]
+        rb = strips[s, "rb"]
 
+        # Edge numbers of the slab cells: NA for non-edges, otherwise counting on from the edges of earlier rows
+        ts = tr[((ra - 1) * row_tr + 1):(rb * row_tr)]
+        ev = is.finite(ts)
+        edge = rep(NA_integer_, length(ts))
+        edge[ev] = row_base[ra] + seq_len(sum(ev))
+        rm(ev)
 
-    # tr offset vars
-    dir_vec = .dir_order(dir)
-    nb_dirs = dir_vec[dir_vec != 0]
-    offsets = .nb_offsets(x, dir) * dir
+        kappa = model$kappa
+        if (kappa_raster) kappa = terra::values(kappa, mat = FALSE, row = ra, nrows = rb - ra + 1L)
 
+        blk = .crw_block(
+            tr = ts,
+            edge = edge,
+            fid = terra::values(fidelity, mat = FALSE, row = ra, nrows = rb - ra + 1L),
+            abs = terra::values(absorption, mat = FALSE, row = ra, nrows = rb - ra + 1L),
+            kappa = kappa,
+            cos_mat = cos_mat,
+            ncols = ncols,
+            dest_rows = c(r1, r2) - ra + 1L,
+            dr = nb$dr,
+            dc = nb$dc,
+            wrap = wrap)
+        rm(ts, edge)
 
-    # Fill out mat_p
-    mat_p = integer(edge_counts + 1)
-    cell = 0
-
-    for (r in 1:nrows) {
-        vals = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
-        for (c in 1:ncols) {
-            cell = cell + 1
-            if (is.finite(vals[c])) {
-                p1 = (cell - 1) * dir
-
-                # loop through valid edges
-                for (d in 1:dir) {
-                    e1 = p1 + d
-
-                    if (!is.na(tr[e1])) {
-                        p2 = p1 + offsets[c, d]
-
-                        # loop through valid secondary edges
-                        for (dv in dir_vec) {
-                            if (dv) {
-                                e2 = p2 + dv
-                                if (!is.na(tr[e2])) {
-                                    mat_p[edge_nums[e2] + 1L] = mat_p[edge_nums[e2] + 1L] + 1L
-                                }
-                            } else {
-                                mat_p[edge_nums[e1] + 1L] = mat_p[edge_nums[e1] + 1L] + 1L
-                            }
-                        }
-                    }
-                }
-            }
+        m = length(blk$x)
+        if (m > 0L) {
+            idx = pos + seq_len(m)
+            mat_x[idx] = blk$x
+            mat_i[idx] = blk$i
         }
+        ns = length(blk$p)
+        mat_p[col_pos + 1L + seq_len(ns)] = pos + cumsum(blk$p)
+        pos = pos + m
+        col_pos = col_pos + ns
+        rm(blk)
     }
 
-    for (i in 2:length(mat_p)) {
-        mat_p[i] = mat_p[i] + mat_p[i - 1]
+    if (pos != nnz || col_pos != nedges) {
+        stop("Unexpected number of matrix entries in .crw(). Please report with a minimum reproducible example.",
+            call. = FALSE)
     }
 
+    # Normalized transition values. Computed after the strips, which gave a lower memory peak.
+    dim(tr) = c(dir, ncell)
+    tr = tr / rep(colSums(tr, na.rm = TRUE), each = dir)
+
+    list(tr = .csc(mat_p, mat_i, mat_x, nedges), crw = crw_map, prob = tr, abs = abs_out)
+}
 
 
-    mat_p_count = integer(edge_counts)
+#' CRW matrix block
+#'
+#' Build one slab of the CRW matrix: the CSC columns of the edges (states)
+#' leaving the destination cells of a strip. Takes only plain data and does no
+#' raster access, so that it can be ported to C++ or used on standalone tiles.
+#'
+#' The slab and halo requirements are the same as for `.rw_block()`.
+#'
+#' The entry from row edge (q, dd), which enters destination cell p2 from
+#' neighbor q, to column edge (p2, dv) is
+#' `-tr[p2, dv] * w(dd, dv) * (1 - fid[q] - abs[q]) / rs`, where `w` is the
+#' von Mises turn weight with the kappa of q and `rs` normalizes over the edges
+#' leaving p2. The diagonal entry of column (p2, dv) is `1 - fid[p2]`.
+#'
+#' @param tr Transition values of the slab cells, `dir` per cell, in cell order
+#' and the direction order of `dr`/`dc` (as from `.tr_vals()`)
+#' @param edge Integer edge (state) number of each slab cell and direction,
+#' laid out as `tr`, NA where that is not an edge. These are the (1-based)
+#' matrix row and column numbers, so they can be global. They must be ascending
+#' in cell order (wrapped columns excepted) for the row indices of each column
+#' to come out sorted.
+#' @param fid,abs Fidelity and absorption of the slab cells
+#' @param kappa A single kappa, or the kappa of each slab cell
+#' @param cos_mat `dir` x `dir` matrix of the cosine of the turn angle between
+#' each pair of directions
+#' @param ncols,dest_rows,dr,dc,wrap As for `.rw_block()`
+#'
+#' @return A list with the slab of the CSC arrays for the edges of the
+#' destination cells, in edge order: `p`, the number of entries in each column
+#' (integer); `i`, the row indices, 0-based (`edge - 1`); and `x`, the values.
+#' Within each column the row indices are ascending.
+#' @noRd
+.crw_block = function(tr, edge, fid, abs, kappa, cos_mat, ncols, dest_rows, dr, dc, wrap) {
+    dir = length(dr)
+    nh = length(fid) %/% ncols
 
-    mat_x = numeric(mat_p[length(mat_p)])
-    mat_i = integer(mat_p[length(mat_p)])
+    # Cells without a finite value give no entries
+    vals = 1 - fid - abs
+    vals[!is.finite(vals)] = NA
 
-    crw_map = matrix(0L, nrow = edge_counts, ncol = 2)
+    dest = ((dest_rows[1] - 1L) * ncols + 1L):(dest_rows[2] * ncols)
+    n = length(dest)
+    drow = rep(dest_rows[1]:dest_rows[2], each = ncols)
+    dcol = rep(seq_len(ncols), length.out = n)
 
+    # Neighbor k of a destination reaches it in direction opp[k]; the first h neighbors come before it in cell
+    # order (see .rw_block())
+    opp = match(paste(-dr, -dc), paste(dr, dc))
+    h = sum(dr < 0L | (dr == 0L & dc < 0L))
 
-    cell = 0
-    crw_index = 0L
-    index = 0L
+    # The edges leaving the destination cells are the matrix columns. e2 is their numbers in column order (direction
+    # within destination cell), NA where (p2, dv) is not an edge; t2 is their transition values as a destination x
+    # direction matrix, NA where there is no edge.
+    di = ((dest[1] - 1L) * dir + 1L):(dest[n] * dir)
+    e2 = edge[di]
+    t2 = tr[di]
+    t2[is.na(e2)] = NA
+    dim(t2) = c(dir, n)
+    t2 = t(t2)
 
-    row_indices = integer(dir)
+    # One matrix column per (destination, dv), one row per entry slot as in .rw_block(): with no column wrap the
+    # slots are ascending in row (edge) number, since edges are numbered in cell order
+    slot_x = matrix(NA_real_, dir + 1L, dir * n)
+    slot_i = matrix(NA_integer_, dir + 1L, dir * n)
+    for (k in seq_len(dir)) {
+        dd = opp[k] # heading of the row edge (q, dd) from neighbor q into the destination
+        q = .slab_nb(drow, dcol, dr[k], dc[k], nh, ncols, wrap)
+        eq = edge[(q - 1L) * dir + dd]
+        eq[is.na(vals[q])] = NA
+        kq = if (length(kappa) == 1L) kappa else kappa[q]
 
-    kappa_vals = terra::values(x, mat = FALSE, row = 1, nrows = 1) * 0
+        # Von Mises weights are exp(kappa * cos(turn)) up to a constant that cancels when the row is normalized by
+        # rs. Shifting by the smallest available turn (the largest cosine over the edges leaving p2, 1 if there are
+        # none) makes the largest weight exactly 1, so rows can't underflow to 0/0 when straight ahead is unavailable
+        # (e.g., at the edge of the map), and very large kappa converges to the smallest available turn.
+        cm = cos_mat[dd, ]
+        cmax = rep(-Inf, n)
+        for (dv in seq_len(dir)) {
+            u = !is.na(t2[, dv]) & cm[dv] > cmax
+            cmax[u] = cm[dv]
+        }
+        cmax[cmax == -Inf] = 1
 
-    if (kappa_mode == "scalar") {
-        kappa_vals = kappa_vals + model$kappa
-    }
-
-    # Loop through cells with values
-    for (r in 1:nrows) {
-        fid = terra::values(fidelity, mat = FALSE, row = r, nrows = 1)
-        vals = 1 - fid - terra::values(absorption, mat = FALSE, row = r, nrows = 1)
-
-        if (kappa_mode == "raster"){
-            kappa_vals = terra::values(model$kappa, mat = FALSE, row = r, nrows = 1)
+        # tr * exp(kappa * (cos - cos_max)), the row sum accumulated in dv order, then (-w * vals) / rs. Changing
+        # the order of operations would change the values in the last bits.
+        wt = t2 * exp(kq * (rep(cm, each = n) - cmax))
+        rs = numeric(n)
+        for (dv in seq_len(dir)) {
+            w = wt[, dv]
+            w[is.na(w)] = 0
+            rs = rs + w
         }
 
-        for (c in 1:ncols) {
-            cell = cell + 1
-            if (is.finite(vals[c])) {
-                p1 = (cell - 1) * dir
-                index = index + 1L
+        ie = rep(eq, each = dir)
+        ie[is.na(e2)] = NA
 
-                # loop through valid edges
-                for (d in 1:dir) {
-                    e1 = p1 + d
-                    if (!is.na(tr[e1])) {
-                        p2 = p1 + offsets[c, d]
-                        e1_num = edge_nums[e1]
+        slot = k + (k > h)
+        slot_x[slot, ] = t((-wt * vals[q]) / rs)
+        slot_i[slot, ] = ie
+    }
+    rm(wt, w, t2)
 
-                        crw_index = crw_index + 1L
-                        crw_map[crw_index, ] = c(index, d)
+    ie = e2
+    ie[rep(is.na(vals[dest]), each = dir)] = NA
+    slot_x[h + 1L, ] = rep(1 - fid[dest], each = dir)
+    slot_i[h + 1L, ] = ie
 
-                        rs = 0
-
-                        row_indices[] = NA
-
-                        # Von Mises weights are exp(kappa * cos(turn)) up to a constant that cancels when the row is
-                        # normalized by rs. Shifting by the smallest available turn makes the largest weight exactly
-                        # 1, so rows can't underflow to 0/0 when straight ahead is unavailable (e.g., at the edge of
-                        # the map), and very large kappa converges to the smallest available turn.
-                        valid_dv = nb_dirs[!is.na(tr[p2 + nb_dirs])]
-                        cos_max = if (length(valid_dv)) max(cos_mat[d, valid_dv]) else 1
-
-                        # loop through valid secondary edges
-                        for (dv in dir_vec) {
-                            if (dv) {
-                                e2 = p2 + dv
-
-                                if (!is.na(tr[e2])) {
-                                    e2_num = edge_nums[e2]
-                                    mat_p_count[e2_num] = mat_p_count[e2_num] + 1L
-
-                                    temp = exp(kappa_vals[c] * (cos_mat[d, dv] - cos_max))
-
-                                    res = tr[e2] * temp
-
-                                    rs = rs + res
-
-                                    row_indices[dv] = mat_p[e2_num] + mat_p_count[e2_num]
-                                    mat_x[mat_p[e2_num] + mat_p_count[e2_num]] = -res * vals[c]
-                                    mat_i[mat_p[e2_num] + mat_p_count[e2_num]] = e1_num - 1L
-                                }
-                            } else {
-                                mat_p_count[e1_num] = mat_p_count[e1_num] + 1L
-
-                                fid_index = mat_p[e1_num] + mat_p_count[e1_num]
-                                mat_x[fid_index] = 1 - fid[c]
-                                mat_i[fid_index] = e1_num - 1L
-                            }
-                        }
-                        ri = row_indices[!is.na(row_indices)]
-                        mat_x[ri] = mat_x[ri] / rs
-                    }
-                }
-            }
-        }
+    # On a global raster the W/E neighbors of the first/last column are on the other side of the map, out of edge
+    # order
+    if (wrap) {
+        wcell = which(dcol == 1L | dcol == ncols)
+        wc = rep((wcell - 1L) * dir, each = dir) + seq_len(dir)
+        s = .sort_slots(slot_x[, wc, drop = FALSE], slot_i[, wc, drop = FALSE])
+        slot_x[, wc] = s$x
+        slot_i[, wc] = s$i
+        rm(s)
     }
 
-    mat = .csc(mat_p, mat_i, mat_x, edge_counts)
+    keep = !is.na(slot_i)
+    p = as.integer(colSums(keep))[!is.na(e2)]
+    x = slot_x[keep]
+    rm(slot_x)
+    i = slot_i[keep] - 1L
 
-    dim(tr) = c(dir, length(tr) / dir)
-    tr = scale(tr, FALSE, colSums(tr, na.rm = TRUE))
-    attr(tr, "scaled:scale") = NULL
-
-    return(
-        list(tr = mat,
-            crw = crw_map,
-            prob = tr,
-            abs = terra::values(absorption)[cell_nums[crw_map[, 1]]])
-    )
+    list(p = p, i = i, x = x)
 }
 
 
