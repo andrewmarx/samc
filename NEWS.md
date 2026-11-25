@@ -13,6 +13,8 @@
 ## Other changes
 
 - Calculating transition values for the built-in transition functions is faster when creating RW, SSF, and CRW `samc()` objects. As part of this change, custom transition functions are now called in a different order (by direction, then by cell, instead of by cell, then by direction). Results are unchanged unless the function has side effects; for example, a function that uses random numbers will give different results than previous versions for the same seed.
+- Creating RW, SSF, and CRW `samc()` objects from rasters is substantially faster and uses less memory, especially for large rasters. The transition matrix is now built in strips of raster rows instead of cell by cell. Results are unchanged.
+- For CRW models, a transition value is now treated as a connection between cells only if it is finite. Previously, infinite values were handled inconsistently.
 
 # samc 4.2.1
 
