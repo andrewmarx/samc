@@ -185,6 +185,8 @@
     rm(valid)
     if (nnz > .Machine$integer.max) stop("Too many non-zero entries for a dgCMatrix", call. = FALSE)
 
+    invisible(gc(full = FALSE)) # drop the scan garbage before the large allocations
+
     mat_x = numeric(nnz)
     mat_i = integer(nnz)
     mat_p = integer(nstates + 1L)
@@ -219,6 +221,8 @@
         pos = pos + m
         col_pos = col_pos + ns
         rm(blk)
+
+        invisible(gc(full = FALSE))
     }
 
     # Only a custom transition function with values towards NA cells can leave unused slots (see the count above)
@@ -453,6 +457,8 @@
         pos = pos + m
         col_pos = col_pos + ns
         rm(blk)
+
+        invisible(gc(full = FALSE)) # see .rw()
     }
 
     if (pos != nnz || col_pos != nedges) {
