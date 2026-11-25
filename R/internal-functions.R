@@ -693,8 +693,6 @@
 #' @noRd
 .build_lookup_mat = function(rast, dir) {
 
-    # TODO Create tests to directly validate results for both directions options for planar and latlon
-
     lonlat = terra::is.lonlat(rast)
     nrows = terra::nrow(rast)
     ncols = terra::ncol(rast)
