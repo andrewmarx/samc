@@ -146,3 +146,11 @@ for (dir in c(4, 8)) {
     })
   }
 }
+
+test_that("CRW long-term dispersal() without dest is disabled", {
+  samc_obj = suppressWarnings(samc(crw_disp_r, crw_abs, crw_disp_fid,
+    model = list(name = "CRW", fun = "1/mean(x)", dir = 4, sym = TRUE, dist = "vonMises", kappa = 2)))
+
+  expect_error(dispersal(samc_obj, origin = 7), "not currently supported for CRW")
+  expect_error(dispersal(samc_obj, init = rep(1, nrow(samc_obj@crw_map))), "not currently supported for CRW")
+})

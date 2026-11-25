@@ -10,6 +10,7 @@
 - CRW models with `dir = 4` and `kappa > 0` used the wrong turning angles.
 - CRW models with large `kappa` (~500 and up) produced NaN transition probabilities at the edges of the map, which caused metrics to fail, and `kappa >= 100000` failed with an error. Turning probabilities are now computed in a numerically stable way for any finite `kappa`.
 - For CRW models with `kappa > 0`, `dispersal(samc, dest)`, `dispersal(samc, origin, dest)`, and `dispersal(samc, init, dest)` returned approximate results off by up to ~1% relative. They now return exact probabilities. For `dispersal(samc, init, dest)`, the heading in `init` is now taken into account.
+- For CRW models, `dispersal(samc, origin)` and `dispersal(samc, init)` returned incorrect results, off by up to ~0.15 even for `kappa = 0`. They now give an error until an exact method is implemented. Use the `dest` forms instead.
 
 ## Other changes
 

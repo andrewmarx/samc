@@ -327,6 +327,7 @@ setMethod(
     signature(samc = "samc", init = "ANY", origin = "missing", dest = "missing", time = "missing"),
     function(samc, init) {
         .disable_conv(samc)
+        .disable_crw(samc)
 
         if (!samc@.cache$dgf_exists) {
             if (samc@solver == "iter") {
@@ -343,11 +344,6 @@ setMethod(
 
         dg = samc@.cache$dgf
         init = .process_init(samc, init)
-
-        if (.is_crw(samc)) {
-            dg = .summarize_crw(samc, dg, sum) - .summarize_crw(samc, dg, length) + 1
-            init = .summarize_crw(samc, init, sum)
-        }
 
         return((vis - init) / dg)
     })
