@@ -278,11 +278,18 @@ setMethod(
 
         dest = .process_locations(samc, dest)
 
-        f_col = visitation(samc, dest = dest)
-        fjj = f_col[dest]
-        f_col[dest] = f_col[dest] - 1
+        if (.is_crw(samc)) {
+            pv = samc@prob_mat
+            pv = pv[!is.na(pv)]
 
-        result = as.vector(f_col / fjj)
+            result = .summarize_crw(samc, pv * .dispersal_dest_crw(samc, dest), sum)
+        } else {
+            f_col = visitation(samc, dest = dest)
+            fjj = f_col[dest]
+            f_col[dest] = f_col[dest] - 1
+
+            result = as.vector(f_col / fjj)
+        }
         names(result) = samc$names
 
         return(result)
@@ -356,11 +363,53 @@ setMethod(
 
         pv = .process_init(samc, init)
 
-        dj = dispersal(samc, dest = dest)
-
         if (.is_crw(samc)) {
-            pv = .summarize_crw(samc, pv, sum)
+            # init is per state, so use the per-state probabilities
+            dest = .process_locations(samc, dest)
+            return(as.numeric(pv %*% .dispersal_dest_crw(samc, dest)))
         }
+
+        dj = dispersal(samc, dest = dest)
 
         return(as.numeric(pv %*% dj))
     })
+
+
+#' Long-term dispersal to a single dest cell for CRW models
+#'
+#' For each state, the probability of ever reaching the dest cell. With `S`
+#' the states of the dest cell, this is \eqn{F_{\cdot S} F_{SS}^{-1} \mathbf{1}}.
+#' For the states in `S`, it is the probability of returning to the cell.
+#'
+#' @param samc A samc-class object with a CRW model
+#' @param dest A single dest cell, already processed
+#'
+#' @return A vector with one value per state (row of `samc@crw_map`)
+#' @noRd
+.dispersal_dest_crw = function(samc, dest) {
+    if (is.matrix(dest) || length(dest) != 1)
+        stop("dest can only contain a single location for this version of the function", call. = FALSE)
+
+    n = nrow(samc@crw_map)
+    S = which(samc@crw_map[, 1] == dest)
+
+    # Columns S of the fundamental matrix
+    f_cols = vapply(S, function(s) {
+        vec = numeric(n)
+        vec[s] = 1
+
+        if (samc@solver == "iter") {
+            .f_col_iter(samc@data@f, vec)
+        } else {
+            .f_col(samc@data@f, vec, samc@.cache$sc)
+        }
+    }, numeric(n))
+
+    # Probability of ever entering S from each state. It is 1 for the states in S
+    h = as.vector(f_cols %*% solve(f_cols[S, , drop = FALSE], rep(1, length(S))))
+
+    # Return probability for the states in S: (Q h)[S], with samc@data@f = I - Q
+    h[S] = 1 - as.vector(samc@data@f[S, , drop = FALSE] %*% h)
+
+    h
+}

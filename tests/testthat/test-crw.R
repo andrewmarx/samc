@@ -91,3 +91,58 @@ test_that("CRW with large kappa builds a valid P matrix", {
     }
   }
 })
+
+# Long-term dispersal to a dest cell. The reference makes all states of the dest
+# cell absorbing and solves for the probability of ever entering them. For the
+# dest cell itself the value is the probability of returning to it.
+crw_disp_r = terra::rast(matrix(c(3, 7, 1, 9, 4, 2, 8, 5, 6, 1, 4, 9, 2, 7, 3, 5, 1, 6, 8, 2, 9, 3, 7, 4, 6), 5, 5),
+                         crs = "local")
+crw_disp_fid = terra::rast(matrix(0.1, 5, 5), crs = "local")
+
+# Per state (row of crw_map)
+crw_disp_ref_states = function(samc_obj, dest) {
+  q = as.matrix(samc_obj$q_matrix)
+  S = samc_obj@crw_map[, 1] == dest
+
+  h = numeric(nrow(q))
+  h[!S] = solve(diag(sum(!S)) - q[!S, !S], rowSums(q[!S, S, drop = FALSE]))
+  h[S] = rowSums(q[S, S, drop = FALSE]) + q[S, !S] %*% h[!S]
+  h
+}
+
+# Per cell, for a walker whose heading in each cell follows samc_obj@prob_mat
+crw_disp_ref = function(samc_obj, dest) {
+  pv = samc_obj@prob_mat
+  pv = pv[!is.na(pv)]
+
+  as.vector(tapply(pv * crw_disp_ref_states(samc_obj, dest), samc_obj@crw_map[, 1], sum))
+}
+
+for (dir in c(4, 8)) {
+  for (kappa in c(0, 2, 10)) {
+    test_that(paste0("CRW long-term dispersal(samc, dest) is exact (dir = ", dir, ", kappa = ", kappa, ")"), {
+      samc_obj = suppressWarnings(samc(crw_disp_r, crw_abs, crw_disp_fid,
+        model = list(name = "CRW", fun = "1/mean(x)", dir = dir, sym = TRUE, dist = "vonMises", kappa = kappa)))
+
+      for (dest in c(1, 8, 13)) {
+        ref = crw_disp_ref(samc_obj, dest)
+
+        expect_equal(as.vector(dispersal(samc_obj, dest = dest)), ref, tolerance = 1e-10)
+
+        # Off the dest cell, the long-term result is the limit of the time-step result
+        expect_equal(dispersal(samc_obj, dest = dest, time = 20000)[-dest], ref[-dest], tolerance = 1e-10)
+
+        expect_equal(dispersal(samc_obj, origin = 7, dest = dest), ref[7], tolerance = 1e-10)
+      }
+
+      # init is per state, with a heading mix that differs from prob_mat
+      set.seed(1)
+      init = runif(nrow(samc_obj@crw_map))
+      expect_equal(dispersal(samc_obj, init = init, dest = 13), sum(init * crw_disp_ref_states(samc_obj, 13)),
+                   tolerance = 1e-10)
+
+      samc_obj$solver = "iter"
+      expect_equal(as.vector(dispersal(samc_obj, dest = 13)), crw_disp_ref(samc_obj, 13), tolerance = 1e-6)
+    })
+  }
+}
