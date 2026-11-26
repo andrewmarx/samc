@@ -36,8 +36,8 @@ NULL
 #' the values for the transition matrix. \code{fun} must be a mathematical function
 #' taking a single vector \code{x} as input. \code{x[1]} contains the value for node \emph{i} and
 #' \code{x[2]} contains the value for node \emph{j} from the \code{data} input to \code{samc()}.
-#' \code{dir} determines which neighboring nodes are used andmust be either \code{4} or \code{8}.
-#' \code{symmetric} is an optimization to reduce redundant work for when \code{fun} is communative.
+#' \code{dir} determines which neighboring nodes are used and must be either \code{4} or \code{8}.
+#' \code{sym} is an optimization to reduce redundant work for when \code{fun} is commutative.
 #' It must be either \code{TRUE} or \code{FALSE}.
 #'
 #' Special cases for \code{fun} exist to significantly speed up creation of the samc model.
@@ -102,7 +102,7 @@ NULL
 #' See the samc-class reference for details.
 #'
 #' \code{precision} controls the numerical precision of calculations. It can either be
-#' \code{"double"} (~15 digits precision; the default) or \code{"double"} (~7 digits of
+#' \code{"double"} (~15 digits precision; the default) or \code{"single"} (~7 digits of
 #' precision). Choosing the lower precision level can lead to significant speed
 #' improvements, and reduces the memory requirements by approximately half. It
 #' currently only applies to the \code{"conv"} method.
