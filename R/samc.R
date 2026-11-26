@@ -386,6 +386,8 @@ setMethod(
     function(data, options = NULL) {
         options = .validate_options(options)
 
+        if (options$method == "conv") stop("The conv method is not supported for samc objects created from a P matrix", call. = FALSE)
+
         r = nrow(data)
         c = ncol(data)
 
