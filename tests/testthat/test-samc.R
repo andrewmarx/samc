@@ -93,3 +93,68 @@ test_that("lonlat warnings still fire for the convolution and CRW paths", {
                                                                   dist = "vonMises", kappa = 1)))
   expect_true(any(grepl("CRW does not properly adjust turning angles for lonlat", crw_warnings)))
 })
+
+test_that("disconnected regions give a warning and connected inputs do not", {
+
+  rw_model = list(fun = "1/mean(x)", dir = 8, sym = TRUE)
+
+  res = matrix(1, 5, 5)
+  abs = matrix(0.01, 5, 5)
+  expect_no_warning(samc(res, abs, model = rw_model))
+
+  # A column of NA cells splits the map into two regions
+  res[, 3] = NA
+  abs[, 3] = NA
+  expect_warning(samc(res, abs, model = rw_model),
+                 "Input contains disconnected regions")
+})
+
+test_that("P matrix construction gives a message and prints nothing", {
+
+  p = matrix(c(0, 0.5, 0,
+               0.5, 0, 0,
+               0.5, 0.5, 1), 3, 3)
+
+  expect_message(samc(p), "Some checks for manually created P matrices are still missing")
+  expect_output(suppressMessages(samc(p)), NA)
+})
+
+test_that("P matrix construction rejects the conv method", {
+
+  p = matrix(c(0, 0.5, 0,
+               0.5, 0, 0,
+               0.5, 0.5, 1), 3, 3)
+  p_sparse = methods::as(methods::as(Matrix::Matrix(p, sparse = TRUE), "CsparseMatrix"), "generalMatrix")
+
+  expect_error(samc(p, options = list(method = "conv")),
+               "conv method is not supported for samc objects created from a P matrix")
+  expect_error(samc(p_sparse, options = list(method = "conv")),
+               "conv method is not supported for samc objects created from a P matrix")
+})
+
+test_that("non-square cells only give a warning when there is no CRS", {
+
+  rw_model = list(fun = "1/mean(x)", dir = 8, sym = TRUE)
+  res = matrix(seq(1, 2, length.out = 100), 10, 10)
+  abs = matrix(0.01, 10, 10)
+  ext = terra::ext(0, 20, 0, 10)
+
+  res_crs = terra::rast(res, extent = ext, crs = "EPSG:32617")
+  abs_crs = terra::rast(abs, extent = ext, crs = "EPSG:32617")
+  expect_no_warning(samc(res_crs, abs_crs, model = rw_model))
+
+  res_nocrs = terra::rast(res, extent = ext, crs = "")
+  abs_nocrs = terra::rast(abs, extent = ext, crs = "")
+  expect_warning(samc(res_nocrs, abs_nocrs, model = rw_model),
+                 "Raster cells are not square")
+})
+
+test_that("negative data values give an error", {
+
+  res = matrix(1, 5, 5)
+  res[2, 2] = -1
+  abs = matrix(0.01, 5, 5)
+
+  expect_error(samc(res, abs, model = list(fun = "1/mean(x)", dir = 8, sym = TRUE)),
+               "The data must not have negative values")
+})
