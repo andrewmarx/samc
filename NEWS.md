@@ -11,12 +11,22 @@
 - CRW models with large `kappa` (~500 and up) produced NaN transition probabilities at the edges of the map, which caused metrics to fail, and `kappa >= 100000` failed with an error. Turning probabilities are now computed in a numerically stable way for any finite `kappa`.
 - For CRW models with `kappa > 0`, `dispersal(samc, dest)`, `dispersal(samc, origin, dest)`, and `dispersal(samc, init, dest)` returned approximate results off by up to ~1% relative. They now return exact probabilities. For `dispersal(samc, init, dest)`, the heading in `init` is now taken into account.
 - For CRW models, `dispersal(samc, origin)` and `dispersal(samc, init)` returned incorrect results, off by up to ~0.15 even for `kappa = 0`. They now give an error until an exact method is implemented. Use the `dest` forms instead.
+- `samc()` rejected `options = list(method = "iter")`, even though it is a documented method. It is now accepted.
+- An unknown name in the `options` list was reported with the wrong name (for example, `list(foo = 1)` gave "Invalid option names: method"). The message now lists the names that are not valid, and unnamed elements give an error.
+- An invalid `precision` option was reported as an invalid `method`.
+- The warning about non-square raster cells with no defined projection was given for every SpatRaster with non-square cells, including those with a CRS. It is now only given when the raster has no CRS.
+- `samc()` accepted `method = "conv"` for P matrix inputs and returned an object that could not be used. This is now an error.
+- `samc()` accepted `NA` or vectors of length greater than one for the `sym` model argument and the `override` option. Both must now be a single `TRUE` or `FALSE`.
+- `precision = "single"` is now rejected for the `"iter"` method as well as `"direct"`; it is only supported by `"conv"`.
 
 ## Other changes
 
 - Calculating transition values for the built-in transition functions is faster when creating RW, SSF, and CRW `samc()` objects. As part of this change, custom transition functions are now called in a different order (by direction, then by cell, instead of by cell, then by direction). Results are unchanged unless the function has side effects; for example, a function that uses random numbers will give different results than previous versions for the same seed.
 - Creating RW, SSF, and CRW `samc()` objects from rasters is substantially faster and uses less memory, especially for large rasters. The transition matrix is now built in strips of raster rows instead of cell by cell. Results are unchanged.
 - For CRW models, a transition value is now treated as a connection between cells only if it is finite. Previously, infinite values were handled inconsistently.
+- The notice about disconnected regions in the input to `samc()` is now a `warning()`, and the notice shown when creating a `samc()` object from a P matrix is now a `message()`. Both were previously printed to the console and could not be suppressed or caught.
+- The error for negative values in the `data` input to `samc()` now says that negative values are not allowed. It previously said values `<= 0` were not allowed, but zero has always been accepted.
+- Corrected the `samc()` documentation for the `sym` model argument (described as `symmetric`) and the `precision` option (the `"single"` value was listed as `"double"`).
 
 # samc 4.2.1
 
