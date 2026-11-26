@@ -171,7 +171,7 @@ setMethod(
 
         data_minmax = terra::minmax(data)
         if (data_minmax["min", 1] < 0) {
-            stop("The data must not have values <= 0", call. = FALSE)
+            stop("The data must not have negative values", call. = FALSE)
         }
 
         fid_minmax = terra::minmax(fidelity)
@@ -220,7 +220,7 @@ setMethod(
         samc_obj@clumps = sum(!is.na(terra::unique(cl)[, 1]))
 
         if (samc_obj@clumps > 1) {
-            print("Warning: Input contains disconnected regions. This does not work with the cond_passage() metric.")
+            warning("Input contains disconnected regions. This does not work with the cond_passage() metric.", call. = FALSE)
 
             temp_abs = absorption[[1]]
             temp_abs[temp_abs > 0] = 1
@@ -415,9 +415,11 @@ setMethod(
         q_mat@x = -q_mat@x
         Matrix::diag(q_mat) = Matrix::diag(q_mat) + 1
 
-        print("Warning: Some checks for manually created P matrices are still missing:")
-        print("1) Discontinuous data will not work with the cond_passage() function.")
-        print("2) Every disconnected region of the graph must have at least one non-zero absorption value.")
+        message(
+            "Some checks for manually created P matrices are still missing:\n",
+            "1) Discontinuous data will not work with the cond_passage() function.\n",
+            "2) Every disconnected region of the graph must have at least one non-zero absorption value."
+        )
         # TODO The clumps value is a placeholder and needs to be calculated as a safety check for the cond_passage() function
         samc_obj = methods::new("samc",
                                 data = methods::new("samc_data", f = q_mat, t_abs = abs_total),
