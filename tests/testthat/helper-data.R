@@ -94,10 +94,11 @@ for(i in seq_along(masklist)) {
 
   testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
 
-  testlist[[i]]$samc <- samc(testlist[[i]]$res,
-                             testlist[[i]]$abs,
-                             testlist[[i]]$fid,
-                             model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE))
+  # Some of the masks have disconnected regions, which samc() warns about
+  testlist[[i]]$samc <- suppressWarnings(samc(testlist[[i]]$res,
+                                              testlist[[i]]$abs,
+                                              testlist[[i]]$fid,
+                                              model = list(fun = function(x) 1/mean(x), dir = 8, sym = TRUE)))
 
 
   testlist[[i]]$samc@names = as.character(seq_along(testlist[[i]]$samc@data@t_abs))
@@ -114,10 +115,10 @@ for(i in (n + 1):(n + length(masklist))) {
 
   testlist[[i]]$length <- sum(!is.na(testlist[[i]]$res))
 
-  testlist[[i]]$samc <- samc(testlist[[i]]$res,
-                             testlist[[i]]$abs,
-                             testlist[[i]]$fid,
-                             model = list(fun = function(x) 1/(mean(x) + x[1]), dir = 4, sym = FALSE))
+  testlist[[i]]$samc <- suppressWarnings(samc(testlist[[i]]$res,
+                                              testlist[[i]]$abs,
+                                              testlist[[i]]$fid,
+                                              model = list(fun = function(x) 1/(mean(x) + x[1]), dir = 4, sym = FALSE)))
 
   testlist[[i]]$samc@names = as.character(seq_along(testlist[[i]]$samc@data@t_abs))
 

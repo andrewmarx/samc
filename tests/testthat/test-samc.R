@@ -33,7 +33,8 @@ test_that("samc objects built from P matrices do not share a cache", {
     methods::as(methods::as(Matrix::Matrix(p, sparse = TRUE), "CsparseMatrix"), "generalMatrix")
   }
 
-  invisible(utils::capture.output(samc_a <- samc(make_p(0.5)), samc_b <- samc(make_p(0.9))))
+  samc_a = suppressMessages(samc(make_p(0.5)))
+  samc_b = suppressMessages(samc(make_p(0.9)))
 
   expect_false(identical(samc_a@.cache, samc_b@.cache))
 
