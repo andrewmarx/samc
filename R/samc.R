@@ -281,8 +281,7 @@ setMethod(
         }
 
 
-        # TODO Update to terra
-        if (is.na(raster::projection(data)) && raster::xres(data) != raster::yres(data)) {
+        if (terra::crs(data) == "" && terra::xres(data) != terra::yres(data)) {
             warning("Raster cells are not square (number of columns/rows is not propotional to the spatial extents). There is no defined projection to account for this, so the geocorrection may lead to distortion if the intent was for the raster cells to represent a uniformly spaced grid.", call. = FALSE)
         }
 
