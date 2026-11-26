@@ -15,6 +15,28 @@
 }
 
 
+#' Is single string
+#'
+#' Validates that a variable is a single non-NA character string
+#'
+#' @param x anything
+#' @noRd
+.is_single_string = function(x) {
+    is.character(x) && length(x) == 1 && !is.na(x)
+}
+
+
+#' Is single logical
+#'
+#' Validates that a variable is a single non-NA logical
+#'
+#' @param x anything
+#' @noRd
+.is_single_logical = function(x) {
+    is.logical(x) && length(x) == 1 && !is.na(x)
+}
+
+
 #' Validate model
 #'
 #' Validates the model for the samc() function
@@ -65,7 +87,7 @@
         stop("'fun' must be a supported named function or a user defined function")
     } else if (!(x$dir %in% c(4, 8))) {
         stop("`dir` must be set to either 4 or 8", call. = FALSE)
-    } else if (!is(x$sym, "logical")) {
+    } else if (!.is_single_logical(x$sym)) {
         stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
     }
 
@@ -272,20 +294,28 @@
         stop("options argument must be a list or left empty for default values", call. = FALSE)
     }
 
-    inv_names = opt_names[!(names(x) %in% opt_names)]
+    x_names = names(x)
+    if (any(is.na(x_names) | x_names == "")) {
+        stop("options: all elements must be named", call. = FALSE)
+    }
+
+    inv_names = x_names[!(x_names %in% opt_names)]
     if (length(inv_names) > 0) {
         stop(paste("Invalid option names:", paste(inv_names, collapse = " ")), call. = FALSE)
     }
 
-    # TODO test thoroughly
-    if (!(x$method %in% c("direct", "conv"))) stop("options: method must be 'direct' or 'conv'", call. = FALSE)
+    if (!(.is_single_string(x$method) && x$method %in% c("direct", "iter", "conv"))) {
+        stop("options: method must be 'direct', 'iter', or 'conv'", call. = FALSE)
+    }
     if (!.is_single_positive_integer(x$threads)) stop("options: threads must be a single positive integer", call. = FALSE)
-    if (!is.logical(x$override)) stop("options: override must be TRUE or FALSE", call. = FALSE)
-    if (!(x$precision %in% c("single", "double"))) stop("options: method must be 'single' or 'double'", call. = FALSE)
+    if (!.is_single_logical(x$override)) stop("options: override must be TRUE or FALSE", call. = FALSE)
+    if (!(.is_single_string(x$precision) && x$precision %in% c("single", "double"))) {
+        stop("options: precision must be 'single' or 'double'", call. = FALSE)
+    }
 
-    # TODO remove if single support for direct solver implemented
-    if (x$method == "direct" && x$precision == "single") {
-        stop("method: 'direct' only supports precision: 'double'", call. = FALSE)
+    # Single precision is only implemented for the convolution method
+    if (x$precision == "single" && x$method != "conv") {
+        stop(paste0("method: '", x$method, "' only supports precision: 'double'"), call. = FALSE)
     }
 
     x
