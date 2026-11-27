@@ -160,9 +160,9 @@
     strips = .strips(nrows, block_cells %/% ncols)
 
     # State numbers (1-based in cell order, 0 for NA cells), and the number of non-zeros: a diagonal entry per state
-    # plus an entry per transition value out of a state. The count is exact for the built-in transition functions,
-    # whose values are NA wherever the destination is NA or off the map. A blocked scan rather than terra::cells(),
-    # which reads the whole raster at once.
+    # plus an entry per transition value out of a state. The count is exact, since transition values are NA wherever
+    # the destination is NA or off the map (see .tr_vals()). A blocked scan rather than terra::cells(), which reads the
+    # whole raster at once.
     state = integer(nrows * ncols)
     nstates = 0L
     nnz = 0
@@ -225,7 +225,6 @@
         invisible(gc(full = FALSE))
     }
 
-    # Only a custom transition function with values towards NA cells can leave unused slots (see the count above)
     if (pos < nnz) {
         length(mat_x) = pos
         length(mat_i) = pos
@@ -611,6 +610,9 @@
 #' distance between cells. For SSF models it is multiplied by the distance
 #' raised to the power `ssc`.
 #'
+#' The value of an edge from or to an NA cell, or to an off-map neighbor, is NA
+#' for every function.
+#'
 #' @param data A SpatRaster
 #' @param fun A function, or the name of a built-in function: `"1/mean(x)"`
 #' (RW/CRW) or `"x[2]"` (SSF)
@@ -669,7 +671,11 @@
                     # A plain loop rather than vapply(), which would add a second function call per pair
                     v = numeric(length(from))
                     for (k in seq_along(from)) v[k] = fun(c(from[k], to[k]))
-                    if (ssf) v * step else v / step
+                    v = if (ssf) v * step else v / step
+
+                    # No transition from or to an NA cell, or off the map
+                    v[is.na(from) | is.na(to)] = NA
+                    v
                 })
         }
     }

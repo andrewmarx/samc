@@ -38,7 +38,8 @@ NULL
 #' \code{x[2]} contains the value for node \emph{j} from the \code{data} input to \code{samc()}.
 #' \code{dir} determines which neighboring nodes are used and must be either \code{4} or \code{8}.
 #' \code{sym} is an optimization to reduce redundant work for when \code{fun} is commutative.
-#' It must be either \code{TRUE} or \code{FALSE}.
+#' It must be either \code{TRUE} or \code{FALSE}. The transition value of an edge from or to an
+#' \code{NA} cell, or to a cell outside the map, is always \code{NA}, whatever \code{fun} returns.
 #'
 #' Special cases for \code{fun} exist to significantly speed up creation of the samc model.
 #' They are selected using specific strings as the value for \code{fun}. Currently,

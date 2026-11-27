@@ -18,6 +18,7 @@
 - `samc()` accepted `method = "conv"` for P matrix inputs and returned an object that could not be used. This is now an error.
 - `samc()` accepted `NA` or vectors of length greater than one for the `sym` model argument and the `override` option. Both must now be a single `TRUE` or `FALSE`.
 - `precision = "single"` is now rejected for the `"iter"` method as well as `"direct"`; it is only supported by `"conv"`.
+- A user defined transition function that returned a value for an edge from or to an `NA` cell, or to a cell outside the map (for example `function(x) 1`), gave that edge a transition value. For RW and SSF models this reduced the movement probabilities of the cells next to `NA` cells and the edges of the map, and for CRW models it added states with no transitions. The transition value of these edges is now always `NA`. Does not change behavior of named functions.
 
 ## Other changes
 
