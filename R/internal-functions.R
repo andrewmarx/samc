@@ -640,7 +640,7 @@
     ncols = terra::ncol(data)
 
     dist = .build_lookup_mat(data, dir)
-    if (ssf) dist = dist^(ssc)
+    dist_mult = if (ssf) dist^(ssc) else dist
 
     # focalValues() columns of the neighbors, in direction order
     nb_cols = if (dir == 4) c(2, 4, 6, 8) else c(1:4, 6:9)
@@ -662,7 +662,7 @@
 
         for (j in seq_len(dir)) {
             to = vals[, nb_cols[j]]
-            step = dist[cell_rows, nb_cols[j]]
+            step = dist_mult[cell_rows, nb_cols[j]]
 
             result[j, cells] = switch(mode,
                 rw = 2 / ((from + to) * step),
