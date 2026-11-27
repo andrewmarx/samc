@@ -127,13 +127,8 @@
 
     .validate_model_common(x, args, methods, method)
 
-    if (method == "conv") {
-        if (!is(x$fun, "character")) {
-            stop("Convolution currently only supports the '1/mean(x)' named function.", call. = FALSE)
-        } else if (x$fun != "1/mean(x)") {
-            stop("Convolution currently only supports the '1/mean(x)' named function.", call. = FALSE)
-        }
-    }
+    if (method == "conv" && !identical(x$fun, "1/mean(x)"))
+        stop("Convolution currently only supports the '1/mean(x)' named function.", call. = FALSE)
 }
 
 

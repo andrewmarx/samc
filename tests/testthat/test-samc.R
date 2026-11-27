@@ -208,3 +208,14 @@ test_that("missing, unknown, duplicate, and unnamed model arguments are listed i
   expect_error(samc(res, abs, model = list("1/mean(x)", 8, TRUE)), "model: all elements must be named")
   expect_error(samc(res, abs, model = list(fun = "1/mean(x)", 8, sym = TRUE)), "model: all elements must be named")
 })
+
+test_that("the conv method only accepts the 1/mean(x) named function", {
+  res = testlist[[1]]$res
+  abs = testlist[[1]]$abs
+  msg = "Convolution currently only supports the '1/mean\\(x\\)' named function"
+  conv = list(method = "conv")
+
+  expect_error(samc(res, abs, model = list(fun = function(x) 1 / mean(x), dir = 8, sym = TRUE), options = conv), msg)
+  expect_error(samc(res, abs, model = list(fun = "x[2]", dir = 8, sym = TRUE), options = conv), msg)
+  expect_no_error(suppressWarnings(samc(res, abs, model = list(fun = "1/mean(x)", dir = 8, sym = TRUE), options = conv)))
+})
