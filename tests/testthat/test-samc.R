@@ -158,3 +158,29 @@ test_that("negative data values give an error", {
   expect_error(samc(res, abs, model = list(fun = "1/mean(x)", dir = 8, sym = TRUE)),
                "The data must not have negative values")
 })
+
+test_that("an invalid dir gives an error naming the argument", {
+  res = testlist[[1]]$res
+  abs = testlist[[1]]$abs
+  msg = "`dir` must be set to either 4 or 8"
+
+  models = list(
+    function(dir) list(fun = "1/mean(x)", dir = dir, sym = TRUE),
+    function(dir) list(name = "CRW", fun = "1/mean(x)", dir = dir, sym = TRUE, dist = "vonMises", kappa = 1),
+    function(dir) list(name = "SSF", fun = "x[2]", dir = dir, sym = FALSE, ssc = 1)
+  )
+
+  for (model in models) {
+    expect_error(samc(res, abs, model = model(5)), msg)
+    expect_error(samc(res, abs, model = model(0)), msg)
+    expect_error(samc(res, abs, model = model(c(4, 8))), msg)
+    expect_error(samc(res, abs, model = model(NA)), msg)
+    expect_error(samc(res, abs, model = model(NA_real_)), msg)
+    expect_error(samc(res, abs, model = model("8")), msg)
+    expect_error(samc(res, abs, model = model(numeric(0))), msg)
+    expect_error(samc(res, abs, model = model(NULL)), msg)
+    expect_error(samc(res, abs, model = model(list(8))), msg)
+    expect_error(samc(res, abs, model = model(TRUE)), msg)
+    expect_error(samc(res, abs, model = model(matrix(8))), msg)
+  }
+})

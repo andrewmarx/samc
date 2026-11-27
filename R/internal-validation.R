@@ -37,6 +37,18 @@
 }
 
 
+#' Is valid dir
+#'
+#' Validates that a variable is a single number, without dimensions, equal to
+#' either 4 or 8
+#'
+#' @param x anything
+#' @noRd
+.is_valid_dir = function(x) {
+    is.numeric(x) && is.null(dim(x)) && length(x) == 1 && !is.na(x) && x %in% c(4, 8)
+}
+
+
 #' Validate model
 #'
 #' Validates the model for the samc() function
@@ -85,7 +97,7 @@
 
     if (!(is(x$fun, "function") || is(x$fun, "character"))) {
         stop("'fun' must be a supported named function or a user defined function")
-    } else if (!(x$dir %in% c(4, 8))) {
+    } else if (!.is_valid_dir(x$dir)) {
         stop("`dir` must be set to either 4 or 8", call. = FALSE)
     } else if (!.is_single_logical(x$sym)) {
         stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
