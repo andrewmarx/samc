@@ -88,23 +88,33 @@
 #'
 #' @param x A list
 #' @param args Character vector of allowed argument names
+#' @param funs Character vector of the named functions supported by the model
 #' @param methods Character vector of allowed methods
 #' @param method The method to validate against
 #' @noRd
-.validate_model_common = function(x, args, methods, method) {
+.validate_model_common = function(x, args, funs, methods, method) {
     names = names(x)
 
     missing_args = args[!(args %in% names)]
     if (length(missing_args) > 0)
         stop(paste("Missing argument in model:", paste(missing_args, collapse = ", ")), call. = FALSE)
 
-    if (!(is(x$fun, "function") || is(x$fun, "character"))) {
-        stop("'fun' must be a supported named function or a user defined function")
-    } else if (!.is_valid_dir(x$dir)) {
-        stop("`dir` must be set to either 4 or 8", call. = FALSE)
-    } else if (!.is_single_logical(x$sym)) {
-        stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
+    if (!is.function(x$fun)) {
+        if (!.is_single_string(x$fun))
+            stop("`fun` must be a function or the name of a supported named function", call. = FALSE)
+
+        if (!(x$fun %in% funs)) {
+            supported = paste0("\"", funs, "\"", collapse = ", ")
+            stop(paste0("`fun` = \"", x$fun, "\" is not a named function supported by the ", x$name,
+                        " model. Supported names: ", supported), call. = FALSE)
+        }
     }
+
+    if (!.is_valid_dir(x$dir))
+        stop("`dir` must be set to either 4 or 8", call. = FALSE)
+
+    if (!.is_single_logical(x$sym))
+        stop("`sym` must be set to either TRUE or FALSE", call. = FALSE)
 
     if (!(method %in% methods))
         stop("Invalid method for model", call. = FALSE)
@@ -123,9 +133,10 @@
 #' @noRd
 .validate_rw = function(x, method) {
     args = c("name", "fun", "dir", "sym")
+    funs = c("1/mean(x)")
     methods = c("direct", "iter", "conv")
 
-    .validate_model_common(x, args, methods, method)
+    .validate_model_common(x, args, funs, methods, method)
 
     if (method == "conv" && !identical(x$fun, "1/mean(x)"))
         stop("Convolution currently only supports the '1/mean(x)' named function.", call. = FALSE)
@@ -140,9 +151,10 @@
 #' @noRd
 .validate_crw = function(x, method) {
     args = c("name", "fun", "dir", "sym", "dist", "kappa")
+    funs = c("1/mean(x)")
     methods = c("direct", "iter")
 
-    .validate_model_common(x, args, methods, method)
+    .validate_model_common(x, args, funs, methods, method)
 
     if (x$dist == "vonMises") {
         if (is(x$kappa, "SpatRaster")) {
@@ -185,9 +197,10 @@
 #' @noRd
 .validate_ssf = function(x, method) {
     args = c("name", "fun", "dir", "sym", "ssc")
+    funs = c("x[2]")
     methods = c("direct", "iter")
 
-    .validate_model_common(x, args, methods, method)
+    .validate_model_common(x, args, funs, methods, method)
 
     if (!is(x$ssc, "numeric"))
         stop("ssc must be single numeric value.", call. = FALSE)

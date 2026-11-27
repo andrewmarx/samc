@@ -24,6 +24,7 @@
 
 ## Other changes
 
+- An unsupported named `fun` in the `model` list (for example `"x[2]"`, which is only supported by SSF models, for an RW model) is now reported by `samc()` before any other processing, with a message naming `fun` and the supported names. A `fun` that is not a function or a single string now gives an error naming `fun`.
 - Calculating transition values for the built-in transition functions is faster when creating RW, SSF, and CRW `samc()` objects. As part of this change, custom transition functions are now called in a different order (by direction, then by cell, instead of by cell, then by direction). Results are unchanged unless the function has side effects; for example, a function that uses random numbers will give different results than previous versions for the same seed.
 - Creating RW, SSF, and CRW `samc()` objects from rasters is substantially faster and uses less memory, especially for large rasters. The transition matrix is now built in strips of raster rows instead of cell by cell. Results are unchanged.
 - For CRW models, a transition value is now treated as a connection between cells only if it is finite. Previously, infinite values were handled inconsistently.

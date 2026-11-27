@@ -216,6 +216,34 @@ test_that("the conv method only accepts the 1/mean(x) named function", {
   conv = list(method = "conv")
 
   expect_error(samc(res, abs, model = list(fun = function(x) 1 / mean(x), dir = 8, sym = TRUE), options = conv), msg)
-  expect_error(samc(res, abs, model = list(fun = "x[2]", dir = 8, sym = TRUE), options = conv), msg)
   expect_no_error(suppressWarnings(samc(res, abs, model = list(fun = "1/mean(x)", dir = 8, sym = TRUE), options = conv)))
+})
+
+test_that("an invalid fun gives an error naming the argument and the supported names", {
+  res = testlist[[1]]$res
+  abs = testlist[[1]]$abs
+
+  rw = function(fun) list(fun = fun, dir = 8, sym = TRUE)
+  crw = function(fun) list(name = "CRW", fun = fun, dir = 8, sym = TRUE, dist = "vonMises", kappa = 1)
+  ssf = function(fun) list(name = "SSF", fun = fun, dir = 8, sym = FALSE, ssc = 1)
+
+  expect_error(samc(res, abs, model = rw("x[2]")),
+               "`fun` = \"x\\[2\\]\" is not a named function supported by the RW model. Supported names: \"1/mean\\(x\\)\"$")
+  expect_error(samc(res, abs, model = crw("x[2]")),
+               "`fun` = \"x\\[2\\]\" is not a named function supported by the CRW model. Supported names: \"1/mean\\(x\\)\"$")
+  expect_error(samc(res, abs, model = ssf("1/mean(x)")),
+               "`fun` = \"1/mean\\(x\\)\" is not a named function supported by the SSF model. Supported names: \"x\\[2\\]\"$")
+  expect_error(samc(res, abs, model = rw("foo")), "`fun` = \"foo\" is not a named function supported by the RW model")
+
+  # Reported before the method check
+  expect_error(samc(res, abs, model = rw("x[2]"), options = list(method = "conv")), "is not a named function supported by the RW model")
+
+  msg = "`fun` must be a function or the name of a supported named function"
+  for (model in list(rw, crw, ssf)) {
+    expect_error(samc(res, abs, model = model(1)), msg)
+    expect_error(samc(res, abs, model = model(NULL)), msg)
+    expect_error(samc(res, abs, model = model(NA_character_)), msg)
+    expect_error(samc(res, abs, model = model(c("1/mean(x)", "x[2]"))), msg)
+    expect_error(samc(res, abs, model = model(list("1/mean(x)"))), msg)
+  }
 })
