@@ -184,3 +184,27 @@ test_that("an invalid dir gives an error naming the argument", {
     expect_error(samc(res, abs, model = model(matrix(8))), msg)
   }
 })
+
+test_that("missing, unknown, duplicate, and unnamed model arguments are listed in a single message", {
+  res = testlist[[1]]$res
+  abs = testlist[[1]]$abs
+
+  expect_error(samc(res, abs, model = list(dir = 8, sym = TRUE)), "Missing argument in model: fun$")
+  expect_error(samc(res, abs, model = list(sym = TRUE)), "Missing argument in model: fun, dir$")
+  expect_error(samc(res, abs, model = list(name = "SSF", fun = "x[2]")), "Missing argument in model: dir, sym, ssc$")
+  expect_error(samc(res, abs, model = list(name = "CRW", fun = "1/mean(x)", dir = 8, sym = TRUE)),
+               "Missing argument in model: dist, kappa$")
+
+  expect_error(samc(res, abs, model = list(fun = "1/mean(x)", dir = 8, sym = TRUE, foo = 1)),
+               "Unknown argument in model: foo$")
+  expect_error(samc(res, abs, model = list(foo = 1, fun = "1/mean(x)", dir = 8, sym = TRUE, bar = 2)),
+               "Unknown argument in model: foo, bar$")
+
+  expect_error(samc(res, abs, model = list(fun = "1/mean(x)", dir = 8, dir = 4, sym = TRUE)),
+               "Duplicate argument in model: dir$")
+  expect_error(samc(res, abs, model = list(fun = "1/mean(x)", dir = 8, dir = 4, dir = 4, sym = TRUE, sym = TRUE)),
+               "Duplicate argument in model: dir, sym$")
+
+  expect_error(samc(res, abs, model = list("1/mean(x)", 8, TRUE)), "model: all elements must be named")
+  expect_error(samc(res, abs, model = list(fun = "1/mean(x)", 8, sym = TRUE)), "model: all elements must be named")
+})

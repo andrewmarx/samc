@@ -58,9 +58,12 @@
 .validate_model = function(x, method) {
     names = names(x)
 
-    dup_args = names[duplicated(names)]
+    if (length(x) > 0 && (is.null(names) || any(is.na(names) | names == "")))
+        stop("model: all elements must be named", call. = FALSE)
+
+    dup_args = unique(names[duplicated(names)])
     if (length(dup_args) > 0)
-        stop(paste("Duplicate argument in model:", dup_args), call. = FALSE)
+        stop(paste("Duplicate argument in model:", paste(dup_args, collapse = ", ")), call. = FALSE)
 
     if (!("name" %in% names)) {
         x$name = "RW"
@@ -93,7 +96,7 @@
 
     missing_args = args[!(args %in% names)]
     if (length(missing_args) > 0)
-        stop(paste("Missing argument in model:", missing_args), call. = FALSE)
+        stop(paste("Missing argument in model:", paste(missing_args, collapse = ", ")), call. = FALSE)
 
     if (!(is(x$fun, "function") || is(x$fun, "character"))) {
         stop("'fun' must be a supported named function or a user defined function")
@@ -108,7 +111,7 @@
 
     unknown_args = names[!(names %in% args)]
     if (length(unknown_args) > 0)
-        stop(paste("Unknown argument in model:", unknown_args), call. = FALSE)
+        stop(paste("Unknown argument in model:", paste(unknown_args, collapse = ", ")), call. = FALSE)
 }
 
 
